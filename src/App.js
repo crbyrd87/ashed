@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
+import { searchCigarLines, getVitolas } from "./cigarAI";
 
 const CIGARS = [
   { id: 1, brand: "Arturo Fuente", line: "Opus X", vitola: "Robusto", wrapper: "Dominican", strength: "Full", rating: 97, origin: "Dominican Republic", price: 32, smoked: true, smokedDate: "Feb 28, 2026", userRating: 94, notes: "Incredible complexity, leather and cedar up front.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
@@ -34,9 +35,15 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [tab, setTab] = useState("search");
   const [query, setQuery] = useState("");
-  const [strengthFilter, setStrengthFilter] = useState("All");
   const [selected, setSelected] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedLine, setSelectedLine] = useState(null);
+  const [vitolas, setVitolas] = useState([]);
+  const [violasLoading, setViolasLoading] = useState(false);
+  const searchTimeout = useRef(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -54,16 +61,43 @@ export default function App() {
     setUser(null);
   };
 
+  const handleInputChange = (val) => {
+    setQuery(val);
+    setSelectedLine(null);
+    setVitolas([]);
+    setSearchResults([]);
+    if (val.length < 2) { setShowDropdown(false); return; }
+    setShowDropdown(true);
+    setSearching(true);
+    clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(async () => {
+      const results = await searchCigarLines(val, (partial) => {
+        // Update dropdown as soon as db results arrive
+        setSearchResults(partial);
+        setSearching(false);
+      });
+      // Final merged result (db + AI)
+      setSearchResults(results);
+      setSearching(false);
+    }, 350);
+  };
+
+  const handleLineSelect = async (line) => {
+    setShowDropdown(false);
+    setQuery(`${line.brand} — ${line.line}`);
+    setSelectedLine(line);
+    setVitolas([]);
+    setViolasLoading(true);
+    const results = await getVitolas(line.brand, line.line, (partial) => {
+      // Show db vitolas immediately while AI loads more
+      setVitolas(partial);
+    });
+    setVitolas(results);
+    setViolasLoading(false);
+  };
+
   const smoked = CIGARS.filter(c => c.smoked);
   const avgRating = Math.round(smoked.reduce((a, c) => a + c.userRating, 0) / smoked.length);
-
-  const filtered = CIGARS.filter(c => {
-    const q = query.toLowerCase();
-    const matchQ = !q || c.brand.toLowerCase().includes(q) || c.line.toLowerCase().includes(q) || c.vitola.toLowerCase().includes(q);
-    const matchS = strengthFilter === "All" || c.strength === strengthFilter;
-    return matchQ && matchS;
-  });
-
   const fallbackImg = () => `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80`;
   const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Profile";
   const username = user?.user_metadata?.username ? user.user_metadata.username.replace(/^@/, "") : null;
@@ -74,10 +108,12 @@ export default function App() {
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", zIndex: 100 },
     navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
-    input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
-    pill: a => ({ padding: "5px 14px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
+    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#4a3020"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
     logoutBtn: { background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS },
+    dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
+    dropdownItem: { padding: "12px 14px", cursor: "pointer", borderBottom: "1px solid #3a251033" },
+    vitolaCard: { background: "#2a1a0e", border: "1px solid #7a9a7a44", borderRadius: 10, marginBottom: 10, cursor: "pointer", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" },
   };
 
   if (authLoading) return (
@@ -93,7 +129,7 @@ export default function App() {
     return (
       <div style={{ ...s.app, overflowY: "auto" }}>
         <div style={{ position: "relative", height: 220 }}>
-          <img src={imgErrors[c.id] ? fallbackImg() : c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={imgErrors[c.id] ? fallbackImg() : c.img || fallbackImg()} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
           <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
           {c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
@@ -106,16 +142,21 @@ export default function App() {
             <Badge label={c.strength} color={strengthColor(c.strength)} />
             <Badge label={c.origin} color="#7a9a7a" />
           </div>
-          <ScoreBar rating={c.rating} />
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div>
+          {c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-            {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Price", `$${c.price}`]].map(([k, v]) => (
+               {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Origin", c.origin]].map(([k, v]) => (
               <div key={k} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
                 <div style={{ fontSize: 15, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
               </div>
             ))}
           </div>
+          {c.tasting_notes && (
+            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>TASTING NOTES</div>
+              <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6 }}>{c.tasting_notes}</div>
+            </div>
+          )}
           {c.smoked ? (
             <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: 16 }}>
               <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, marginBottom: 10 }}>YOUR REVIEW · {c.smokedDate}</div>
@@ -144,33 +185,86 @@ export default function App() {
 
       {tab === "search" && (
         <div style={{ padding: 16 }}>
-          <input style={s.input} placeholder="Search cigars, brands, vitolas..." value={query} onChange={e => setQuery(e.target.value)} />
-          <div style={{ display: "flex", gap: 8, margin: "12px 0", overflowX: "auto", paddingBottom: 4 }}>
-            {["All", "Light", "Medium", "Medium-Full", "Full"].map(f => (
-              <button key={f} style={s.pill(strengthFilter === f)} onClick={() => setStrengthFilter(f)}>{f}</button>
-            ))}
+          <div style={{ position: "relative" }}>
+            <input
+              style={s.input}
+              placeholder="Search cigars, brands, vitolas..."
+              value={query}
+              onChange={e => handleInputChange(e.target.value)}
+              onFocus={() => query.length >= 2 && searchResults.length > 0 && setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            />
+            {showDropdown && (
+              <div style={s.dropdown}>
+                {searching && searchResults.length === 0 && (
+                  <div style={{ padding: "12px 14px", fontSize: 12, color: "#7a9a7a" }}>Searching...</div>
+                )}
+                {!searching && searchResults.length === 0 && (
+                  <div style={{ padding: "12px 14px", fontSize: 12, color: "#5a4535" }}>No results found</div>
+                )}
+                {searchResults.map((c, i) => (
+                  <div key={i} style={s.dropdownItem} onMouseDown={() => handleLineSelect(c)}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#e8d5b7" }}>{c.line}</div>
+                    <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{c.brand}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1, marginBottom: 10 }}>{filtered.length} CIGARS</div>
-          {filtered.map(c => (
-            <div key={c.id} style={{ ...s.card, borderColor: c.smoked ? "#c9a84c33" : "#3a2510" }} onClick={() => setSelected(c)}>
-              <div style={{ display: "flex" }}>
-                <div style={{ width: 90, flexShrink: 0 }}>
-                  <img src={imgErrors[c.id] ? fallbackImg() : c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: 90, height: 90, objectFit: "cover" }} />
+
+          {selectedLine && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 4 }}>{selectedLine.brand.toUpperCase()}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>{selectedLine.line}</div>
+              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14 }}>Select a vitola to view details</div>
+              {violasLoading && vitolas.length === 0 && (
+                <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
+              )}
+              {vitolas.map((c, i) => (
+                <div key={i} style={s.vitolaCard} onClick={() => setSelected(c)}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{c.vitola}</div>
+                    <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>
+                      {c.length_inches ? `${c.length_inches}" × ${c.ring_gauge}` : ""}
+
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                    {c.strength && <Badge label={c.strength} color={strengthColor(c.strength)} />}
+                  </div>
                 </div>
-                <div style={{ flex: 1, padding: "10px 12px" }}>
-                  <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{c.brand.toUpperCase()}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{c.line}</div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Badge label={c.strength} color={strengthColor(c.strength)} />
-                    <div style={{ textAlign: "right" }}>
-                      <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{c.rating}</span>
-                      {c.smoked && <div style={{ fontSize: 9, color: "#c9a84c" }}>✓ SMOKED</div>}
+              ))}
+              {violasLoading && vitolas.length > 0 && (
+                <div style={{ fontSize: 11, color: "#7a9a7a", textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
+              )}
+            </div>
+          )}
+
+          {!selectedLine && !query && (
+            <>
+              <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1, margin: "16px 0 10px" }}>FEATURED CIGARS</div>
+              {CIGARS.map(c => (
+                <div key={c.id} style={{ ...s.card, borderColor: c.smoked ? "#c9a84c33" : "#3a2510" }} onClick={() => setSelected(c)}>
+                  <div style={{ display: "flex" }}>
+                    <div style={{ width: 90, flexShrink: 0 }}>
+                      <img src={imgErrors[c.id] ? fallbackImg() : c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: 90, height: 90, objectFit: "cover" }} />
+                    </div>
+                    <div style={{ flex: 1, padding: "10px 12px" }}>
+                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{c.brand.toUpperCase()}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{c.line}</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Badge label={c.strength} color={strengthColor(c.strength)} />
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{c.rating}</span>
+                          {c.smoked && <div style={{ fontSize: 9, color: "#c9a84c" }}>✓ SMOKED</div>}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
+            </>
+          )}
         </div>
       )}
 
