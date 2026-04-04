@@ -27,6 +27,7 @@ export default function Auth({ onLogin }) {
     toggleLink: { color: "#c9a84c", cursor: "pointer", fontWeight: 600 },
     error: { background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", marginBottom: 16 },
     success: { background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#a8c5a0", marginBottom: 16 },
+    forgotLink: { textAlign: "right", marginTop: -10, marginBottom: 16, fontSize: 12, color: "#c9a84c", cursor: "pointer" },
   };
 
   const handleLogin = async () => {
@@ -56,37 +57,97 @@ export default function Auth({ onLogin }) {
     setLoading(false);
   };
 
+  const handleForgotPassword = async () => {
+    setLoading(true);
+    setError(null);
+    if (!email) {
+      setError("Please enter your email address first.");
+      setLoading(false);
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if (error) setError(error.message);
+    else setMessage("Password reset email sent! Check your inbox.");
+    setLoading(false);
+  };
+
+  const switchMode = (newMode) => {
+    setMode(newMode);
+    setError(null);
+    setMessage(null);
+  };
+
   return (
     <div style={s.wrap}>
       <div style={s.logo}>🚬 Ashed</div>
       <div style={s.tagline}>YOUR CIGAR JOURNAL</div>
       <div style={s.card}>
-        <div style={s.title}>{mode === "login" ? "Welcome back" : "Create your account"}</div>
+        <div style={s.title}>
+          {mode === "login" && "Welcome back"}
+          {mode === "signup" && "Create your account"}
+          {mode === "forgot" && "Reset your password"}
+        </div>
         {error && <div style={s.error}>{error}</div>}
         {message && <div style={s.success}>{message}</div>}
+
         {mode === "signup" && (
           <>
             <label style={s.label}>Username</label>
-            <input style={s.input} placeholder="@yourhandle" value={username} onChange={e => setUsername(e.target.value)} />
+            <input style={s.input} placeholder="Your username" value={username} onChange={e => setUsername(e.target.value)} />
             <label style={s.label}>Display Name</label>
-            <input style={s.input} placeholder="Your name" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+            <input style={s.input} placeholder="What do you want users to see?" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+
           </>
         )}
-        <label style={s.label}>Email</label>
-        <input style={s.input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-        <label style={s.label}>Password</label>
-        <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+
+        {mode !== "forgot" && (
+          <>
+            <label style={s.label}>Email</label>
+            <input style={s.input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          </>
+        )}
+
+        {mode === "forgot" && (
+          <>
+            <label style={s.label}>Email</label>
+            <input style={s.input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          </>
+        )}
+
+        {mode === "login" && (
+          <>
+            <label style={s.label}>Password</label>
+            <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+            <div style={s.forgotLink} onClick={() => switchMode("forgot")}>Forgot password?</div>
+          </>
+        )}
+
+        {mode === "signup" && (
+          <>
+            <label style={s.label}>Password</label>
+            <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+          </>
+        )}
+
         {loading
           ? <div style={s.btnDisabled}>Please wait...</div>
-          : <button style={s.btn} onClick={mode === "login" ? handleLogin : handleSignup}>
-              {mode === "login" ? "Log In" : "Create Account"}
+          : <button style={s.btn} onClick={
+              mode === "login" ? handleLogin :
+              mode === "signup" ? handleSignup :
+              handleForgotPassword
+            }>
+              {mode === "login" && "Log In"}
+              {mode === "signup" && "Create Account"}
+              {mode === "forgot" && "Send Reset Email"}
             </button>
         }
+
         <div style={s.toggle}>
-          {mode === "login"
-            ? <>Don't have an account? <span style={s.toggleLink} onClick={() => { setMode("signup"); setError(null); setMessage(null); }}>Sign up</span></>
-            : <>Already have an account? <span style={s.toggleLink} onClick={() => { setMode("login"); setError(null); setMessage(null); }}>Log in</span></>
-          }
+          {mode === "login" && <>Don't have an account? <span style={s.toggleLink} onClick={() => switchMode("signup")}>Sign up</span></>}
+          {mode === "signup" && <>Already have an account? <span style={s.toggleLink} onClick={() => switchMode("login")}>Log in</span></>}
+          {mode === "forgot" && <><span style={s.toggleLink} onClick={() => switchMode("login")}>← Back to login</span></>}
         </div>
       </div>
     </div>

@@ -65,12 +65,14 @@ export default function App() {
   });
 
   const fallbackImg = () => `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80`;
+  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Profile";
+  const username = user?.user_metadata?.username ? user.user_metadata.username.replace(/^@/, "") : null;
 
   const s = {
     app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", zIndex: 100 },
-    navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400 }),
+    navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     pill: a => ({ padding: "5px 14px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
@@ -177,8 +179,8 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: "16px 0", borderBottom: "1px solid #3a2510" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{user.email}</div>
-              <div style={{ fontSize: 12, color: "#8a7055" }}>Member since {new Date(user.created_at).getFullYear()}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{displayName}</div>
+              <div style={{ fontSize: 12, color: "#8a7055" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
               <div style={{ marginTop: 6 }}><Badge label="🏅 Aficionado" color="#c9a84c" /></div>
             </div>
           </div>
@@ -225,7 +227,7 @@ export default function App() {
       )}
 
       <nav style={s.nav}>
-        {[["search", "🔍", "Explore"], ["profile", "👤", "Profile"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Explore"], ["profile", "👤", displayName]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
         ))}
       </nav>
