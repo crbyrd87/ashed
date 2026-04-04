@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Auth from "./Auth";
+import { supabase } from "./supabase";
 
 const CIGARS = [
   { id: 1, brand: "Arturo Fuente", line: "Opus X", vitola: "Robusto", wrapper: "Dominican", strength: "Full", rating: 97, origin: "Dominican Republic", price: 32, smoked: true, smokedDate: "Feb 28, 2026", userRating: 94, notes: "Incredible complexity, leather and cedar up front.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
@@ -28,11 +30,29 @@ const ScoreBar = ({ rating }) => (
 );
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [tab, setTab] = useState("search");
   const [query, setQuery] = useState("");
   const [strengthFilter, setStrengthFilter] = useState("All");
   const [selected, setSelected] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   const smoked = CIGARS.filter(c => c.smoked);
   const avgRating = Math.round(smoked.reduce((a, c) => a + c.userRating, 0) / smoked.length);
@@ -48,14 +68,23 @@ export default function App() {
 
   const s = {
     app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
-    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510" },
+    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", zIndex: 100 },
     navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     pill: a => ({ padding: "5px 14px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
     statBox: { background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
+    logoutBtn: { background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS },
   };
+
+  if (authLoading) return (
+    <div style={{ background: "#1a0f08", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a84c", fontFamily: SANS, fontSize: 16, letterSpacing: 2 }}>
+      Loading...
+    </div>
+  );
+
+  if (!user) return <Auth onLogin={() => supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user))} />;
 
   if (selected) {
     const c = selected;
@@ -104,8 +133,11 @@ export default function App() {
   return (
     <div style={s.app}>
       <div style={s.header}>
-        <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: 4, color: "#c9a84c", textTransform: "uppercase" }}>🚬 Ashed</div>
-        <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginTop: 2 }}>YOUR CIGAR JOURNAL</div>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, color: "#c9a84c", textTransform: "uppercase" }}>🚬 Ashed</div>
+          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginTop: 2 }}>YOUR CIGAR JOURNAL</div>
+        </div>
+        <button style={s.logoutBtn} onClick={handleLogout}>Log out</button>
       </div>
 
       {tab === "search" && (
@@ -145,8 +177,8 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: "16px 0", borderBottom: "1px solid #3a2510" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>James R.</div>
-              <div style={{ fontSize: 12, color: "#8a7055" }}>Member since 2024</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{user.email}</div>
+              <div style={{ fontSize: 12, color: "#8a7055" }}>Member since {new Date(user.created_at).getFullYear()}</div>
               <div style={{ marginTop: 6 }}><Badge label="🏅 Aficionado" color="#c9a84c" /></div>
             </div>
           </div>
