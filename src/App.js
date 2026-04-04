@@ -11,6 +11,7 @@ const CIGARS = [
   { id: 8, brand: "Davidoff", line: "Year of the Rabbit", vitola: "Robusto", wrapper: "Ecuador", strength: "Medium", rating: 93, origin: "Dominican Republic", price: 45, smoked: false, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80" },
 ];
 
+const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
 const Badge = ({ label, color = "#c9a84c" }) => (
@@ -46,13 +47,13 @@ export default function App() {
   const fallbackImg = () => `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80`;
 
   const s = {
-    app: { fontFamily: "'Georgia', serif", background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
+    app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510" },
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", zIndex: 100 },
-    navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: "Georgia, serif", textTransform: "uppercase", fontWeight: a ? 700 : 400 }),
+    navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
-    input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: "Georgia, serif", outline: "none", boxSizing: "border-box" },
-    pill: a => ({ padding: "5px 14px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: "Georgia, serif", whiteSpace: "nowrap" }),
+    input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
+    pill: a => ({ padding: "5px 14px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
     statBox: { background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
   };
 
@@ -63,7 +64,7 @@ export default function App() {
         <div style={{ position: "relative", height: 220 }}>
           <img src={imgErrors[c.id] ? fallbackImg() : c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
-          <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: "Georgia, serif" }}>← Back</button>
+          <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
           {c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
         </div>
         <div style={{ padding: "0 20px 30px" }}>
@@ -91,7 +92,7 @@ export default function App() {
               <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
             </div>
           ) : (
-            <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: "Georgia, serif" }}>
+            <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }}>
               + LOG THIS SMOKE
             </button>
           )}
