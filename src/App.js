@@ -4,6 +4,7 @@ import { supabase } from "./supabase";
 import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
 import BandScanner from "./BandScanner";
+import Recommendations from "./Recommendations";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -199,6 +200,7 @@ export default function App() {
   const [violasLoading, setViolasLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(null);
   const [showBandScanner, setShowBandScanner] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(false);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
@@ -582,14 +584,22 @@ export default function App() {
             )}
           </div>
 
-          {/* Scan Band button — shown when no search active */}
+          {/* Scan Band and Recommendations buttons — shown when no search active */}
           {!query && !selectedLine && (
-            <button
-              onClick={() => setShowBandScanner(true)}
-              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: SANS, marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-            >
-              📷 Scan a Cigar Band
-            </button>
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+              <button
+                onClick={() => setShowBandScanner(true)}
+                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                📷 Scan a Band
+              </button>
+              <button
+                onClick={() => setShowRecommendations(true)}
+                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                ✨ For Me
+              </button>
+            </div>
           )}
 
           {selectedLine && (
@@ -1110,6 +1120,14 @@ export default function App() {
           onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
           onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
           onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
+        />
+      )}
+      {showRecommendations && (
+        <Recommendations
+          user={user}
+          checkins={checkins}
+          onAddToWishlist={(cigar) => handleAddToWishlist(cigar)}
+          onClose={() => setShowRecommendations(false)}
         />
       )}
       <nav style={s.nav}>
