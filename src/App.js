@@ -1109,6 +1109,7 @@ export default function App() {
           onClose={() => setShowBandScanner(false)}
           onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
           onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
+          onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
         />
       )}
       <nav style={s.nav}>

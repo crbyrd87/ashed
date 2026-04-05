@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
@@ -9,13 +10,56 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ onClose, onCheckIn, onAddToWishlist }) {
-  const [stage, setStage] = useState("capture"); // capture | analyzing | result | error
+export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onSearchManually }) {
+  const [stage, setStage] = useState("capture"); // capture | analyzing | result | error | flagged
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [confidence, setConfidence] = useState(null);
+  const [flagging, setFlagging] = useState(false);
+  const [flagged, setFlagged] = useState(false);
   const fileInputRef = useRef(null);
+
+  const cacheCigarToDB = async (result) => {
+    try {
+      const { data: existing } = await supabase
+        .from("cigars")
+        .select("id")
+        .eq("brand", result.brand)
+        .eq("line", result.line)
+        .eq("vitola", result.vitola)
+        .maybeSingle();
+      if (!existing) {
+        const { data: inserted } = await supabase.from("cigars").insert({
+          brand: result.brand,
+          line: result.line,
+          vitola: result.vitola,
+          wrapper: result.wrapper || null,
+          origin: result.origin || null,
+          strength: result.strength || null,
+          tasting_notes: result.tasting_notes || null,
+          description: result.description || null,
+          ai_generated: true,
+          verified: false,
+          total_checkins: 0,
+        }).select().single();
+        return inserted;
+      }
+      return existing;
+    } catch (e) {
+      console.error("Cache to DB failed:", e);
+      return null;
+    }
+  };
+
+  const handleFlag = async () => {
+    setFlagging(true);
+    try {
+      await supabase.from("cigars").update({ verified: false, ai_generated: true }).eq("brand", cigar.brand).eq("line", cigar.line).eq("vitola", cigar.vitola);
+    } catch (e) { console.error(e); }
+    setFlagged(true);
+    setFlagging(false);
+  };
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
@@ -25,7 +69,6 @@ export default function BandScanner({ onClose, onCheckIn, onAddToWishlist }) {
     setPhotoPreview(preview);
     setStage("analyzing");
 
-    // Convert to base64
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result.split(",")[1]);
@@ -51,11 +94,7 @@ export default function BandScanner({ onClose, onCheckIn, onAddToWishlist }) {
               content: [
                 {
                   type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: file.type,
-                    data: base64,
-                  },
+                  source: { type: "base64", media_type: file.type, data: base64 },
                 },
                 {
                   type: "text",
@@ -97,8 +136,19 @@ Be as specific as possible. If you can read text on the band, use it.`
         return;
       }
 
+      // Low confidence — go straight to error with manual search prompt
+      if (result.confidence === "low") {
+        setErrorMsg(`Best guess: ${result.brand} ${result.line} — but confidence is too low to be reliable. Try a clearer photo or search manually.`);
+        setStage("error");
+        return;
+      }
+
+      // Cache to DB for medium/high confidence
+      const cached = await cacheCigarToDB(result);
+
       setConfidence(result.confidence);
       setCigar({
+        id: cached?.id || null,
         brand: result.brand || "Unknown",
         line: result.line || "Unknown",
         vitola: result.vitola || "Unknown",
@@ -259,11 +309,26 @@ Be as specific as possible. If you can read text on the band, use it.`
             + Add to Wishlist
           </button>
           <button
-            onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS }}
+            onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }}
+            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
           >
             Scan Again
           </button>
+
+          {/* Flag incorrect info */}
+          {!flagged ? (
+            <button
+              onClick={handleFlag}
+              disabled={flagging}
+              style={{ width: "100%", background: "none", border: "1px solid #3a251044", borderRadius: 10, padding: 10, color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+            >
+              {flagging ? "Flagging..." : "⚑ Flag incorrect info"}
+            </button>
+          ) : (
+            <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>
+              ✓ Thanks — this has been flagged for review
+            </div>
+          )}
         </div>
       )}
 
@@ -283,7 +348,7 @@ Be as specific as possible. If you can read text on the band, use it.`
             Try Again
           </button>
           <button
-            onClick={onClose}
+            onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }}
             style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS }}
           >
             Search Manually Instead

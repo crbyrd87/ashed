@@ -82,7 +82,7 @@ export default function Auth({ onLogin }) {
   return (
     <div style={s.wrap}>
       <div style={s.logo}>🚬 Ashed</div>
-      <div style={s.tagline}>YOUR CIGAR JOURNAL</div>
+      <div style={s.tagline}>CIGAR JOURNAL & COMMUNITY</div>
       <div style={s.card}>
         <div style={s.title}>
           {mode === "login" && "Welcome back"}
@@ -98,7 +98,6 @@ export default function Auth({ onLogin }) {
             <input style={s.input} placeholder="Your username" value={username} onChange={e => setUsername(e.target.value)} />
             <label style={s.label}>Display Name</label>
             <input style={s.input} placeholder="What do you want users to see?" value={displayName} onChange={e => setDisplayName(e.target.value)} />
-
           </>
         )}
 
