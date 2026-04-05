@@ -160,7 +160,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       finish: subScores.finish,
       overall_notes: notes || null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
-      would_smoke_again: wouldSmokeAgain === "Yes" ? true : wouldSmokeAgain === "No" ? false : null,
+      would_smoke_again: wouldSmokeAgain || null,
       value_for_price: valueForPrice || null,
     };
 
@@ -179,7 +179,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setSaving(false);
     setSuccess(true);
 
-    // Recalculate avg_rating for this cigar
     if (isRealCigar && cigar.id) {
       const { data: allRatings } = await supabase
         .from("ratings")
@@ -242,7 +241,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Sub Scores */}
       <div style={s.section}>
         <div style={s.label}>Detailed Ratings</div>
         {SUB_SCORES.map(({ key, label, tip }) => (
@@ -260,7 +258,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         ))}
       </div>
 
-      {/* Tasting Notes */}
       <div style={s.section}>
         <div style={s.label}>Tasting Notes</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -276,7 +273,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </button>
       </div>
 
-      {/* Flavor Tags */}
       <div style={s.section}>
         <div style={s.label}>Flavor Tags</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -286,7 +282,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Would Smoke Again */}
       <div style={s.section}>
         <div style={s.label}>Would you smoke this again?</div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -296,7 +291,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Value for Price */}
       <div style={s.section}>
         <div style={s.label}>Value for Price</div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -306,7 +300,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Date & Location */}
       <div style={s.section}>
         <div style={s.label}>Date</div>
         <input type="date" style={s.input} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
@@ -331,7 +324,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         )}
       </div>
 
-      {/* Privacy */}
       <div style={s.section}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
@@ -347,7 +339,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Save */}
       <div style={{ padding: 20 }}>
         {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
         <button style={s.saveBtn} onClick={handleSave} disabled={saving}>

@@ -248,9 +248,21 @@ export default function App() {
         .from("cigars")
         .select("*")
         .order("total_checkins", { ascending: false })
-        .limit(5);
-      if (cached && cached.length >= 5) {
-        setFeaturedCigars(cached);
+        .limit(20);
+
+      // Deduplicate by brand+line, keeping highest total_checkins entry
+      const dedupe = (rows) => {
+        const seen = new Map();
+        for (const row of (rows || [])) {
+          const key = `${row.brand}|${row.line}`;
+          if (!seen.has(key)) seen.set(key, row);
+        }
+        return Array.from(seen.values()).slice(0, 5);
+      };
+
+      const deduped = dedupe(cached);
+      if (deduped.length >= 5) {
+        setFeaturedCigars(deduped);
         setFeaturedLoading(false);
         return;
       }
@@ -273,8 +285,8 @@ export default function App() {
           const { data: existing } = await supabase.from("cigars").select("*").eq("brand", c.brand).eq("line", c.line).maybeSingle();
           if (!existing) await supabase.from("cigars").insert({ ...c, ai_generated: true, verified: false, total_checkins: 0 });
         }
-        const { data: fresh } = await supabase.from("cigars").select("*").order("total_checkins", { ascending: false }).limit(5);
-        setFeaturedCigars(fresh || cigars);
+        const { data: fresh } = await supabase.from("cigars").select("*").order("total_checkins", { ascending: false }).limit(20);
+        setFeaturedCigars(dedupe(fresh) || cigars);
       } catch (e) { console.error(e); }
       setFeaturedLoading(false);
     };
@@ -832,7 +844,9 @@ export default function App() {
                     {checkinRating.would_smoke_again != null && (
                       <div style={{ marginTop: 8, paddingTop: 10, borderTop: "1px solid #3a251033" }}>
                         <span style={{ fontSize: 12, color: "#8a7055" }}>Would smoke again: </span>
-                        <span style={{ fontSize: 12, color: checkinRating.would_smoke_again ? "#7a9a7a" : "#a0522d" }}>{checkinRating.would_smoke_again ? "Yes" : "No"}</span>
+                        <span style={{ fontSize: 12, color: checkinRating.would_smoke_again === "Yes" ? "#7a9a7a" : checkinRating.would_smoke_again === "No" ? "#a0522d" : "#c9a84c" }}>
+                          {checkinRating.would_smoke_again}
+                        </span>
                       </div>
                     )}
                     {checkinRating.value_for_price && (
