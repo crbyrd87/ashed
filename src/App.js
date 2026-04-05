@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
 import { searchCigarLines, getVitolas } from "./cigarAI";
+import CheckIn from "./CheckIn";
 
 const CIGARS = [
   { id: 1, brand: "Arturo Fuente", line: "Opus X", vitola: "Robusto", wrapper: "Dominican", strength: "Full", rating: 97, origin: "Dominican Republic", price: 32, smoked: true, smokedDate: "Feb 28, 2026", userRating: 94, notes: "Incredible complexity, leather and cedar up front.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
@@ -43,6 +44,7 @@ export default function App() {
   const [selectedLine, setSelectedLine] = useState(null);
   const [vitolas, setVitolas] = useState([]);
   const [violasLoading, setViolasLoading] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(null);
   const searchTimeout = useRef(null);
 
   useEffect(() => {
@@ -72,11 +74,9 @@ export default function App() {
     clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(async () => {
       const results = await searchCigarLines(val, (partial) => {
-        // Update dropdown as soon as db results arrive
         setSearchResults(partial);
         setSearching(false);
       });
-      // Final merged result (db + AI)
       setSearchResults(results);
       setSearching(false);
     }, 350);
@@ -89,7 +89,6 @@ export default function App() {
     setVitolas([]);
     setViolasLoading(true);
     const results = await getVitolas(line.brand, line.line, (partial) => {
-      // Show db vitolas immediately while AI loads more
       setVitolas(partial);
     });
     setVitolas(results);
@@ -144,7 +143,7 @@ export default function App() {
           </div>
           {c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-               {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Origin", c.origin]].map(([k, v]) => (
+            {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Origin", c.origin]].map(([k, v]) => (
               <div key={k} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
                 <div style={{ fontSize: 15, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
@@ -164,11 +163,12 @@ export default function App() {
               <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
             </div>
           ) : (
-            <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }}>
+            <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
               + LOG THIS SMOKE
             </button>
           )}
         </div>
+        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); }} />}
       </div>
     );
   }
@@ -226,7 +226,6 @@ export default function App() {
                     <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{c.vitola}</div>
                     <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>
                       {c.length_inches ? `${c.length_inches}" × ${c.ring_gauge}` : ""}
-
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
@@ -320,6 +319,7 @@ export default function App() {
         </div>
       )}
 
+      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => setCheckingIn(null)} />}
       <nav style={s.nav}>
         {[["search", "🔍", "Explore"], ["profile", "👤", displayName]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
