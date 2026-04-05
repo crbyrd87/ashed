@@ -9,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ onClose, onCheckIn }) {
+export default function BandScanner({ onClose, onCheckIn, onAddToWishlist }) {
   const [stage, setStage] = useState("capture"); // capture | analyzing | result | error
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
@@ -194,7 +194,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           )}
           <div style={{ fontSize: 32, marginBottom: 16 }}>🔍</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Analyzing your cigar band...</div>
-          <div style={{ fontSize: 13, color: "#8a7055" }}>Claude is reading the band label</div>
+          <div style={{ fontSize: 13, color: "#8a7055" }}>Ashed is reading the band label</div>
           <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden", marginTop: 24 }}>
             <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
@@ -251,6 +251,12 @@ Be as specific as possible. If you can read text on the band, use it.`
             style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10 }}
           >
             + LOG THIS SMOKE
+          </button>
+          <button
+            onClick={() => { onAddToWishlist(cigar); onClose(); }}
+            style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
+          >
+            + Add to Wishlist
           </button>
           <button
             onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }}

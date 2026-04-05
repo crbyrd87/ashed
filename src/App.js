@@ -199,6 +199,10 @@ export default function App() {
   const [violasLoading, setViolasLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(null);
   const [showBandScanner, setShowBandScanner] = useState(false);
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
+  const [wishlistFilterStrength, setWishlistFilterStrength] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
   const [selectedCheckin, setSelectedCheckin] = useState(null);
@@ -312,6 +316,19 @@ export default function App() {
       setProfileLoading(false);
     };
     fetchCheckins();
+
+    // Fetch wishlist inline to avoid dependency warning
+    const loadWishlist = async () => {
+      setWishlistLoading(true);
+      const { data: wData } = await supabase
+        .from("wishlist")
+        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setWishlist(wData || []);
+      setWishlistLoading(false);
+    };
+    loadWishlist();
   }, [user]);
 
   const refreshCheckins = async () => {
@@ -321,6 +338,47 @@ export default function App() {
       .eq("user_id", user.id)
       .order("smoke_date", { ascending: false });
     setCheckins(data || []);
+  };
+
+  const fetchWishlist = async () => {
+    setWishlistLoading(true);
+    const { data } = await supabase
+      .from("wishlist")
+      .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setWishlist(data || []);
+    setWishlistLoading(false);
+  };
+
+  const handleAddToWishlist = async (cigar) => {
+    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
+    const { data: existing } = await supabase
+      .from("wishlist")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq(isRealCigar ? "cigar_id" : "cigar_name", isRealCigar ? cigar.id : (cigar.line || cigar.cigar_name))
+      .maybeSingle();
+    if (existing) return; // already on wishlist
+    await supabase.from("wishlist").insert({
+      user_id: user.id,
+      cigar_id: isRealCigar ? cigar.id : null,
+      cigar_name: cigar.line || cigar.cigar_name || null,
+      cigar_brand: cigar.brand || cigar.cigar_brand || null,
+      cigar_vitola: cigar.vitola || cigar.cigar_vitola || null,
+    });
+    fetchWishlist();
+  };
+
+  const handleRemoveFromWishlist = async (id) => {
+    await supabase.from("wishlist").delete().eq("id", id);
+    setWishlist(prev => prev.filter(w => w.id !== id));
+  };
+
+  const isOnWishlist = (cigar) => {
+    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
+    if (isRealCigar) return wishlist.some(w => w.cigar_id === cigar.id);
+    return wishlist.some(w => w.cigar_name === (cigar.line || cigar.cigar_name));
   };
 
   const handleLogout = async () => {
@@ -462,9 +520,17 @@ export default function App() {
               <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
             </div>
           ) : (
-            <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
-              + LOG THIS SMOKE
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
+                + LOG THIS SMOKE
+              </button>
+              <button
+                onClick={() => handleAddToWishlist(c)}
+                style={{ width: "100%", background: isOnWishlist(c) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(c) ? "#c9a84c" : "#3a2510"}`, borderRadius: 10, padding: 14, color: isOnWishlist(c) ? "#c9a84c" : "#8a7055", fontSize: 14, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
+              >
+                {isOnWishlist(c) ? "✓ On Your Wishlist" : "+ Add to Wishlist"}
+              </button>
+            </div>
           )}
         </div>
         {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); refreshCheckins(); }} />}
@@ -935,15 +1001,118 @@ export default function App() {
         </div>
       )}
 
+      {tab === "wishlist" && (
+        <div style={{ padding: 16 }}>
+          <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>YOUR WISHLIST</div>
+
+          {/* Brand filter */}
+          {wishlist.length > 0 && (() => {
+            const uniqueWishlistBrands = [...new Set(wishlist.map(w => w.cigars?.brand || w.cigar_brand).filter(Boolean))].sort();
+            return (
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                  <select
+                    value={wishlistFilterBrand}
+                    onChange={e => setWishlistFilterBrand(e.target.value)}
+                    style={{ flex: 1, background: "#2a1a0e", border: `1px solid ${wishlistFilterBrand ? "#c9a84c" : "#3a2510"}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? "#c9a84c" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  >
+                    <option value="">All Brands</option>
+                    {uniqueWishlistBrands.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                  {wishlistFilterBrand && (
+                    <button onClick={() => setWishlistFilterBrand("")} style={{ background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "8px 12px", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
+                  )}
+                </div>
+                {/* Strength filter */}
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["Light", "Medium", "Medium-Full", "Full"].map(str => (
+                    <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
+                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : "#3a2510"}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "22" : "transparent", color: wishlistFilterStrength.includes(str) ? strengthColor(str) : "#5a4535", fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 400 }}>
+                      {str}
+                    </button>
+                  ))}
+                </div>
+                {(wishlistFilterBrand || wishlistFilterStrength.length > 0) && (
+                  <div style={{ textAlign: "right", marginTop: 6 }}>
+                    <span onClick={() => { setWishlistFilterBrand(""); setWishlistFilterStrength([]); }} style={{ fontSize: 11, color: "#5a4535", cursor: "pointer" }}>Clear all filters</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {wishlistLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
+          {!wishlistLoading && wishlist.length === 0 && (
+            <div style={{ textAlign: "center", padding: 40 }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🔖</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Your wishlist is empty</div>
+              <div style={{ fontSize: 13, color: "#5a4535" }}>Search for a cigar or scan a band and tap "Add to Wishlist"</div>
+            </div>
+          )}
+          {(() => {
+            const filtered = wishlist.filter(w => {
+              const brand = w.cigars?.brand || w.cigar_brand || "";
+              const strength = w.cigars?.strength || "";
+              if (wishlistFilterBrand && brand !== wishlistFilterBrand) return false;
+              if (wishlistFilterStrength.length > 0 && !wishlistFilterStrength.includes(strength)) return false;
+              return true;
+            });
+            if (filtered.length === 0 && wishlist.length > 0) return (
+              <div style={{ textAlign: "center", padding: 30, fontSize: 13, color: "#5a4535" }}>No wishlist items match your filters.</div>
+            );
+            return filtered.map(w => {
+              const brand = w.cigars?.brand || w.cigar_brand || "Unknown";
+              const line = w.cigars?.line || w.cigar_name || "Unknown Cigar";
+              const vitola = w.cigars?.vitola || w.cigar_vitola || "";
+              const strength = w.cigars?.strength || "";
+              return (
+                <div key={w.id} style={{ ...s.card, borderColor: "#3a2510" }}>
+                  <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ flex: 1 }} onClick={() => w.cigars && setSelected(w.cigars)}>
+                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 4px" }}>{line}</div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {vitola && <Badge label={vitola} />}
+                        {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#5a4535", marginTop: 6 }}>
+                        Added {new Date(w.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginLeft: 12 }}>
+                      {w.cigars && (
+                        <button
+                          onClick={() => { setCheckingIn(w.cigars); }}
+                          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                        >
+                          + Log
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRemoveFromWishlist(w.id)}
+                        style={{ background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "6px 12px", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      )}
+
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
       {showBandScanner && (
         <BandScanner
           onClose={() => setShowBandScanner(false)}
           onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
+          onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
         />
       )}
       <nav style={s.nav}>
-        {[["search", "🔍", "Cigar Search"], ["profile", "👤", "My Profile"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Cigar Search"], ["profile", "👤", "My Profile"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
         ))}
       </nav>
