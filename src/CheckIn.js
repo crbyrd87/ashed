@@ -259,11 +259,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       </div>
 
       <div style={s.section}>
-        <div style={s.label}>Tasting Notes</div>
+        <div style={s.label}>Comments</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <textarea
             style={{ ...s.textarea, flex: 1 }}
-            placeholder="Describe what you're tasting..."
+            placeholder="Describe your experience — the flavors, the occasion, how it paired with your drink..."
             value={notes}
             onChange={e => setNotes(e.target.value)}
           />

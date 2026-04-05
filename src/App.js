@@ -196,6 +196,7 @@ export default function App() {
   const [selectedLine, setSelectedLine] = useState(null);
   const [vitolas, setVitolas] = useState([]);
   const [violasLoading, setViolasLoading] = useState(false);
+  const [searchFilterStrength, setSearchFilterStrength] = useState([]);
   const [checkingIn, setCheckingIn] = useState(null);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -219,11 +220,15 @@ export default function App() {
   const filteredBrands = filterBrand ? uniqueBrands.filter(b => b.toLowerCase().includes(filterBrand.toLowerCase())) : uniqueBrands;
   const [filterScoreMin, setFilterScoreMin] = useState(0);
   const [filterScoreMax, setFilterScoreMax] = useState(10);
+  const [filterValue, setFilterValue] = useState([]);
+  const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
 
   const activeFilterCount = [
     filterName, filterBrand,
     filterNoteTags.length > 0 ? "tags" : "",
-    filterScoreMin > 0 || filterScoreMax < 10 ? "score" : ""
+    filterScoreMin > 0 || filterScoreMax < 10 ? "score" : "",
+    filterValue.length > 0 ? "value" : "",
+    filterWouldSmoke.length > 0 ? "smoke" : "",
   ].filter(Boolean).length;
   const [featuredCigars, setFeaturedCigars] = useState([]);
   const [featuredLoading, setFeaturedLoading] = useState(true);
@@ -299,7 +304,7 @@ export default function App() {
       setProfileLoading(true);
       const { data } = await supabase
         .from("checkins")
-        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating), ratings(value_for_price, would_smoke_again)")
         .eq("user_id", user.id)
         .order("smoke_date", { ascending: false });
       setCheckins(data || []);
@@ -311,7 +316,7 @@ export default function App() {
   const refreshCheckins = async () => {
     const { data } = await supabase
       .from("checkins")
-      .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+      .select("*, cigars(brand, line, vitola, strength, origin, avg_rating), ratings(value_for_price, would_smoke_again)")
       .eq("user_id", user.id)
       .order("smoke_date", { ascending: false });
     setCheckins(data || []);
@@ -379,6 +384,7 @@ export default function App() {
     setSelectedLine(line);
     setVitolas([]);
     setViolasLoading(true);
+    setSearchFilterStrength([]);
     const results = await getVitolas(line.brand, line.line, (partial) => {
       setVitolas(partial);
     });
@@ -514,11 +520,27 @@ export default function App() {
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 4 }}>{selectedLine.brand.toUpperCase()}</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>{selectedLine.line}</div>
-              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14 }}>Select a vitola to view details</div>
+              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>Select a vitola to view details</div>
+
+              {/* Strength filter */}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+                {["Light", "Medium", "Medium-Full", "Full"].map(s => (
+                  <button key={s} onClick={() => setSearchFilterStrength(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
+                    style={{ padding: "4px 12px", borderRadius: 20, border: `1px solid ${searchFilterStrength.includes(s) ? strengthColor(s) : "#3a2510"}`, background: searchFilterStrength.includes(s) ? strengthColor(s) + "22" : "transparent", color: searchFilterStrength.includes(s) ? strengthColor(s) : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+                    {s}
+                  </button>
+                ))}
+                {searchFilterStrength.length > 0 && (
+                  <button onClick={() => setSearchFilterStrength([])} style={{ padding: "4px 10px", borderRadius: 20, border: "1px solid #3a2510", background: "transparent", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
+                )}
+              </div>
+
               {violasLoading && vitolas.length === 0 && (
                 <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
               )}
-              {vitolas.map((c, i) => (
+              {vitolas
+                .filter(c => searchFilterStrength.length === 0 || searchFilterStrength.includes(c.strength))
+                .map((c, i) => (
                 <div key={i} style={s.vitolaCard} onClick={() => setSelected(c)}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{c.vitola}</div>
@@ -666,7 +688,9 @@ export default function App() {
                   {filterBrand && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterBrand("")}>Brand: {filterBrand} ×</span>}
                   {filterNoteTags.map(tag => <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterNoteTags(prev => prev.filter(t => t !== tag))}>{tag} ×</span>)}
                   {(filterScoreMin > 0 || filterScoreMax < 10) && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => { setFilterScoreMin(0); setFilterScoreMax(10); }}>Score: {filterScoreMin}–{filterScoreMax} ×</span>}
-                  <span style={{ background: "#3a2510", color: "#8a7055", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => { setFilterName(""); setFilterBrand(""); setFilterNoteTags([]); setFilterScoreMin(0); setFilterScoreMax(10); }}>Clear all</span>
+                  {filterValue.length > 0 && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterValue([])}>Value: {filterValue.join(", ")} ×</span>}
+                  {filterWouldSmoke.length > 0 && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterWouldSmoke([])}>Smoke Again: {filterWouldSmoke.join(", ")} ×</span>}
+                  <span style={{ background: "#3a2510", color: "#8a7055", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => { setFilterName(""); setFilterBrand(""); setFilterNoteTags([]); setFilterScoreMin(0); setFilterScoreMax(10); setFilterValue([]); setFilterWouldSmoke([]); }}>Clear all</span>
                 </div>
               )}
             </div>
@@ -748,6 +772,24 @@ export default function App() {
                   </div>
                 </div>
 
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>VALUE FOR PRICE</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {["Good value", "OK value", "Poor value"].map(opt => (
+                      <button key={opt} onClick={() => setFilterValue(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterValue.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterValue.includes(opt) ? "#c9a84c22" : "transparent", color: filterValue.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>WOULD SMOKE AGAIN</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {["Yes", "Maybe", "No"].map(opt => (
+                      <button key={opt} onClick={() => setFilterWouldSmoke(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterWouldSmoke.includes(opt) ? "#c9a84c22" : "transparent", color: filterWouldSmoke.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                    ))}
+                  </div>
+                </div>
+
                 <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   Apply Filters
                 </button>
@@ -765,10 +807,13 @@ export default function App() {
               const brand = (c.cigars?.brand || c.cigar_brand || "").toLowerCase();
               const line = (c.cigars?.line || c.cigar_name || "").toLowerCase();
               const notes = (c.tasting_notes || "").toLowerCase();
+              const rating = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
               if (filterName && !line.includes(filterName.toLowerCase())) return false;
               if (filterBrand && !brand.includes(filterBrand.toLowerCase())) return false;
               if (filterNoteTags.length > 0 && !filterNoteTags.every(tag => notes.includes(tag.toLowerCase()))) return false;
               if (c.rating < filterScoreMin || c.rating > filterScoreMax) return false;
+              if (filterValue.length > 0 && !filterValue.includes(rating?.value_for_price || "")) return false;
+              if (filterWouldSmoke.length > 0 && !filterWouldSmoke.includes(rating?.would_smoke_again || "")) return false;
               return true;
             });
             const sorted = [...filtered].sort((a, b) => {
@@ -870,7 +915,7 @@ export default function App() {
 
                 {selectedCheckin.tasting_notes && (
                   <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>TASTING NOTES</div>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>COMMENTS</div>
                     <div style={{ fontSize: 14, color: "#c8b89a", fontStyle: "italic", lineHeight: 1.6 }}>"{selectedCheckin.tasting_notes}"</div>
                   </div>
                 )}
