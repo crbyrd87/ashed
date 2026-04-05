@@ -4,17 +4,6 @@ import { supabase } from "./supabase";
 import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
 
-const CIGARS = [
-  { id: 1, brand: "Arturo Fuente", line: "Opus X", vitola: "Robusto", wrapper: "Dominican", strength: "Full", rating: 97, origin: "Dominican Republic", price: 32, smoked: true, smokedDate: "Feb 28, 2026", userRating: 94, notes: "Incredible complexity, leather and cedar up front.", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
-  { id: 2, brand: "Padron", line: "1964 Anniversary", vitola: "Torpedo", wrapper: "Nicaragua", strength: "Full", rating: 96, origin: "Nicaragua", price: 24, smoked: true, smokedDate: "Feb 14, 2026", userRating: 96, notes: "Rich cocoa and espresso. One of the best I've had.", img: "https://images.unsplash.com/photo-1611048267451-e6ed903d4a38?w=400&q=80" },
-  { id: 3, brand: "Cohiba", line: "Behike 54", vitola: "Toro", wrapper: "Cuba", strength: "Medium-Full", rating: 98, origin: "Cuba", price: 70, smoked: false, img: "https://images.unsplash.com/photo-1567446537708-ac4aa75c9c28?w=400&q=80" },
-  { id: 4, brand: "My Father", line: "Le Bijou 1922", vitola: "Torpedo", wrapper: "Ecuador", strength: "Full", rating: 95, origin: "Nicaragua", price: 18, smoked: false, img: "https://images.unsplash.com/photo-1542601906897-ecd2f70b1a43?w=400&q=80" },
-  { id: 5, brand: "Oliva", line: "Serie V", vitola: "Lancero", wrapper: "Nicaragua", strength: "Full", rating: 94, origin: "Nicaragua", price: 12, smoked: true, smokedDate: "Jan 30, 2026", userRating: 91, notes: "Spicy pepper with a smooth finish. Great value.", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80" },
-  { id: 6, brand: "Rocky Patel", line: "Vintage 1990", vitola: "Churchill", wrapper: "Ecuador", strength: "Medium", rating: 92, origin: "Honduras", price: 14, smoked: false, img: "https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=400&q=80" },
-  { id: 7, brand: "Liga Privada", line: "No. 9", vitola: "Robusto", wrapper: "Connecticut Broadleaf", strength: "Full", rating: 96, origin: "Nicaragua", price: 20, smoked: true, smokedDate: "Jan 15, 2026", userRating: 98, notes: "Dark chocolate and earth. My go-to special occasion cigar.", img: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400&q=80" },
-  { id: 8, brand: "Davidoff", line: "Year of the Rabbit", vitola: "Robusto", wrapper: "Ecuador", strength: "Medium", rating: 93, origin: "Dominican Republic", price: 45, smoked: false, img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80" },
-];
-
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
@@ -29,6 +18,169 @@ const ScoreBar = ({ rating }) => (
     </div>
     <span style={{ color: "#c9a84c", fontSize: 14, fontWeight: 700 }}>{rating}</span>
   </div>
+);
+
+const CIGAR_ICONS = [
+  // 1. Classic cigar with band and smoke
+  (
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
+      <rect x="8" y="38" width="62" height="14" rx="7" fill="#5a3520" />
+      <rect x="8" y="40" width="57" height="10" rx="5" fill="#7a4a28" />
+      <rect x="52" y="38" width="14" height="14" rx="2" fill="#c9a84c" opacity="0.9" />
+      <rect x="54" y="40" width="10" height="10" rx="1" fill="#1a0f08" opacity="0.3" />
+      <rect x="66" y="39" width="14" height="12" rx="6" fill="#a0522d" />
+      <path d="M72 38 Q74 30 71 22 Q73 28 76 20 Q75 30 78 36" stroke="#ccc" strokeWidth="1" fill="none" opacity="0.3" />
+    </svg>
+  ),
+  // 2. Cigar in ashtray view
+  (
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
+      <ellipse cx="45" cy="62" rx="32" ry="10" fill="#3a2510" />
+      <ellipse cx="45" cy="60" rx="30" ry="8" fill="#2a1a0e" stroke="#5a3520" strokeWidth="1.5" />
+      <rect x="20" y="42" width="50" height="12" rx="6" fill="#5a3520" transform="rotate(-8 45 48)" />
+      <rect x="20" y="43" width="44" height="9" rx="5" fill="#7a4a28" transform="rotate(-8 45 48)" />
+      <rect x="56" y="40" width="12" height="12" rx="2" fill="#c9a84c" opacity="0.9" transform="rotate(-8 45 48)" />
+      <path d="M67 36 Q70 26 67 18" stroke="#ddd" strokeWidth="1.2" fill="none" opacity="0.25" />
+    </svg>
+  ),
+  // 3. Cigar with ribbon/ring close-up
+  (
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
+      <rect x="6" y="36" width="66" height="18" rx="9" fill="#4a2a18" />
+      <rect x="6" y="38" width="60" height="14" rx="7" fill="#6a3a22" />
+      <rect x="6" y="40" width="55" height="10" rx="5" fill="#8a4a28" />
+      <rect x="30" y="36" width="20" height="18" fill="#c9a84c" opacity="0.95" />
+      <rect x="32" y="38" width="16" height="14" fill="#1a0f08" opacity="0.15" />
+      <line x1="30" y1="36" x2="30" y2="54" stroke="#a07820" strokeWidth="0.5" />
+      <line x1="50" y1="36" x2="50" y2="54" stroke="#a07820" strokeWidth="0.5" />
+      <text x="40" y="48" textAnchor="middle" fontSize="5" fill="#c9a84c" fontWeight="bold" opacity="0.6">ASHED</text>
+      <rect x="66" y="37" width="16" height="16" rx="8" fill="#7a4a28" />
+    </svg>
+  ),
+  // 4. Two cigars crossed
+  (
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
+      <rect x="10" y="30" width="55" height="11" rx="5.5" fill="#5a3520" transform="rotate(15 37 35)" />
+      <rect x="10" y="31" width="50" height="8" rx="4" fill="#7a4a28" transform="rotate(15 37 35)" />
+      <rect x="56" y="29" width="12" height="11" rx="2" fill="#c9a84c" opacity="0.9" transform="rotate(15 37 35)" />
+      <rect x="10" y="48" width="55" height="11" rx="5.5" fill="#4a2510" transform="rotate(-15 37 53)" />
+      <rect x="10" y="49" width="50" height="8" rx="4" fill="#6a3820" transform="rotate(-15 37 53)" />
+      <rect x="56" y="47" width="12" height="11" rx="2" fill="#a07830" opacity="0.9" transform="rotate(-15 37 53)" />
+      <path d="M68 22 Q71 16 69 10" stroke="#ccc" strokeWidth="1" fill="none" opacity="0.2" />
+    </svg>
+  ),
+  // 5. Lit cigar end glow
+  (
+    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
+      <rect x="8" y="38" width="58" height="14" rx="7" fill="#5a3520" />
+      <rect x="8" y="40" width="53" height="10" rx="5" fill="#7a4a28" />
+      <rect x="44" y="38" width="14" height="14" rx="2" fill="#c9a84c" opacity="0.9" />
+      <circle cx="66" cy="45" r="10" fill="#c9a84c" opacity="0.08" />
+      <circle cx="66" cy="45" r="7" fill="#c9a84c" opacity="0.1" />
+      <rect x="60" y="39" width="14" height="12" rx="6" fill="#e8632a" />
+      <rect x="61" y="40" width="12" height="10" rx="5" fill="#f08030" />
+      <circle cx="66" cy="45" r="4" fill="#ffc060" opacity="0.8" />
+      <path d="M67 36 Q72 26 68 16 Q71 24 75 18 Q73 28 76 36" stroke="#e8d5b7" strokeWidth="1" fill="none" opacity="0.2" />
+    </svg>
+  ),
+];
+
+const CigarIcon = ({ index }) => CIGAR_ICONS[index % CIGAR_ICONS.length];
+
+const LoungeScene = () => (
+  <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+    {/* Background - warm dark lounge */}
+    <rect width="420" height="220" fill="#1a0d06" />
+    {/* Back wall wood paneling */}
+    <rect x="0" y="0" width="420" height="140" fill="#2a1508" />
+    <rect x="0" y="0" width="420" height="3" fill="#c9a84c" opacity="0.3" />
+    {/* Wood panel lines */}
+    {[60,120,180,240,300,360].map(x => (
+      <line key={x} x1={x} y1="0" x2={x} y2="140" stroke="#1a0d06" strokeWidth="1.5" opacity="0.5" />
+    ))}
+    {/* Ambient ceiling light glow */}
+    <ellipse cx="210" cy="0" rx="160" ry="60" fill="#c9a84c" opacity="0.06" />
+    {/* Table */}
+    <ellipse cx="210" cy="175" rx="100" ry="22" fill="#3a1e0a" />
+    <ellipse cx="210" cy="172" rx="98" ry="20" fill="#4a2810" />
+    <rect x="112" y="172" width="196" height="8" fill="#5a3418" />
+    {/* Table leg */}
+    <rect x="200" y="180" width="20" height="40" fill="#3a1e0a" />
+    {/* Ashtray */}
+    <ellipse cx="210" cy="170" rx="28" ry="8" fill="#2a1508" />
+    <ellipse cx="210" cy="168" rx="25" ry="6" fill="#221006" stroke="#5a3510" strokeWidth="1" />
+    {/* Resting cigar in ashtray */}
+    <rect x="188" y="165" width="44" height="6" rx="3" fill="#5a3520" transform="rotate(-5 210 168)" />
+    <rect x="188" y="166" width="39" height="4" rx="2" fill="#7a4a28" transform="rotate(-5 210 168)" />
+    <rect x="224" y="164" width="8" height="6" rx="1" fill="#c9a84c" opacity="0.8" transform="rotate(-5 210 168)" />
+    {/* Cigar smoke from ashtray */}
+    <path d="M232 162 Q235 150 231 138 Q234 148 238 140 Q236 152 239 160" stroke="#e8d5b7" strokeWidth="1.2" fill="none" opacity="0.12" />
+    {/* Woman - left side */}
+    {/* Body/dress */}
+    <ellipse cx="120" cy="200" rx="38" ry="50" fill="#1a0d06" />
+    <path d="M85 155 Q90 120 120 115 Q150 120 155 155 Q145 160 120 162 Q95 160 85 155Z" fill="#3a1e2e" />
+    {/* Woman head */}
+    <circle cx="120" cy="100" r="22" fill="#c8a882" />
+    {/* Hair */}
+    <ellipse cx="120" cy="88" rx="22" ry="14" fill="#2a1508" />
+    <path d="M98 100 Q94 120 96 135" stroke="#2a1508" strokeWidth="8" fill="none" strokeLinecap="round" />
+    <path d="M142 100 Q146 120 144 135" stroke="#2a1508" strokeWidth="8" fill="none" strokeLinecap="round" />
+    {/* Woman face */}
+    <circle cx="113" cy="102" r="2.5" fill="#5a3020" />
+    <circle cx="127" cy="102" r="2.5" fill="#5a3020" />
+    <path d="M114 112 Q120 116 126 112" stroke="#c87060" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    {/* Woman arm holding cigar */}
+    <path d="M148 135 Q165 148 172 155" stroke="#c8a882" strokeWidth="8" fill="none" strokeLinecap="round" />
+    {/* Woman's cigar */}
+    <rect x="168" y="150" width="30" height="5" rx="2.5" fill="#7a4a28" transform="rotate(20 183 152)" />
+    <rect x="194" y="149" width="6" height="5" rx="1" fill="#c9a84c" opacity="0.8" transform="rotate(20 183 152)" />
+    {/* Woman cigar smoke */}
+    <path d="M200 144 Q204 132 200 120 Q204 130 208 122 Q205 134 208 142" stroke="#e8d5b7" strokeWidth="1" fill="none" opacity="0.15" />
+    {/* Man - right side */}
+    {/* Body/suit */}
+    <path d="M265 155 Q270 118 300 114 Q330 118 335 155 Q322 162 300 163 Q278 162 265 155Z" fill="#1a1a2a" />
+    {/* Suit lapels */}
+    <path d="M290 114 L282 145 L300 138Z" fill="#2a2a3a" />
+    <path d="M310 114 L318 145 L300 138Z" fill="#2a2a3a" />
+    {/* Tie */}
+    <path d="M297 118 L300 140 L303 118Z" fill="#8a2020" />
+    {/* Man head */}
+    <circle cx="300" cy="98" r="24" fill="#b08060" />
+    {/* Hair */}
+    <ellipse cx="300" cy="82" rx="24" ry="12" fill="#1a1008" />
+    {/* Man face */}
+    <circle cx="292" cy="100" r="2.5" fill="#3a2010" />
+    <circle cx="308" cy="100" r="2.5" fill="#3a2010" />
+    <path d="M292 110 Q300 114 308 110" stroke="#8a5040" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    {/* Man mustache */}
+    <path d="M294 107 Q300 110 306 107" stroke="#2a1508" strokeWidth="2" fill="none" strokeLinecap="round" />
+    {/* Man arm */}
+    <path d="M265 138 Q248 148 242 156" stroke="#b08060" strokeWidth="9" fill="none" strokeLinecap="round" />
+    {/* Man's cigar */}
+    <rect x="210" y="152" width="34" height="6" rx="3" fill="#6a3a20" transform="rotate(-15 227 155)" />
+    <rect x="210" y="153" width="29" height="4" rx="2" fill="#8a4a28" transform="rotate(-15 227 155)" />
+    <rect x="208" y="151" width="8" height="6" rx="1" fill="#c9a84c" opacity="0.8" transform="rotate(-15 227 155)" />
+    {/* Lit end glow */}
+    <circle cx="213" cy="157" r="5" fill="#e8632a" opacity="0.6" />
+    <circle cx="213" cy="157" r="3" fill="#ffc060" opacity="0.5" />
+    {/* Man cigar smoke */}
+    <path d="M211 150 Q207 138 211 124 Q207 136 203 126 Q206 138 203 148" stroke="#e8d5b7" strokeWidth="1.2" fill="none" opacity="0.18" />
+    {/* Whiskey glasses */}
+    <rect x="165" y="152" width="16" height="18" rx="2" fill="#c9a84c" opacity="0.25" />
+    <rect x="166" y="153" width="14" height="6" fill="#c9a84c" opacity="0.3" />
+    <rect x="242" y="152" width="16" height="18" rx="2" fill="#c9a84c" opacity="0.25" />
+    <rect x="243" y="153" width="14" height="6" fill="#c9a84c" opacity="0.3" />
+    {/* Warm light overlay at bottom */}
+    <rect x="0" y="140" width="420" height="80" fill="#3a1e0a" opacity="0.4" />
+    {/* Gradient overlay for text readability */}
+    <rect x="0" y="100" width="420" height="120" fill="url(#fadeDown)" opacity="0.5" />
+    <defs>
+      <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#1a0d06" stopOpacity="0" />
+        <stop offset="100%" stopColor="#1a0d06" stopOpacity="1" />
+      </linearGradient>
+    </defs>
+  </svg>
 );
 
 export default function App() {
@@ -73,6 +225,8 @@ export default function App() {
     filterNoteTags.length > 0 ? "tags" : "",
     filterScoreMin > 0 || filterScoreMax < 10 ? "score" : ""
   ].filter(Boolean).length;
+  const [featuredCigars, setFeaturedCigars] = useState([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   const searchTimeout = useRef(null);
 
   useEffect(() => {
@@ -85,6 +239,47 @@ export default function App() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const loadFeatured = async () => {
+      setFeaturedLoading(true);
+      const { data: cached } = await supabase
+        .from("cigars")
+        .select("*")
+        .order("total_checkins", { ascending: false })
+        .limit(5);
+      if (cached && cached.length >= 5) {
+        setFeaturedCigars(cached);
+        setFeaturedLoading(false);
+        return;
+      }
+      const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-api-key": KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+          body: JSON.stringify({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 1024,
+            messages: [{ role: "user", content: `List 5 world-famous premium cigars that every enthusiast should know. Return ONLY a raw JSON array:\n[{"brand":"","line":"","vitola":"","wrapper":"","origin":"","strength":"Light|Medium|Medium-Full|Full","tasting_notes":"","description":""}]` }]
+          })
+        });
+        const d = await res.json();
+        const raw = d.content?.[0]?.text || "[]";
+        const match = raw.match(/\[[\s\S]*\]/);
+        const cigars = match ? JSON.parse(match[0]) : [];
+        for (const c of cigars) {
+          const { data: existing } = await supabase.from("cigars").select("*").eq("brand", c.brand).eq("line", c.line).maybeSingle();
+          if (!existing) await supabase.from("cigars").insert({ ...c, ai_generated: true, verified: false, total_checkins: 0 });
+        }
+        const { data: fresh } = await supabase.from("cigars").select("*").order("total_checkins", { ascending: false }).limit(5);
+        setFeaturedCigars(fresh || cigars);
+      } catch (e) { console.error(e); }
+      setFeaturedLoading(false);
+    };
+    loadFeatured();
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -179,15 +374,15 @@ export default function App() {
     setViolasLoading(false);
   };
 
-  const fallbackImg = () => `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80`;
+
   const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Profile";
   const username = user?.user_metadata?.username ? user.user_metadata.username.replace(/^@/, "") : null;
 
   const s = {
     app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
-    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", zIndex: 100 },
-    navBtn: a => ({ flex: 1, padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }),
+    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", justifyContent: "center", alignItems: "center", gap: 40, zIndex: 100 },
+    navBtn: a => ({ padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, whiteSpace: "nowrap" }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#4a3020"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
@@ -211,7 +406,10 @@ export default function App() {
     return (
       <div style={{ ...s.app, overflowY: "auto" }}>
         <div style={{ position: "relative", height: 220 }}>
-          <img src={imgErrors[c.id] ? fallbackImg() : c.img || fallbackImg()} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          {c.img && !imgErrors[c.id]
+            ? <img src={c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            : <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
+          }
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
           <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
           {c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
@@ -331,20 +529,20 @@ export default function App() {
           {!selectedLine && !query && (
             <>
               <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1, margin: "16px 0 10px" }}>FEATURED CIGARS</div>
-              {CIGARS.map(c => (
-                <div key={c.id} style={{ ...s.card, borderColor: c.smoked ? "#c9a84c33" : "#3a2510" }} onClick={() => setSelected(c)}>
+              {featuredLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading featured cigars...</div>}
+              {featuredCigars.map((c, i) => (
+                <div key={c.id || i} style={{ ...s.card, borderColor: "#3a2510" }} onClick={() => setSelected(c)}>
                   <div style={{ display: "flex" }}>
-                    <div style={{ width: 90, flexShrink: 0 }}>
-                      <img src={imgErrors[c.id] ? fallbackImg() : c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: 90, height: 90, objectFit: "cover" }} />
-                    </div>
+                    <div style={{ width: 90, flexShrink: 0 }}><CigarIcon index={i} /></div>
                     <div style={{ flex: 1, padding: "10px 12px" }}>
-                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{c.brand.toUpperCase()}</div>
+                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{c.brand?.toUpperCase()}</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{c.line}</div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <Badge label={c.strength} color={strengthColor(c.strength)} />
                         <div style={{ textAlign: "right" }}>
-                          <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{c.rating}</span>
-                          {c.smoked && <div style={{ fontSize: 9, color: "#c9a84c" }}>✓ SMOKED</div>}
+                          {c.avg_rating
+                            ? <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{c.avg_rating}</span>
+                            : <span style={{ fontSize: 11, color: "#5a4535" }}>Not Rated</span>}
                         </div>
                       </div>
                     </div>
@@ -381,18 +579,11 @@ export default function App() {
           </div>
 
           {checkins.length > 0 && (() => {
-            // Top location
             const locCounts = checkins.reduce((acc, c) => { if (c.smoke_location) acc[c.smoke_location] = (acc[c.smoke_location] || 0) + 1; return acc; }, {});
             const topLoc = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0];
-
-            // Top 3 cigars by rating
             const top3 = [...checkins].sort((a, b) => b.rating - a.rating).slice(0, 3);
-
-            // Most smoked brand
             const brandCounts = checkins.reduce((acc, c) => { const b = c.cigars?.brand || c.cigar_brand; if (b) acc[b] = (acc[b] || 0) + 1; return acc; }, {});
             const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0];
-
-            // Best rated vitola type
             const vitolaRatings = checkins.reduce((acc, c) => { const v = c.cigars?.vitola || c.cigar_vitola; if (v) { if (!acc[v]) acc[v] = []; acc[v].push(c.rating); } return acc; }, {});
             const bestVitola = Object.entries(vitolaRatings).map(([v, ratings]) => [v, ratings.reduce((a, b) => a + b, 0) / ratings.length]).sort((a, b) => b[1] - a[1])[0];
 
@@ -457,7 +648,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Active filter chips */}
               {activeFilterCount > 0 && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
                   {filterName && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterName("")}>Name: {filterName} ×</span>}
@@ -470,7 +660,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Filter Drawer */}
           {showFilterDrawer && (
             <div style={{ position: "fixed", inset: 0, zIndex: 400, display: "flex", flexDirection: "column", justifyContent: "flex-end", maxWidth: 420, margin: "0 auto" }}>
               <div style={{ position: "absolute", inset: 0, background: "#00000088" }} onClick={() => setShowFilterDrawer(false)} />
@@ -480,7 +669,6 @@ export default function App() {
                   <button onClick={() => setShowFilterDrawer(false)} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 22, cursor: "pointer" }}>×</button>
                 </div>
 
-                {/* Name */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
                   <input
@@ -502,7 +690,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Brand */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>BRAND</div>
                   <input
@@ -524,7 +711,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Tasting Notes Tags */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -534,23 +720,18 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Score Range */}
                 <div style={{ marginBottom: 24 }}>
                   <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>SCORE RANGE</div>
                   <div style={{ display: "flex", gap: 16 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MINIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
                       <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}>
-                        <span>0</span><span>10</span>
-                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MAXIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
                       <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}>
-                        <span>0</span><span>10</span>
-                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
                     </div>
                   </div>
                 </div>
@@ -703,7 +884,7 @@ export default function App() {
 
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
       <nav style={s.nav}>
-        {[["search", "🔍", "Explore"], ["profile", "👤", displayName]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Cigar Search"], ["profile", "👤", "My Profile"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
         ))}
       </nav>
