@@ -196,7 +196,6 @@ export default function App() {
   const [selectedLine, setSelectedLine] = useState(null);
   const [vitolas, setVitolas] = useState([]);
   const [violasLoading, setViolasLoading] = useState(false);
-  const [searchFilterStrength, setSearchFilterStrength] = useState([]);
   const [checkingIn, setCheckingIn] = useState(null);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -384,7 +383,6 @@ export default function App() {
     setSelectedLine(line);
     setVitolas([]);
     setViolasLoading(true);
-    setSearchFilterStrength([]);
     const results = await getVitolas(line.brand, line.line, (partial) => {
       setVitolas(partial);
     });
@@ -487,7 +485,7 @@ export default function App() {
           <div style={{ position: "relative" }}>
             <input
               style={s.input}
-              placeholder="Search cigars, brands, vitolas..."
+              placeholder="Search by cigar name or brand..."
               value={query}
               onChange={e => handleInputChange(e.target.value)}
               onFocus={() => query.length >= 2 && searchResults.length > 0 && setShowDropdown(true)}
@@ -520,27 +518,11 @@ export default function App() {
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 4 }}>{selectedLine.brand.toUpperCase()}</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>{selectedLine.line}</div>
-              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>Select a vitola to view details</div>
-
-              {/* Strength filter */}
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-                {["Light", "Medium", "Medium-Full", "Full"].map(s => (
-                  <button key={s} onClick={() => setSearchFilterStrength(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
-                    style={{ padding: "4px 12px", borderRadius: 20, border: `1px solid ${searchFilterStrength.includes(s) ? strengthColor(s) : "#3a2510"}`, background: searchFilterStrength.includes(s) ? strengthColor(s) + "22" : "transparent", color: searchFilterStrength.includes(s) ? strengthColor(s) : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-                    {s}
-                  </button>
-                ))}
-                {searchFilterStrength.length > 0 && (
-                  <button onClick={() => setSearchFilterStrength([])} style={{ padding: "4px 10px", borderRadius: 20, border: "1px solid #3a2510", background: "transparent", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
-                )}
-              </div>
-
+              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14 }}>Select a vitola to view details</div>
               {violasLoading && vitolas.length === 0 && (
                 <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
               )}
-              {vitolas
-                .filter(c => searchFilterStrength.length === 0 || searchFilterStrength.includes(c.strength))
-                .map((c, i) => (
+              {vitolas.map((c, i) => (
                 <div key={i} style={s.vitolaCard} onClick={() => setSelected(c)}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{c.vitola}</div>
