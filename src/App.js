@@ -3,6 +3,7 @@ import Auth from "./Auth";
 import { supabase } from "./supabase";
 import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
+import BandScanner from "./BandScanner";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -197,6 +198,7 @@ export default function App() {
   const [vitolas, setVitolas] = useState([]);
   const [violasLoading, setViolasLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(null);
+  const [showBandScanner, setShowBandScanner] = useState(false);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
   const [selectedCheckin, setSelectedCheckin] = useState(null);
@@ -513,6 +515,16 @@ export default function App() {
               </div>
             )}
           </div>
+
+          {/* Scan Band button — shown when no search active */}
+          {!query && !selectedLine && (
+            <button
+              onClick={() => setShowBandScanner(true)}
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: SANS, marginTop: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+            >
+              📷 Scan a Cigar Band
+            </button>
+          )}
 
           {selectedLine && (
             <div style={{ marginTop: 16 }}>
@@ -924,6 +936,12 @@ export default function App() {
       )}
 
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
+      {showBandScanner && (
+        <BandScanner
+          onClose={() => setShowBandScanner(false)}
+          onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
+        />
+      )}
       <nav style={s.nav}>
         {[["search", "🔍", "Cigar Search"], ["profile", "👤", "My Profile"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
