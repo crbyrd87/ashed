@@ -41,7 +41,11 @@ function RatingSlider({ value, onChange, min = 0, max = 10, step = 0.5 }) {
 
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [score, setScore] = useState(7.5);
+  const [overrideScore, setOverrideScore] = useState(false);
   const [subScores, setSubScores] = useState({ aroma: 7.5, draw: 7.5, burn: 7.5, construction: 7.5, flavor: 7.5, finish: 7.5 });
+
+  const avgScore = parseFloat((Object.values(subScores).reduce((a, b) => a + b, 0) / 6).toFixed(1));
+  const displayScore = overrideScore ? score : avgScore;
   const [notes, setNotes] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [valueForPrice, setValueForPrice] = useState(null);
@@ -88,7 +92,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     const checkinData = {
       user_id: user.id,
       cigar_id: isRealCigar ? cigar.id : null,
-      rating: score,
+      rating: displayScore,
       tasting_notes: notes || null,
       smoke_date: smokeDate,
       smoke_location: location || null,
@@ -114,7 +118,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       checkin_id: savedCheckin.id,
       user_id: user.id,
       cigar_id: isRealCigar ? cigar.id : null,
-      score,
+      score: displayScore,
       aroma: subScores.aroma,
       draw: subScores.draw,
       burn: subScores.burn,
@@ -177,11 +181,19 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
       </div>
 
-      {/* Overall Score */}
       <div style={s.section}>
         <div style={s.label}>Overall Score</div>
-        <div style={{ fontSize: 48, fontWeight: 700, color: "#c9a84c", textAlign: "center", marginBottom: 8 }}>{score.toFixed(1)}</div>
-        <RatingSlider value={score} onChange={setScore} />
+        <div style={{ fontSize: 48, fontWeight: 700, color: "#c9a84c", textAlign: "center", marginBottom: 8 }}>{displayScore.toFixed(1)}</div>
+        {!overrideScore && <div style={{ fontSize: 11, color: "#5a4535", textAlign: "center", marginBottom: 10 }}>Average of detailed ratings</div>}
+        {overrideScore && <RatingSlider value={score} onChange={setScore} />}
+        <div style={{ textAlign: "center", marginTop: 8 }}>
+          <button
+            onClick={() => setOverrideScore(!overrideScore)}
+            style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 14px", color: overrideScore ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+          >
+            {overrideScore ? "Use average instead" : "Override with custom score"}
+          </button>
+        </div>
       </div>
 
       {/* Sub Scores */}
