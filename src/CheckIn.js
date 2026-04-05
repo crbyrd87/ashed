@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -51,6 +51,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [valueForPrice, setValueForPrice] = useState(null);
   const [smokeDate, setSmokeDate] = useState(new Date().toISOString().split("T")[0]);
   const [location, setLocation] = useState("");
+  const [savedPlaces, setSavedPlaces] = useState([]);
+  const [showNewPlace, setShowNewPlace] = useState(false);
+  const [newPlaceName, setNewPlaceName] = useState("");
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,6 +61,33 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [listening, setListening] = useState(false);
   const [activeTip, setActiveTip] = useState(null);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const { data } = await supabase
+        .from("places")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("name", { ascending: true });
+      setSavedPlaces(data || []);
+    };
+    fetchPlaces();
+  }, [user.id]);
+
+  const handleAddPlace = async () => {
+    if (!newPlaceName.trim()) return;
+    const { data } = await supabase
+      .from("places")
+      .insert({ user_id: user.id, name: newPlaceName.trim() })
+      .select()
+      .single();
+    if (data) {
+      setSavedPlaces(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setLocation(data.name);
+      setNewPlaceName("");
+      setShowNewPlace(false);
+    }
+  };
 
   const toggleTag = (tag) => {
     setSelectedTags(prev =>
@@ -88,10 +118,13 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setSaving(true);
     setError(null);
 
-    const isRealCigar = cigar.id && String(cigar.id).length > 5;
+    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
     const checkinData = {
       user_id: user.id,
       cigar_id: isRealCigar ? cigar.id : null,
+      cigar_name: cigar.line || null,
+      cigar_brand: cigar.brand || null,
+      cigar_vitola: cigar.vitola || null,
       rating: displayScore,
       tasting_notes: notes || null,
       smoke_date: smokeDate,
@@ -145,6 +178,19 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
     setSaving(false);
     setSuccess(true);
+
+    // Recalculate avg_rating for this cigar
+    if (isRealCigar && cigar.id) {
+      const { data: allRatings } = await supabase
+        .from("ratings")
+        .select("score")
+        .eq("cigar_id", cigar.id);
+      if (allRatings && allRatings.length > 0) {
+        const avg = allRatings.reduce((a, r) => a + r.score, 0) / allRatings.length;
+        await supabase.from("cigars").update({ avg_rating: parseFloat(avg.toFixed(1)) }).eq("id", cigar.id);
+      }
+    }
+
     setTimeout(() => {
       if (onSaved) onSaved(savedRating);
       onClose();
@@ -265,7 +311,24 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <div style={s.label}>Date</div>
         <input type="date" style={s.input} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
         <div style={{ ...s.label, marginTop: 14 }}>Location <span style={{ color: "#5a4535", fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span></div>
-        <input style={s.input} placeholder="e.g. Back porch, Cigar lounge..." value={location} onChange={e => setLocation(e.target.value)} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+          {savedPlaces.map(p => (
+            <button key={p.id} style={s.tag(location === p.name)} onClick={() => setLocation(location === p.name ? "" : p.name)}>{p.name}</button>
+          ))}
+          <button style={s.tag(false)} onClick={() => setShowNewPlace(!showNewPlace)}>+ Add place</button>
+        </div>
+        {showNewPlace && (
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              style={{ ...s.input, flex: 1 }}
+              placeholder="e.g. Back porch, Lanai..."
+              value={newPlaceName}
+              onChange={e => setNewPlaceName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleAddPlace()}
+            />
+            <button onClick={handleAddPlace} style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "0 16px", color: "#1a0f08", fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
+          </div>
+        )}
       </div>
 
       {/* Privacy */}

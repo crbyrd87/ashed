@@ -45,7 +45,7 @@ export async function searchCigarLines(query, onPartialResults) {
 
   const { data: cached } = await supabase
     .from("cigars")
-    .select("brand, line")
+    .select("brand, line, avg_rating")
     .or("brand.ilike.%" + searchTerm + "%,line.ilike.%" + searchTerm + "%")
     .order("line", { ascending: true });
 
