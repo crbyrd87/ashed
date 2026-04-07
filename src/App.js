@@ -1131,7 +1131,7 @@ export default function App() {
         />
       )}
       <nav style={s.nav}>
-        {[["search", "🔍", "Cigar Search"], ["profile", "👤", "My Profile"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Search"], ["profile", "👤", "Journal"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
         ))}
       </nav>
