@@ -486,8 +486,8 @@ export default function App() {
   const s = {
     app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
-    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", justifyContent: "center", alignItems: "center", gap: 40, zIndex: 100 },
-    navBtn: a => ({ padding: "12px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 11, letterSpacing: 1, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, whiteSpace: "nowrap" }),
+    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #3a2510", display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
+    navBtn: a => ({ flex: 1, padding: "10px 0", background: "none", border: "none", color: a ? "#c9a84c" : "#5a4535", fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#4a3020"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
@@ -1180,7 +1180,10 @@ export default function App() {
       )}
       <nav style={s.nav}>
         {[["search", "🔍", "Search"], ["profile", "👤", "Journal"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
-          <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
+          <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
+            <span style={{ fontSize: 18 }}>{icon}</span>
+            <span>{label}</span>
+          </button>
         ))}
       </nav>
     </div>
