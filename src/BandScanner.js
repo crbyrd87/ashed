@@ -10,7 +10,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onSearchManually }) {
+export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
   const [stage, setStage] = useState("capture"); // capture | analyzing | result | error | flagged
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
@@ -307,6 +307,12 @@ Be as specific as possible. If you can read text on the band, use it.`
             style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
           >
             + Add to Wishlist
+          </button>
+          <button
+            onClick={() => { onAddToHumidor(cigar); onClose(); }}
+            style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
+          >
+            + Add to Humidor
           </button>
           <button
             onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }}

@@ -5,6 +5,7 @@ import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
 import BandScanner from "./BandScanner";
 import Recommendations from "./Recommendations";
+import Humidor from "./Humidor";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -205,6 +206,7 @@ export default function App() {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
   const [wishlistFilterStrength, setWishlistFilterStrength] = useState([]);
+  const [humidor, setHumidor] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
   const [selectedCheckin, setSelectedCheckin] = useState(null);
@@ -383,6 +385,31 @@ export default function App() {
     return wishlist.some(w => w.cigar_name === (cigar.line || cigar.cigar_name));
   };
 
+  const handleAddToHumidor = async (cigar) => {
+    const existing = humidor.find(h =>
+      cigar.id ? h.cigar_id === cigar.id : h.cigar_name === (cigar.line || cigar.cigar_name)
+    );
+    if (existing) {
+      await supabase.from("humidor").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+    } else {
+      await supabase.from("humidor").insert({
+        user_id: user.id,
+        cigar_id: cigar.id || null,
+        cigar_brand: cigar.brand || null,
+        cigar_name: cigar.line || null,
+        cigar_vitola: cigar.vitola || null,
+        quantity: 1,
+      });
+    }
+    const { data } = await supabase.from("humidor").select("*").eq("user_id", user.id);
+    setHumidor(data || []);
+  };
+
+  const isInHumidor = (cigar) => {
+    if (cigar.id) return humidor.some(h => h.cigar_id === cigar.id);
+    return humidor.some(h => h.cigar_name === (cigar.line || cigar.cigar_name));
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -526,12 +553,20 @@ export default function App() {
               <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
                 + LOG THIS SMOKE
               </button>
-              <button
-                onClick={() => handleAddToWishlist(c)}
-                style={{ width: "100%", background: isOnWishlist(c) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(c) ? "#c9a84c" : "#3a2510"}`, borderRadius: 10, padding: 14, color: isOnWishlist(c) ? "#c9a84c" : "#8a7055", fontSize: 14, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
-              >
-                {isOnWishlist(c) ? "✓ On Your Wishlist" : "+ Add to Wishlist"}
-              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => handleAddToWishlist(c)}
+                  style={{ flex: 1, background: isOnWishlist(c) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(c) ? "#c9a84c" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
+                >
+                  {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
+                </button>
+                <button
+                  onClick={() => handleAddToHumidor(c)}
+                  style={{ flex: 1, background: isInHumidor(c) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(c) ? "#7a9a7a" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? "#7a9a7a" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                >
+                  {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1099,6 +1134,12 @@ export default function App() {
                         </button>
                       )}
                       <button
+                        onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
+                        style={{ background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "6px 12px", color: "#7a9a7a", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                      >
+                        Purchased
+                      </button>
+                      <button
                         onClick={() => handleRemoveFromWishlist(w.id)}
                         style={{ background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "6px 12px", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
                       >
@@ -1119,6 +1160,7 @@ export default function App() {
           onClose={() => setShowBandScanner(false)}
           onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
           onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
+          onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
           onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
         />
       )}
@@ -1130,8 +1172,14 @@ export default function App() {
           onClose={() => setShowRecommendations(false)}
         />
       )}
+      {tab === "humidor" && (
+        <Humidor
+          user={user}
+          onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
+        />
+      )}
       <nav style={s.nav}>
-        {[["search", "🔍", "Search"], ["profile", "👤", "Journal"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Search"], ["profile", "👤", "Journal"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>{icon} {label}</button>
         ))}
       </nav>

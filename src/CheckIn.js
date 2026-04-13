@@ -2,6 +2,39 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
+
+const fetchAISuggestions = async (cigar) => {
+  const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 short tasting note descriptors a smoker might experience.
+
+Cigar: ${cigar.brand} ${cigar.line}
+Strength: ${cigar.strength || "unknown"}
+Wrapper: ${cigar.wrapper || "unknown"}
+Origin: ${cigar.origin || "unknown"}
+Known tasting notes: ${cigar.tasting_notes || "none"}
+
+Return ONLY a raw JSON array of short descriptor strings, no markdown, no explanation. Each descriptor should be 1-3 words maximum.
+Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dried fruit"]`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": KEY,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 200,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  const data = await response.json();
+  const raw = data.content?.[0]?.text || "[]";
+  const match = raw.match(/\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : [];
+};
 
 const FLAVOR_TAGS = [
   "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
@@ -61,6 +94,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [listening, setListening] = useState(false);
   const [activeTip, setActiveTip] = useState(null);
   const [error, setError] = useState(null);
+  const [aiSuggestions, setAiSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestionsUsed, setSuggestionsUsed] = useState(false);
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -93,6 +129,23 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
+  };
+
+  const handleGetSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const suggestions = await fetchAISuggestions(cigar);
+      setAiSuggestions(suggestions);
+    } catch (e) {
+      console.error("AI suggestions error:", e);
+    }
+    setLoadingSuggestions(false);
+    setSuggestionsUsed(true);
+  };
+
+  const handleTapSuggestion = (suggestion) => {
+    setNotes(prev => prev ? prev + ", " + suggestion : suggestion);
+    setAiSuggestions(prev => prev.filter(s => s !== suggestion));
   };
 
   const handleVoice = () => {
@@ -268,9 +321,33 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             onChange={e => setNotes(e.target.value)}
           />
         </div>
-        <button style={s.micBtn} onClick={handleVoice}>
-          {listening ? "🎙️ Listening..." : "🎙️ Voice input"}
-        </button>
+        <div style={{ display: "flex", gap: 8, marginBottom: aiSuggestions.length > 0 ? 10 : 0 }}>
+          <button style={s.micBtn} onClick={handleVoice}>
+            {listening ? "🎙️ Listening..." : "🎙️ Voice input"}
+          </button>
+          {!suggestionsUsed && (
+            <button
+              onClick={handleGetSuggestions}
+              disabled={loadingSuggestions}
+              style={{ background: loadingSuggestions ? "#2a1a0e" : "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "8px 14px", color: loadingSuggestions ? "#5a4535" : "#7a9a7a", fontSize: 12, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+            >
+              {loadingSuggestions ? "Thinking..." : "✨ Suggest notes"}
+            </button>
+          )}
+        </div>
+        {aiSuggestions.length > 0 && (
+          <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "10px 12px" }}>
+            <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 8 }}>TAP TO ADD TO YOUR NOTES</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {aiSuggestions.map((s, i) => (
+                <button key={i} onClick={() => handleTapSuggestion(s)}
+                  style={{ padding: "5px 12px", borderRadius: 20, border: "1px solid #7a9a7a55", background: "#7a9a7a22", color: "#7a9a7a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  + {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={s.section}>
