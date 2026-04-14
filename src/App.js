@@ -6,6 +6,7 @@ import CheckIn from "./CheckIn";
 import BandScanner from "./BandScanner";
 import Recommendations from "./Recommendations";
 import Humidor from "./Humidor";
+import Pairings from "./Pairings";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -202,6 +203,8 @@ export default function App() {
   const [checkingIn, setCheckingIn] = useState(null);
   const [showBandScanner, setShowBandScanner] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const [showPairings, setShowPairings] = useState(false);
+  const [pairingsCigar, setPairingsCigar] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
@@ -553,6 +556,12 @@ export default function App() {
               <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
                 + LOG THIS SMOKE
               </button>
+              <button
+                onClick={() => { setPairingsCigar(c); setShowPairings(true); }}
+                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+              >
+                🥃 Drink Pairings
+              </button>
               <div style={{ display: "flex", gap: 8 }}>
                 <button
                   onClick={() => handleAddToWishlist(c)}
@@ -571,6 +580,12 @@ export default function App() {
           )}
         </div>
         {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); refreshCheckins(); }} />}
+        {showPairings && pairingsCigar && (
+          <Pairings
+            cigar={pairingsCigar}
+            onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
+          />
+        )}
       </div>
     );
   }
@@ -1170,6 +1185,12 @@ export default function App() {
           checkins={checkins}
           onAddToWishlist={(cigar) => handleAddToWishlist(cigar)}
           onClose={() => setShowRecommendations(false)}
+        />
+      )}
+      {showPairings && pairingsCigar && (
+        <Pairings
+          cigar={pairingsCigar}
+          onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
         />
       )}
       {tab === "humidor" && (

@@ -78,13 +78,20 @@ export default function Humidor({ user, onSmokeOne }) {
               { type: "text", text: `You are a cigar expert. Analyze this image. It may contain one cigar band or multiple cigar bands.
 
 If it contains ONE cigar, return a single JSON object:
-{"type":"single","brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low"}
+{"type":"single","brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"}
 
-If it contains MULTIPLE cigars or bands, return a JSON array:
-[{"brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low"},...]
+If it contains MULTIPLE cigars or bands, return a JSON array — one entry per cigar you can see:
+[{"brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"},...]
 
 If you cannot identify anything, return:
 {"type":"none","reason":"Why"}
+
+IMPORTANT RULES:
+- Only return "high" confidence if you can clearly read the brand and line name on the band.
+- Return "medium" if you can read the brand but are inferring the line.
+- Return "low" if the band is blurry, angled, partially obscured, or you are guessing. Low confidence entries will be filtered out and the user will search manually.
+- It is better to return "low" and let the user search manually than to return a wrong cigar with "high" or "medium" confidence.
+- For multi-cigar photos, each cigar gets its own confidence rating independently.
 
 Return ONLY raw JSON, no markdown, no explanation.` }
             ]
@@ -116,15 +123,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         return;
       }
 
-      // Mark low confidence
-      const filtered = cigars.filter(c => c.confidence !== "low");
-      if (filtered.length === 0) {
-        setScanError("Confidence too low to identify cigars. Try a clearer photo.");
-        setScanStage("error");
-        return;
-      }
-
-      setScanResult(filtered.map(c => ({ ...c, qty: 1, notes: "" })));
+      setScanResult(cigars.map(c => ({ ...c, qty: 1, notes: "" })));
       setScanStage("confirm");
 
     } catch (err) {
@@ -257,6 +256,14 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 6 }}>Scan cigar band(s)</div>
             <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once. Ashed will identify each cigar.</div>
           </div>
+          <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c33", borderRadius: 10, padding: 12, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 1, marginBottom: 6 }}>TIPS FOR BEST RESULTS</div>
+            {["Photograph 3 cigars at a time max for best accuracy", "Bands should face the camera directly, not at an angle", "Good lighting and a steady hand make a big difference", "You can always edit brand and line on the confirm screen"].map((tip, i) => (
+              <div key={i} style={{ fontSize: 12, color: "#8a7055", marginBottom: 4, display: "flex", gap: 6 }}>
+                <span style={{ color: "#c9a84c" }}>→</span>{tip}
+              </div>
+            ))}
+          </div>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
             <div style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
@@ -292,10 +299,44 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             {scanResult.length === 1 ? "CONFIRM CIGAR" : `CONFIRM ${scanResult.length} CIGARS`}
           </div>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 14 }} />}
+
+          {/* Warning banner if any low confidence */}
+          {scanResult.some(c => c.confidence === "low") && (
+            <div style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: "#e8a07a", lineHeight: 1.5 }}>
+                ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review and correct the highlighted {scanResult.filter(c => c.confidence === "low").length > 1 ? "entries" : "entry"} before saving.
+              </div>
+            </div>
+          )}
           {scanResult.map((cigar, i) => (
-            <div key={i} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{cigar.brand?.toUpperCase()}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{cigar.line}</div>
+            <div key={i} style={{ background: "#2a1a0e", border: `1px solid ${cigar.confidence === "high" ? "#7a9a7a44" : cigar.confidence === "medium" ? "#c9a84c44" : "#a0522d88"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+
+              {/* Confidence indicator */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? "#7a9a7a" : cigar.confidence === "medium" ? "#c9a84c" : "#a0522d" }} />
+                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? "#7a9a7a" : cigar.confidence === "medium" ? "#c9a84c" : "#e8a07a", letterSpacing: 1 }}>
+                  {cigar.confidence === "high" && "CONFIDENCE LEVEL: HIGH"}
+                  {cigar.confidence === "medium" && "CONFIDENCE LEVEL: MEDIUM -- PLEASE VERIFY"}
+                  {cigar.confidence === "low" && "CONFIDENCE LEVEL: LOW -- AI COULD NOT IDENTIFY. PLEASE CORRECT BELOW."}
+                </span>
+              </div>
+
+              {/* Editable brand */}
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
+              <input
+                value={cigar.brand || ""}
+                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
+              />
+
+              {/* Editable line */}
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>LINE</div>
+              <input
+                value={cigar.line || ""}
+                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
+              />
+
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
