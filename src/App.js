@@ -7,6 +7,7 @@ import BandScanner from "./BandScanner";
 import Recommendations from "./Recommendations";
 import Humidor from "./Humidor";
 import Pairings from "./Pairings";
+import Friends from "./Friends";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -205,6 +206,7 @@ export default function App() {
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showPairings, setShowPairings] = useState(false);
   const [pairingsCigar, setPairingsCigar] = useState(null);
+  const [showFriends, setShowFriends] = useState(false);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
@@ -712,11 +714,17 @@ export default function App() {
         <div style={{ padding: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: "16px 0", borderBottom: "1px solid #3a2510" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{displayName}</div>
               <div style={{ fontSize: 12, color: "#8a7055" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
               <div style={{ marginTop: 6 }}><Badge label="🏅 Aficionado" color="#c9a84c" /></div>
             </div>
+            <button
+              onClick={() => setShowFriends(true)}
+              style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "6px 14px", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+            >
+              👥 Friends
+            </button>
           </div>
 
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
@@ -1191,6 +1199,12 @@ export default function App() {
         <Pairings
           cigar={pairingsCigar}
           onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
+        />
+      )}
+      {showFriends && (
+        <Friends
+          user={user}
+          onClose={() => setShowFriends(false)}
         />
       )}
       {tab === "humidor" && (
