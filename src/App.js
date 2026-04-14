@@ -8,6 +8,7 @@ import Recommendations from "./Recommendations";
 import Humidor from "./Humidor";
 import Pairings from "./Pairings";
 import Friends from "./Friends";
+import Feed from "./Feed";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -24,73 +25,6 @@ const ScoreBar = ({ rating }) => (
     <span style={{ color: "#c9a84c", fontSize: 14, fontWeight: 700 }}>{rating}</span>
   </div>
 );
-
-const CIGAR_ICONS = [
-  // 1. Classic cigar with band and smoke
-  (
-    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
-      <rect x="8" y="38" width="62" height="14" rx="7" fill="#5a3520" />
-      <rect x="8" y="40" width="57" height="10" rx="5" fill="#7a4a28" />
-      <rect x="52" y="38" width="14" height="14" rx="2" fill="#c9a84c" opacity="0.9" />
-      <rect x="54" y="40" width="10" height="10" rx="1" fill="#1a0f08" opacity="0.3" />
-      <rect x="66" y="39" width="14" height="12" rx="6" fill="#a0522d" />
-      <path d="M72 38 Q74 30 71 22 Q73 28 76 20 Q75 30 78 36" stroke="#ccc" strokeWidth="1" fill="none" opacity="0.3" />
-    </svg>
-  ),
-  // 2. Cigar in ashtray view
-  (
-    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
-      <ellipse cx="45" cy="62" rx="32" ry="10" fill="#3a2510" />
-      <ellipse cx="45" cy="60" rx="30" ry="8" fill="#2a1a0e" stroke="#5a3520" strokeWidth="1.5" />
-      <rect x="20" y="42" width="50" height="12" rx="6" fill="#5a3520" transform="rotate(-8 45 48)" />
-      <rect x="20" y="43" width="44" height="9" rx="5" fill="#7a4a28" transform="rotate(-8 45 48)" />
-      <rect x="56" y="40" width="12" height="12" rx="2" fill="#c9a84c" opacity="0.9" transform="rotate(-8 45 48)" />
-      <path d="M67 36 Q70 26 67 18" stroke="#ddd" strokeWidth="1.2" fill="none" opacity="0.25" />
-    </svg>
-  ),
-  // 3. Cigar with ribbon/ring close-up
-  (
-    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
-      <rect x="6" y="36" width="66" height="18" rx="9" fill="#4a2a18" />
-      <rect x="6" y="38" width="60" height="14" rx="7" fill="#6a3a22" />
-      <rect x="6" y="40" width="55" height="10" rx="5" fill="#8a4a28" />
-      <rect x="30" y="36" width="20" height="18" fill="#c9a84c" opacity="0.95" />
-      <rect x="32" y="38" width="16" height="14" fill="#1a0f08" opacity="0.15" />
-      <line x1="30" y1="36" x2="30" y2="54" stroke="#a07820" strokeWidth="0.5" />
-      <line x1="50" y1="36" x2="50" y2="54" stroke="#a07820" strokeWidth="0.5" />
-      <text x="40" y="48" textAnchor="middle" fontSize="5" fill="#c9a84c" fontWeight="bold" opacity="0.6">ASHED</text>
-      <rect x="66" y="37" width="16" height="16" rx="8" fill="#7a4a28" />
-    </svg>
-  ),
-  // 4. Two cigars crossed
-  (
-    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
-      <rect x="10" y="30" width="55" height="11" rx="5.5" fill="#5a3520" transform="rotate(15 37 35)" />
-      <rect x="10" y="31" width="50" height="8" rx="4" fill="#7a4a28" transform="rotate(15 37 35)" />
-      <rect x="56" y="29" width="12" height="11" rx="2" fill="#c9a84c" opacity="0.9" transform="rotate(15 37 35)" />
-      <rect x="10" y="48" width="55" height="11" rx="5.5" fill="#4a2510" transform="rotate(-15 37 53)" />
-      <rect x="10" y="49" width="50" height="8" rx="4" fill="#6a3820" transform="rotate(-15 37 53)" />
-      <rect x="56" y="47" width="12" height="11" rx="2" fill="#a07830" opacity="0.9" transform="rotate(-15 37 53)" />
-      <path d="M68 22 Q71 16 69 10" stroke="#ccc" strokeWidth="1" fill="none" opacity="0.2" />
-    </svg>
-  ),
-  // 5. Lit cigar end glow
-  (
-    <svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style={{ width: 90, height: 90, background: "#2a1a0e" }}>
-      <rect x="8" y="38" width="58" height="14" rx="7" fill="#5a3520" />
-      <rect x="8" y="40" width="53" height="10" rx="5" fill="#7a4a28" />
-      <rect x="44" y="38" width="14" height="14" rx="2" fill="#c9a84c" opacity="0.9" />
-      <circle cx="66" cy="45" r="10" fill="#c9a84c" opacity="0.08" />
-      <circle cx="66" cy="45" r="7" fill="#c9a84c" opacity="0.1" />
-      <rect x="60" y="39" width="14" height="12" rx="6" fill="#e8632a" />
-      <rect x="61" y="40" width="12" height="10" rx="5" fill="#f08030" />
-      <circle cx="66" cy="45" r="4" fill="#ffc060" opacity="0.8" />
-      <path d="M67 36 Q72 26 68 16 Q71 24 75 18 Q73 28 76 36" stroke="#e8d5b7" strokeWidth="1" fill="none" opacity="0.2" />
-    </svg>
-  ),
-];
-
-const CigarIcon = ({ index }) => CIGAR_ICONS[index % CIGAR_ICONS.length];
 
 const LoungeScene = () => (
   <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
@@ -244,8 +178,6 @@ export default function App() {
     filterValue.length > 0 ? "value" : "",
     filterWouldSmoke.length > 0 ? "smoke" : "",
   ].filter(Boolean).length;
-  const [featuredCigars, setFeaturedCigars] = useState([]);
-  const [featuredLoading, setFeaturedLoading] = useState(true);
   const searchTimeout = useRef(null);
 
   useEffect(() => {
@@ -259,58 +191,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    const loadFeatured = async () => {
-      setFeaturedLoading(true);
-      const { data: cached } = await supabase
-        .from("cigars")
-        .select("*")
-        .order("total_checkins", { ascending: false })
-        .limit(20);
 
-      // Deduplicate by brand+line, keeping highest total_checkins entry
-      const dedupe = (rows) => {
-        const seen = new Map();
-        for (const row of (rows || [])) {
-          const key = `${row.brand}|${row.line}`;
-          if (!seen.has(key)) seen.set(key, row);
-        }
-        return Array.from(seen.values()).slice(0, 5);
-      };
-
-      const deduped = dedupe(cached);
-      if (deduped.length >= 5) {
-        setFeaturedCigars(deduped);
-        setFeaturedLoading(false);
-        return;
-      }
-      const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
-      try {
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-api-key": KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-          body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 1024,
-            messages: [{ role: "user", content: `List 5 world-famous premium cigars that every enthusiast should know. Return ONLY a raw JSON array:\n[{"brand":"","line":"","vitola":"","wrapper":"","origin":"","strength":"Light|Medium|Medium-Full|Full","tasting_notes":"","description":""}]` }]
-          })
-        });
-        const d = await res.json();
-        const raw = d.content?.[0]?.text || "[]";
-        const match = raw.match(/\[[\s\S]*\]/);
-        const cigars = match ? JSON.parse(match[0]) : [];
-        for (const c of cigars) {
-          const { data: existing } = await supabase.from("cigars").select("*").eq("brand", c.brand).eq("line", c.line).maybeSingle();
-          if (!existing) await supabase.from("cigars").insert({ ...c, ai_generated: true, verified: false, total_checkins: 0 });
-        }
-        const { data: fresh } = await supabase.from("cigars").select("*").order("total_checkins", { ascending: false }).limit(20);
-        setFeaturedCigars(dedupe(fresh) || cigars);
-      } catch (e) { console.error(e); }
-      setFeaturedLoading(false);
-    };
-    loadFeatured();
-  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -683,29 +564,7 @@ export default function App() {
           )}
 
           {!selectedLine && !query && (
-            <>
-              <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1, margin: "16px 0 10px" }}>FEATURED CIGARS</div>
-              {featuredLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading featured cigars...</div>}
-              {featuredCigars.map((c, i) => (
-                <div key={c.id || i} style={{ ...s.card, borderColor: "#3a2510" }} onClick={() => setSelected(c)}>
-                  <div style={{ display: "flex" }}>
-                    <div style={{ width: 90, flexShrink: 0 }}><CigarIcon index={i} /></div>
-                    <div style={{ flex: 1, padding: "10px 12px" }}>
-                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{c.brand?.toUpperCase()}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{c.line}</div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Badge label={c.strength} color={strengthColor(c.strength)} />
-                        <div style={{ textAlign: "right" }}>
-                          {c.avg_rating
-                            ? <span style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{c.avg_rating}</span>
-                            : <span style={{ fontSize: 11, color: "#5a4535" }}>Not Rated</span>}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </>
+            <Feed user={user} />
           )}
         </div>
       )}
@@ -1211,6 +1070,7 @@ export default function App() {
         <Humidor
           user={user}
           onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
+          onSearchToAdd={() => { setTab("search"); }}
         />
       )}
       <nav style={s.nav}>

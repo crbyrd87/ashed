@@ -9,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function Humidor({ user, onSmokeOne }) {
+export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
@@ -399,17 +399,23 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>MY HUMIDOR</div>
-        <button onClick={() => setScanning(true)}
-          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-          + Scan to Add
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => onSearchToAdd && onSearchToAdd()}
+            style={{ background: "none", border: "1px solid #c9a84c55", borderRadius: 20, padding: "6px 14px", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            🔍 Search
+          </button>
+          <button onClick={() => setScanning(true)}
+            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            📷 Scan
+          </button>
+        </div>
       </div>
 
       {items.length === 0 && (
         <div style={{ textAlign: "center", padding: 40 }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>🚬</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Your humidor is empty</div>
-          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Scan a cigar band to add it, or use the Add to Humidor button on any cigar detail page.</div>
+          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Search for a cigar or scan a band to add it to your humidor.</div>
         </div>
       )}
 
