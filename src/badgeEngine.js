@@ -147,8 +147,28 @@ const checkFoundingMember = async (userId, earned) => {
   if (count <= 100) await awardBadge(userId, "founding_member");
 };
 
+// Check referral badges
+const checkReferralBadges = async (userId, earned) => {
+  const { count } = await supabase
+    .from("referrals")
+    .select("*", { count: "exact", head: true })
+    .eq("referrer_id", userId);
+
+  const tiers = [
+    [1, "ambassador"],
+    [5, "recruiter"],
+    [25, "legend_maker"],
+  ];
+
+  for (const [threshold, key] of tiers) {
+    if (count >= threshold && !earned.has(key)) {
+      await awardBadge(userId, key);
+    }
+  }
+};
+
 // Main entry point — run all checks for a user
-// trigger: "checkin" | "fire" | "comment"
+// trigger: "checkin" | "fire" | "fire_received" | "comment" | "referral"
 export const checkAndAwardBadges = async (userId, trigger = "checkin") => {
   try {
     const earned = await getEarnedKeys(userId);
@@ -167,10 +187,13 @@ export const checkAndAwardBadges = async (userId, trigger = "checkin") => {
       await checkSocialBadges(userId, earned);
     }
 
-    // Always check well_loved for the check-in owner when a fire is given
     if (trigger === "fire_received") {
       const receivedEarned = await getEarnedKeys(userId);
       await checkSocialBadges(userId, receivedEarned);
+    }
+
+    if (trigger === "referral") {
+      await checkReferralBadges(userId, earned);
     }
   } catch (e) {
     console.error("Badge engine error:", e);

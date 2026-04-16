@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -12,6 +12,21 @@ export default function Auth({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [referredBy, setReferredBy] = useState(null); // username of referrer
+
+  useEffect(() => {
+    // Read ?ref=username from URL and persist to localStorage
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      localStorage.setItem("ashed_referral", ref);
+      setReferredBy(ref);
+      setMode("signup");
+    } else {
+      const stored = localStorage.getItem("ashed_referral");
+      if (stored) setReferredBy(stored);
+    }
+  }, []);
 
   const s = {
     wrap: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px" },
@@ -28,6 +43,7 @@ export default function Auth({ onLogin }) {
     error: { background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", marginBottom: 16 },
     success: { background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#a8c5a0", marginBottom: 16 },
     forgotLink: { textAlign: "right", marginTop: -10, marginBottom: 16, fontSize: 12, color: "#c9a84c", cursor: "pointer" },
+    referralBanner: { background: "#c9a84c18", border: "1px solid #c9a84c44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#c9a84c", marginBottom: 16, textAlign: "center" },
   };
 
   const handleLogin = async () => {
@@ -47,13 +63,26 @@ export default function Auth({ onLogin }) {
       setLoading(false);
       return;
     }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username, display_name: displayName } }
     });
-    if (error) setError(error.message);
-    else setMessage("Account created! Check your email to confirm your account, then log in.");
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Store referral username for processing after email confirmation
+    // The actual referral record is created in App.js on first login
+    if (referredBy) {
+      localStorage.setItem("ashed_referral", referredBy);
+    }
+
+    setMessage("Account created! Check your email to confirm your account, then log in.");
     setLoading(false);
   };
 
@@ -89,6 +118,13 @@ export default function Auth({ onLogin }) {
           {mode === "signup" && "Create your account"}
           {mode === "forgot" && "Reset your password"}
         </div>
+
+        {mode === "signup" && referredBy && (
+          <div style={s.referralBanner}>
+            🎉 Invited by <strong>@{referredBy}</strong> — welcome to Ashed!
+          </div>
+        )}
+
         {error && <div style={s.error}>{error}</div>}
         {message && <div style={s.success}>{message}</div>}
 

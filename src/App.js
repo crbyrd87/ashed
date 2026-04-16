@@ -10,6 +10,7 @@ import Pairings from "./Pairings";
 import Friends from "./Friends";
 import Feed from "./Feed";
 import Badges from "./Badges";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -143,6 +144,7 @@ export default function App() {
   const [pairingsCigar, setPairingsCigar] = useState(null);
   const [showFriends, setShowFriends] = useState(false);
   const [pendingFriendCount, setPendingFriendCount] = useState(0);
+  const [profileTab, setProfileTab] = useState("journal");
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
@@ -206,8 +208,50 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     refreshPendingFriendCount();
+    processReferral(user);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const processReferral = async (currentUser) => {
+    const referralUsername = localStorage.getItem("ashed_referral");
+    if (!referralUsername) return;
+
+    // Check if this user has already been referred
+    const { data: existingReferral } = await supabase
+      .from("referrals")
+      .select("id")
+      .eq("referred_id", currentUser.id)
+      .maybeSingle();
+    if (existingReferral) {
+      localStorage.removeItem("ashed_referral");
+      return;
+    }
+
+    // Look up referrer by username
+    const { data: referrer } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", referralUsername)
+      .maybeSingle();
+    if (!referrer || referrer.id === currentUser.id) {
+      localStorage.removeItem("ashed_referral");
+      return;
+    }
+
+    // Record the referral
+    await supabase.from("referrals").insert({
+      referrer_id: referrer.id,
+      referred_id: currentUser.id,
+    });
+
+    // Update referred_by on the new user
+    await supabase.from("users").update({ referred_by: referrer.id }).eq("id", currentUser.id);
+
+    // Check referral badges for the referrer
+    checkAndAwardBadges(referrer.id, "referral").catch(() => {});
+
+    localStorage.removeItem("ashed_referral");
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -587,7 +631,8 @@ export default function App() {
 
       {tab === "profile" && (
         <div style={{ padding: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: "16px 0", borderBottom: "1px solid #3a2510" }}>
+          {/* User header - always visible */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, padding: "16px 0", borderBottom: "1px solid #3a2510" }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{displayName}</div>
@@ -607,7 +652,8 @@ export default function App() {
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          {/* Stat boxes - always visible */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {[
               ["Smoked", checkins.length],
               ["AVG RATING", checkins.length ? (checkins.reduce((a, c) => a + c.rating, 0) / checkins.length).toFixed(1) : "—"],
@@ -620,335 +666,269 @@ export default function App() {
             ))}
           </div>
 
-          {checkins.length > 0 && (() => {
-            const locCounts = checkins.reduce((acc, c) => { if (c.smoke_location) acc[c.smoke_location] = (acc[c.smoke_location] || 0) + 1; return acc; }, {});
-            const topLoc = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0];
-            const top3 = [...checkins].sort((a, b) => b.rating - a.rating).slice(0, 3);
-            const brandCounts = checkins.reduce((acc, c) => { const b = c.cigars?.brand || c.cigar_brand; if (b) acc[b] = (acc[b] || 0) + 1; return acc; }, {});
-            const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0];
-            const vitolaRatings = checkins.reduce((acc, c) => { const v = c.cigars?.vitola || c.cigar_vitola; if (v) { if (!acc[v]) acc[v] = []; acc[v].push(c.rating); } return acc; }, {});
-            const bestVitola = Object.entries(vitolaRatings).map(([v, ratings]) => [v, ratings.reduce((a, b) => a + b, 0) / ratings.length]).sort((a, b) => b[1] - a[1])[0];
-
-            return (
-              <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-                {topLoc && (
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}>
-                    <div style={{ fontSize: 11, color: "#8a7055" }}>📍 TOP LOCATION</div>
-                    <div style={{ fontSize: 13, color: "#e8d5b7" }}>{topLoc[0]} <span style={{ color: "#c9a84c" }}>({topLoc[1]})</span></div>
-                  </div>
-                )}
-                {topBrand && (
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}>
-                    <div style={{ fontSize: 11, color: "#8a7055" }}>🏆 MOST SMOKED BRAND</div>
-                    <div style={{ fontSize: 13, color: "#e8d5b7" }}>{topBrand[0]} <span style={{ color: "#c9a84c" }}>({topBrand[1]})</span></div>
-                  </div>
-                )}
-                {bestVitola && (
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}>
-                    <div style={{ fontSize: 11, color: "#8a7055" }}>🎯 FAVORITE VITOLA</div>
-                    <div style={{ fontSize: 13, color: "#e8d5b7" }}>{bestVitola[0]} <span style={{ color: "#c9a84c" }}>({bestVitola[1].toFixed(1)})</span></div>
-                  </div>
-                )}
-                {top3.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 8 }}>⭐ TOP RATED</div>
-                    {top3.map((c, i) => (
-                      <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < 2 ? 6 : 0 }}>
-                        <div style={{ fontSize: 13, color: "#c8b89a", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          <span style={{ color: "#5a4535", marginRight: 6 }}>#{i + 1}</span>
-                          {c.cigars?.brand || c.cigar_brand ? `${c.cigars?.brand || c.cigar_brand} — ` : ""}{c.cigars?.line || c.cigar_name || "Unknown"}
-                        </div>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c", marginLeft: 8 }}>{c.rating?.toFixed(1)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          <div style={{ marginBottom: 20 }}>
-            <Badges userId={user.id} />
+          {/* Sub-tabs */}
+          <div style={{ display: "flex", borderBottom: "1px solid #3a2510", marginBottom: 16 }}>
+            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"]].map(([id, label]) => (
+              <button key={id} onClick={() => setProfileTab(id)}
+                style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? "#c9a84c" : "transparent"}`, color: profileTab === id ? "#c9a84c" : "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
+                {label.toUpperCase()}
+              </button>
+            ))}
           </div>
 
-          <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>SMOKING HISTORY</div>
-
-          {checkins.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <button
-                  onClick={() => setShowFilterDrawer(true)}
-                  style={{ background: activeFilterCount > 0 ? "#c9a84c22" : "none", border: `1px solid ${activeFilterCount > 0 ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  🔧 Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
-                </button>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {[["date", "Date"], ["score", "Score"], ["name", "Name"]].map(([val, label]) => (
-                    <button key={val} onClick={() => {
-                      if (historySortBy === val) setHistorySortDir(d => d === "desc" ? "asc" : "desc");
-                      else { setHistorySortBy(val); setHistorySortDir("desc"); }
-                    }} style={s.sortBtn(historySortBy === val)}>
-                      {label} {historySortBy === val ? (historySortDir === "desc" ? "↓" : "↑") : ""}
+          {/* JOURNAL SUB-TAB */}
+          {profileTab === "journal" && (
+            <>
+              {checkins.length > 0 && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <button onClick={() => setShowFilterDrawer(true)}
+                      style={{ background: activeFilterCount > 0 ? "#c9a84c22" : "none", border: `1px solid ${activeFilterCount > 0 ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}>
+                      🔧 Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              {activeFilterCount > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
-                  {filterName && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterName("")}>Name: {filterName} ×</span>}
-                  {filterBrand && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterBrand("")}>Brand: {filterBrand} ×</span>}
-                  {filterNoteTags.map(tag => <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterNoteTags(prev => prev.filter(t => t !== tag))}>{tag} ×</span>)}
-                  {(filterScoreMin > 0 || filterScoreMax < 10) && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => { setFilterScoreMin(0); setFilterScoreMax(10); }}>Score: {filterScoreMin}–{filterScoreMax} ×</span>}
-                  {filterValue.length > 0 && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterValue([])}>Value: {filterValue.join(", ")} ×</span>}
-                  {filterWouldSmoke.length > 0 && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => setFilterWouldSmoke([])}>Smoke Again: {filterWouldSmoke.join(", ")} ×</span>}
-                  <span style={{ background: "#3a2510", color: "#8a7055", borderRadius: 20, padding: "2px 10px", fontSize: 11, cursor: "pointer" }} onClick={() => { setFilterName(""); setFilterBrand(""); setFilterNoteTags([]); setFilterScoreMin(0); setFilterScoreMax(10); setFilterValue([]); setFilterWouldSmoke([]); }}>Clear all</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[["date", "Date"], ["score", "Score"], ["name", "Name"]].map(([val, label]) => (
+                        <button key={val} onClick={() => {
+                          if (historySortBy === val) setHistorySortDir(d => d === "desc" ? "asc" : "desc");
+                          else { setHistorySortBy(val); setHistorySortDir("desc"); }
+                        }} style={s.sortBtn(historySortBy === val)}>
+                          {label} {historySortBy === val ? (historySortDir === "desc" ? "↓" : "↑") : ""}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
-          )}
 
-          {showFilterDrawer && (
-            <div style={{ position: "fixed", inset: 0, zIndex: 400, display: "flex", flexDirection: "column", justifyContent: "flex-end", maxWidth: 420, margin: "0 auto" }}>
-              <div style={{ position: "absolute", inset: 0, background: "#00000088" }} onClick={() => setShowFilterDrawer(false)} />
-              <div style={{ position: "relative", background: "#1a0f08", borderRadius: "20px 20px 0 0", border: "1px solid #3a2510", padding: 24, zIndex: 1, maxHeight: "80vh", overflowY: "auto" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7" }}>Filter Smoke History</div>
-                  <button onClick={() => setShowFilterDrawer(false)} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 22, cursor: "pointer" }}>×</button>
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
-                  <input
-                    style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
-                    placeholder="Search your smokes..."
-                    value={filterName}
-                    onChange={e => { setFilterName(e.target.value); setFilterNameOpen(true); }}
-                    onFocus={() => setFilterNameOpen(true)}
-                    onBlur={() => setTimeout(() => setFilterNameOpen(false), 150)}
-                  />
-                  {filterNameOpen && (
-                    <div style={{ background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
-                      {filteredNames.length === 0 ? (
-                        <div style={{ padding: "10px 12px", fontSize: 12, color: "#5a4535" }}>No logged smokes found</div>
-                      ) : filteredNames.map(n => (
-                        <div key={n} style={{ padding: "10px 12px", fontSize: 13, color: "#e8d5b7", cursor: "pointer", borderBottom: "1px solid #3a251033" }} onMouseDown={() => { setFilterName(n); setFilterNameOpen(false); }}>{n}</div>
+              {showFilterDrawer && (
+                <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 16 }}>FILTER SMOKES</div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
+                    <input style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                      placeholder="Search your smokes..." value={filterName}
+                      onChange={e => { setFilterName(e.target.value); setFilterNameOpen(true); }}
+                      onFocus={() => setFilterNameOpen(true)} onBlur={() => setTimeout(() => setFilterNameOpen(false), 150)} />
+                    {filterNameOpen && (
+                      <div style={{ background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
+                        {filteredNames.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: "#5a4535" }}>No logged smokes found</div>
+                          : filteredNames.map(n => <div key={n} style={{ padding: "10px 12px", fontSize: 13, color: "#e8d5b7", cursor: "pointer", borderBottom: "1px solid #3a251033" }} onMouseDown={() => { setFilterName(n); setFilterNameOpen(false); }}>{n}</div>)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>BRAND</div>
+                    <input style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: filterBrandOpen && filteredBrands.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                      placeholder="Search your brands..." value={filterBrand}
+                      onChange={e => { setFilterBrand(e.target.value); setFilterBrandOpen(true); }}
+                      onFocus={() => setFilterBrandOpen(true)} onBlur={() => setTimeout(() => setFilterBrandOpen(false), 150)} />
+                    {filterBrandOpen && (
+                      <div style={{ background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
+                        {filteredBrands.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: "#5a4535" }}>No logged smokes found</div>
+                          : filteredBrands.map(b => <div key={b} style={{ padding: "10px 12px", fontSize: 13, color: "#e8d5b7", cursor: "pointer", borderBottom: "1px solid #3a251033" }} onMouseDown={() => { setFilterBrand(b); setFilterBrandOpen(false); }}>{b}</div>)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {FLAVOR_TAGS.map(tag => (
+                        <button key={tag} onClick={() => setFilterNoteTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}
+                          style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? "#c9a84c" : "#3a2510"}`, background: filterNoteTags.includes(tag) ? "#c9a84c22" : "transparent", color: filterNoteTags.includes(tag) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
                       ))}
                     </div>
-                  )}
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>BRAND</div>
-                  <input
-                    style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: filterBrandOpen && filteredBrands.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
-                    placeholder="Search your brands..."
-                    value={filterBrand}
-                    onChange={e => { setFilterBrand(e.target.value); setFilterBrandOpen(true); }}
-                    onFocus={() => setFilterBrandOpen(true)}
-                    onBlur={() => setTimeout(() => setFilterBrandOpen(false), 150)}
-                  />
-                  {filterBrandOpen && (
-                    <div style={{ background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
-                      {filteredBrands.length === 0 ? (
-                        <div style={{ padding: "10px 12px", fontSize: 12, color: "#5a4535" }}>No logged smokes found</div>
-                      ) : filteredBrands.map(b => (
-                        <div key={b} style={{ padding: "10px 12px", fontSize: 13, color: "#e8d5b7", cursor: "pointer", borderBottom: "1px solid #3a251033" }} onMouseDown={() => { setFilterBrand(b); setFilterBrandOpen(false); }}>{b}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {FLAVOR_TAGS.map(tag => (
-                      <button key={tag} onClick={() => setFilterNoteTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])} style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? "#c9a84c" : "#3a2510"}`, background: filterNoteTags.includes(tag) ? "#c9a84c22" : "transparent", color: filterNoteTags.includes(tag) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
-                    ))}
                   </div>
-                </div>
-
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>SCORE RANGE</div>
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MINIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
-                      <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MAXIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
-                      <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>VALUE FOR PRICE</div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {["Good value", "OK value", "Poor value"].map(opt => (
-                      <button key={opt} onClick={() => setFilterValue(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterValue.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterValue.includes(opt) ? "#c9a84c22" : "transparent", color: filterValue.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>WOULD SMOKE AGAIN</div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {["Yes", "Maybe", "No"].map(opt => (
-                      <button key={opt} onClick={() => setFilterWouldSmoke(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterWouldSmoke.includes(opt) ? "#c9a84c22" : "transparent", color: filterWouldSmoke.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
-                    ))}
-                  </div>
-                </div>
-
-                <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                  Apply Filters
-                </button>
-              </div>
-            </div>
-          )}
-
-          {profileLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
-          {!profileLoading && checkins.length === 0 && (
-            <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 30 }}>No smokes logged yet — find a cigar and tap Log This Smoke!</div>
-          )}
-
-          {(() => {
-            const filtered = checkins.filter(c => {
-              const brand = (c.cigars?.brand || c.cigar_brand || "").toLowerCase();
-              const line = (c.cigars?.line || c.cigar_name || "").toLowerCase();
-              const notes = (c.tasting_notes || "").toLowerCase();
-              const rating = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
-              if (filterName && !line.includes(filterName.toLowerCase())) return false;
-              if (filterBrand && !brand.includes(filterBrand.toLowerCase())) return false;
-              if (filterNoteTags.length > 0 && !filterNoteTags.every(tag => notes.includes(tag.toLowerCase()))) return false;
-              if (c.rating < filterScoreMin || c.rating > filterScoreMax) return false;
-              if (filterValue.length > 0 && !filterValue.includes(rating?.value_for_price || "")) return false;
-              if (filterWouldSmoke.length > 0 && !filterWouldSmoke.includes(rating?.would_smoke_again || "")) return false;
-              return true;
-            });
-            const sorted = [...filtered].sort((a, b) => {
-              let val = 0;
-              if (historySortBy === "score") val = b.rating - a.rating;
-              else if (historySortBy === "name") val = (a.cigars?.line || a.cigar_name || "").localeCompare(b.cigars?.line || b.cigar_name || "");
-              else val = new Date(b.smoke_date) - new Date(a.smoke_date);
-              return historySortDir === "asc" ? -val : val;
-            });
-            return sorted.map(c => {
-              const brand = c.cigars?.brand || c.cigar_brand || "Unknown";
-              const line = c.cigars?.line || c.cigar_name || "Unknown Cigar";
-              const vitola = c.cigars?.vitola || c.cigar_vitola || "";
-              return (
-                <div key={c.id} style={{ ...s.card, borderColor: "#c9a84c33" }} onClick={() => handleSelectCheckin(c)}>
-                  <div style={{ padding: "12px 14px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>SCORE RANGE</div>
+                    <div style={{ display: "flex", gap: 16 }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 10, color: "#8a7055" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 2px" }}>{line}</div>
-                        <div style={{ fontSize: 11, color: "#8a7055" }}>{brand}{vitola ? ` · ${vitola}` : ""}{c.smoke_location ? ` · ${c.smoke_location}` : ""}</div>
-                        {c.tasting_notes && <div style={{ fontSize: 12, color: "#c8b89a", fontStyle: "italic", marginTop: 6 }}>"{c.tasting_notes}"</div>}
+                        <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MINIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
-                      <div style={{ textAlign: "right", marginLeft: 12 }}>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: "#c9a84c" }}>{c.rating?.toFixed(1)}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>MAXIMUM: <span style={{ color: "#c9a84c", fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ width: "100%", accentColor: "#c9a84c" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#5a4535", marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            });
-          })()}
-
-          {selectedCheckin && (
-            <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", maxWidth: 420, margin: "0 auto", fontFamily: SANS, color: "#e8d5b7" }}>
-              <div style={{ background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2 }}>{selectedCheckin.cigars?.brand || selectedCheckin.cigar_brand || "Unknown"}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>{selectedCheckin.cigars?.line || selectedCheckin.cigar_name || "Unknown Cigar"}</div>
-                  <div style={{ fontSize: 12, color: "#8a7055" }}>{selectedCheckin.cigars?.vitola || selectedCheckin.cigar_vitola || ""}</div>
-                </div>
-                <button onClick={() => setSelectedCheckin(null)} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
-              </div>
-              <div style={{ padding: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
-                  <div>
-                    <div style={{ fontSize: 11, color: "#8a7055" }}>DATE</div>
-                    <div style={{ fontSize: 14, color: "#e8d5b7" }}>{new Date(selectedCheckin.smoke_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>VALUE FOR PRICE</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {["Good value", "OK value", "Poor value"].map(opt => (
+                        <button key={opt} onClick={() => setFilterValue(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
+                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterValue.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterValue.includes(opt) ? "#c9a84c22" : "transparent", color: filterValue.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                      ))}
+                    </div>
                   </div>
-                  {selectedCheckin.smoke_location && <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 11, color: "#8a7055" }}>LOCATION</div>
-                    <div style={{ fontSize: 14, color: "#e8d5b7" }}>{selectedCheckin.smoke_location}</div>
-                  </div>}
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>WOULD SMOKE AGAIN</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {["Yes", "Maybe", "No"].map(opt => (
+                        <button key={opt} onClick={() => setFilterWouldSmoke(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
+                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? "#c9a84c" : "#3a2510"}`, background: filterWouldSmoke.includes(opt) ? "#c9a84c22" : "transparent", color: filterWouldSmoke.includes(opt) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                    Apply Filters
+                  </button>
                 </div>
+              )}
 
-                <div style={{ fontSize: 56, fontWeight: 700, color: "#c9a84c", textAlign: "center", marginBottom: 4 }}>{selectedCheckin.rating?.toFixed(1)}</div>
-                <div style={{ fontSize: 11, color: "#8a7055", textAlign: "center", marginBottom: 20 }}>OVERALL SCORE</div>
+              {profileLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
+              {!profileLoading && checkins.length === 0 && (
+                <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 30 }}>No smokes logged yet — find a cigar and tap Log This Smoke!</div>
+              )}
 
-                {checkinRating && (
-                  <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>DETAILED RATINGS</div>
-                    {[["Aroma", checkinRating.aroma], ["Draw", checkinRating.draw], ["Burn", checkinRating.burn], ["Construction", checkinRating.construction], ["Flavor", checkinRating.flavor], ["Finish", checkinRating.finish]].map(([label, val]) => val != null && (
-                      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                        <span style={{ fontSize: 13, color: "#c8b89a" }}>{label}</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <div style={{ width: 80, height: 5, background: "#3a2510", borderRadius: 3, overflow: "hidden" }}>
-                            <div style={{ width: `${(val / 10) * 100}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 3 }} />
+              {(() => {
+                const filtered = checkins.filter(c => {
+                  const brand = (c.cigars?.brand || c.cigar_brand || "").toLowerCase();
+                  const line = (c.cigars?.line || c.cigar_name || "").toLowerCase();
+                  const notes = (c.tasting_notes || "").toLowerCase();
+                  const rating = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
+                  if (filterName && !line.includes(filterName.toLowerCase())) return false;
+                  if (filterBrand && !brand.includes(filterBrand.toLowerCase())) return false;
+                  if (filterNoteTags.length > 0 && !filterNoteTags.every(tag => notes.includes(tag.toLowerCase()))) return false;
+                  if (c.rating < filterScoreMin || c.rating > filterScoreMax) return false;
+                  if (filterValue.length > 0 && !filterValue.includes(rating?.value_for_price || "")) return false;
+                  if (filterWouldSmoke.length > 0 && !filterWouldSmoke.includes(rating?.would_smoke_again || "")) return false;
+                  return true;
+                });
+                const sorted = [...filtered].sort((a, b) => {
+                  let val = 0;
+                  if (historySortBy === "score") val = b.rating - a.rating;
+                  else if (historySortBy === "name") val = (a.cigars?.line || a.cigar_name || "").localeCompare(b.cigars?.line || b.cigar_name || "");
+                  else val = new Date(b.smoke_date) - new Date(a.smoke_date);
+                  return historySortDir === "asc" ? -val : val;
+                });
+                if (sorted.length === 0 && checkins.length > 0) return (
+                  <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 30 }}>No smokes match your filters.</div>
+                );
+                return sorted.map(c => {
+                  const brand = c.cigars?.brand || c.cigar_brand || "Unknown";
+                  const line = c.cigars?.line || c.cigar_name || "Unknown";
+                  const vitola = c.cigars?.vitola || c.cigar_vitola || null;
+                  const strength = c.cigars?.strength || null;
+                  const isSelected = selectedCheckin?.id === c.id;
+                  return (
+                    <div key={c.id} style={{ ...s.card, borderColor: isSelected ? "#c9a84c55" : "#3a2510" }} onClick={() => isSelected ? setSelectedCheckin(null) : handleSelectCheckin(c)}>
+                      <div style={{ padding: "12px 14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{line}</div>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {vitola && <Badge label={vitola} />}
+                              {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                            </div>
                           </div>
-                          <span style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, minWidth: 28, textAlign: "right" }}>{val?.toFixed(1)}</span>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c" }}>{c.rating?.toFixed(1)}</div>
+                            <div style={{ fontSize: 11, color: "#5a4535" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+                            {c.is_private && <div style={{ fontSize: 10, color: "#5a4535", marginTop: 2 }}>🔒 Private</div>}
+                          </div>
                         </div>
                       </div>
-                    ))}
-                    {checkinRating.would_smoke_again != null && (
-                      <div style={{ marginTop: 8, paddingTop: 10, borderTop: "1px solid #3a251033" }}>
-                        <span style={{ fontSize: 12, color: "#8a7055" }}>Would smoke again: </span>
-                        <span style={{ fontSize: 12, color: checkinRating.would_smoke_again === "Yes" ? "#7a9a7a" : checkinRating.would_smoke_again === "No" ? "#a0522d" : "#c9a84c" }}>
-                          {checkinRating.would_smoke_again}
-                        </span>
-                      </div>
-                    )}
-                    {checkinRating.value_for_price && (
-                      <div style={{ marginTop: 6 }}>
-                        <span style={{ fontSize: 12, color: "#8a7055" }}>Value: </span>
-                        <span style={{ fontSize: 12, color: "#e8d5b7" }}>{checkinRating.value_for_price}</span>
-                      </div>
-                    )}
-                    {checkinRating.flavor_tags && (
-                      <div style={{ marginTop: 10 }}>
-                        <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 6 }}>FLAVOR TAGS</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {checkinRating.flavor_tags.split(", ").map(tag => (
-                            <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11 }}>{tag}</span>
-                          ))}
+                      {isSelected && (
+                        <div style={{ borderTop: "1px solid #3a2510", padding: "12px 14px" }}>
+                          {checkinRating && (
+                            <div style={{ marginBottom: 12 }}>
+                              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>DETAILED RATINGS</div>
+                              {[["Aroma", checkinRating.aroma], ["Draw", checkinRating.draw], ["Burn", checkinRating.burn], ["Construction", checkinRating.construction], ["Flavor", checkinRating.flavor], ["Finish", checkinRating.finish]].filter(([, v]) => v != null).map(([label, val]) => (
+                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                  <div style={{ fontSize: 11, color: "#8a7055", width: 80 }}>{label}</div>
+                                  <div style={{ flex: 1, height: 4, background: "#3a2510", borderRadius: 2, overflow: "hidden" }}>
+                                    <div style={{ width: `${val * 10}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2 }} />
+                                  </div>
+                                  <div style={{ fontSize: 12, color: "#c9a84c", fontWeight: 700, width: 28 }}>{val?.toFixed(1)}</div>
+                                </div>
+                              ))}
+                              {checkinRating.value_for_price && <div style={{ fontSize: 12, color: "#8a7055", marginTop: 8 }}>Value: <span style={{ color: "#e8d5b7" }}>{checkinRating.value_for_price}</span></div>}
+                              {checkinRating.would_smoke_again && <div style={{ fontSize: 12, color: "#8a7055", marginTop: 4 }}>Smoke again: <span style={{ color: "#e8d5b7" }}>{checkinRating.would_smoke_again}</span></div>}
+                              {checkinRating.flavor_tags && (
+                                <div style={{ marginTop: 10 }}>
+                                  <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 6 }}>FLAVOR TAGS</div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                    {checkinRating.flavor_tags.split(", ").map(tag => (
+                                      <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11 }}>{tag}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {c.tasting_notes && (
+                            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>COMMENTS</div>
+                              <div style={{ fontSize: 14, color: "#c8b89a", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
+                            </div>
+                          )}
+                          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div>
+                                <div style={{ fontSize: 14, color: "#e8d5b7" }}>Private check-in</div>
+                                <div style={{ fontSize: 12, color: "#5a4535", marginTop: 2 }}>{c.is_private ? "Only visible to you" : "Visible to everyone"}</div>
+                              </div>
+                              <div onClick={(e) => { e.stopPropagation(); handleTogglePrivate(c); }} style={{ width: 44, height: 24, borderRadius: 12, background: c.is_private ? "#c9a84c" : "#3a2510", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
+                                <div style={{ position: "absolute", top: 2, left: c.is_private ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#e8d5b7", transition: "left 0.2s" }} />
+                              </div>
+                            </div>
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }} style={{ width: "100%", background: "none", border: "1px solid #a0522d55", borderRadius: 10, padding: 14, color: "#a0522d", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 12 }}>
+                            Delete this check-in
+                          </button>
                         </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </>
+          )}
+
+          {/* STATS SUB-TAB */}
+          {profileTab === "stats" && (
+            <>
+              {checkins.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Log some smokes to see your stats!</div>
+              ) : (() => {
+                const locCounts = checkins.reduce((acc, c) => { if (c.smoke_location) acc[c.smoke_location] = (acc[c.smoke_location] || 0) + 1; return acc; }, {});
+                const topLoc = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0];
+                const top3 = [...checkins].sort((a, b) => b.rating - a.rating).slice(0, 3);
+                const brandCounts = checkins.reduce((acc, c) => { const b = c.cigars?.brand || c.cigar_brand; if (b) acc[b] = (acc[b] || 0) + 1; return acc; }, {});
+                const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0];
+                const vitolaRatings = checkins.reduce((acc, c) => { const v = c.cigars?.vitola || c.cigar_vitola; if (v) { if (!acc[v]) acc[v] = []; acc[v].push(c.rating); } return acc; }, {});
+                const bestVitola = Object.entries(vitolaRatings).map(([v, ratings]) => [v, ratings.reduce((a, b) => a + b, 0) / ratings.length]).sort((a, b) => b[1] - a[1])[0];
+                return (
+                  <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14 }}>
+                    {topLoc && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}><div style={{ fontSize: 11, color: "#8a7055" }}>📍 TOP LOCATION</div><div style={{ fontSize: 13, color: "#e8d5b7" }}>{topLoc[0]} <span style={{ color: "#c9a84c" }}>({topLoc[1]})</span></div></div>}
+                    {topBrand && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}><div style={{ fontSize: 11, color: "#8a7055" }}>🏆 MOST SMOKED BRAND</div><div style={{ fontSize: 13, color: "#e8d5b7" }}>{topBrand[0]} <span style={{ color: "#c9a84c" }}>({topBrand[1]})</span></div></div>}
+                    {bestVitola && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #3a251033" }}><div style={{ fontSize: 11, color: "#8a7055" }}>🎯 FAVORITE VITOLA</div><div style={{ fontSize: 13, color: "#e8d5b7" }}>{bestVitola[0]} <span style={{ color: "#c9a84c" }}>({bestVitola[1].toFixed(1)})</span></div></div>}
+                    {top3.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 8 }}>⭐ TOP RATED</div>
+                        {top3.map((c, i) => (
+                          <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < 2 ? 6 : 0 }}>
+                            <div style={{ fontSize: 13, color: "#c8b89a", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              <span style={{ color: "#5a4535", marginRight: 6 }}>#{i + 1}</span>
+                              {c.cigars?.brand || c.cigar_brand ? `${c.cigars?.brand || c.cigar_brand} — ` : ""}{c.cigars?.line || c.cigar_name || "Unknown"}
+                            </div>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c", marginLeft: 8 }}>{c.rating?.toFixed(1)}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
-                )}
+                );
+              })()}
+            </>
+          )}
 
-                {selectedCheckin.tasting_notes && (
-                  <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>COMMENTS</div>
-                    <div style={{ fontSize: 14, color: "#c8b89a", fontStyle: "italic", lineHeight: 1.6 }}>"{selectedCheckin.tasting_notes}"</div>
-                  </div>
-                )}
-
-                <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontSize: 14, color: "#e8d5b7" }}>Private check-in</div>
-                      <div style={{ fontSize: 12, color: "#5a4535", marginTop: 2 }}>{selectedCheckin.is_private ? "Only visible to you" : "Visible to everyone"}</div>
-                    </div>
-                    <div onClick={() => handleTogglePrivate(selectedCheckin)} style={{ width: 44, height: 24, borderRadius: 12, background: selectedCheckin.is_private ? "#c9a84c" : "#3a2510", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
-                      <div style={{ position: "absolute", top: 2, left: selectedCheckin.is_private ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#e8d5b7", transition: "left 0.2s" }} />
-                    </div>
-                  </div>
-                </div>
-
-                <button onClick={() => handleDeleteCheckin(selectedCheckin)} style={{ width: "100%", background: "none", border: "1px solid #a0522d55", borderRadius: 10, padding: 14, color: "#a0522d", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 12 }}>
-                  Delete this check-in
-                </button>
-              </div>
-            </div>
+          {/* BADGES SUB-TAB */}
+          {profileTab === "badges" && (
+            <Badges userId={user.id} />
           )}
         </div>
       )}
@@ -1099,7 +1079,7 @@ export default function App() {
         />
       )}
       <nav style={s.nav}>
-        {[["search", "🔍", "Search"], ["profile", "👤", "Journal"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Search"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
             <span style={{ fontSize: 18 }}>{icon}</span>
             <span>{label}</span>

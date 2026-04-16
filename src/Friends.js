@@ -193,13 +193,36 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               );
             })}
 
-            {/* QR Code section */}
+            {/* Referral / Share section */}
             <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>YOUR FRIEND LINK</div>
-              <div style={{ fontSize: 13, color: "#c9a84c", marginBottom: 8, wordBreak: "break-all" }}>
-                ashed.app/u/{user.user_metadata?.username || user.id}
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>INVITE A FRIEND</div>
+              <div style={{ fontSize: 13, color: "#c9a84c", marginBottom: 4, wordBreak: "break-all" }}>
+                ashed.vercel.app?ref={user.user_metadata?.username || user.id}
               </div>
-              <div style={{ fontSize: 12, color: "#5a4535" }}>Share your username or this link so friends can find you</div>
+              <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 14 }}>
+                Share your link — friends who sign up get credited to you
+              </div>
+              <button
+                onClick={async () => {
+                  const username = user.user_metadata?.username || user.id;
+                  const url = `${window.location.origin}?ref=${username}`;
+                  const shareData = {
+                    title: "Join me on Ashed",
+                    text: `I've been logging my cigars on Ashed — a cigar journal app. Join me! 🚬`,
+                    url,
+                  };
+                  if (navigator.share) {
+                    try { await navigator.share(shareData); }
+                    catch (e) { if (e.name !== "AbortError") navigator.clipboard?.writeText(url); }
+                  } else {
+                    navigator.clipboard?.writeText(url);
+                    setActionMsg("Link copied to clipboard!");
+                  }
+                }}
+                style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 12, color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+              >
+                📲 Share Invite Link
+              </button>
             </div>
           </>
         )}
