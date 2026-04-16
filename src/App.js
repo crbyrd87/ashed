@@ -9,6 +9,7 @@ import Humidor from "./Humidor";
 import Pairings from "./Pairings";
 import Friends from "./Friends";
 import Feed from "./Feed";
+import Badges from "./Badges";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -141,6 +142,7 @@ export default function App() {
   const [showPairings, setShowPairings] = useState(false);
   const [pairingsCigar, setPairingsCigar] = useState(null);
   const [showFriends, setShowFriends] = useState(false);
+  const [pendingFriendCount, setPendingFriendCount] = useState(0);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
@@ -191,7 +193,21 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const refreshPendingFriendCount = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("friends")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", user.id)
+      .eq("status", "pending");
+    setPendingFriendCount(count || 0);
+  };
 
+  useEffect(() => {
+    if (!user) return;
+    refreshPendingFriendCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -579,10 +595,15 @@ export default function App() {
               <div style={{ marginTop: 6 }}><Badge label="🏅 Aficionado" color="#c9a84c" /></div>
             </div>
             <button
-              onClick={() => setShowFriends(true)}
-              style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "6px 14px", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+              onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
+              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative" }}
             >
               👥 Friends
+              {pendingFriendCount > 0 && (
+                <span style={{ position: "absolute", top: -6, right: -6, background: "#e8632a", color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
+                  {pendingFriendCount}
+                </span>
+              )}
             </button>
           </div>
 
@@ -645,6 +666,10 @@ export default function App() {
               </div>
             );
           })()}
+
+          <div style={{ marginBottom: 20 }}>
+            <Badges userId={user.id} />
+          </div>
 
           <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>SMOKING HISTORY</div>
 
@@ -1064,13 +1089,13 @@ export default function App() {
         <Friends
           user={user}
           onClose={() => setShowFriends(false)}
+          onRequestHandled={() => refreshPendingFriendCount()}
         />
       )}
       {tab === "humidor" && (
         <Humidor
           user={user}
           onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
-          onSearchToAdd={() => { setTab("search"); }}
         />
       )}
       <nav style={s.nav}>

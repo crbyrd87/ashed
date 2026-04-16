@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
@@ -231,6 +232,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
     setSaving(false);
     setSuccess(true);
+
+    // Fire badge checks in background — don't await, never block UX
+    checkAndAwardBadges(user.id, "checkin").catch(() => {});
 
     if (isRealCigar && cigar.id) {
       const { data: allRatings } = await supabase

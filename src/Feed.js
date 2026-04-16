@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -95,7 +96,8 @@ export default function Feed({ user }) {
   };
 
   const handleFireToggle = async (checkinId) => {
-    const isOwnCheckin = feedItems.find(c => c.id === checkinId)?.user_id === user.id;
+    const checkin = feedItems.find(c => c.id === checkinId);
+    const isOwnCheckin = checkin?.user_id === user.id;
     if (isOwnCheckin) return;
 
     const alreadyFired = firedIds.has(checkinId);
@@ -107,6 +109,10 @@ export default function Feed({ user }) {
       await supabase.from("fires").insert({ checkin_id: checkinId, user_id: user.id });
       setFiredIds(prev => new Set([...prev, checkinId]));
       setFireCounts(prev => ({ ...prev, [checkinId]: (prev[checkinId] || 0) + 1 }));
+      // Check fire_starter for the person giving the fire
+      checkAndAwardBadges(user.id, "fire").catch(() => {});
+      // Check well_loved for the check-in owner
+      if (checkin?.user_id) checkAndAwardBadges(checkin.user_id, "fire_received").catch(() => {});
     }
   };
 

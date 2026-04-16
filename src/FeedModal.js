@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -79,6 +80,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
     if (!error && data) {
       setComments(prev => [...prev, data]);
       setCommentInput("");
+      checkAndAwardBadges(user.id, "comment").catch(() => {});
     }
     setPosting(false);
   };

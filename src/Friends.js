@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-export default function Friends({ user, onClose }) {
+export default function Friends({ user, onClose, onRequestHandled }) {
   const [tab, setTab] = useState("find"); // find | requests | list
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -100,11 +100,13 @@ export default function Friends({ user, onClose }) {
 
   const handleAccept = async (requestId) => {
     await supabase.from("friends").update({ status: "accepted" }).eq("id", requestId);
+    if (onRequestHandled) onRequestHandled();
     refresh();
   };
 
   const handleDecline = async (requestId) => {
     await supabase.from("friends").delete().eq("id", requestId);
+    if (onRequestHandled) onRequestHandled();
     refresh();
   };
 
