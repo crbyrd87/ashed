@@ -94,7 +94,7 @@ export default function Badges({ userId }) {
                       borderRadius: 10,
                       padding: "12px 10px",
                       textAlign: "center",
-                      opacity: badge.earned ? 1 : 0.45,
+                      opacity: badge.earned ? 1 : 0.7,
                       position: "relative",
                       overflow: "hidden",
                     }}
