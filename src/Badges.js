@@ -105,10 +105,10 @@ export default function Badges({ userId }) {
                     <div style={{ fontSize: 28, marginBottom: 6, filter: badge.earned ? "none" : "grayscale(1)" }}>
                       {badge.icon}
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? "#e8d5b7" : "#5a4535", marginBottom: 3, lineHeight: 1.3 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? "#e8d5b7" : "#c8b89a", marginBottom: 3, lineHeight: 1.3 }}>
                       {badge.name}
                     </div>
-                    <div style={{ fontSize: 10, color: badge.earned ? "#8a7055" : "#3a2510", lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 10, color: badge.earned ? "#8a7055" : "#8a7055", lineHeight: 1.4 }}>
                       {badge.description}
                     </div>
                     {badge.earned && badge.awarded_at && (
@@ -117,7 +117,7 @@ export default function Badges({ userId }) {
                       </div>
                     )}
                     {!badge.earned && (
-                      <div style={{ fontSize: 9, color: "#3a2510", marginTop: 6 }}>🔒 Locked</div>
+                      <div style={{ fontSize: 9, color: "#8a7055", marginTop: 6 }}>🔒 Locked</div>
                     )}
                   </div>
                 ))}
