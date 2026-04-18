@@ -81,6 +81,15 @@ function RatingSlider({ value, onChange, min = 0, max = 10, step = 0.5 }) {
   );
 }
 
+const haversineKm = (lat1, lon1, lat2, lon2) => {
+  if (lat2 == null || lon2 == null) return Infinity;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [score, setScore] = useState(7.5);
   const [overrideScore, setOverrideScore] = useState(false);
@@ -100,6 +109,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [venueQuery, setVenueQuery] = useState("");
   const [venueResults, setVenueResults] = useState([]);
   const [venueSearching, setVenueSearching] = useState(false);
+  const [userGpsCoords, setUserGpsCoords] = useState(null);
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
   const [visibility, setVisibility] = useState("public");
   const [saving, setSaving] = useState(false);
@@ -168,9 +178,17 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       async (pos) => {
         try {
           const { latitude: lat, longitude: lng } = pos.coords;
+          setUserGpsCoords({ lat, lng });
           const searchRes = await fetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
           const searchData = await searchRes.json();
-          setVenueResults((searchData.results || []).slice(0, 8));
+          const results = (searchData.results || []).slice(0, 8);
+          // Sort by distance from user's exact GPS position
+          const sorted = results.sort((a, b) => {
+            const distA = haversineKm(lat, lng, a.geometry?.location?.lat, a.geometry?.location?.lng);
+            const distB = haversineKm(lat, lng, b.geometry?.location?.lat, b.geometry?.location?.lng);
+            return distA - distB;
+          });
+          setVenueResults(sorted);
         } catch (e) {
           console.error("GPS venue search error:", e);
         }
@@ -508,13 +526,24 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 {venueSearching ? "..." : "Search"}
               </button>
             </div>
-            {venueResults.map((v, i) => (
-              <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
-                style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: "#2a1a0e", cursor: "pointer", border: "1px solid #3a2510" }}>
-                <div style={{ fontSize: 13, color: "#e8d5b7", fontWeight: 600 }}>{v.name}</div>
-                <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
-              </div>
-            ))}
+            {venueResults.map((v, i) => {
+              const distKm = userGpsCoords
+                ? haversineKm(userGpsCoords.lat, userGpsCoords.lng, v.geometry?.location?.lat, v.geometry?.location?.lng)
+                : null;
+              const distLabel = distKm != null
+                ? distKm < 1 ? `${Math.round(distKm * 1000)}m away` : `${distKm.toFixed(1)} km away`
+                : null;
+              return (
+                <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
+                  style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: "#2a1a0e", cursor: "pointer", border: "1px solid #3a2510" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ fontSize: 13, color: "#e8d5b7", fontWeight: 600, flex: 1 }}>{v.name}</div>
+                    {distLabel && <div style={{ fontSize: 11, color: "#c9a84c", marginLeft: 8, whiteSpace: "nowrap" }}>{distLabel}</div>}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
+                </div>
+              );
+            })}
             {!venueSearching && venueResults.length === 0 && venueQuery && (
               <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
             )}
