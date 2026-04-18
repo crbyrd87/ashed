@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
-import { createNotification } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -64,14 +63,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       await supabase.from("fires").insert({ checkin_id: checkin.id, user_id: user.id });
       setFired(true);
       setFireCount(c => c + 1);
-      // Notify check-in owner
-      if (checkin.user_id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "fire", {
-          checkin_id: checkin.id,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
     setFiringInProgress(false);
     if (onFireToggle) onFireToggle(checkin.id);
@@ -90,14 +81,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       setComments(prev => [...prev, data]);
       setCommentInput("");
       checkAndAwardBadges(user.id, "comment").catch(() => {});
-      // Notify check-in owner (not if commenting on own check-in)
-      if (checkin.user_id && checkin.user_id !== user.id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "comment", {
-          checkin_id: checkin.id,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
     setPosting(false);
   };

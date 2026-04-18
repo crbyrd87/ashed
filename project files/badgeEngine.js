@@ -1,46 +1,14 @@
 import { supabase } from "./supabase";
-import { createNotification } from "./notificationHelpers";
 
-const BADGE_NAMES = {
-  first_ash:        "First Ash",
-  aficionado:       "Aficionado",
-  smoker:           "Smoker",
-  connoisseur:      "Connoisseur",
-  centurion:        "Centurion",
-  legend:           "Legend",
-  brand_hopper:     "Brand Hopper",
-  vitola_variety:   "Vitola Variety",
-  world_tour:       "World Tour",
-  strength_seeker:  "Strength Seeker",
-  fire_starter:     "Fire Starter",
-  well_loved:       "Well Loved",
-  conversationalist:"Conversationalist",
-  founding_member:  "Founding Member",
-  ambassador:       "Ambassador",
-  recruiter:        "Recruiter",
-  legend_maker:     "Legend Maker",
-};
-
-// Award a badge if not already earned, and notify the user
+// Award a badge if not already earned
 const awardBadge = async (userId, badgeKey) => {
   const { error } = await supabase
     .from("user_badges")
     .insert({ user_id: userId, badge_key: badgeKey });
-
   // Ignore duplicate errors (unique constraint) — badge already earned
-  if (error) {
-    if (!error.message.includes("unique")) {
-      console.error("Badge award error:", badgeKey, error.message);
-    }
-    return; // Don't notify if already earned
+  if (error && !error.message.includes("unique")) {
+    console.error("Badge award error:", badgeKey, error.message);
   }
-
-  // Notify the user they earned a badge (actor_id = userId since it's self-triggered)
-  const badgeName = BADGE_NAMES[badgeKey] || badgeKey;
-  createNotification(userId, userId, "badge", {
-    badge_key: badgeKey,
-    message: `You earned the "${badgeName}" badge!`,
-  }).catch(() => {});
 };
 
 // Get all badge keys already earned by user
@@ -161,6 +129,7 @@ const checkSocialBadges = async (userId, earned) => {
 const checkFoundingMember = async (userId, earned) => {
   if (earned.has("founding_member")) return;
 
+  // Count users created before or at the same time as this user
   const { data: thisUser } = await supabase
     .from("users")
     .select("created_at")
@@ -174,6 +143,7 @@ const checkFoundingMember = async (userId, earned) => {
     .select("*", { count: "exact", head: true })
     .lte("created_at", thisUser.created_at);
 
+  // User is within the first 100 (count includes themselves)
   if (count <= 100) await awardBadge(userId, "founding_member");
 };
 

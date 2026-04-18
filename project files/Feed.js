@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
-import { createNotification } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -114,14 +113,6 @@ export default function Feed({ user }) {
       checkAndAwardBadges(user.id, "fire").catch(() => {});
       // Check well_loved for the check-in owner
       if (checkin?.user_id) checkAndAwardBadges(checkin.user_id, "fire_received").catch(() => {});
-      // Notify check-in owner
-      if (checkin?.user_id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "fire", {
-          checkin_id: checkinId,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
   };
 

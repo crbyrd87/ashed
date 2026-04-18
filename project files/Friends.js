@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
-import { createNotification } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -100,15 +99,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   };
 
   const handleAccept = async (requestId) => {
-    // Find the request so we can notify the requester
-    const request = pendingRequests.find(r => r.id === requestId);
     await supabase.from("friends").update({ status: "accepted" }).eq("id", requestId);
-    // Notify the person who sent the request that it was accepted
-    if (request?.requester?.id) {
-      createNotification(request.requester.id, user.id, "friend_accepted", {
-        message: null,
-      }).catch(() => {});
-    }
     if (onRequestHandled) onRequestHandled();
     refresh();
   };

@@ -12,8 +12,6 @@ import Feed from "./Feed";
 import Badges from "./Badges";
 import { checkAndAwardBadges } from "./badgeEngine";
 import Venues from "./Venues";
-import Notifications from "./Notifications";
-import { fetchUnreadCount } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -147,8 +145,6 @@ export default function App() {
   const [pairingsCigar, setPairingsCigar] = useState(null);
   const [showFriends, setShowFriends] = useState(false);
   const [pendingFriendCount, setPendingFriendCount] = useState(0);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [profileTab, setProfileTab] = useState("journal");
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
@@ -210,16 +206,9 @@ export default function App() {
     setPendingFriendCount(count || 0);
   };
 
-  const refreshUnreadNotifCount = async () => {
-    if (!user) return;
-    const count = await fetchUnreadCount(user.id);
-    setUnreadNotifCount(count);
-  };
-
   useEffect(() => {
     if (!user) return;
     refreshPendingFriendCount();
-    refreshUnreadNotifCount();
     processReferral(user);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -301,16 +290,6 @@ export default function App() {
       .order("smoke_date", { ascending: false });
     setCheckins(data || []);
   };
-
-  // Poll for new notifications every 60 seconds while app is open
-  useEffect(() => {
-    if (!user) return;
-    const interval = setInterval(() => {
-      refreshUnreadNotifCount();
-    }, 60000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
 
   const fetchWishlist = async () => {
     setWishlistLoading(true);
@@ -562,28 +541,7 @@ export default function App() {
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, color: "#c9a84c", textTransform: "uppercase" }}>🚬 Ashed</div>
           <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginTop: 2 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button
-            onClick={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
-            style={{ position: "relative", background: "none", border: "none", cursor: "pointer", padding: 4, lineHeight: 1 }}
-            aria-label="Notifications"
-          >
-            <span style={{ fontSize: 20 }}>🔔</span>
-            {unreadNotifCount > 0 && (
-              <span style={{
-                position: "absolute", top: 0, right: 0,
-                background: "#e8632a", color: "#fff",
-                fontSize: 9, fontWeight: 700, fontFamily: SANS,
-                borderRadius: "50%", minWidth: 16, height: 16,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "0 3px", lineHeight: 1,
-              }}>
-                {unreadNotifCount > 99 ? "99+" : unreadNotifCount}
-              </span>
-            )}
-          </button>
-          <button style={s.logoutBtn} onClick={handleLogout}>Log out</button>
-        </div>
+        <button style={s.logoutBtn} onClick={handleLogout}>Log out</button>
       </div>
 
       {tab === "search" && (
@@ -1113,17 +1071,6 @@ export default function App() {
           user={user}
           onClose={() => setShowFriends(false)}
           onRequestHandled={() => refreshPendingFriendCount()}
-        />
-      )}
-      {showNotifications && (
-        <Notifications
-          user={user}
-          onClose={() => { setShowNotifications(false); refreshUnreadNotifCount(); }}
-          onOpenCheckin={(checkinId) => {
-            // Switch to search/feed tab so the user can see the feed
-            setTab("search");
-            setShowNotifications(false);
-          }}
         />
       )}
       {tab === "humidor" && (
