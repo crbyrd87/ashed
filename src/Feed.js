@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
-import { createNotification } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -43,7 +42,7 @@ export default function Feed({ user }) {
         .from("checkins")
         .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
         .in("user_id", friendIds)
-        .eq("is_private", false)
+        .neq("visibility", "private")
         .order("created_at", { ascending: false })
         .limit(FRIEND_LIMIT);
       friendCheckins = (data || []).map(c => ({ ...c, _feedType: "friend" }));
@@ -55,7 +54,7 @@ export default function Feed({ user }) {
       .from("checkins")
       .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
       .not("user_id", "in", `(${excludeIds.join(",")})`)
-      .eq("is_private", false)
+      .eq("visibility", "public")
       .order("created_at", { ascending: false })
       .limit(COMMUNITY_LIMIT);
     const communityCheckins = (globalData || []).map(c => ({ ...c, _feedType: "community" }));
@@ -114,14 +113,6 @@ export default function Feed({ user }) {
       checkAndAwardBadges(user.id, "fire").catch(() => {});
       // Check well_loved for the check-in owner
       if (checkin?.user_id) checkAndAwardBadges(checkin.user_id, "fire_received").catch(() => {});
-      // Notify check-in owner
-      if (checkin?.user_id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "fire", {
-          checkin_id: checkinId,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
   };
 

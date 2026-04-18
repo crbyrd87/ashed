@@ -92,7 +92,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [venueResults, setVenueResults] = useState([]);
   const [venueSearching, setVenueSearching] = useState(false);
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [visibility, setVisibility] = useState("public");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [listening, setListening] = useState(false);
@@ -213,7 +213,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       tasting_notes: notes || null,
       smoke_date: smokeDate,
       smoke_location: location || null,
-      is_private: isPrivate,
+      visibility: visibility,
       ai_band_identified: false,
       voice_entry: false,
     };
@@ -469,17 +469,29 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       </div>
 
       <div style={s.section}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: 14, color: "#e8d5b7" }}>Private check-in</div>
-            <div style={{ fontSize: 12, color: "#5a4535", marginTop: 2 }}>Only visible to you</div>
-          </div>
-          <div
-            onClick={() => setIsPrivate(!isPrivate)}
-            style={{ width: 44, height: 24, borderRadius: 12, background: isPrivate ? "#c9a84c" : "#3a2510", cursor: "pointer", position: "relative", transition: "background 0.2s" }}
-          >
-            <div style={{ position: "absolute", top: 2, left: isPrivate ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#e8d5b7", transition: "left 0.2s" }} />
-          </div>
+        <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>VISIBILITY</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[
+            { value: "public", label: "🌍 Public", desc: "Appears in community feed" },
+            { value: "friends_only", label: "👥 Friends", desc: "Friends only" },
+            { value: "private", label: "🔒 Private", desc: "Only you" },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setVisibility(opt.value)}
+              style={{
+                flex: 1, padding: "8px 4px", borderRadius: 8, cursor: "pointer", fontFamily: SANS,
+                border: `1px solid ${visibility === opt.value ? "#c9a84c" : "#3a2510"}`,
+                background: visibility === opt.value ? "#c9a84c22" : "transparent",
+                color: visibility === opt.value ? "#c9a84c" : "#5a4535",
+                fontSize: 11, fontWeight: visibility === opt.value ? 700 : 400,
+                textAlign: "center", lineHeight: 1.5,
+              }}
+            >
+              <div>{opt.label}</div>
+              <div style={{ fontSize: 9, marginTop: 2, opacity: 0.8 }}>{opt.desc}</div>
+            </button>
+          ))}
         </div>
       </div>
 
