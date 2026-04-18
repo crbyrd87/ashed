@@ -46,20 +46,16 @@ Example: ["Dark Chocolate", "Cedar", "Black Pepper", "Espresso", "Leather"]`;
   return match ? JSON.parse(match[0]) : [];
 };
 
-const FLAVOR_TAGS = [
-  // Earth & Wood
-  "Cedar", "Oak", "Wood", "Charred Wood", "Toast", "Earth", "Mineral", "Barnyard", "Hay", "Grass", "Musty",
-  // Spice & Pepper
-  "Pepper", "Black Pepper", "White Pepper", "Spice", "Cinnamon", "Licorice",
-  // Chocolate & Coffee
-  "Chocolate", "Dark Chocolate", "Cocoa", "Coffee", "Espresso",
-  // Sweet & Fruit
-  "Caramel", "Vanilla", "Honey", "Molasses", "Sweetness", "Dried Fruit", "Raisin", "Fig", "Cherry", "Citrus",
-  // Cream & Savory
-  "Cream", "Bread", "Nuts", "Leather", "Tobacco", "Salt",
-  // Floral
-  "Floral",
+const FLAVOR_TAG_GROUPS = [
+  { label: "Earth & Wood",       tags: ["Barnyard", "Cedar", "Charred Wood", "Earth", "Grass", "Hay", "Mineral", "Musty", "Oak", "Toast", "Wood"] },
+  { label: "Spice",              tags: ["Black Pepper", "Cinnamon", "Licorice", "Pepper", "Spice", "White Pepper"] },
+  { label: "Chocolate & Coffee", tags: ["Chocolate", "Cocoa", "Coffee", "Dark Chocolate", "Espresso"] },
+  { label: "Sweet & Fruit",      tags: ["Caramel", "Cherry", "Citrus", "Dried Fruit", "Fig", "Honey", "Molasses", "Raisin", "Sweetness", "Vanilla"] },
+  { label: "Cream & Savory",     tags: ["Bread", "Cream", "Leather", "Nuts", "Salt", "Tobacco"] },
+  { label: "Floral",             tags: ["Floral"] },
 ];
+
+const FLAVOR_TAGS = FLAVOR_TAG_GROUPS.flatMap(g => g.tags);
 
 const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
 
@@ -402,11 +398,16 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
       <div style={s.section}>
         <div style={s.label}>Flavor Tags</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {FLAVOR_TAGS.map(tag => (
-            <button key={tag} style={s.tag(selectedTags.includes(tag))} onClick={() => toggleTag(tag)}>{tag}</button>
-          ))}
-        </div>
+        {FLAVOR_TAG_GROUPS.map(group => (
+          <div key={group.label} style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: "#5a4535", letterSpacing: 1, marginBottom: 6 }}>{group.label.toUpperCase()}</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {group.tags.map(tag => (
+                <button key={tag} style={s.tag(selectedTags.includes(tag))} onClick={() => toggleTag(tag)}>{tag}</button>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div style={s.section}>
