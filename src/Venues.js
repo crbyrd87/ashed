@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const KEY = process.env.REACT_APP_GOOGLE_PLACES_KEY;
 
 const ShopIcon = ({ color = "#c9a84c", size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -43,11 +42,17 @@ const getDistanceMeters = (from, lat, lng) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 };
 
-// Geocode an address to lat/lng using REST API
+// All Google API calls go through our serverless proxy to avoid CORS
+const placesApi = async (params) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`/api/places?${query}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+};
+
+// Geocode an address to lat/lng
 const geocodeAddress = async (address) => {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  const data = await placesApi({ action: "geocode", address });
   console.log("[Venues] Geocode status:", data.status, "results:", data.results?.length);
   if (data.status === "OK" && data.results?.[0]) {
     const loc = data.results[0].geometry.location;
@@ -56,11 +61,9 @@ const geocodeAddress = async (address) => {
   throw new Error(`Geocode failed: ${data.status} - ${data.error_message || ""}`);
 };
 
-// Search nearby cigar shops using Places API REST
+// Search nearby cigar shops
 const searchNearbyPlaces = async (loc) => {
-  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=cigar+shop+OR+cigar+lounge+OR+tobacconist&location=${loc.lat},${loc.lng}&radius=48000&key=${KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  const data = await placesApi({ action: "search", lat: loc.lat, lng: loc.lng });
   console.log("[Venues] Places status:", data.status, "results:", data.results?.length);
   if (data.status === "OK" || data.status === "ZERO_RESULTS") {
     return (data.results || []).map(p => ({
@@ -71,11 +74,9 @@ const searchNearbyPlaces = async (loc) => {
   throw new Error(`Places search failed: ${data.status} - ${data.error_message || ""}`);
 };
 
-// Autocomplete suggestions using Places Autocomplete REST API
+// Autocomplete suggestions
 const getAutocompleteSuggestions = async (input) => {
-  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=(regions)&key=${KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  const data = await placesApi({ action: "autocomplete", input });
   if (data.status === "OK" && data.predictions?.length) {
     return data.predictions.slice(0, 5).map(p => ({
       place_id: p.place_id,
@@ -151,7 +152,11 @@ export default function Venues() {
       },
       (err) => {
         if (err.code === 1) {
-          setError("Location access denied. Click the lock icon in your browser's address bar to allow it, then try again.");
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          setError(isIOS
+            ? "Location access denied. Go to Settings → Privacy & Security → Location Services → Safari → select 'While Using App', then try again."
+            : "Location access denied. Click the lock icon in your browser's address bar to allow location, then try again."
+          );
         } else {
           setError("Couldn't get your location. Try searching by city or zip.");
         }
