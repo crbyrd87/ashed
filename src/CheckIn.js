@@ -530,8 +530,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               const distKm = userGpsCoords
                 ? haversineKm(userGpsCoords.lat, userGpsCoords.lng, v.geometry?.location?.lat, v.geometry?.location?.lng)
                 : null;
-              const distLabel = distKm != null
-                ? distKm < 1 ? `${Math.round(distKm * 1000)}m away` : `${distKm.toFixed(1)} km away`
+              const distMi = distKm != null ? distKm * 0.621371 : null;
+              const distLabel = distMi != null
+                ? distMi < 0.1 ? `${Math.round(distMi * 5280)} ft away` : `${distMi.toFixed(1)} mi away`
                 : null;
               return (
                 <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
