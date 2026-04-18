@@ -11,6 +11,7 @@ import Friends from "./Friends";
 import Feed from "./Feed";
 import Badges from "./Badges";
 import { checkAndAwardBadges } from "./badgeEngine";
+import Venues from "./Venues";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -1076,8 +1077,10 @@ export default function App() {
         <Humidor
           user={user}
           onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
+          onSearchToAdd={() => { setTab("search"); }}
         />
       )}
+      {tab === "venues" && <Venues />}
       <nav style={s.nav}>
         {[["search", "🔍", "Search"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
@@ -1085,6 +1088,22 @@ export default function App() {
             <span>{label}</span>
           </button>
         ))}
+        <button style={s.navBtn(tab === "venues")} onClick={() => setTab("venues")}>
+          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="9" width="18" height="13" rx="1" fill={tab === "venues" ? "#c9a84c" : "#5a4535"}/>
+              <polygon points="1,9 23,9 21,5 3,5" fill={tab === "venues" ? "#c9a84c" : "#5a4535"}/>
+              <line x1="7" y1="5" x2="6" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="11" y1="5" x2="10" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="15" y1="5" x2="14" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="19" y1="5" x2="18" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/>
+              <rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
+              <rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
+            </svg>
+          </span>
+          <span>Venues</span>
+        </button>
       </nav>
     </div>
   );
