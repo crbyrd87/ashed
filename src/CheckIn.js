@@ -143,7 +143,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setVenueSearching(true);
     setVenueResults([]);
     try {
-      // Geocode the query then search nearby
       const geoRes = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(venueQuery.trim())}`);
       const geoData = await geoRes.json();
       if (geoData.status === "OK" && geoData.results?.[0]) {
@@ -156,6 +155,39 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       console.error("Venue search error:", e);
     }
     setVenueSearching(false);
+  };
+
+  const handleVenueGPS = () => {
+    if (!navigator.geolocation) {
+      alert("Location not supported on this device.");
+      return;
+    }
+    setVenueSearching(true);
+    setVenueResults([]);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          const searchRes = await fetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
+          const searchData = await searchRes.json();
+          setVenueResults((searchData.results || []).slice(0, 8));
+        } catch (e) {
+          console.error("GPS venue search error:", e);
+        }
+        setVenueSearching(false);
+      },
+      (err) => {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        alert(err.code === 1
+          ? isIOS
+            ? "Location access denied. Go to Settings → Privacy & Security → Location Services → Safari → select 'While Using App', then try again."
+            : "Location access denied. Click the lock icon in your browser's address bar to allow location, then try again."
+          : "Couldn't get your location. Try searching by city or zip."
+        );
+        setVenueSearching(false);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
   };
 
   const handleSelectVenue = (venue) => {
@@ -451,6 +483,18 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         {showVenueSearch && (
           <div style={{ background: "#1a0f08", border: "1px solid #3a2510", borderRadius: 10, padding: 12, marginBottom: 10 }}>
             <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
+            <button
+              onClick={handleVenueGPS}
+              disabled={venueSearching}
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "9px 14px", color: venueSearching ? "#5a4535" : "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: venueSearching ? "default" : "pointer", fontFamily: SANS, marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+            >
+              📍 {venueSearching ? "Searching nearby..." : "Use My Location"}
+            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <div style={{ flex: 1, height: 1, background: "#3a2510" }} />
+              <span style={{ fontSize: 10, color: "#5a4535" }}>OR</span>
+              <div style={{ flex: 1, height: 1, background: "#3a2510" }} />
+            </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               <input
                 style={{ ...s.input, flex: 1 }}
