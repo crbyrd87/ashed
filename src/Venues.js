@@ -132,6 +132,52 @@ const getAutocompleteSuggestions = async (input) => {
   return [];
 };
 
+// Fetch full place details (hours, phone) on demand
+const getPlaceDetails = async (place_id) => {
+  const data = await placesApi({ action: "details", place_id });
+  if (data.status === "OK") return data.result;
+  return null;
+};
+
+// Get smart hours display string
+const getHoursDisplay = (openingHours) => {
+  if (!openingHours) return null;
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun, 1=Mon...
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+
+  const todayPeriod = (openingHours.periods || []).find(p => p.open?.day === day);
+
+  if (!openingHours.open_now) {
+    // Find next open time
+    for (let i = 0; i < 7; i++) {
+      const checkDay = (day + i) % 7;
+      const period = (openingHours.periods || []).find(p => p.open?.day === checkDay);
+      if (period?.open?.time) {
+        const h = parseInt(period.open.time.slice(0, 2));
+        const m = parseInt(period.open.time.slice(2));
+        const label = `${h > 12 ? h - 12 : h || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+        return { text: i === 0 ? `Closed · Opens at ${label}` : `Closed · Opens ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][checkDay]} ${label}`, color: "#a0522d" };
+      }
+    }
+    return { text: "Closed", color: "#a0522d" };
+  }
+
+  if (todayPeriod?.close?.time) {
+    const h = parseInt(todayPeriod.close.time.slice(0, 2));
+    const m = parseInt(todayPeriod.close.time.slice(2));
+    const closeMins = h * 60 + m;
+    const minsUntilClose = closeMins - currentMins;
+    const label = `${h > 12 ? h - 12 : h || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+    if (minsUntilClose <= 60 && minsUntilClose > 0) {
+      return { text: `Closing Soon · ${label}`, color: "#e8632a" };
+    }
+    return { text: `Open · Closes ${label}`, color: "#7a9a7a" };
+  }
+
+  return { text: "Open now", color: "#7a9a7a" };
+};
+
 export default function Venues() {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -143,6 +189,7 @@ export default function Venues() {
   const [hasSearched, setHasSearched] = useState(false);
   const [viewMode, setViewMode] = useState("list"); // "list" | "map"
   const [userLocation, setUserLocation] = useState(null);
+  const [venueDetails, setVenueDetails] = useState({});
   const suggestTimeout = useRef(null);
 
   const handleQueryChange = (val) => {
@@ -213,6 +260,19 @@ export default function Venues() {
       },
       { timeout: 10000 }
     );
+  };
+
+  const handleVenueTap = async (venue) => {
+    const isSelected = selectedVenue?.place_id === venue.place_id;
+    setSelectedVenue(isSelected ? null : venue);
+    if (!isSelected && venue.place_id && !venueDetails[venue.place_id]) {
+      try {
+        const details = await getPlaceDetails(venue.place_id);
+        if (details) setVenueDetails(prev => ({ ...prev, [venue.place_id]: details }));
+      } catch (e) {
+        console.error("Details fetch error:", e);
+      }
+    }
   };
 
   const openDirections = (venue) => {
@@ -374,13 +434,15 @@ export default function Venues() {
       {!loading && viewMode === "list" && venues.map((venue, i) => {
         const isSelected = selectedVenue?.place_id === venue.place_id;
         const distance = venue._distance != null ? formatDistance(venue._distance) : null;
-        const isOpen = venue.opening_hours?.open_now;
+        const details = venueDetails[venue.place_id];
+        const hours = getHoursDisplay(details?.opening_hours || venue.opening_hours);
+        const phone = details?.formatted_phone_number || venue.formatted_phone_number;
 
         return (
           <div
             key={venue.place_id || i}
             style={{ background: "linear-gradient(135deg, #2a1a0e, #221508)", border: `1px solid ${isSelected ? "#c9a84c55" : "#3a2510"}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
-            onClick={() => setSelectedVenue(isSelected ? null : venue)}
+            onClick={() => handleVenueTap(venue)}
           >
             <div style={{ padding: "12px 14px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -394,9 +456,12 @@ export default function Venues() {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     {venue.rating && <StarRating rating={venue.rating} />}
-                    {venue.opening_hours && (
-                      <span style={{ fontSize: 11, color: isOpen ? "#7a9a7a" : "#a0522d", fontWeight: 600 }}>
-                        {isOpen ? "Open now" : "Closed"}
+                    {hours && (
+                      <span style={{ fontSize: 11, color: hours.color, fontWeight: 600 }}>{hours.text}</span>
+                    )}
+                    {!hours && venue.opening_hours && (
+                      <span style={{ fontSize: 11, color: venue.opening_hours.open_now ? "#7a9a7a" : "#a0522d", fontWeight: 600 }}>
+                        {venue.opening_hours.open_now ? "Open now" : "Closed"}
                       </span>
                     )}
                     {distance && <span style={{ fontSize: 11, color: "#5a4535" }}>{distance}</span>}
@@ -407,9 +472,9 @@ export default function Venues() {
 
             {isSelected && (
               <div style={{ borderTop: "1px solid #3a2510", padding: "12px 14px" }}>
-                {venue.formatted_phone_number && (
+                {phone && (
                   <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 12 }}>
-                    📞 <span style={{ color: "#c8b89a" }}>{venue.formatted_phone_number}</span>
+                    📞 <span style={{ color: "#c8b89a" }}>{phone}</span>
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 8 }}>
@@ -419,9 +484,9 @@ export default function Venues() {
                   >
                     📍 Directions
                   </button>
-                  {venue.formatted_phone_number && (
+                  {phone && (
                     <button
-                      onClick={(e) => { e.stopPropagation(); openCall(venue); }}
+                      onClick={(e) => { e.stopPropagation(); openCall({ ...venue, formatted_phone_number: phone }); }}
                       style={{ flex: 1, background: "none", border: "1px solid #c9a84c55", borderRadius: 8, padding: "10px 0", color: "#c9a84c", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
                     >
                       📞 Call
