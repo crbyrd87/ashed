@@ -216,10 +216,21 @@ export default function Venues() {
     }, 350);
   };
 
+  const prefetchDetails = async (results) => {
+    for (const venue of results) {
+      if (!venue.place_id) continue;
+      try {
+        const details = await getPlaceDetails(venue.place_id);
+        if (details) setVenueDetails(prev => ({ ...prev, [venue.place_id]: details }));
+      } catch (e) { /* silent */ }
+    }
+  };
+
   const doSearch = async (query) => {
     setLoading(true);
     setHasSearched(true);
     setVenues([]);
+    setVenueDetails({});
     setError(null);
     setShowSuggestions(false);
     setSuggestions([]);
@@ -227,6 +238,7 @@ export default function Venues() {
       const loc = await geocodeAddress(query);
       const results = await searchNearbyPlaces(loc);
       setVenues(results);
+      prefetchDetails(results); // background, don't await
     } catch (e) {
       console.error("[Venues] Search error:", e);
       setError(`Couldn't find results for "${query}". Try a different city or zip.`);
@@ -249,6 +261,7 @@ export default function Venues() {
         try {
           const results = await searchNearbyPlaces(loc);
           setVenues(results);
+          prefetchDetails(results);
         } catch (e) {
           setError("Couldn't load nearby shops. Please try searching by city or zip.");
         }
