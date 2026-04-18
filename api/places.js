@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     } else if (action === "geocode") {
       url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${KEY}`;
     } else if (action === "search") {
-      url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=cigar+shop+OR+cigar+lounge+OR+tobacconist&location=${lat},${lng}&radius=48000&key=${KEY}`;
+      url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=cigar+shop+OR+cigar+lounge+OR+tobacconist+OR+tobacco+shop+OR+tobacco+store+OR+smoke+shop&location=${lat},${lng}&radius=48000&key=${KEY}`;
     } else {
       return res.status(400).json({ error: "Invalid action" });
     }
