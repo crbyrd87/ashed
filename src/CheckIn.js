@@ -5,7 +5,15 @@ const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
 const fetchAISuggestions = async (cigar) => {
-  const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 short tasting note descriptors a smoker might experience.
+  const tagList = [
+    "Cedar", "Oak", "Wood", "Charred Wood", "Toast", "Earth", "Mineral", "Barnyard", "Hay", "Grass", "Musty",
+    "Pepper", "Black Pepper", "White Pepper", "Spice", "Cinnamon", "Licorice",
+    "Chocolate", "Dark Chocolate", "Cocoa", "Coffee", "Espresso",
+    "Caramel", "Vanilla", "Honey", "Molasses", "Sweetness", "Dried Fruit", "Raisin", "Fig", "Cherry", "Citrus",
+    "Cream", "Bread", "Nuts", "Leather", "Tobacco", "Salt", "Floral",
+  ];
+
+  const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 tasting note descriptors a smoker might experience.
 
 Cigar: ${cigar.brand} ${cigar.line}
 Strength: ${cigar.strength || "unknown"}
@@ -13,8 +21,10 @@ Wrapper: ${cigar.wrapper || "unknown"}
 Origin: ${cigar.origin || "unknown"}
 Known tasting notes: ${cigar.tasting_notes || "none"}
 
-Return ONLY a raw JSON array of short descriptor strings, no markdown, no explanation. Each descriptor should be 1-3 words maximum.
-Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dried fruit"]`;
+You MUST return ONLY tags from this exact list: ${tagList.join(", ")}
+
+Return ONLY a raw JSON array of strings from that list, no markdown, no explanation, no tags outside the list.
+Example: ["Dark Chocolate", "Cedar", "Black Pepper", "Espresso", "Leather"]`;
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -37,9 +47,18 @@ Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dri
 };
 
 const FLAVOR_TAGS = [
-  "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
-  "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice",
-  "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"
+  // Earth & Wood
+  "Cedar", "Oak", "Wood", "Charred Wood", "Toast", "Earth", "Mineral", "Barnyard", "Hay", "Grass", "Musty",
+  // Spice & Pepper
+  "Pepper", "Black Pepper", "White Pepper", "Spice", "Cinnamon", "Licorice",
+  // Chocolate & Coffee
+  "Chocolate", "Dark Chocolate", "Cocoa", "Coffee", "Espresso",
+  // Sweet & Fruit
+  "Caramel", "Vanilla", "Honey", "Molasses", "Sweetness", "Dried Fruit", "Raisin", "Fig", "Cherry", "Citrus",
+  // Cream & Savory
+  "Cream", "Bread", "Nuts", "Leather", "Tobacco", "Salt",
+  // Floral
+  "Floral",
 ];
 
 const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
@@ -175,7 +194,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   const handleTapSuggestion = (suggestion) => {
-    setNotes(prev => prev ? prev + ", " + suggestion : suggestion);
+    toggleTag(suggestion);
     setAiSuggestions(prev => prev.filter(s => s !== suggestion));
   };
 
@@ -366,11 +385,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             </button>
           )}
         </div>
-        {aiSuggestions.length > 0 && (
+        {aiSuggestions.filter(s => !selectedTags.includes(s)).length > 0 && (
           <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 8 }}>TAP TO ADD TO YOUR NOTES</div>
+            <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 8 }}>TAP TO SELECT FLAVOR TAGS</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {aiSuggestions.map((s, i) => (
+              {aiSuggestions.filter(s => !selectedTags.includes(s)).map((s, i) => (
                 <button key={i} onClick={() => handleTapSuggestion(s)}
                   style={{ padding: "5px 12px", borderRadius: 20, border: "1px solid #7a9a7a55", background: "#7a9a7a22", color: "#7a9a7a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   + {s}
