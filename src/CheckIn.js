@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
-import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
@@ -88,6 +87,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [showNewPlace, setShowNewPlace] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState("");
+  const [showVenueSearch, setShowVenueSearch] = useState(false);
+  const [venueQuery, setVenueQuery] = useState("");
+  const [venueResults, setVenueResults] = useState([]);
+  const [venueSearching, setVenueSearching] = useState(false);
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -124,6 +127,33 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       setNewPlaceName("");
       setShowNewPlace(false);
     }
+  };
+
+  const handleVenueSearch = async () => {
+    if (!venueQuery.trim()) return;
+    setVenueSearching(true);
+    setVenueResults([]);
+    try {
+      // Geocode the query then search nearby
+      const geoRes = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(venueQuery.trim())}`);
+      const geoData = await geoRes.json();
+      if (geoData.status === "OK" && geoData.results?.[0]) {
+        const { lat, lng } = geoData.results[0].geometry.location;
+        const searchRes = await fetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
+        const searchData = await searchRes.json();
+        setVenueResults((searchData.results || []).slice(0, 8));
+      }
+    } catch (e) {
+      console.error("Venue search error:", e);
+    }
+    setVenueSearching(false);
+  };
+
+  const handleSelectVenue = (venue) => {
+    setLocation(venue.name);
+    setShowVenueSearch(false);
+    setVenueQuery("");
+    setVenueResults([]);
   };
 
   const toggleTag = (tag) => {
@@ -232,9 +262,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
     setSaving(false);
     setSuccess(true);
-
-    // Fire badge checks in background — don't await, never block UX
-    checkAndAwardBadges(user.id, "checkin").catch(() => {});
 
     if (isRealCigar && cigar.id) {
       const { data: allRatings } = await supabase
@@ -390,9 +417,13 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <button key={p.id} style={s.tag(location === p.name)} onClick={() => setLocation(location === p.name ? "" : p.name)}>{p.name}</button>
           ))}
           <button style={s.tag(false)} onClick={() => setShowNewPlace(!showNewPlace)}>+ Add place</button>
+          <button style={s.tag(false)} onClick={() => setShowVenueSearch(!showVenueSearch)}>🏪 Find venue</button>
         </div>
+        {location !== "" && (
+          <div style={{ fontSize: 12, color: "#c9a84c", marginBottom: 8 }}>📍 {location} <span onClick={() => setLocation("")} style={{ color: "#5a4535", cursor: "pointer", marginLeft: 6 }}>×</span></div>
+        )}
         {showNewPlace && (
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
             <input
               style={{ ...s.input, flex: 1 }}
               placeholder="e.g. Back porch, Lanai..."
@@ -401,6 +432,38 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               onKeyDown={e => e.key === "Enter" && handleAddPlace()}
             />
             <button onClick={handleAddPlace} style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "0 16px", color: "#1a0f08", fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
+          </div>
+        )}
+        {showVenueSearch && (
+          <div style={{ background: "#1a0f08", border: "1px solid #3a2510", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <input
+                style={{ ...s.input, flex: 1 }}
+                placeholder="Search by city or zip..."
+                value={venueQuery}
+                onChange={e => setVenueQuery(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleVenueSearch()}
+              />
+              <button onClick={handleVenueSearch} disabled={venueSearching}
+                style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "0 14px", color: "#1a0f08", fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                {venueSearching ? "..." : "Search"}
+              </button>
+            </div>
+            {venueResults.map((v, i) => (
+              <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
+                style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: "#2a1a0e", cursor: "pointer", border: "1px solid #3a2510" }}>
+                <div style={{ fontSize: 13, color: "#e8d5b7", fontWeight: 600 }}>{v.name}</div>
+                <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
+              </div>
+            ))}
+            {!venueSearching && venueResults.length === 0 && venueQuery && (
+              <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
+            )}
+            <button onClick={() => { setShowVenueSearch(false); setVenueResults([]); setVenueQuery(""); }}
+              style={{ width: "100%", background: "none", border: "none", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}>
+              Cancel
+            </button>
           </div>
         )}
       </div>

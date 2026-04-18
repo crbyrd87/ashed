@@ -1,6 +1,52 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+// Fix Leaflet default icon broken by webpack
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+// Custom gold venue pin
+const venueIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+
+// Blue "you are here" pin
+const userIcon = new L.DivIcon({
+  html: `<div style="width:14px;height:14px;background:#4a90e2;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 3px rgba(74,144,226,0.4)"></div>`,
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+  className: "",
+});
+
+// Helper to re-center map when venues change
+function MapController({ venues, userLocation }) {
+  const map = useMap();
+  useEffect(() => {
+    if (venues.length > 0) {
+      const bounds = venues
+        .filter(v => v.geometry?.location)
+        .map(v => [v.geometry.location.lat, v.geometry.location.lng]);
+      if (userLocation) bounds.push([userLocation.lat, userLocation.lng]);
+      if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40] });
+    } else if (userLocation) {
+      map.setView([userLocation.lat, userLocation.lng], 12);
+    }
+  }, [venues, userLocation, map]);
+  return null;
+}
 
 const ShopIcon = ({ color = "#c9a84c", size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -95,6 +141,8 @@ export default function Venues() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [viewMode, setViewMode] = useState("list"); // "list" | "map"
+  const [userLocation, setUserLocation] = useState(null);
   const suggestTimeout = useRef(null);
 
   const handleQueryChange = (val) => {
@@ -142,6 +190,7 @@ export default function Venues() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserLocation(loc);
         try {
           const results = await searchNearbyPlaces(loc);
           setVenues(results);
@@ -181,7 +230,19 @@ export default function Venues() {
 
   return (
     <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
-      <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 14 }}>FIND A CIGAR SHOP</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>FIND A CIGAR SHOP</div>
+        {hasSearched && venues.length > 0 && (
+          <div style={{ display: "flex", background: "#2a1a0e", borderRadius: 20, padding: 2, border: "1px solid #3a2510" }}>
+            {[["list", "List"], ["map", "Map"]].map(([id, label]) => (
+              <button key={id} onClick={() => setViewMode(id)}
+                style={{ padding: "4px 12px", borderRadius: 18, border: "none", background: viewMode === id ? "#c9a84c" : "transparent", color: viewMode === id ? "#1a0f08" : "#8a7055", fontSize: 11, fontWeight: viewMode === id ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 10 }}>
@@ -266,8 +327,51 @@ export default function Venues() {
         </div>
       )}
 
+      {/* Map view */}
+      {!loading && viewMode === "map" && venues.length > 0 && (
+        <div style={{ borderRadius: 10, overflow: "hidden", marginBottom: 16, height: 420 }}>
+          <MapContainer
+            center={userLocation ? [userLocation.lat, userLocation.lng] : [venues[0].geometry.location.lat, venues[0].geometry.location.lng]}
+            zoom={11}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MapController venues={venues} userLocation={userLocation} />
+            {userLocation && (
+              <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+                <Popup>You are here</Popup>
+              </Marker>
+            )}
+            {venues.map((venue, i) => venue.geometry?.location && (
+              <Marker
+                key={venue.place_id || i}
+                position={[venue.geometry.location.lat, venue.geometry.location.lng]}
+                icon={venueIcon}
+              >
+                <Popup>
+                  <div style={{ fontFamily: SANS, minWidth: 160 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{venue.name}</div>
+                    <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>{venue.vicinity || venue.formatted_address}</div>
+                    {venue.rating && <div style={{ fontSize: 11 }}>{"★".repeat(Math.round(venue.rating))} {venue.rating.toFixed(1)}</div>}
+                    <button
+                      onClick={() => { setSelectedVenue(venue); setViewMode("list"); }}
+                      style={{ marginTop: 8, background: "#c9a84c", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", width: "100%" }}
+                    >
+                      View details
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
+      )}
+
       {/* Venue list */}
-      {!loading && venues.map((venue, i) => {
+      {!loading && viewMode === "list" && venues.map((venue, i) => {
         const isSelected = selectedVenue?.place_id === venue.place_id;
         const distance = venue._distance != null ? formatDistance(venue._distance) : null;
         const isOpen = venue.opening_hours?.open_now;
