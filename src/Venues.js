@@ -64,12 +64,12 @@ const ShopIcon = ({ color = "#c9a84c", size = 24 }) => (
   </svg>
 );
 
-const StarRating = ({ rating }) => {
+const StarRating = ({ rating, count }) => {
   if (!rating) return null;
   const stars = Math.round(rating);
   return (
     <span style={{ fontSize: 11, color: "#c9a84c" }}>
-      {"★".repeat(stars)}{"☆".repeat(5 - stars)} <span style={{ color: "#8a7055" }}>{rating.toFixed(1)}</span>
+      {"★".repeat(stars)}{"☆".repeat(5 - stars)} <span style={{ color: "#8a7055" }}>{rating.toFixed(1)}{count ? ` (${count.toLocaleString()})` : ""}</span>
     </span>
   );
 };
@@ -157,7 +157,15 @@ const getHoursDisplay = (openingHours) => {
         const h = parseInt(period.open.time.slice(0, 2));
         const m = parseInt(period.open.time.slice(2));
         const label = `${h > 12 ? h - 12 : h || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
-        return { text: i === 0 ? `Closed · Opens at ${label}` : `Closed · Opens ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][checkDay]} ${label}`, color: "#a0522d" };
+        if (i === 0) {
+          const openMins = h * 60 + m;
+          const minsUntilOpen = openMins - currentMins;
+          if (minsUntilOpen <= 60 && minsUntilOpen > 0) {
+            return { text: `Opening Soon · ${label}`, color: "#c9a84c" };
+          }
+          return { text: `Closed · Opens at ${label}`, color: "#a0522d" };
+        }
+        return { text: `Closed · Opens ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][checkDay]} ${label}`, color: "#a0522d" };
       }
     }
     return { text: "Closed", color: "#a0522d" };
@@ -455,7 +463,7 @@ export default function Venues() {
                     {venue.vicinity || venue.formatted_address}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    {venue.rating && <StarRating rating={venue.rating} />}
+                    {venue.rating && <StarRating rating={venue.rating} count={venue.user_ratings_total} />}
                     {hours && (
                       <span style={{ fontSize: 11, color: hours.color, fontWeight: 600 }}>{hours.text}</span>
                     )}
