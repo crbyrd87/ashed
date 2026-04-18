@@ -5,13 +5,7 @@ const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
 const fetchAISuggestions = async (cigar) => {
-  const tagList = [
-    "Cedar", "Oak", "Wood", "Charred Wood", "Toast", "Earth", "Mineral", "Barnyard", "Hay", "Grass", "Musty",
-    "Pepper", "Black Pepper", "White Pepper", "Spice", "Cinnamon", "Licorice",
-    "Chocolate", "Dark Chocolate", "Cocoa", "Coffee", "Espresso",
-    "Caramel", "Vanilla", "Honey", "Molasses", "Sweetness", "Dried Fruit", "Raisin", "Fig", "Cherry", "Citrus",
-    "Cream", "Bread", "Nuts", "Leather", "Tobacco", "Salt", "Floral",
-  ];
+  const tagList = ALL_FLAVOR_TAGS;
 
   const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 tasting note descriptors a smoker might experience.
 
@@ -55,7 +49,7 @@ const FLAVOR_TAG_GROUPS = [
   { label: "Floral",             tags: ["Floral"] },
 ];
 
-const FLAVOR_TAGS = FLAVOR_TAG_GROUPS.flatMap(g => g.tags);
+const ALL_FLAVOR_TAGS = FLAVOR_TAG_GROUPS.flatMap(g => g.tags);
 
 const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
 
