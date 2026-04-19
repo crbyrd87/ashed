@@ -131,7 +131,6 @@ export default function App() {
   const [tab, setTab] = useState("search");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
-  const [imgErrors, setImgErrors] = useState({});
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -146,6 +145,7 @@ export default function App() {
   const [showFriends, setShowFriends] = useState(false);
   const [pendingFriendCount, setPendingFriendCount] = useState(0);
   const [communityRating, setCommunityRating] = useState(null);
+  const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
@@ -216,7 +216,7 @@ export default function App() {
 
   // Fetch community average rating when a cigar detail is opened
   useEffect(() => {
-    if (!selected) { setCommunityRating(null); return; }
+    if (!selected) { setCommunityRating(null); setShowVitolaBreakdown(false); return; }
     const fetchCommunityRating = async () => {
       const brand = selected.brand;
       const line = selected.line;
@@ -227,19 +227,33 @@ export default function App() {
         .select("id")
         .eq("brand", brand)
         .eq("line", line);
-      if (!cigarsForLine || cigarsForLine.length === 0) { setCommunityRating(null); return; }
+      if (!cigarsForLine || cigarsForLine.length === 0) { setCommunityRating({ avg: null, count: 0, ready: false }); return; }
       const ids = cigarsForLine.map(c => c.id);
       // Get all check-ins for any vitola of this line
       const { data } = await supabase
         .from("checkins")
-        .select("rating")
+        .select("rating, cigar_vitola, cigars(vitola)")
         .in("cigar_id", ids)
         .not("rating", "is", null);
-      if (data && data.length >= 3) {
+      if (data && data.length > 0) {
         const avg = data.reduce((sum, c) => sum + c.rating, 0) / data.length;
-        setCommunityRating({ avg: parseFloat(avg.toFixed(1)), count: data.length });
+        // Per-vitola breakdown
+        const byVitola = {};
+        for (const row of data) {
+          const vit = row.cigar_vitola || row.cigars?.vitola || "Unknown";
+          if (!byVitola[vit]) byVitola[vit] = [];
+          byVitola[vit].push(row.rating);
+        }
+        const vitolaSummary = Object.entries(byVitola)
+          .map(([vitola, ratings]) => ({
+            vitola,
+            avg: parseFloat((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)),
+            count: ratings.length,
+          }))
+          .sort((a, b) => b.avg - a.avg);
+        setCommunityRating({ avg: parseFloat(avg.toFixed(1)), count: data.length, ready: true, vitolas: vitolaSummary });
       } else {
-        setCommunityRating(null);
+        setCommunityRating({ avg: null, count: 0, ready: false, vitolas: [] });
       }
     };
     fetchCommunityRating();
@@ -492,6 +506,8 @@ export default function App() {
     setSelectedLine(line);
     setVitolas([]);
     setViolasLoading(true);
+    // Open the line detail page immediately — vitolas load into it
+    setSelected({ ...line, _isLine: true });
     const results = await getVitolas(line.brand, line.line, (partial) => {
       setVitolas(partial);
     });
@@ -514,7 +530,6 @@ export default function App() {
     logoutBtn: { background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS },
     dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
     dropdownItem: { padding: "12px 14px", cursor: "pointer", borderBottom: "1px solid #3a251033" },
-    vitolaCard: { background: "#2a1a0e", border: "1px solid #7a9a7a44", borderRadius: 10, marginBottom: 10, cursor: "pointer", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" },
     sortBtn: a => ({ padding: "4px 12px", borderRadius: 20, border: `1px solid ${a ? "#c9a84c" : "#3a2510"}`, background: a ? "#c9a84c22" : "transparent", color: a ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
   };
 
@@ -528,91 +543,204 @@ export default function App() {
 
   if (selected) {
     const c = selected;
+    const isLine = !!c._isLine;
+
+    // Compute strength display for line mode
+    const STRENGTH_ORDER = ["Light", "Medium", "Medium-Full", "Full"];
+    const strengthValues = isLine
+      ? [...new Set((vitolas || []).map(v => v.strength).filter(Boolean))]
+          .sort((a, b) => STRENGTH_ORDER.indexOf(a) - STRENGTH_ORDER.indexOf(b))
+      : [];
+    const strengthDisplay = strengthValues.length > 1
+      ? strengthValues.join(" / ")
+      : strengthValues[0] || c.strength;
+
+    // Use first vitola for line-level specs
+    const firstVitola = isLine ? (vitolas?.[0] || c) : c;
+    const origin = firstVitola.origin || c.origin;
+    const wrapper = firstVitola.wrapper || c.wrapper;
+    const tastingNotes = firstVitola.tasting_notes || c.tasting_notes;
+
+    const handleBack = () => {
+      setSelected(null);
+      if (isLine) { setSelectedLine(null); setVitolas([]); setQuery(""); }
+    };
+
     return (
       <div style={{ ...s.app, overflowY: "auto" }}>
         <div style={{ position: "relative", height: 220 }}>
-          {c.img && !imgErrors[c.id]
-            ? <img src={c.img} onError={() => setImgErrors(p => ({ ...p, [c.id]: true }))} alt={c.line} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
-          }
+          <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
-          <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
-          {c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
+          <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
+          {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
         </div>
+
         <div style={{ padding: "0 20px 30px" }}>
+          {/* Brand + Line name */}
           <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase", marginTop: 16 }}>{c.brand}</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 8px" }}>{c.line}</div>
+
+          {/* Line-level badges — wrapper, strength, origin */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-            <Badge label={c.vitola} />
-            <Badge label={c.strength} color={strengthColor(c.strength)} />
-            <Badge label={c.origin} color="#7a9a7a" />
+            {wrapper && <Badge label={wrapper} color="#a07830" />}
+            {strengthDisplay && <Badge label={strengthDisplay} color={strengthColor(strengthValues[0] || c.strength)} />}
+            {origin && <Badge label={origin} color="#7a9a7a" />}
           </div>
-          {c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
+
+          {/* Critic score */}
+          {!isLine && c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
+
+          {/* Community rating */}
           {communityRating && (
-            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "12px 16px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>ASHED COMMUNITY</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
-                    <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
-                  </div>
-                  <span style={{ color: "#7a9a7a", fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
+            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
+              {/* Header row — always visible, tappable */}
+              <div
+                onClick={() => communityRating.ready && setShowVitolaBreakdown(p => !p)}
+                style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: communityRating.ready ? "pointer" : "default" }}
+              >
+                <div>
+                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>ASHED COMMUNITY</div>
+                  {communityRating.ready ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ color: "#7a9a7a", fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "#4a3020", fontStyle: "italic" }}>No ratings yet</div>
+                  )}
+                </div>
+                <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                  <div style={{ fontSize: 12, color: "#c8b89a" }}>{communityRating.count} {communityRating.count === 1 ? "rating" : "ratings"}</div>
+                  {communityRating.ready && (
+                    <span style={{ fontSize: 11, color: "#8a7055" }}>{showVitolaBreakdown ? "▲" : "▼"} by vitola</span>
+                  )}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, color: "#5a4535" }}>{communityRating.count} {communityRating.count === 1 ? "smoke" : "smokes"}</div>
-                <div style={{ fontSize: 10, color: "#4a3020", marginTop: 2 }}>all vitolas</div>
-              </div>
+
+              {/* Vitola breakdown — expandable */}
+              {showVitolaBreakdown && communityRating.vitolas?.length > 0 && (
+                <div style={{ borderTop: "1px solid #3a251033", padding: "10px 16px 14px" }}>
+                  {communityRating.vitolas.map((v, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < communityRating.vitolas.length - 1 ? 10 : 0 }}>
+                      <div style={{ fontSize: 12, color: "#c8b89a", width: 110, flexShrink: 0 }}>{v.vitola}</div>
+                      <div style={{ flex: 1, height: 5, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: `${v.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#7a9a7a", width: 32, textAlign: "right" }}>{v.avg}</span>
+                      <span style={{ fontSize: 10, color: "#4a3020", width: 24, textAlign: "right" }}>×{v.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-            {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Origin", c.origin]].map(([k, v]) => (
-              <div key={k} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
-                <div style={{ fontSize: 15, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
-              </div>
-            ))}
-          </div>
-          {c.tasting_notes && (
+
+          {/* Tasting notes */}
+          {tastingNotes && (
             <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginBottom: 14 }}>
               <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 8 }}>TASTING NOTES</div>
-              <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6 }}>{c.tasting_notes}</div>
+              <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6 }}>{tastingNotes}</div>
             </div>
           )}
-          {c.smoked ? (
-            <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: 16 }}>
-              <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, marginBottom: 10 }}>YOUR REVIEW · {c.smokedDate}</div>
-              <ScoreBar rating={c.userRating} />
-              <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
-                + LOG THIS SMOKE
-              </button>
+
+          {/* LINE MODE: vitola list with Log buttons */}
+          {isLine && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>SELECT A VITOLA</div>
+              {violasLoading && vitolas.length === 0 && (
+                <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
+              )}
+              {vitolas.map((v, i) => {
+                const mixedStrengths = strengthValues.length > 1;
+                return (
+                  <div key={i} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
+                    {/* Vitola name + size + strength */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
+                        <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap", alignItems: "center" }}>
+                          {v.length_inches && <span style={{ fontSize: 11, color: "#5a4535" }}>{v.length_inches}" × {v.ring_gauge}</span>}
+                          {mixedStrengths && v.strength && <Badge label={v.strength} color={strengthColor(v.strength)} />}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setCheckingIn(v)}
+                        style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "8px 22px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                      >
+                        Log this Smoke 🚬
+                      </button>
+                    </div>
+                    {/* Wishlist + Humidor per vitola */}
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        onClick={() => handleAddToWishlist(v)}
+                        style={{ flex: 1, background: isOnWishlist(v) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(v) ? "#c9a84c" : "#8a7055"}`, borderRadius: 8, padding: "6px 0", color: isOnWishlist(v) ? "#c9a84c" : "#c8b89a", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        {isOnWishlist(v) ? "✓ Wishlisted" : "+ Wishlist"}
+                      </button>
+                      <button
+                        onClick={() => handleAddToHumidor(v)}
+                        style={{ flex: 1, background: isInHumidor(v) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(v) ? "#7a9a7a" : "#8a7055"}`, borderRadius: 8, padding: "6px 0", color: isInHumidor(v) ? "#7a9a7a" : "#c8b89a", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        {isInHumidor(v) ? "✓ In Humidor" : "+ Humidor"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {violasLoading && vitolas.length > 0 && (
+                <div style={{ fontSize: 11, color: "#7a9a7a", textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
+              )}
+              {/* Pairings at line level */}
               <button
-                onClick={() => { setPairingsCigar(c); setShowPairings(true); }}
-                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+                onClick={() => { setPairingsCigar(firstVitola); setShowPairings(true); }}
+                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}
               >
                 🥃 Drink Pairings
               </button>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  onClick={() => handleAddToWishlist(c)}
-                  style={{ flex: 1, background: isOnWishlist(c) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(c) ? "#c9a84c" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
-                >
-                  {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
-                </button>
-                <button
-                  onClick={() => handleAddToHumidor(c)}
-                  style={{ flex: 1, background: isInHumidor(c) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(c) ? "#7a9a7a" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? "#7a9a7a" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
-                >
-                  {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
-                </button>
-              </div>
             </div>
           )}
+
+          {/* SINGLE VITOLA MODE: original buttons */}
+          {!isLine && (
+            c.smoked ? (
+              <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, marginBottom: 10 }}>YOUR REVIEW · {c.smokedDate}</div>
+                <ScoreBar rating={c.userRating} />
+                <div style={{ fontSize: 14, color: "#c8b89a", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
+                  + LOG THIS SMOKE
+                </button>
+                <button
+                  onClick={() => { setPairingsCigar(c); setShowPairings(true); }}
+                  style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+                >
+                  🥃 Drink Pairings
+                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => handleAddToWishlist(c)}
+                    style={{ flex: 1, background: isOnWishlist(c) ? "#c9a84c22" : "none", border: `1px solid ${isOnWishlist(c) ? "#c9a84c" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
+                  >
+                    {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
+                  </button>
+                  <button
+                    onClick={() => handleAddToHumidor(c)}
+                    style={{ flex: 1, background: isInHumidor(c) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(c) ? "#7a9a7a" : "#3a2510"}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? "#7a9a7a" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                  >
+                    {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
+                  </button>
+                </div>
+              </div>
+            )
+          )}
         </div>
+
         {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); refreshCheckins(); }} />}
         {showPairings && pairingsCigar && (
           <Pairings
@@ -683,34 +811,6 @@ export default function App() {
               >
                 ✨ For Me
               </button>
-            </div>
-          )}
-
-          {selectedLine && (
-            <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 4 }}>{selectedLine.brand.toUpperCase()}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>{selectedLine.line}</div>
-              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14 }}>Select a vitola to view details</div>
-              {violasLoading && vitolas.length === 0 && (
-                <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
-              )}
-              {vitolas.map((c, i) => (
-                <div key={i} style={s.vitolaCard} onClick={() => setSelected(c)}>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{c.vitola}</div>
-                    <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>
-                      {c.length_inches ? `${c.length_inches}" × ${c.ring_gauge}` : ""}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-                    {c.avg_rating && <span style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c" }}>{c.avg_rating}</span>}
-                    {c.strength && <Badge label={c.strength} color={strengthColor(c.strength)} />}
-                  </div>
-                </div>
-              ))}
-              {violasLoading && vitolas.length > 0 && (
-                <div style={{ fontSize: 11, color: "#7a9a7a", textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
-              )}
             </div>
           )}
 
