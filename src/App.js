@@ -218,15 +218,22 @@ export default function App() {
   useEffect(() => {
     if (!selected) { setCommunityRating(null); return; }
     const fetchCommunityRating = async () => {
-      // Must have a real DB cigar_id to query at line level
-      if (!selected.id || [1,2,3,4,5,6,7,8].includes(selected.id)) {
-        setCommunityRating(null);
-        return;
-      }
+      const brand = selected.brand;
+      const line = selected.line;
+      if (!brand || !line) { setCommunityRating(null); return; }
+      // Get all cigar_ids for this brand+line (all vitolas)
+      const { data: cigarsForLine } = await supabase
+        .from("cigars")
+        .select("id")
+        .eq("brand", brand)
+        .eq("line", line);
+      if (!cigarsForLine || cigarsForLine.length === 0) { setCommunityRating(null); return; }
+      const ids = cigarsForLine.map(c => c.id);
+      // Get all check-ins for any vitola of this line
       const { data } = await supabase
         .from("checkins")
         .select("rating")
-        .eq("cigar_id", selected.id)
+        .in("cigar_id", ids)
         .not("rating", "is", null);
       if (data && data.length >= 3) {
         const avg = data.reduce((sum, c) => sum + c.rating, 0) / data.length;
