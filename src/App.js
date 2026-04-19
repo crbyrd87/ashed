@@ -381,6 +381,60 @@ export default function App() {
     setCheckins(prev => prev.filter(c => c.id !== checkin.id));
   };
 
+  const handleExportCSV = async () => {
+    // Fetch full check-in data with ratings
+    const { data } = await supabase
+      .from("checkins")
+      .select("*, cigars(brand, line, vitola, strength, origin), ratings(score, aroma, draw, burn, construction, flavor, finish, value_for_price, would_smoke_again, flavor_tags)")
+      .eq("user_id", user.id)
+      .order("smoke_date", { ascending: false });
+
+    if (!data || data.length === 0) {
+      alert("No check-ins to export yet.");
+      return;
+    }
+
+    const headers = [
+      "Date", "Brand", "Line", "Vitola", "Strength", "Origin",
+      "Overall Score", "Aroma", "Draw", "Burn", "Construction", "Flavor", "Finish",
+      "Value for Price", "Would Smoke Again", "Flavor Tags", "Notes", "Location", "Visibility"
+    ];
+
+    const rows = data.map(c => {
+      const r = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
+      return [
+        c.smoke_date || "",
+        c.cigars?.brand || c.cigar_brand || "",
+        c.cigars?.line || c.cigar_name || "",
+        c.cigars?.vitola || c.cigar_vitola || "",
+        c.cigars?.strength || "",
+        c.cigars?.origin || "",
+        c.rating ?? "",
+        r?.aroma ?? "",
+        r?.draw ?? "",
+        r?.burn ?? "",
+        r?.construction ?? "",
+        r?.flavor ?? "",
+        r?.finish ?? "",
+        r?.value_for_price || "",
+        r?.would_smoke_again || "",
+        r?.flavor_tags || "",
+        (c.tasting_notes || "").replace(/"/g, '""'),
+        c.smoke_location || "",
+        c.visibility || "public",
+      ].map(v => `"${v}"`).join(",");
+    });
+
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ashed-journal-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleInputChange = (val) => {
     setQuery(val);
     setSelectedLine(null);
@@ -896,6 +950,15 @@ export default function App() {
                 });
               })()}
             </>
+          )}
+
+          {profileTab === "journal" && checkins.length > 0 && (
+            <button
+              onClick={handleExportCSV}
+              style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 8, marginBottom: 8 }}
+            >
+              ⬇️ Export My Journal (CSV)
+            </button>
           )}
 
           {/* STATS SUB-TAB */}
