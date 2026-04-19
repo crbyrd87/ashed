@@ -145,6 +145,7 @@ export default function App() {
   const [pairingsCigar, setPairingsCigar] = useState(null);
   const [showFriends, setShowFriends] = useState(false);
   const [pendingFriendCount, setPendingFriendCount] = useState(0);
+  const [communityRating, setCommunityRating] = useState(null);
   const [profileTab, setProfileTab] = useState("journal");
   const [wishlist, setWishlist] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
@@ -212,6 +213,30 @@ export default function App() {
     processReferral(user);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Fetch community average rating when a cigar detail is opened
+  useEffect(() => {
+    if (!selected) { setCommunityRating(null); return; }
+    const fetchCommunityRating = async () => {
+      // Must have a real DB cigar_id to query at line level
+      if (!selected.id || [1,2,3,4,5,6,7,8].includes(selected.id)) {
+        setCommunityRating(null);
+        return;
+      }
+      const { data } = await supabase
+        .from("checkins")
+        .select("rating")
+        .eq("cigar_id", selected.id)
+        .not("rating", "is", null);
+      if (data && data.length >= 3) {
+        const avg = data.reduce((sum, c) => sum + c.rating, 0) / data.length;
+        setCommunityRating({ avg: parseFloat(avg.toFixed(1)), count: data.length });
+      } else {
+        setCommunityRating(null);
+      }
+    };
+    fetchCommunityRating();
+  }, [selected]);
 
   const processReferral = async (currentUser) => {
     const referralUsername = localStorage.getItem("ashed_referral");
@@ -516,6 +541,23 @@ export default function App() {
             <Badge label={c.origin} color="#7a9a7a" />
           </div>
           {c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#8a7055", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
+          {communityRating && (
+            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: "12px 16px", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>ASHED COMMUNITY</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+                    <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                  </div>
+                  <span style={{ color: "#7a9a7a", fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 12, color: "#5a4535" }}>{communityRating.count} {communityRating.count === 1 ? "smoke" : "smokes"}</div>
+                <div style={{ fontSize: 10, color: "#4a3020", marginTop: 2 }}>all vitolas</div>
+              </div>
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             {[["Wrapper", c.wrapper], ["Strength", c.strength], ["Vitola", c.vitola], ["Origin", c.origin]].map(([k, v]) => (
               <div key={k} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
