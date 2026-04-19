@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -44,68 +44,81 @@ const FLAVOR_TAGS = [
 
 const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
 
-const SUB_SCORES = [
-  { key: "aroma", label: "Aroma", tip: "How the cigar smells before and during smoking" },
-  { key: "draw", label: "Draw", tip: "How easily smoke pulls through the cigar" },
-  { key: "burn", label: "Burn", tip: "How evenly the cigar burns as you smoke it" },
-  { key: "construction", label: "Construction", tip: "Firmness, consistency, and quality of the roll" },
-  { key: "flavor", label: "Flavor", tip: "Overall taste and complexity" },
-  { key: "finish", label: "Finish", tip: "The lingering taste after each puff" },
-];
+// Convert 1–5 (0.5 increments) to 0–10 score
+const flamesToScore = (flames) => parseFloat((flames * 2).toFixed(1));
 
-const STARS = [1, 2, 3, 4, 5];
+const FLAME_LABELS = {
+  1: "Poor", 1.5: "Below Average", 2: "Fair", 2.5: "Decent",
+  3: "Good", 3.5: "Very Good", 4: "Great", 4.5: "Excellent", 5: "Outstanding"
+};
 
-function StarRating({ value, onChange }) {
-  const [hover, setHover] = useState(null);
-  const display = hover !== null ? hover : value;
+// SVG flame icon — full, half, or empty
+function FlameIcon({ fill = "full", size = 38 }) {
+  const id = `half-${Math.random().toString(36).slice(2)}`;
   return (
-    <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center" }}>
-      {STARS.map(star => (
-        <button
-          key={star}
-          onClick={() => onChange(star)}
-          onMouseEnter={() => setHover(star)}
-          onMouseLeave={() => setHover(null)}
-          style={{
-            background: "none", border: "none", cursor: "pointer", padding: 4,
-            fontSize: 36, lineHeight: 1,
-            color: star <= display ? "#c9a84c" : "#3a2510",
-            transition: "color 0.1s, transform 0.1s",
-            transform: star <= display ? "scale(1.1)" : "scale(1)",
-          }}
-        >
-          ★
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function RatingSlider({ value, onChange, min = 0, max = 10, step = 0.5 }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        style={{ flex: 1, accentColor: "#c9a84c" }}
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block", flexShrink: 0 }}>
+      {fill === "half" && (
+        <defs>
+          <linearGradient id={id} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="50%" stopColor="#c9a84c" />
+            <stop offset="50%" stopColor="#3a2510" />
+          </linearGradient>
+        </defs>
+      )}
+      <path
+        d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
+        fill={
+          fill === "full" ? "#c9a84c" :
+          fill === "half" ? `url(#${id})` :
+          "#3a2510"
+        }
       />
-      <span style={{ color: "#c9a84c", fontWeight: 700, fontSize: 16, minWidth: 32, textAlign: "right" }}>
-        {value.toFixed(1)}
-      </span>
-    </div>
+    </svg>
   );
 }
 
-// Convert 1-5 stars to 0-10 score
-const starsToScore = (stars) => stars * 2;
+// Flame rating: 5 flames, 0.5 increments via tap position
+function FlameRating({ value, onChange }) {
+  const containerRef = useRef(null);
+
+  const getValueFromEvent = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const x = clientX - rect.left;
+    const flameWidth = rect.width / 5;
+    const flameIndex = Math.floor(x / flameWidth); // 0-4
+    const posWithinFlame = (x - flameIndex * flameWidth) / flameWidth;
+    const raw = flameIndex + (posWithinFlame < 0.5 ? 0.5 : 1);
+    return Math.min(5, Math.max(0.5, raw));
+  };
+
+  const handleClick = (e) => {
+    onChange(getValueFromEvent(e));
+  };
+
+  const handleTouch = (e) => {
+    e.preventDefault();
+    onChange(getValueFromEvent(e));
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onClick={handleClick}
+      onTouchEnd={handleTouch}
+      style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "4px 0" }}
+    >
+      {[1, 2, 3, 4, 5].map(i => {
+        const fill = value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
+        return <FlameIcon key={i} fill={fill} size={38} />;
+      })}
+    </div>
+  );
+}
 
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   // Core quick check-in state
-  const [stars, setStars] = useState(4);
+  const [flames, setFlames] = useState(4);
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
 
   // Details section state
@@ -124,11 +137,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [venueSearching, setVenueSearching] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
 
-  // Sub-scores state (hidden by default, still saved)
-  const [showSubScores, setShowSubScores] = useState(false);
-  const [subScores, setSubScores] = useState({ aroma: 7.5, draw: 7.5, burn: 7.5, construction: 7.5, flavor: 7.5, finish: 7.5 });
-  const [activeTip, setActiveTip] = useState(null);
-
   // AI state
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
@@ -140,7 +148,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  const displayScore = starsToScore(stars);
+  const displayScore = flamesToScore(flames);
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -241,11 +249,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setSaving(true);
     setError(null);
 
-    // Use sub-score average if sub-scores are shown, else use star rating
-    const finalScore = showSubScores
-      ? parseFloat((Object.values(subScores).reduce((a, b) => a + b, 0) / 6).toFixed(1))
-      : displayScore;
-
     const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
     const checkinData = {
       user_id: user.id,
@@ -253,7 +256,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       cigar_name: cigar.line || null,
       cigar_brand: cigar.brand || null,
       cigar_vitola: cigar.vitola || null,
-      rating: finalScore,
+      rating: displayScore,
       tasting_notes: notes || null,
       smoke_date: smokeDate,
       smoke_location: location || null,
@@ -279,13 +282,13 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       checkin_id: savedCheckin.id,
       user_id: user.id,
       cigar_id: isRealCigar ? cigar.id : null,
-      score: finalScore,
-      aroma: subScores.aroma,
-      draw: subScores.draw,
-      burn: subScores.burn,
-      construction: subScores.construction,
-      flavor: subScores.flavor,
-      finish: subScores.finish,
+      score: displayScore,
+      aroma: null,
+      draw: null,
+      burn: null,
+      construction: null,
+      flavor: null,
+      finish: null,
       overall_notes: notes || null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       would_smoke_again: wouldSmokeAgain || null,
@@ -329,8 +332,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "16px 20px", borderBottom: "1px solid #3a251033" },
     label: { fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
-    tip: { width: 16, height: 16, borderRadius: "50%", background: "#3a2510", color: "#8a7055", fontSize: 10, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 },
-    tipBox: { background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#c8b89a", marginTop: 6, marginBottom: 6 },
     input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
     tag: active => ({ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }),
@@ -359,14 +360,15 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
       {/* ── QUICK CHECK-IN ── */}
 
-      {/* Star Rating */}
+      {/* Flame Rating */}
       <div style={{ ...s.section, paddingTop: 24, paddingBottom: 24 }}>
         <div style={{ ...s.label, justifyContent: "center" }}>Your Rating</div>
-        <StarRating value={stars} onChange={setStars} />
+        <FlameRating value={flames} onChange={setFlames} />
         <div style={{ textAlign: "center", marginTop: 10, fontSize: 13, color: "#8a7055" }}>
-          {["", "Poor", "Fair", "Good", "Great", "Outstanding"][stars]}
+          {FLAME_LABELS[flames] || ""}
           {" · "}
-          <span style={{ color: "#c9a84c", fontWeight: 700 }}>{displayScore.toFixed(1)}/10</span>
+          <span style={{ color: "#c9a84c", fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
+          <span style={{ color: "#5a4535", fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
         </div>
       </div>
 
@@ -390,7 +392,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         </button>
       </div>
 
-      {/* ── DETAILS SECTION (collapsed by default) ── */}
+      {/* ── DETAILS SECTION ── */}
       {showDetails && (
         <>
           {/* Notes */}
@@ -533,40 +535,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               </div>
             </div>
           </div>
-
-          {/* Detailed Sub-scores (power user toggle) */}
-          <div style={{ padding: "10px 20px", borderBottom: "1px solid #3a251033" }}>
-            <button
-              style={{ ...s.detailsToggle, borderColor: "#3a251055", color: "#5a4535", fontSize: 12 }}
-              onClick={() => setShowSubScores(!showSubScores)}
-            >
-              <span>Detailed sub-scores</span>
-              <span style={{ fontSize: 14 }}>{showSubScores ? "−" : "+"}</span>
-            </button>
-          </div>
-
-          {showSubScores && (
-            <div style={s.section}>
-              <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-                Enabling sub-scores will use their average as your final rating instead of stars.
-              </div>
-              {SUB_SCORES.map(({ key, label, tip }) => (
-                <div key={key} style={{ marginBottom: 14 }}>
-                  <div style={s.label}>
-                    {label}
-                    <span style={s.tip} onClick={() => setActiveTip(activeTip === key ? null : key)}>?</span>
-                  </div>
-                  {activeTip === key && <div style={s.tipBox}>{tip}</div>}
-                  <RatingSlider value={subScores[key]} onChange={v => setSubScores(prev => ({ ...prev, [key]: v }))} />
-                </div>
-              ))}
-              <div style={{ textAlign: "center", marginTop: 8, fontSize: 13, color: "#8a7055" }}>
-                Sub-score average: <span style={{ color: "#c9a84c", fontWeight: 700 }}>
-                  {(Object.values(subScores).reduce((a, b) => a + b, 0) / 6).toFixed(1)}
-                </span>
-              </div>
-            </div>
-          )}
         </>
       )}
 
@@ -574,7 +542,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       <div style={{ padding: 20 }}>
         {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
         <button style={s.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Log This Smoke 🚬"}
+          {saving ? "Saving..." : "Log This Smoke 🔥"}
         </button>
       </div>
     </div>
