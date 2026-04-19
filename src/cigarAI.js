@@ -55,12 +55,31 @@ export async function searchCigarLines(query, onPartialResults) {
   try {
     const raw = await callAI(
       "You are a cigar database API. List all unique cigar brand+line combinations matching: \"" + query + "\"\n\n" +
+      "CRITICAL RULES:\n" +
+      "- Use the EXACT official line name as it appears on the band and in retailer catalogs. No abbreviations, shorthand, or informal names.\n" +
+      "- Example: use \"Serie V\" not \"V\", use \"1964 Anniversary Series\" not \"1964\"\n" +
+      "- If two results would refer to the same cigar line, return only the most complete and official name\n" +
+      "- Do NOT return duplicate lines — each brand+line combination must be unique\n" +
+      "- Only return lines that genuinely match the search query\n\n" +
       "Return ONLY a raw JSON array, no markdown, no explanation:\n" +
       "[{\"brand\": \"Padron\", \"line\": \"1964 Anniversary Series\"}]\n\n" +
       "Sort alphabetically by line. If nothing matches return: []"
     );
     let aiLines;
     try { aiLines = JSON.parse(extractJSON(raw)); } catch { aiLines = []; }
+
+    // Drop AI results where the line name is a substring of an existing DB result
+    // (e.g. AI returns "V" but DB already has "Serie V" for same brand)
+    aiLines = aiLines.filter(ai => {
+      const aiLine = ai.line.toLowerCase();
+      const aiBrand = (ai.brand || "").toLowerCase();
+      return !dbResults.some(db => {
+        if (db.brand.toLowerCase() !== aiBrand) return false;
+        const dbLine = db.line.toLowerCase();
+        return dbLine.includes(aiLine) || aiLine.includes(dbLine);
+      });
+    });
+
     return dedupeLines([...dbResults, ...aiLines]);
   } catch (err) {
     console.error("Search failed:", err);
