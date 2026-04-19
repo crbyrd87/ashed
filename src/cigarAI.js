@@ -52,20 +52,10 @@ export async function searchCigarLines(query, onPartialResults) {
   const dbResults = cached ? dedupeLines(cached) : [];
   if (dbResults.length > 0 && onPartialResults) onPartialResults(dbResults);
 
-  try {
-    const raw = await callAI(
-      "You are a cigar database API. List all unique cigar brand+line combinations matching: \"" + query + "\"\n\n" +
-      "Return ONLY a raw JSON array, no markdown, no explanation:\n" +
-      "[{\"brand\": \"Padron\", \"line\": \"1964 Anniversary Series\"}]\n\n" +
-      "Sort alphabetically by line. If nothing matches return: []"
-    );
-    let aiLines;
-    try { aiLines = JSON.parse(extractJSON(raw)); } catch { aiLines = []; }
-    return dedupeLines([...dbResults, ...aiLines]);
-  } catch (err) {
-    console.error("Search failed:", err);
-    return dbResults;
-  }
+  // TODO (Week 29): Re-enable AI line search before launch.
+  // Disabled during development -- AI returns duplicate/variant line names for seeded brands.
+  // DB-only search is clean and sufficient while the seed covers top 31 brands.
+  return dbResults;
 }
 
 export async function getVitolas(brand, line, onPartialResults) {
