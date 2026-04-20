@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
-import { createNotification } from "./notificationHelpers";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -100,15 +99,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   };
 
   const handleAccept = async (requestId) => {
-    // Find the request so we can notify the requester
-    const request = pendingRequests.find(r => r.id === requestId);
     await supabase.from("friends").update({ status: "accepted" }).eq("id", requestId);
-    // Notify the person who sent the request that it was accepted
-    if (request?.requester?.id) {
-      createNotification(request.requester.id, user.id, "friend_accepted", {
-        message: null,
-      }).catch(() => {});
-    }
     if (onRequestHandled) onRequestHandled();
     refresh();
   };
@@ -116,13 +107,6 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   const handleDecline = async (requestId) => {
     await supabase.from("friends").delete().eq("id", requestId);
     if (onRequestHandled) onRequestHandled();
-    refresh();
-  };
-
-  const handleCancelRequest = async (requestId) => {
-    await supabase.from("friends").delete().eq("id", requestId);
-    setActionMsg("Request cancelled.");
-    setTimeout(() => setActionMsg(null), 2000);
     refresh();
   };
 
@@ -249,7 +233,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>INCOMING REQUESTS</div>
             {loading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
             {!loading && pendingRequests.length === 0 && (
-              <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "16px 0 20px" }}>No incoming requests</div>
+              <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 30 }}>No pending friend requests</div>
             )}
             {pendingRequests.map(req => (
               <div key={req.id} style={s.card}>
@@ -264,19 +248,20 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               </div>
             ))}
 
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, margin: "20px 0 12px" }}>SENT REQUESTS</div>
-            {!loading && sentRequests.length === 0 && (
-              <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "16px 0 20px" }}>No sent requests</div>
+            {sentRequests.length > 0 && (
+              <>
+                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, margin: "20px 0 12px" }}>SENT REQUESTS</div>
+                {sentRequests.map(req => (
+                  <div key={req.id} style={s.card}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7" }}>{req.recipient?.display_name || req.recipient?.username}</div>
+                      <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>@{req.recipient?.username}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#5a4535" }}>Pending...</span>
+                  </div>
+                ))}
+              </>
             )}
-            {sentRequests.map(req => (
-              <div key={req.id} style={s.card}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7" }}>{req.recipient?.display_name || req.recipient?.username}</div>
-                  <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>@{req.recipient?.username}</div>
-                </div>
-                <button style={s.btn("#a0522d")} onClick={() => handleCancelRequest(req.id)}>Cancel</button>
-              </div>
-            ))}
           </>
         )}
 
