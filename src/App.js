@@ -14,6 +14,7 @@ import { checkAndAwardBadges } from "./badgeEngine";
 import Venues from "./Venues";
 import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
+import AdminConsole from "./AdminConsole";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -148,6 +149,8 @@ export default function App() {
   const [pendingFriendCount, setPendingFriendCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -217,10 +220,21 @@ export default function App() {
     setUnreadNotifCount(count);
   };
 
+  const refreshIsAdmin = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("users")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
+    setIsAdmin(data?.is_admin || false);
+  };
+
   useEffect(() => {
     if (!user) return;
     refreshPendingFriendCount();
     refreshUnreadNotifCount();
+    refreshIsAdmin();
     processReferral(user);
     // Poll unread count every 60 seconds
     const interval = setInterval(refreshUnreadNotifCount, 60000);
@@ -868,6 +882,18 @@ export default function App() {
             </button>
           </div>
 
+          {/* Admin button — only visible to admins */}
+          {isAdmin && (
+            <div style={{ marginBottom: 16 }}>
+              <button
+                onClick={() => setShowAdmin(true)}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: "10px 16px", color: "#c9a84c", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
+              >
+                ⚙️ Admin Console
+              </button>
+            </div>
+          )}
+
           {/* Stat boxes - always visible */}
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {[
@@ -1323,6 +1349,12 @@ export default function App() {
         <Notifications
           user={user}
           onClose={() => { setShowNotifications(false); setUnreadNotifCount(0); }}
+        />
+      )}
+      {showAdmin && (
+        <AdminConsole
+          user={user}
+          onClose={() => setShowAdmin(false)}
         />
       )}
       {tab === "humidor" && (
