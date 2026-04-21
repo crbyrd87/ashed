@@ -12,9 +12,10 @@ const BADGE_NAMES = {
   vitola_variety:   "Vitola Variety",
   world_tour:       "World Tour",
   strength_seeker:  "Strength Seeker",
-  fire_starter:     "Fire Starter",
   well_loved:       "Well Loved",
-  conversationalist:"Conversationalist",
+  fan_favorite:     "Fan Favorite",
+  smoke_circle:     "Smoke Circle",
+  regular:          "Regular",
   founding_member:  "Founding Member",
   ambassador:       "Ambassador",
   recruiter:        "Recruiter",
@@ -120,18 +121,9 @@ const checkVarietyBadges = async (userId, earned) => {
   }
 };
 
-// Check social badges (fires given, fires received, comments)
+// Check social badges
 const checkSocialBadges = async (userId, earned) => {
-  // Fire Starter — given 50+ fires
-  if (!earned.has("fire_starter")) {
-    const { count: givenFires } = await supabase
-      .from("fires")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", userId);
-    if (givenFires >= 50) await awardBadge(userId, "fire_starter");
-  }
-
-  // Well Loved — received 50+ fires on your check-ins
+  // Well Loved — received 25+ fires on your check-ins
   if (!earned.has("well_loved")) {
     const { data: myCheckins } = await supabase
       .from("checkins")
@@ -143,18 +135,55 @@ const checkSocialBadges = async (userId, earned) => {
         .from("fires")
         .select("*", { count: "exact", head: true })
         .in("checkin_id", ids);
-      if (receivedFires >= 50) await awardBadge(userId, "well_loved");
+      if (receivedFires >= 25) await awardBadge(userId, "well_loved");
     }
   }
 
-  // Conversationalist — posted 50+ comments
-  if (!earned.has("conversationalist")) {
-    const { count: commentCount } = await supabase
-      .from("comments")
-      .select("*", { count: "exact", head: true })
+  // Fan Favorite — a single check-in receives 10+ fires
+  if (!earned.has("fan_favorite")) {
+    const { data: myCheckins } = await supabase
+      .from("checkins")
+      .select("id")
       .eq("user_id", userId);
-    if (commentCount >= 50) await awardBadge(userId, "conversationalist");
+    if (myCheckins && myCheckins.length > 0) {
+      const ids = myCheckins.map(c => c.id);
+      const { data: fireCounts } = await supabase
+        .from("fires")
+        .select("checkin_id")
+        .in("checkin_id", ids);
+      if (fireCounts) {
+        const counts = {};
+        for (const f of fireCounts) counts[f.checkin_id] = (counts[f.checkin_id] || 0) + 1;
+        if (Object.values(counts).some(c => c >= 10)) await awardBadge(userId, "fan_favorite");
+      }
+    }
   }
+
+  // Smoke Circle — 5 mutual friends
+  if (!earned.has("smoke_circle")) {
+    const [{ count: sent }, { count: recv }] = await Promise.all([
+      supabase.from("friends").select("*", { count: "exact", head: true }).eq("requester_id", userId).eq("status", "accepted"),
+      supabase.from("friends").select("*", { count: "exact", head: true }).eq("recipient_id", userId).eq("status", "accepted"),
+    ]);
+    if ((sent || 0) + (recv || 0) >= 5) await awardBadge(userId, "smoke_circle");
+  }
+};
+
+// Check Regular badge — checked in at same venue 3+ times
+const checkRegularBadge = async (userId, earned) => {
+  if (earned.has("regular")) return;
+  const { data: checkins } = await supabase
+    .from("checkins")
+    .select("smoke_location")
+    .eq("user_id", userId)
+    .not("smoke_location", "is", null);
+  if (!checkins) return;
+  const counts = {};
+  for (const c of checkins) {
+    const loc = c.smoke_location?.trim().toLowerCase();
+    if (loc) counts[loc] = (counts[loc] || 0) + 1;
+  }
+  if (Object.values(counts).some(c => c >= 3)) await awardBadge(userId, "regular");
 };
 
 // Check Founding Member badge
@@ -207,19 +236,16 @@ export const checkAndAwardBadges = async (userId, trigger = "checkin") => {
       await checkMilestoneBadges(userId, earned);
       await checkVarietyBadges(userId, earned);
       await checkFoundingMember(userId, earned);
+      await checkRegularBadge(userId, earned);
     }
 
-    if (trigger === "fire") {
-      await checkSocialBadges(userId, earned);
+    if (trigger === "fire" || trigger === "fire_received" || trigger === "friend") {
+      const refreshedEarned = await getEarnedKeys(userId);
+      await checkSocialBadges(userId, refreshedEarned);
     }
 
     if (trigger === "comment") {
-      await checkSocialBadges(userId, earned);
-    }
-
-    if (trigger === "fire_received") {
-      const receivedEarned = await getEarnedKeys(userId);
-      await checkSocialBadges(userId, receivedEarned);
+      // no comment-specific badges currently
     }
 
     if (trigger === "referral") {

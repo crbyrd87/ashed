@@ -8,6 +8,45 @@ const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const COMMUNITY_LIMIT = 10;
 const FRIEND_LIMIT = 20;
 
+// Badge display priority for feed cards
+// Slot 1: founding_member (if earned)
+// Slot 2: highest milestone
+// Slot 3: fan_favorite or well_loved (social proof)
+const MILESTONE_ORDER = ["legend", "centurion", "connoisseur", "smoker", "aficionado", "first_ash"];
+const SOCIAL_PRIORITY = ["fan_favorite", "well_loved", "smoke_circle", "regular", "legend_maker", "recruiter", "ambassador"];
+
+const BADGE_ICONS = {
+  legend: "🏆", centurion: "💯", connoisseur: "🎩", smoker: "🚬",
+  aficionado: "⭐", first_ash: "✨", founding_member: "🏅",
+  fan_favorite: "🌟", well_loved: "❤️", smoke_circle: "🤝",
+  regular: "🪑", legend_maker: "🌠", recruiter: "📣", ambassador: "🤝",
+  world_tour: "🌍", strength_seeker: "💪", brand_hopper: "🎯", vitola_variety: "📐",
+};
+
+const BADGE_NAMES = {
+  legend: "Legend", centurion: "Centurion", connoisseur: "Connoisseur",
+  smoker: "Smoker", aficionado: "Aficionado", first_ash: "First Ash",
+  founding_member: "Founding Member", fan_favorite: "Fan Favorite",
+  well_loved: "Well Loved", smoke_circle: "Smoke Circle", regular: "Regular",
+  legend_maker: "Legend Maker", recruiter: "Recruiter", ambassador: "Ambassador",
+  world_tour: "World Tour", strength_seeker: "Strength Seeker",
+  brand_hopper: "Brand Hopper", vitola_variety: "Vitola Variety",
+};
+
+function getTopBadgesForUser(badgeKeys) {
+  const set = new Set(badgeKeys);
+  const result = [];
+  // Slot 1: Founding Member
+  if (set.has("founding_member")) result.push("founding_member");
+  // Slot 2: Highest milestone
+  const milestone = MILESTONE_ORDER.find(k => set.has(k));
+  if (milestone && milestone !== "founding_member") result.push(milestone);
+  // Slot 3: Best social badge
+  const social = SOCIAL_PRIORITY.find(k => set.has(k));
+  if (social) result.push(social);
+  return [...new Set(result)].slice(0, 3);
+}
+
 export default function Feed({ user }) {
   const [feedItems, setFeedItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +54,7 @@ export default function Feed({ user }) {
   const [firedIds, setFiredIds] = useState(new Set());
   const [selectedCheckin, setSelectedCheckin] = useState(null);
   const [refreshCount] = useState(0);
+  const [userTopBadges, setUserTopBadges] = useState({});
 
   useEffect(() => {
     if (!user) return;
@@ -74,6 +114,27 @@ export default function Feed({ user }) {
     if (merged.length > 0) {
       const ids = merged.map(c => c.id);
       await loadFireData(ids);
+    }
+
+    // 6. Fetch badges for each unique user in the feed
+    const uniqueUserIds = [...new Set(merged.map(c => c.user_id).filter(Boolean))];
+    if (uniqueUserIds.length > 0) {
+      const { data: allUserBadges } = await supabase
+        .from("user_badges")
+        .select("user_id, badge_key")
+        .in("user_id", uniqueUserIds);
+      if (allUserBadges) {
+        const byUser = {};
+        for (const { user_id, badge_key } of allUserBadges) {
+          if (!byUser[user_id]) byUser[user_id] = [];
+          byUser[user_id].push(badge_key);
+        }
+        const topMap = {};
+        for (const [uid, keys] of Object.entries(byUser)) {
+          topMap[uid] = getTopBadgesForUser(keys);
+        }
+        setUserTopBadges(topMap);
+      }
     }
 
     setLoading(false);
@@ -169,6 +230,11 @@ export default function Feed({ user }) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
+                  {(userTopBadges[item.user_id] || []).map(key => (
+                    <span key={key} title={BADGE_NAMES[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())} style={{ marginLeft: 4, fontSize: 11 }}>
+                      {BADGE_ICONS[key]}
+                    </span>
+                  ))}
                   {isCommunity && (
                     <span style={{ marginLeft: 6, fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 6px" }}>Community</span>
                   )}
