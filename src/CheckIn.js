@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
@@ -325,6 +326,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       if (onSaved) onSaved(savedRating);
       onClose();
     }, 1500);
+
+    // Check badges in background — never blocks UX
+    checkAndAwardBadges(user.id, "checkin").catch(() => {});
   };
 
   const s = {

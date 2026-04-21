@@ -35,7 +35,7 @@ export default function AdminConsole({ user, onClose }) {
         {section === "stats"      && <StatsSection />}
         {section === "users"      && <UsersSection />}
         {section === "moderation" && <ModerationSection />}
-        {section === "badges"     && <ComingSoon label="Badge Management" />}
+        {section === "badges"     && <BadgesSection />}
       </div>
     </div>
   );
@@ -544,10 +544,184 @@ function ModerationSection() {
   );
 }
 
-const ComingSoon = ({ label }) => (
-  <div style={{ textAlign: "center", padding: "60px 20px" }}>
-    <div style={{ fontSize: 36, marginBottom: 16 }}>🚧</div>
-    <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>{label}</div>
-    <div style={{ fontSize: 13, color: "#5a4535" }}>Coming in the next build step.</div>
-  </div>
-);
+// ─── BADGES SECTION ──────────────────────────────────────────────────────────
+
+function BadgesSection() {
+  const [badges, setBadges] = useState([]);
+  const [earnedCounts, setEarnedCounts] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [userQuery, setUserQuery] = useState("");
+  const [userResults, setUserResults] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userBadges, setUserBadges] = useState(new Set());
+  const [searching, setSearching] = useState(false);
+  const [actionMsg, setActionMsg] = useState(null);
+
+  const showMsg = (msg, isError = false) => {
+    setActionMsg({ msg, isError });
+    setTimeout(() => setActionMsg(null), 3000);
+  };
+
+  useEffect(() => { loadBadges(); }, []);
+
+  const loadBadges = async () => {
+    setLoading(true);
+    const [{ data: allBadges }, { data: allEarned }] = await Promise.all([
+      supabase.from("badges").select("*").order("category").order("name"),
+      supabase.from("user_badges").select("badge_key"),
+    ]);
+    setBadges(allBadges || []);
+    const counts = {};
+    for (const b of (allEarned || [])) {
+      counts[b.badge_key] = (counts[b.badge_key] || 0) + 1;
+    }
+    setEarnedCounts(counts);
+    setLoading(false);
+  };
+
+  const searchUsers = async () => {
+    if (!userQuery.trim()) return;
+    setSearching(true);
+    const { data } = await supabase
+      .from("users")
+      .select("id, username, display_name")
+      .or(`username.ilike.%${userQuery.trim()}%,display_name.ilike.%${userQuery.trim()}%`)
+      .limit(10);
+    setUserResults(data || []);
+    setSearching(false);
+  };
+
+  const loadUserBadges = async (u) => {
+    setSelectedUser(u);
+    setUserResults([]);
+    setUserQuery(u.username);
+    const { data } = await supabase
+      .from("user_badges")
+      .select("badge_key")
+      .eq("user_id", u.id);
+    setUserBadges(new Set((data || []).map(b => b.badge_key)));
+  };
+
+  const handleAward = async (badgeKey) => {
+    if (!selectedUser) return;
+    const { error } = await supabase.from("user_badges").insert({
+      user_id: selectedUser.id,
+      badge_key: badgeKey,
+      awarded_at: new Date().toISOString(),
+    });
+    if (error && error.message.includes("unique")) {
+      showMsg("User already has this badge."); return;
+    }
+    if (error) { showMsg("Error awarding badge.", true); return; }
+    setUserBadges(prev => new Set([...prev, badgeKey]));
+    setEarnedCounts(prev => ({ ...prev, [badgeKey]: (prev[badgeKey] || 0) + 1 }));
+    showMsg(`Awarded "${badgeKey}" to @${selectedUser.username}.`);
+  };
+
+  const handleRevoke = async (badgeKey) => {
+    if (!selectedUser) return;
+    const { error } = await supabase.from("user_badges")
+      .delete()
+      .eq("user_id", selectedUser.id)
+      .eq("badge_key", badgeKey);
+    if (error) { showMsg("Error revoking badge.", true); return; }
+    setUserBadges(prev => { const s = new Set(prev); s.delete(badgeKey); return s; });
+    setEarnedCounts(prev => ({ ...prev, [badgeKey]: Math.max(0, (prev[badgeKey] || 1) - 1) }));
+    showMsg(`Revoked "${badgeKey}" from @${selectedUser.username}.`);
+  };
+
+  const CATEGORY_LABELS = { milestone: "Milestones", variety: "Variety", social: "Social", referral: "Referrals" };
+  const CATEGORY_ORDER = ["milestone", "variety", "social", "referral"];
+  const grouped = {};
+  for (const b of badges) {
+    if (!grouped[b.category]) grouped[b.category] = [];
+    grouped[b.category].push(b);
+  }
+
+  return (
+    <div>
+      {/* User search */}
+      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+        <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input
+            value={userQuery}
+            onChange={e => setUserQuery(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && searchUsers()}
+            placeholder="Search by username or display name..."
+            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "9px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none" }}
+          />
+          <button onClick={searchUsers}
+            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            Find
+          </button>
+        </div>
+
+        {/* Search results dropdown */}
+        {searching && <div style={{ fontSize: 12, color: "#5a4535", padding: "6px 0" }}>Searching...</div>}
+        {userResults.map(u => (
+          <div key={u.id} onClick={() => loadUserBadges(u)}
+            style={{ padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, marginBottom: 4, cursor: "pointer", fontSize: 13, color: "#e8d5b7" }}>
+            <span style={{ color: "#c9a84c" }}>@{u.username}</span>
+            {u.display_name && u.display_name !== u.username && <span style={{ color: "#8a7055", marginLeft: 8 }}>{u.display_name}</span>}
+          </div>
+        ))}
+
+        {/* Selected user */}
+        {selectedUser && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, border: "1px solid #c9a84c44" }}>
+            <span style={{ fontSize: 13, color: "#c9a84c" }}>@{selectedUser.username}</span>
+            <span style={{ fontSize: 11, color: "#7a9a7a" }}>{userBadges.size} badges earned</span>
+            <button onClick={() => { setSelectedUser(null); setUserBadges(new Set()); setUserQuery(""); }}
+              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 16, cursor: "pointer" }}>×</button>
+          </div>
+        )}
+      </div>
+
+      {/* Action message */}
+      {actionMsg && (
+        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+          {actionMsg.msg}
+        </div>
+      )}
+
+      {/* Badge list by category */}
+      {loading
+        ? <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>Loading badges...</div>
+        : CATEGORY_ORDER.map(cat => {
+          const catBadges = grouped[cat];
+          if (!catBadges) return null;
+          return (
+            <div key={cat} style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
+              {catBadges.map(b => {
+                const earned = userBadges.has(b.key);
+                const count = earnedCounts[b.key] || 0;
+                return (
+                  <div key={b.key} style={{ background: "#221508", border: `1px solid ${earned ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ fontSize: 24, flexShrink: 0, filter: earned ? "none" : "grayscale(1)", opacity: earned ? 1 : 0.5 }}>{b.icon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: earned ? "#e8d5b7" : "#8a7055" }}>{b.name}</div>
+                      <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>{b.description}</div>
+                      <div style={{ fontSize: 10, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
+                    </div>
+                    {selectedUser && (
+                      <button
+                        onClick={() => earned ? handleRevoke(b.key) : handleAward(b.key)}
+                        style={{ background: earned ? "none" : "linear-gradient(135deg, #c9a84c, #a07830)", border: earned ? "1px solid #a0522d55" : "none", borderRadius: 8, padding: "6px 12px", color: earned ? "#a0522d" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
+                        {earned ? "Revoke" : "Award"}
+                      </button>
+                    )}
+                    {!selectedUser && earned !== undefined && (
+                      <div style={{ fontSize: 10, color: "#4a3525", flexShrink: 0 }}>Search user to manage</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })
+      }
+    </div>
+  );
+}

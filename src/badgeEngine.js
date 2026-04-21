@@ -239,12 +239,12 @@ export const fetchUserBadges = async (userId) => {
 
   const earnedMap = {};
   for (const b of (earnedBadges || [])) {
-    earnedMap[b.badge_key] = b.awarded_at;
+    earnedMap[b.badge_key] = b.awarded_at || new Date().toISOString();
   }
 
   return (allBadges || []).map(b => ({
     ...b,
-    earned: !!earnedMap[b.badge_key],
-    awarded_at: earnedMap[b.badge_key] || null,
+    earned: b.key in earnedMap,
+    awarded_at: earnedMap[b.key] || null,
   }));
 };
