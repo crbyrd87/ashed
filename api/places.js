@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     } else if (action === "search") {
       url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=cigar+shop+OR+cigar+lounge+OR+tobacconist+OR+tobacco+shop+OR+tobacco+store+OR+smoke+shop&location=${lat},${lng}&radius=48000&key=${KEY}`;
     } else if (action === "details") {
-      url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=opening_hours,formatted_phone_number&key=${KEY}`;
+      url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=name,formatted_address,formatted_phone_number,opening_hours,website,rating,user_ratings_total&key=${KEY}`;
     } else {
       return res.status(400).json({ error: "Invalid action" });
     }

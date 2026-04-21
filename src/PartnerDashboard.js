@@ -196,17 +196,52 @@ function AnalyticsSection({ placeId, venue }) {
 function ListingSection({ placeId, venue, onVenueUpdate }) {
   const [form, setForm] = useState({ name: "", address: "", phone: "", hours: "", description: "" });
   const [saving, setSaving] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [prefilled, setPrefilled] = useState(false);
 
   useEffect(() => {
-    if (venue) setForm({
-      name: venue.name || "",
-      address: venue.address || "",
-      phone: venue.phone || "",
-      hours: venue.hours || "",
-      description: venue.description || "",
-    });
-  }, [venue]);
+    if (venue && (venue.address || venue.phone)) {
+      // Already have saved data — use it
+      setForm({
+        name: venue.name || "",
+        address: venue.address || "",
+        phone: venue.phone || "",
+        hours: venue.hours || "",
+        description: venue.description || "",
+      });
+      setPrefilled(true);
+    } else if (placeId && !prefilled) {
+      // No saved data yet — fetch from Google and pre-populate
+      fetchFromGoogle();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venue, placeId]);
+
+  const fetchFromGoogle = async () => {
+    setLoadingGoogle(true);
+    try {
+      const res = await fetch(`/api/places?action=details&place_id=${encodeURIComponent(placeId)}`);
+      const data = await res.json();
+      const r = data.result;
+      if (r) {
+        const hoursText = r.opening_hours?.weekday_text?.join("\n") || "";
+        setForm(prev => ({
+          ...prev,
+          name: r.name || prev.name,
+          address: r.formatted_address || prev.address,
+          phone: r.formatted_phone_number || prev.phone,
+          hours: hoursText || prev.hours,
+        }));
+        setPrefilled(true);
+        setMsg({ text: "Pre-filled from Google Maps — review and save to confirm.", isError: false });
+        setTimeout(() => setMsg(null), 5000);
+      }
+    } catch (e) {
+      console.error("Google prefill error:", e);
+    }
+    setLoadingGoogle(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -235,7 +270,13 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 20 }}>Manage Your Listing</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Manage Your Listing</div>
+        <button onClick={fetchFromGoogle} disabled={loadingGoogle}
+          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
+          {loadingGoogle ? "Loading..." : "↻ Refresh from Google"}
+        </button>
+      </div>
       {msg && (
         <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: msg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
           {msg.text}
