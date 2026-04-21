@@ -251,6 +251,7 @@ function UsersSection() {
   const [userCheckins, setUserCheckins] = useState([]);
   const [actionMsg, setActionMsg] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [partnerPlaceId, setPartnerPlaceId] = useState("");
 
   const showMsg = (msg, isError = false) => {
     setActionMsg({ msg, isError });
@@ -263,7 +264,7 @@ function UsersSection() {
     const q = query.trim();
     let req = supabase
       .from("users")
-      .select("id, username, display_name, email, member_since, is_admin, is_flagged, is_premium, location")
+      .select("id, username, display_name, email, member_since, is_admin, is_flagged, is_premium, is_partner, partner_place_id, location")
       .order("member_since", { ascending: false })
       .limit(50);
     if (q) req = req.or(`username.ilike.%${q}%,email.ilike.%${q}%,display_name.ilike.%${q}%`);
@@ -299,6 +300,30 @@ function UsersSection() {
     setSelectedUser(null);
     setConfirmDelete(null);
     showMsg("User deleted.");
+  };
+
+  const handleGrantPartner = async (u) => {
+    if (!partnerPlaceId.trim()) { showMsg("Please enter a Google Place ID.", true); return; }
+    const { error } = await supabase.from("users")
+      .update({ is_partner: true, partner_place_id: partnerPlaceId.trim() })
+      .eq("id", u.id);
+    if (error) { showMsg("Error granting partner access.", true); return; }
+    const updated = { ...u, is_partner: true, partner_place_id: partnerPlaceId.trim() };
+    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
+    setSelectedUser(updated);
+    setPartnerPlaceId("");
+    showMsg(`Partner access granted to @${u.username}.`);
+  };
+
+  const handleRevokePartner = async (u) => {
+    const { error } = await supabase.from("users")
+      .update({ is_partner: false, partner_place_id: null })
+      .eq("id", u.id);
+    if (error) { showMsg("Error revoking partner access.", true); return; }
+    const updated = { ...u, is_partner: false, partner_place_id: null };
+    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
+    setSelectedUser(updated);
+    showMsg(`Partner access revoked from @${u.username}.`);
   };
 
   // Load all users on mount
@@ -360,6 +385,7 @@ function UsersSection() {
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 {selectedUser.is_admin && <span style={{ marginLeft: 8, color: "#c9a84c" }}>⚙️ Admin</span>}
                 {selectedUser.is_premium && <span style={{ marginLeft: 8, color: "#7a9a7a" }}>⭐ Premium</span>}
+                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🏪 Partner</span>}
                 {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: "#e8632a" }}>🚩 Flagged</span>}
               </div>
             </div>
@@ -378,6 +404,35 @@ function UsersSection() {
               </div>
             ))
           }
+
+          {/* Partner access */}
+          <div style={{ borderTop: "1px solid #3a251033", marginTop: 14, paddingTop: 14 }}>
+            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
+            {selectedUser.is_partner ? (
+              <div>
+                <div style={{ fontSize: 12, color: "#7a8a9a", marginBottom: 8 }}>
+                  🏪 Active partner · Place ID: <span style={{ color: "#c8b89a", fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
+                </div>
+                <button onClick={() => handleRevokePartner(selectedUser)}
+                  style={{ background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "7px 14px", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Revoke Partner Access
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={partnerPlaceId}
+                  onChange={e => setPartnerPlaceId(e.target.value)}
+                  placeholder="Google Place ID..."
+                  style={{ flex: 1, background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "7px 12px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                />
+                <button onClick={() => handleGrantPartner(selectedUser)}
+                  style={{ background: "linear-gradient(135deg, #7a8a9a, #5a6a7a)", border: "none", borderRadius: 8, padding: "7px 14px", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                  🏪 Grant Partner
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Actions */}
           <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
@@ -407,6 +462,7 @@ function UsersSection() {
             <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", display: "flex", alignItems: "center", gap: 6 }}>
               {u.display_name || u.username}
               {u.is_admin && <span style={{ fontSize: 10, color: "#c9a84c" }}>⚙️</span>}
+              {u.is_partner && <span style={{ fontSize: 10, color: "#7a8a9a" }}>🏪</span>}
               {u.is_flagged && <span style={{ fontSize: 10, color: "#e8632a" }}>🚩</span>}
             </div>
             <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>@{u.username} · {u.email}</div>

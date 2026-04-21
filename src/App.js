@@ -15,6 +15,7 @@ import Venues from "./Venues";
 import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
 import AdminConsole from "./AdminConsole";
+import PartnerDashboard from "./PartnerDashboard";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -151,6 +152,9 @@ export default function App() {
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [isPartner, setIsPartner] = useState(false);
+  const [partnerPlaceId, setPartnerPlaceId] = useState(null);
+  const [showPartner, setShowPartner] = useState(false);
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -224,10 +228,12 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin")
+      .select("is_admin, is_partner, partner_place_id")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
+    setIsPartner(data?.is_partner || false);
+    setPartnerPlaceId(data?.partner_place_id || null);
   };
 
   useEffect(() => {
@@ -894,6 +900,18 @@ export default function App() {
             </div>
           )}
 
+          {/* Partner Dashboard button — only visible to partners */}
+          {isPartner && (
+            <div style={{ marginBottom: 16 }}>
+              <button
+                onClick={() => setShowPartner(true)}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a8a9a44", borderRadius: 10, padding: "10px 16px", color: "#7a8a9a", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
+              >
+                🏪 Partner Dashboard
+              </button>
+            </div>
+          )}
+
           {/* Stat boxes - always visible */}
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {[
@@ -1355,6 +1373,13 @@ export default function App() {
         <AdminConsole
           user={user}
           onClose={() => setShowAdmin(false)}
+        />
+      )}
+      {showPartner && (
+        <PartnerDashboard
+          user={user}
+          placeId={partnerPlaceId}
+          onClose={() => setShowPartner(false)}
         />
       )}
       {tab === "humidor" && (
