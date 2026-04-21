@@ -31,11 +31,12 @@ export default function Feed({ user }) {
       supabase.from("friends").select("requester_id").eq("recipient_id", user.id).eq("status", "accepted"),
     ]);
     const friendIds = [
+      user.id, // include own check-ins in the feed
       ...((sentFriends || []).map(f => f.recipient_id)),
       ...((recvFriends || []).map(f => f.requester_id)),
     ];
 
-    // 2. Fetch friends' public check-ins
+    // 2. Fetch own + friends' public check-ins
     let friendCheckins = [];
     if (friendIds.length > 0) {
       const { data } = await supabase
@@ -49,7 +50,7 @@ export default function Feed({ user }) {
     }
 
     // 3. Fetch recent global public check-ins (exclude self + friends)
-    const excludeIds = [user.id, ...friendIds];
+    const excludeIds = [...friendIds];
     const { data: globalData } = await supabase
       .from("checkins")
       .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")

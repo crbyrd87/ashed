@@ -13,6 +13,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const [fired, setFired] = useState(false);
   const [fireCount, setFireCount] = useState(0);
   const [firingInProgress, setFiringInProgress] = useState(false);
+  const [reportedIds, setReportedIds] = useState(new Set());
   const inputRef = useRef(null);
 
   const isOwnCheckin = checkin.user_id === user.id;
@@ -100,6 +101,16 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       }
     }
     setPosting(false);
+  };
+
+  const handleReport = async (commentId) => {
+    if (reportedIds.has(commentId)) return;
+    const { error } = await supabase.from("reports").insert({
+      reporter_id: user.id,
+      comment_id: commentId,
+      reason: "user_report",
+    });
+    if (!error) setReportedIds(prev => new Set([...prev, commentId]));
   };
 
   const cigarName = checkin.cigars?.line || checkin.cigar_name || "Unknown Cigar";
@@ -194,6 +205,15 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                   <span style={{ fontSize: 9, color: "#5a4535", marginLeft: "auto" }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
+                  {!isMe && (
+                    <button
+                      onClick={() => handleReport(c.id)}
+                      title="Report comment"
+                      style={{ background: "none", border: "none", cursor: reportedIds.has(c.id) ? "default" : "pointer", padding: "0 2px", fontSize: 11, color: reportedIds.has(c.id) ? "#c9a84c" : "#3a2510", lineHeight: 1 }}
+                    >
+                      {reportedIds.has(c.id) ? "✓" : "🚩"}
+                    </button>
+                  )}
                 </div>
                 <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5, paddingLeft: 28 }}>{c.content}</div>
               </div>

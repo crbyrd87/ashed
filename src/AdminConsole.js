@@ -34,7 +34,7 @@ export default function AdminConsole({ user, onClose }) {
       <div style={{ padding: 20 }}>
         {section === "stats"      && <StatsSection />}
         {section === "users"      && <UsersSection />}
-        {section === "moderation" && <ComingSoon label="Content Moderation" />}
+        {section === "moderation" && <ModerationSection />}
         {section === "badges"     && <ComingSoon label="Badge Management" />}
       </div>
     </div>
@@ -416,6 +416,130 @@ function UsersSection() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── MODERATION SECTION ──────────────────────────────────────────────────────
+
+function ModerationSection() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionMsg, setActionMsg] = useState(null);
+
+  const showMsg = (msg, isError = false) => {
+    setActionMsg({ msg, isError });
+    setTimeout(() => setActionMsg(null), 3000);
+  };
+
+  useEffect(() => { loadReports(); }, []);
+
+  const loadReports = async () => {
+    setLoading(true);
+
+    // Get all reports, grouped by comment_id with count
+    const { data } = await supabase
+      .from("reports")
+      .select("id, comment_id, created_at, reporter:reporter_id(username), comments(id, content, user_id, checkin_id, users(username, display_name))")
+      .order("created_at", { ascending: false });
+
+    if (!data) { setLoading(false); return; }
+
+    // Group by comment_id, keep unique comments with report count
+    const grouped = {};
+    for (const r of data) {
+      const key = r.comment_id;
+      if (!grouped[key]) {
+        grouped[key] = { ...r, reportCount: 0, reportIds: [] };
+      }
+      grouped[key].reportCount++;
+      grouped[key].reportIds.push(r.id);
+    }
+
+    setReports(Object.values(grouped).sort((a, b) => b.reportCount - a.reportCount));
+    setLoading(false);
+  };
+
+  const handleRemoveComment = async (item) => {
+    // Delete the comment (cascade will remove reports too)
+    const { error } = await supabase.from("comments").delete().eq("id", item.comment_id);
+    if (error) { showMsg("Error removing comment.", true); return; }
+    setReports(prev => prev.filter(r => r.comment_id !== item.comment_id));
+    showMsg("Comment removed.");
+  };
+
+  const handleDismiss = async (item) => {
+    // Delete all reports for this comment without removing the comment
+    const { error } = await supabase.from("reports").delete().in("id", item.reportIds);
+    if (error) { showMsg("Error dismissing reports.", true); return; }
+    setReports(prev => prev.filter(r => r.comment_id !== item.comment_id));
+    showMsg("Reports dismissed.");
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Reported Comments</div>
+        {!loading && <div style={{ fontSize: 11, color: "#7a6050" }}>{reports.length} pending</div>}
+      </div>
+
+      {actionMsg && (
+        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+          {actionMsg.msg}
+        </div>
+      )}
+
+      {loading && <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>}
+
+      {!loading && reports.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 20px" }}>
+          <div style={{ fontSize: 36, marginBottom: 16 }}>✅</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>All clear</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>No reported comments to review.</div>
+        </div>
+      )}
+
+      {reports.map(item => {
+        const comment = item.comments;
+        const author = comment?.users;
+        return (
+          <div key={item.comment_id} style={{ background: "#221508", border: "1px solid #a0522d44", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+            {/* Report count badge */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 20, padding: "2px 10px", fontSize: 11, color: "#e8a07a", fontWeight: 700 }}>
+                  🚩 {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
+                </span>
+                <span style={{ fontSize: 11, color: "#5a4535" }}>
+                  {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+
+            {/* Comment author */}
+            <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 6 }}>
+              by <span style={{ color: "#c9a84c" }}>@{author?.username || "unknown"}</span>
+            </div>
+
+            {/* Comment content */}
+            <div style={{ fontSize: 14, color: "#e8d5b7", lineHeight: 1.5, background: "#2a1a0e", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+              {comment?.content || <span style={{ color: "#5a4535", fontStyle: "italic" }}>Comment not found</span>}
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => handleRemoveComment(item)}
+                style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                🗑 Remove Comment
+              </button>
+              <button onClick={() => handleDismiss(item)}
+                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
