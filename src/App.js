@@ -165,6 +165,10 @@ export default function App() {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
   const [wishlistFilterStrength, setWishlistFilterStrength] = useState([]);
+  const [wishlistSearchQuery, setWishlistSearchQuery] = useState("");
+  const [wishlistSearchResults, setWishlistSearchResults] = useState([]);
+  const [wishlistSearching, setWishlistSearching] = useState(false);
+  const wishlistSearchTimeout = useRef(null);
   const [humidor, setHumidor] = useState([]);
   const [checkins, setCheckins] = useState([]);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -1239,6 +1243,51 @@ export default function App() {
         <div style={{ padding: 16 }}>
           <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>YOUR WISHLIST</div>
 
+          {/* Search to add */}
+          <div style={{ position: "relative", marginBottom: 16 }}>
+            <input
+              value={wishlistSearchQuery}
+              onChange={e => {
+                const val = e.target.value;
+                setWishlistSearchQuery(val);
+                setWishlistSearchResults([]);
+                if (val.length < 2) return;
+                setWishlistSearching(true);
+                clearTimeout(wishlistSearchTimeout.current);
+                wishlistSearchTimeout.current = setTimeout(async () => {
+                  const results = await searchCigarLines(val);
+                  setWishlistSearchResults(results);
+                  setWishlistSearching(false);
+                }, 350);
+              }}
+              placeholder="Search cigars to add to wishlist..."
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+            />
+            {wishlistSearching && (
+              <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#7a9a7a" }}>Searching...</div>
+            )}
+            {wishlistSearchResults.length > 0 && (
+              <div style={{ position: "absolute", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, maxHeight: 200, overflowY: "auto" }}>
+                {wishlistSearchResults.map((r, i) => (
+                  <div key={i}
+                    onClick={() => {
+                      handleAddToWishlist({ id: r.id, brand: r.brand, line: r.line });
+                      setWishlistSearchQuery("");
+                      setWishlistSearchResults([]);
+                    }}
+                    style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #3a251033", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, color: "#e8d5b7" }}>{r.line}</div>
+                      <div style={{ fontSize: 11, color: "#8a7055" }}>{r.brand}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#c9a84c" }}>+ Add</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Brand filter */}
           {wishlist.length > 0 && (() => {
             const uniqueWishlistBrands = [...new Set(wishlist.map(w => w.cigars?.brand || w.cigar_brand).filter(Boolean))].sort();
@@ -1404,6 +1453,8 @@ export default function App() {
           user={user}
           onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
           onSearchToAdd={() => { setTab("search"); }}
+          isPremium={isPremium}
+          onUpgrade={() => setUpgradeFeature("band_scanner")}
         />
       )}
       {tab === "venues" && <Venues />}

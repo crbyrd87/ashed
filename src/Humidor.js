@@ -9,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
+export default function Humidor({ user, onSmokeOne, onSearchToAdd, isPremium, onUpgrade }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
@@ -404,9 +404,9 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             style={{ background: "none", border: "1px solid #c9a84c55", borderRadius: 20, padding: "6px 14px", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
             🔍 Search
           </button>
-          <button onClick={() => setScanning(true)}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-            📷 Scan
+          <button onClick={() => isPremium ? setScanning(true) : onUpgrade && onUpgrade()}
+            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4 }}>
+            📷 Scan {!isPremium && <span style={{ fontSize: 9, background: "rgba(0,0,0,0.2)", borderRadius: 6, padding: "1px 5px" }}>PRO</span>}
           </button>
         </div>
       </div>
