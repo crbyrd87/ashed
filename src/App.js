@@ -737,7 +737,7 @@ export default function App() {
               )}
               {/* Pairings at line level */}
               <button
-                onClick={() => isPremium ? (setPairingsCigar(firstVitola), setShowPairings(true)) : setUpgradeFeature("pairings")}
+                onClick={() => { if (isPremium) { setPairingsCigar(firstVitola); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
                 style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
                 🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
@@ -759,7 +759,7 @@ export default function App() {
                   + LOG THIS SMOKE
                 </button>
                 <button
-                  onClick={() => isPremium ? (setPairingsCigar(c), setShowPairings(true)) : setUpgradeFeature("pairings")}
+                  onClick={() => { if (isPremium) { setPairingsCigar(c); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
                   style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
                   🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
