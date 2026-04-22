@@ -4,32 +4,57 @@ const FEATURE_COPY = {
   band_scanner: {
     icon: "📷",
     title: "Band Scanner is Premium",
-    description: "Instantly identify any cigar by scanning its band with AI. Upgrade to unlock.",
-    perks: ["Scan any band in seconds", "AI-powered identification", "Auto-add to humidor"],
+    description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin.",
+    perks: [
+      "Instant AI identification from any band photo",
+      "Auto-fills check-in with cigar details",
+      "Add directly to humidor or wishlist",
+      "Works on cigars not yet in our database",
+    ],
   },
   recommendations: {
     icon: "✨",
     title: "AI Recommendations is Premium",
-    description: "Get personalized cigar picks based on your taste profile. Upgrade to unlock.",
-    perks: ["Tailored to your palate", "Updates as you smoke more", "Never smoke a bad cigar again"],
+    description: "Get personalized cigar picks based on everything you've smoked and rated — your own AI sommelier.",
+    perks: [
+      "Tailored to your exact taste profile",
+      "Updates automatically as you log more smokes",
+      "Explains why each cigar matches your palate",
+      "Discovers cigars you'd never find on your own",
+    ],
   },
   pairings: {
     icon: "🥃",
     title: "Drink Pairings is Premium",
-    description: "AI-generated drink pairings for every cigar. Upgrade to unlock.",
-    perks: ["Spirits, beer, coffee & more", "Seasonal suggestions", "Cached for instant load"],
+    description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options.",
+    perks: [
+      "Spirits, beer, coffee & non-alcoholic pairings",
+      "Seasonal suggestions based on time of year",
+      "'I don't drink X' alternative suggestions",
+      "Instant load — pairings cached after first use",
+    ],
   },
   wishlist_cap: {
     icon: "🔖",
     title: "Wishlist Limit Reached",
-    description: "Free accounts can save up to 20 cigars. Upgrade for unlimited.",
-    perks: ["Unlimited wishlist", "Unlimited humidor", "Never lose track of a cigar"],
+    description: "Free accounts can save up to 20 cigars on their wishlist. Upgrade for unlimited everything.",
+    perks: [
+      "Unlimited wishlist — save every cigar you want",
+      "Unlimited humidor — track your full collection",
+      "AI Recommendations tailored to your taste",
+      "Band Scanner, Drink Pairings & advanced stats",
+    ],
   },
   advanced_stats: {
     icon: "📊",
     title: "Advanced Stats is Premium",
-    description: "Deep insights into your smoking history. Upgrade to unlock.",
-    perks: ["Monthly trends", "Flavor profile chart", "Brand & origin breakdown"],
+    description: "Deep insights into your entire smoking history — trends, flavors, brands, and more.",
+    perks: [
+      "Monthly check-in trends over time",
+      "Flavor profile chart — what you actually like",
+      "Brand and origin breakdown",
+      "Strength progression as your palate develops",
+    ],
   },
 };
 
@@ -76,6 +101,24 @@ export default function UpgradePrompt({ feature, onClose }) {
             ))}
           </div>
         )}
+
+        {/* Full premium features summary */}
+        <div style={{ borderTop: "1px solid #3a2510", paddingTop: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>EVERYTHING IN PREMIUM</div>
+          {[
+            "📷 Band Scanner — AI cigar identification",
+            "✨ AI Recommendations — personalized picks",
+            "🥃 Drink Pairings — spirits, beer, coffee & more",
+            "📊 Advanced Stats — trends & flavor profile",
+            "🔖 Unlimited wishlist & humidor",
+            "🎯 Personal fit score on every cigar",
+            "⭐ Premium badge on your profile",
+          ].map((item, i) => (
+            <div key={i} style={{ fontSize: 12, color: "#8a7055", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
 
         {/* Pricing */}
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
