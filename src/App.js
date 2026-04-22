@@ -16,6 +16,7 @@ import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
 import AdminConsole from "./AdminConsole";
 import PartnerDashboard from "./PartnerDashboard";
+import UpgradePrompt from "./UpgradePrompt";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -155,6 +156,8 @@ export default function App() {
   const [isPartner, setIsPartner] = useState(false);
   const [partnerPlaceId, setPartnerPlaceId] = useState(null);
   const [showPartner, setShowPartner] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState(null); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -228,12 +231,13 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id")
+      .select("is_admin, is_partner, partner_place_id, is_premium")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
     setIsPartner(data?.is_partner || false);
     setPartnerPlaceId(data?.partner_place_id || null);
+    setIsPremium(data?.is_premium || false);
   };
 
   useEffect(() => {
@@ -383,6 +387,10 @@ export default function App() {
   };
 
   const handleAddToWishlist = async (cigar) => {
+    if (!isPremium && wishlist.length >= 20) {
+      setUpgradeFeature("wishlist_cap");
+      return;
+    }
     const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
     const { data: existing } = await supabase
       .from("wishlist")
@@ -729,10 +737,10 @@ export default function App() {
               )}
               {/* Pairings at line level */}
               <button
-                onClick={() => { setPairingsCigar(firstVitola); setShowPairings(true); }}
-                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}
+                onClick={() => isPremium ? (setPairingsCigar(firstVitola), setShowPairings(true)) : setUpgradeFeature("pairings")}
+                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                🥃 Drink Pairings
+                🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
               </button>
             </div>
           )}
@@ -751,10 +759,10 @@ export default function App() {
                   + LOG THIS SMOKE
                 </button>
                 <button
-                  onClick={() => { setPairingsCigar(c); setShowPairings(true); }}
-                  style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+                  onClick={() => isPremium ? (setPairingsCigar(c), setShowPairings(true)) : setUpgradeFeature("pairings")}
+                  style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  🥃 Drink Pairings
+                  🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
                 </button>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
@@ -834,16 +842,16 @@ export default function App() {
           {!query && !selectedLine && (
             <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
               <button
-                onClick={() => setShowBandScanner(true)}
+                onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
                 style={{ flex: 1, background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                📷 Scan a Band
+                📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
               </button>
               <button
-                onClick={() => setShowRecommendations(true)}
+                onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
                 style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                ✨ For Me
+                ✨ For Me {!isPremium && <span style={{ fontSize: 10, background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
               </button>
             </div>
           )}
@@ -862,7 +870,10 @@ export default function App() {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{displayName}</div>
               <div style={{ fontSize: 12, color: "#8a7055" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
-              <div style={{ marginTop: 6 }}><Badge label="🏅 Aficionado" color="#c9a84c" /></div>
+              <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <Badge label="🏅 Aficionado" color="#c9a84c" />
+                {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
+              </div>
             </div>
             <button
               onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
@@ -1367,6 +1378,12 @@ export default function App() {
         <Notifications
           user={user}
           onClose={() => { setShowNotifications(false); setUnreadNotifCount(0); }}
+        />
+      )}
+      {upgradeFeature && (
+        <UpgradePrompt
+          feature={upgradeFeature}
+          onClose={() => setUpgradeFeature(null)}
         />
       )}
       {showAdmin && (
