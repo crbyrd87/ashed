@@ -12,25 +12,6 @@ function dedupeLines(arr) {
     .sort((a, b) => a.line.localeCompare(b.line));
 }
 
-function extractJSON(raw) {
-  const match = raw.match(/\[[\s\S]*\]/);
-  return match ? match[0] : "[]";
-}
-
-async function callAI(prompt) {
-  const response = await fetch("/api/anthropic", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 2048,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  const data = await response.json();
-  return data.content?.[0]?.text || "[]";
-}
-
 export async function searchCigarLines(query, onPartialResults) {
   if (!query || query.trim().length < 2) return [];
 

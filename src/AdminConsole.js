@@ -792,7 +792,7 @@ function DatabaseSection() {
   const [deleting, setDeleting] = useState(null);
   const [msg, setMsg] = useState(null);
 
-  useEffect(() => { loadCigars(); }, [sourceFilter]);
+  useEffect(() => { loadCigars(); }, [sourceFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCigars = async () => {
     setLoading(true);
