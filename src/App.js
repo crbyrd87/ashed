@@ -784,20 +784,21 @@ export default function App() {
 
     return (
       <div style={{ ...s.app, overflowY: "auto" }}>
-        <div style={{ position: "relative", height: 220 }}>
+        <div style={{ position: "relative", height: 140 }}>
           <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
           <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #3a2510", color: "#c9a84c", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
           {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#c9a84cdd", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
+          {/* Brand + Line overlapping image at bottom */}
+          <div style={{ position: "absolute", bottom: 12, left: 20, right: 20 }}>
+            <div style={{ fontSize: 11, color: "#c8b89a99", letterSpacing: 2, textTransform: "uppercase" }}>{c.brand}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 0", textShadow: "0 1px 4px #1a0f08" }}>{c.line}</div>
+          </div>
         </div>
 
         <div style={{ padding: "0 20px 30px" }}>
-          {/* Brand + Line name */}
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase", marginTop: 16 }}>{c.brand}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 8px" }}>{c.line}</div>
-
           {/* Line-level badges — wrapper, strength, origin */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16, marginTop: 12 }}>
             {wrapper && <Badge label={wrapper} color="#a07830" />}
             {strengthDisplay && <Badge label={strengthDisplay} color={strengthColor(strengthValues[0] || c.strength)} />}
             {origin && <Badge label={origin} color="#7a9a7a" />}
