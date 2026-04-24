@@ -89,6 +89,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
           model: "claude-opus-4-6",
           max_tokens: 1024,
           user_id: user?.id,
+          feature: "band_scanner",
           messages: [
             {
               role: "user",

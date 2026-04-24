@@ -3,9 +3,8 @@ import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
-const fetchAISuggestions = async (cigar) => {
+const fetchAISuggestions = async (cigar, userId) => {
   const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 short tasting note descriptors a smoker might experience.
 
 Cigar: ${cigar.brand} ${cigar.line}
@@ -17,17 +16,14 @@ Known tasting notes: ${cigar.tasting_notes || "none"}
 Return ONLY a raw JSON array of short descriptor strings, no markdown, no explanation. Each descriptor should be 1-3 words maximum.
 Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dried fruit"]`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("/api/anthropic", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": KEY,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 200,
+      feature: "tasting_notes",
+      user_id: userId || null,
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -213,7 +209,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const handleGetSuggestions = async () => {
     setLoadingSuggestions(true);
     try {
-      const suggestions = await fetchAISuggestions(cigar);
+      const suggestions = await fetchAISuggestions(cigar, user?.id);
       setAiSuggestions(suggestions);
     } catch (e) {
       console.error("AI suggestions error:", e);

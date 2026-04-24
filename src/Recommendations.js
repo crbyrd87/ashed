@@ -97,6 +97,8 @@ Recommend a variety of well-known, widely available cigars that match their pref
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 1024,
+          feature: "recommendations",
+          user_id: user?.id || null,
           messages: [{ role: "user", content: prompt }],
         }),
       });

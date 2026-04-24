@@ -21,9 +21,6 @@ export default function Pairings({ cigar, onClose }) {
   const [season, setSeason] = useState(getCurrentSeason());
   const [seasonalNote, setSeasonalNote] = useState(null);
   const [loadingSeasonalNote, setLoadingSeasonalNote] = useState(false);
-  const [noAlternative, setNoAlternative] = useState(null);
-  const [loadingAlternative, setLoadingAlternative] = useState(false);
-  const [alternativeCategory, setAlternativeCategory] = useState(null);
 
   useEffect(() => {
     const loadPairings = async () => {
@@ -53,6 +50,7 @@ export default function Pairings({ cigar, onClose }) {
           body: JSON.stringify({
             model: "claude-haiku-4-5-20251001",
             max_tokens: 500,
+            feature: "pairings",
             messages: [{
               role: "user",
               content: `You are a cigar and beverage pairing expert. Suggest drink pairings for this cigar.
@@ -114,6 +112,7 @@ Return ONLY a raw JSON object, no markdown:
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 150,
+          feature: "pairings",
           messages: [{
             role: "user",
             content: `In 1-2 sentences, how does ${season} weather and atmosphere affect the experience of smoking a ${cigar.brand} ${cigar.line} (${cigar.strength || "medium"} strength)? What seasonal drink would you specifically recommend this time of year?`,
@@ -128,40 +127,10 @@ Return ONLY a raw JSON object, no markdown:
     setLoadingSeasonalNote(false);
   };
 
-  const handleAlternative = async (category) => {
-    setAlternativeCategory(category);
-    setLoadingAlternative(true);
-    try {
-      const response = await fetch("/api/anthropic", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 150,
-          messages: [{
-            role: "user",
-            content: `The user does not drink ${category}. Suggest 2-3 alternative drink pairings for a ${cigar.brand} ${cigar.line} (${cigar.strength || "medium"} strength, ${cigar.tasting_notes || ""}) that are not ${category}. Keep it to 1-2 sentences.`,
-          }],
-        }),
-      });
-      const data = await response.json();
-      setNoAlternative(data.content?.[0]?.text || "");
-    } catch (err) {
-      console.error("Alternative error:", err);
-    }
-    setLoadingAlternative(false);
-  };
-
   const PairingSection = ({ title, icon, content }) => (
     <div style={{ marginBottom: 16 }}>
       <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>{icon} {title}</div>
       <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6, background: "#1a0f08", borderRadius: 8, padding: "10px 12px" }}>{content}</div>
-      <button
-        onClick={() => handleAlternative(title.toLowerCase())}
-        style={{ background: "none", border: "none", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, padding: "4px 0", textDecoration: "underline" }}
-      >
-        I don't drink {title.toLowerCase()}
-      </button>
     </div>
   );
 
@@ -208,17 +177,6 @@ Return ONLY a raw JSON object, no markdown:
               <PairingSection title="Beer" icon="🍺" content={pairings.beer} />
               <PairingSection title="Coffee" icon="☕" content={pairings.coffee} />
               <PairingSection title="Non-Alcoholic" icon="🥤" content={pairings.non_alcoholic} />
-
-              {/* Alternative suggestion result */}
-              {(loadingAlternative || noAlternative) && (
-                <div style={{ background: "#2a1a0e", border: "1px solid #7a8a9a44", borderRadius: 10, padding: 12, marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: "#7a8a9a", letterSpacing: 1, marginBottom: 6 }}>ALTERNATIVE TO {alternativeCategory?.toUpperCase()}</div>
-                  {loadingAlternative
-                    ? <div style={{ fontSize: 12, color: "#5a4535" }}>Finding alternatives...</div>
-                    : <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{noAlternative}</div>
-                  }
-                </div>
-              )}
 
               {/* Seasonal pairings */}
               <div style={{ borderTop: "1px solid #3a251033", paddingTop: 16, marginTop: 4 }}>
