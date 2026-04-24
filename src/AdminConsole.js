@@ -910,13 +910,97 @@ function DatabaseSection() {
   );
 }
 
+const TASTING_NOTE_OPTIONS = [
+  "Cedar", "Leather", "Earth", "Pepper", "Spice", "Coffee", "Espresso",
+  "Dark Chocolate", "Cocoa", "Cream", "Nuts", "Almonds", "Cashews",
+  "Dried Fruit", "Raisin", "Brown Sugar", "Caramel", "Vanilla",
+  "Oak", "Toast", "Hay", "Floral", "Citrus", "Honey", "Molasses",
+];
+
+function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel }) {
+  const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
+  const [form, setForm] = useState({
+    brand: item.brand || "",
+    line: item.line || "",
+    vitola: item.vitola || "",
+    strength: "",
+    origin: "",
+    wrapper: "",
+  });
+  const [selectedNotes, setSelectedNotes] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  const toggleNote = (note) => {
+    setSelectedNotes(prev => prev.includes(note) ? prev.filter(n => n !== note) : [...prev, note]);
+  };
+
+  const handleSave = async () => {
+    if (!form.brand || !form.line || !form.vitola) return;
+    setSaving(true);
+    await onSave({ ...form, tasting_notes: selectedNotes.join(", ") || null });
+    setSaving(false);
+  };
+
+  const SelectField = ({ label, field, options }) => (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: form[field] ? "#f5ead8" : "#7a6048", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+        <option value="">Select {label.toLowerCase()}...</option>
+        {options.map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+    </div>
+  );
+
+  const TextField = ({ label, field, placeholder }) => (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+        placeholder={placeholder}
+        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+    </div>
+  );
+
+  return (
+    <div style={{ borderTop: "1px solid #4a3520", paddingTop: 12, marginBottom: 10 }}>
+      <div style={{ fontSize: 11, color: "#d4b45a", letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
+      <TextField label="BRAND" field="brand" placeholder="Brand name" />
+      <TextField label="LINE" field="line" placeholder="Line name" />
+      <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
+      <SelectField label="STRENGTH" field="strength" options={["Light", "Medium", "Medium-Full", "Full"]} />
+      <SelectField label="ORIGIN" field="origin" options={originOptions} />
+      <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} />
+
+      {/* Tasting notes bubbles */}
+      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+        {TASTING_NOTE_OPTIONS.map(note => (
+          <button key={note} onClick={() => toggleNote(note)}
+            style={{ background: selectedNotes.includes(note) ? "#d4b45a22" : "none", border: `1px solid ${selectedNotes.includes(note) ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            {note}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={handleSave} disabled={saving || !form.brand || !form.line || !form.vitola}
+          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? "#1a0f08" : "#7a6048", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          {saving ? "Saving..." : "✓ Save to DB"}
+        </button>
+        <button onClick={onCancel}
+          style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function MissingCigarsSection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showResolved, setShowResolved] = useState(false);
   const [addingId, setAddingId] = useState(null);
-  const [addForm, setAddForm] = useState({});
-  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
   const [originOptions, setOriginOptions] = useState([]);
   const [wrapperOptions, setWrapperOptions] = useState([]);
@@ -946,48 +1030,26 @@ function MissingCigarsSection() {
     setLoading(false);
   };
 
-  const handleStartAdd = (item) => {
-    setAddingId(item.id);
-    setAddForm({
-      brand: item.brand || "",
-      line: item.line || "",
-      vitola: item.vitola || "",
-      strength: "",
-      origin: "",
-      wrapper: "",
-      tasting_notes: "",
-    });
-  };
-
-  const handleSaveToDb = async (item) => {
-    if (!addForm.brand || !addForm.line || !addForm.vitola) {
-      setMsg({ text: "Brand, line, and vitola are required.", isError: true });
-      setTimeout(() => setMsg(null), 3000);
-      return;
-    }
-    setSaving(true);
+  const handleSaveToDb = async (item, formData) => {
     const { error } = await supabase.from("cigars").insert({
-      brand: addForm.brand,
-      line: addForm.line,
-      vitola: addForm.vitola,
-      strength: addForm.strength || null,
-      origin: addForm.origin || null,
-      wrapper: addForm.wrapper || null,
-      tasting_notes: addForm.tasting_notes || null,
+      brand: formData.brand,
+      line: formData.line,
+      vitola: formData.vitola,
+      strength: formData.strength || null,
+      origin: formData.origin || null,
+      wrapper: formData.wrapper || null,
+      tasting_notes: formData.tasting_notes || null,
       source: "admin_approved",
     });
     if (error) {
       setMsg({ text: "Error saving cigar.", isError: true });
-      setSaving(false);
       setTimeout(() => setMsg(null), 3000);
       return;
     }
-    // Mark as resolved
     await supabase.from("missing_cigars").update({ resolved: true }).eq("id", item.id);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setAddingId(null);
-    setSaving(false);
-    setMsg({ text: `${addForm.brand} ${addForm.line} ${addForm.vitola} added to DB!`, isError: false });
+    setMsg({ text: `${formData.brand} ${formData.line} ${formData.vitola} added to DB!`, isError: false });
     setTimeout(() => setMsg(null), 4000);
   };
 
@@ -995,25 +1057,6 @@ function MissingCigarsSection() {
     await supabase.from("missing_cigars").delete().eq("id", id);
     setItems(prev => prev.filter(i => i.id !== id));
   };
-
-  const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
-
-  const Field = ({ label, field, placeholder, select, options }) => (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      {select || options ? (
-        <select value={addForm[field] || ""} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
-          style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 6, padding: "7px 10px", color: addForm[field] ? "#e8d5b7" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
-          <option value="">Select {label.toLowerCase()}...</option>
-          {(options || STRENGTHS).map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-      ) : (
-        <input value={addForm[field] || ""} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
-          placeholder={placeholder}
-          style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 6, padding: "7px 10px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
-      )}
-    </div>
-  );
 
   return (
     <div>
@@ -1056,36 +1099,23 @@ function MissingCigarsSection() {
 
           {/* Add to DB form */}
           {addingId === item.id && (
-            <div style={{ borderTop: "1px solid #3a2510", paddingTop: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
-              <Field label="BRAND" field="brand" placeholder="Brand name" />
-              <Field label="LINE" field="line" placeholder="Line name" />
-              <Field label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
-              <Field label="STRENGTH" field="strength" select />
-              <Field label="ORIGIN" field="origin" options={originOptions} />
-              <Field label="WRAPPER" field="wrapper" options={wrapperOptions} />
-              <Field label="TASTING NOTES" field="tasting_notes" placeholder="e.g. Cedar, leather, pepper" />
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <button onClick={() => handleSaveToDb(item)} disabled={saving}
-                  style={{ flex: 2, background: saving ? "#3a2510" : "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: saving ? "#5a4535" : "#1a0f08", fontSize: 13, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
-                  {saving ? "Saving..." : "✓ Save to DB"}
-                </button>
-                <button onClick={() => setAddingId(null)}
-                  style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "9px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
+            <AddCigarForm
+              item={item}
+              originOptions={originOptions}
+              wrapperOptions={wrapperOptions}
+              onSave={(formData) => handleSaveToDb(item, formData)}
+              onCancel={() => setAddingId(null)}
+            />
           )}
 
           {!showResolved && addingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => handleStartAdd(item)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c22, #c9a84c11)", border: "1px solid #c9a84c55", borderRadius: 8, padding: "7px 0", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              <button onClick={() => setAddingId(item.id)}
+                style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a22, #d4b45a11)", border: "1px solid #d4b45a55", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 + Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
-                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Dismiss
               </button>
             </div>
