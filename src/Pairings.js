@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
 const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
 
@@ -48,14 +47,9 @@ export default function Pairings({ cigar, onClose }) {
 
       // Not in DB -- call Haiku
       try {
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
+        const response = await fetch("/api/anthropic", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": KEY,
-            "anthropic-version": "2023-06-01",
-            "anthropic-dangerous-direct-browser-access": "true",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "claude-haiku-4-5-20251001",
             max_tokens: 500,
@@ -114,14 +108,9 @@ Return ONLY a raw JSON object, no markdown:
   const handleSeasonalNote = async () => {
     setLoadingSeasonalNote(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/anthropic", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 150,
@@ -143,14 +132,9 @@ Return ONLY a raw JSON object, no markdown:
     setAlternativeCategory(category);
     setLoadingAlternative(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/anthropic", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 150,

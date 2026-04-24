@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
@@ -10,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
+export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
   const [stage, setStage] = useState("capture"); // capture | analyzing | result | error | flagged
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
@@ -77,17 +76,13 @@ export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAdd
     });
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/anthropic", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-opus-4-6",
           max_tokens: 1024,
+          user_id: user?.id,
           messages: [
             {
               role: "user",

@@ -12,7 +12,8 @@ export default function Auth({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
-  const [referredBy, setReferredBy] = useState(null); // username of referrer
+  const [referredBy, setReferredBy] = useState(null);
+  const [ageVerified, setAgeVerified] = useState(false);
 
   useEffect(() => {
     // Read ?ref=username from URL and persist to localStorage
@@ -60,6 +61,12 @@ export default function Auth({ onLogin }) {
     setError(null);
     if (!username || !displayName) {
       setError("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
+
+    if (!ageVerified) {
+      setError("You must confirm you are 21 or older to create an account.");
       setLoading(false);
       return;
     }
@@ -163,6 +170,19 @@ export default function Auth({ onLogin }) {
           <>
             <label style={s.label}>Password</label>
             <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+
+            {/* Age verification */}
+            <div
+              onClick={() => setAgeVerified(v => !v)}
+              style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 16, cursor: "pointer", padding: "12px 14px", background: ageVerified ? "#c9a84c11" : "#1a0f08", border: `1px solid ${ageVerified ? "#c9a84c55" : "#3a2510"}`, borderRadius: 8 }}
+            >
+              <div style={{ width: 20, height: 20, borderRadius: 4, border: `2px solid ${ageVerified ? "#c9a84c" : "#4a3020"}`, background: ageVerified ? "#c9a84c" : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1, fontSize: 12, color: "#1a0f08", fontWeight: 700 }}>
+                {ageVerified ? "✓" : ""}
+              </div>
+              <div style={{ fontSize: 13, color: ageVerified ? "#c8b89a" : "#8a7055", lineHeight: 1.5 }}>
+                I confirm that I am <strong style={{ color: ageVerified ? "#c9a84c" : "#8a7055" }}>21 years of age or older</strong>. Ashed is intended for adult tobacco enthusiasts only.
+              </div>
+            </div>
           </>
         )}
 

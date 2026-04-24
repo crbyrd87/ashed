@@ -130,6 +130,170 @@ const LoungeScene = () => (
   </svg>
 );
 
+function AdvancedStats({ checkins }) {
+  const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+  if (checkins.length === 0) return (
+    <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535", fontFamily: SANS }}>
+      Log some smokes to see your advanced stats!
+    </div>
+  );
+
+  // Monthly check-ins — last 6 months
+  const now = new Date();
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    return { label: d.toLocaleString("en-US", { month: "short" }), year: d.getFullYear(), month: d.getMonth(), count: 0 };
+  });
+  for (const c of checkins) {
+    const d = new Date(c.smoke_date || c.created_at);
+    const m = months.find(m => m.month === d.getMonth() && m.year === d.getFullYear());
+    if (m) m.count++;
+  }
+  const maxMonth = Math.max(...months.map(m => m.count), 1);
+
+  // Brand breakdown — top 8
+  const brandCounts = {};
+  for (const c of checkins) {
+    const b = c.cigars?.brand || c.cigar_brand;
+    if (b) brandCounts[b] = (brandCounts[b] || 0) + 1;
+  }
+  const topBrands = Object.entries(brandCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxBrand = topBrands[0]?.[1] || 1;
+
+  // Strength breakdown
+  const strengthCounts = { Light: 0, Medium: 0, "Medium-Full": 0, Full: 0 };
+  for (const c of checkins) {
+    const s = c.cigars?.strength;
+    if (s && strengthCounts[s] !== undefined) strengthCounts[s]++;
+  }
+  const strengthColors = { Light: "#a8c5a0", Medium: "#d4b483", "Medium-Full": "#c4894a", Full: "#a0522d" };
+  const totalStrength = Object.values(strengthCounts).reduce((a, b) => a + b, 0) || 1;
+
+  // Origin breakdown — top 6
+  const originCounts = {};
+  for (const c of checkins) {
+    const o = c.cigars?.origin;
+    if (o) originCounts[o] = (originCounts[o] || 0) + 1;
+  }
+  const topOrigins = Object.entries(originCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const maxOrigin = topOrigins[0]?.[1] || 1;
+
+  // Average rating by month
+  const monthlyRatings = months.map(m => {
+    const monthCheckins = checkins.filter(c => {
+      const d = new Date(c.smoke_date || c.created_at);
+      return d.getMonth() === m.month && d.getFullYear() === m.year && c.rating != null;
+    });
+    return monthCheckins.length > 0
+      ? parseFloat((monthCheckins.reduce((a, c) => a + c.rating, 0) / monthCheckins.length).toFixed(1))
+      : null;
+  });
+
+  const cardStyle = { background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16, marginBottom: 16 };
+  const titleStyle = { fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 };
+
+  return (
+    <div style={{ fontFamily: SANS }}>
+
+      {/* Monthly check-ins */}
+      <div style={cardStyle}>
+        <div style={titleStyle}>Check-ins by Month</div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 90 }}>
+          {months.map((m, i) => {
+            const pct = Math.round((m.count / maxMonth) * 100);
+            return (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
+                {m.count > 0 && <div style={{ fontSize: 10, color: "#c9a84c", fontWeight: 700 }}>{m.count}</div>}
+                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: m.count === 0 ? 2 : `${Math.max(pct, 4)}%`, background: m.count === 0 ? "#2a1a0e" : "linear-gradient(180deg, #c9a84cff 0%, #c9a84c99 100%)", opacity: m.count === 0 ? 0.3 : 1 }} />
+                <div style={{ fontSize: 9, color: "#7a6050" }}>{m.label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Avg rating by month */}
+      {monthlyRatings.some(r => r !== null) && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Average Rating by Month</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+            {months.map((m, i) => (
+              <div key={i} style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: monthlyRatings[i] ? "#c9a84c" : "#3a2510" }}>
+                  {monthlyRatings[i] ?? "—"}
+                </div>
+                <div style={{ fontSize: 9, color: "#7a6050", marginTop: 4 }}>{m.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Strength breakdown */}
+      <div style={cardStyle}>
+        <div style={titleStyle}>Strength Profile</div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          {Object.entries(strengthCounts).map(([s, count]) => {
+            const pct = Math.round((count / totalStrength) * 100);
+            return (
+              <div key={s} style={{ flex: count || 1, height: 28, background: count > 0 ? strengthColors[s] + "88" : "#2a1a0e", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s" }}>
+                {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: strengthColors[s] }}>{pct}%</span>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {Object.entries(strengthCounts).map(([s, count]) => (
+            <div key={s} style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontSize: 10, color: strengthColors[s], fontWeight: count > 0 ? 700 : 400 }}>{s.replace("Medium-Full", "Med-Full")}</div>
+              <div style={{ fontSize: 11, color: "#5a4535" }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top brands */}
+      {topBrands.length > 0 && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Top Brands</div>
+          {topBrands.map(([brand, count], i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: "#5a4535", width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: "#e8d5b7", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{brand}</div>
+                <div style={{ height: 5, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((count / maxBrand) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 3 }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#c9a84c", flexShrink: 0 }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Origin breakdown */}
+      {topOrigins.length > 0 && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Origins</div>
+          {topOrigins.map(([origin, count], i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: "#e8d5b7", marginBottom: 4 }}>{origin}</div>
+                <div style={{ height: 5, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((count / maxOrigin) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#7a9a7a", flexShrink: 0 }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -157,7 +321,8 @@ export default function App() {
   const [partnerPlaceId, setPartnerPlaceId] = useState(null);
   const [showPartner, setShowPartner] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState(null); // which feature triggered the prompt
+  const [upgradeFeature, setUpgradeFeature] = useState(null);
+  const [showDisclaimer, setShowDisclaimer] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -235,13 +400,14 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
     setIsPartner(data?.is_partner || false);
     setPartnerPlaceId(data?.partner_place_id || null);
     setIsPremium(data?.is_premium || false);
+    if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
   };
 
   useEffect(() => {
@@ -452,6 +618,11 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+  };
+
+  const handleAcceptDisclaimer = async () => {
+    setShowDisclaimer(false);
+    await supabase.from("users").update({ disclaimer_accepted: true }).eq("id", user.id);
   };
 
   const handleSelectCheckin = async (c) => {
@@ -943,7 +1114,7 @@ export default function App() {
 
           {/* Sub-tabs */}
           <div style={{ display: "flex", borderBottom: "1px solid #3a2510", marginBottom: 16 }}>
-            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"]].map(([id, label]) => (
+            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"], ["advanced", isPremium ? "Advanced" : "⭐ Advanced"]].map(([id, label]) => (
               <button key={id} onClick={() => setProfileTab(id)}
                 style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? "#c9a84c" : "transparent"}`, color: profileTab === id ? "#c9a84c" : "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
                 {label.toUpperCase()}
@@ -1236,6 +1407,23 @@ export default function App() {
           {profileTab === "badges" && (
             <Badges userId={user.id} />
           )}
+
+          {/* ADVANCED STATS SUB-TAB */}
+          {profileTab === "advanced" && (
+            isPremium ? (
+              <AdvancedStats checkins={checkins} />
+            ) : (
+              <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                <div style={{ fontSize: 36, marginBottom: 16 }}>📊</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Advanced Stats is Premium</div>
+                <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6, marginBottom: 20 }}>Monthly trends, flavor profile, brand breakdown and more.</div>
+                <button onClick={() => setUpgradeFeature("advanced_stats")}
+                  style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 12, padding: "12px 28px", color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  ⭐ Upgrade to Premium
+                </button>
+              </div>
+            )
+          )}
         </div>
       )}
 
@@ -1395,6 +1583,7 @@ export default function App() {
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
       {showBandScanner && (
         <BandScanner
+          user={user}
           onClose={() => setShowBandScanner(false)}
           onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
           onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
@@ -1434,6 +1623,31 @@ export default function App() {
           feature={upgradeFeature}
           onClose={() => setUpgradeFeature(null)}
         />
+      )}
+
+      {/* Health disclaimer — shown once on first login */}
+      {showDisclaimer && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #3a2510", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%" }}>
+            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>HEALTH DISCLAIMER</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7", marginBottom: 16 }}>Before you get started</div>
+            <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.7, marginBottom: 16 }}>
+              Ashed is a <strong style={{ color: "#e8d5b7" }}>journal and community tool</strong> for adult cigar enthusiasts. It is not intended to encourage tobacco use.
+            </div>
+            <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.7, marginBottom: 16 }}>
+              Tobacco products contain nicotine and other chemicals known to cause <strong style={{ color: "#e8d5b7" }}>cancer, heart disease, and other serious health conditions</strong>. There is no safe level of tobacco use.
+            </div>
+            <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.7, marginBottom: 24 }}>
+              By continuing, you confirm you are a legal adult and understand the health risks associated with tobacco use.
+            </div>
+            <button
+              onClick={handleAcceptDisclaimer}
+              style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+            >
+              I Understand, Let's Go
+            </button>
+          </div>
+        </div>
       )}
       {showAdmin && (
         <AdminConsole
