@@ -162,21 +162,25 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         .eq("line", cigar.line)
         .maybeSingle();
 
-      // Cache to cigars table if not found
       let cigarId = match?.id || null;
-      if (!cigarId) {
-        const { data: inserted } = await supabase.from("cigars").insert({
-          brand: cigar.brand,
-          line: cigar.line,
-          vitola: cigar.vitola !== "Unknown" ? cigar.vitola : null,
-          strength: cigar.strength || null,
-          origin: cigar.origin || null,
-          wrapper: cigar.wrapper || null,
-          ai_generated: true,
-          verified: false,
-          total_checkins: 0,
-        }).select().single();
-        cigarId = inserted?.id || null;
+
+      // If not found — report as missing for admin review, do NOT auto-insert
+      if (!cigarId && cigar.brand && cigar.line) {
+        // Check if already reported to avoid duplicates
+        const { data: alreadyReported } = await supabase
+          .from("missing_cigars")
+          .select("id")
+          .eq("brand", cigar.brand)
+          .eq("line", cigar.line)
+          .maybeSingle();
+        if (!alreadyReported) {
+          await supabase.from("missing_cigars").insert({
+            brand: cigar.brand,
+            line: cigar.line,
+            vitola: cigar.vitola !== "Unknown" ? cigar.vitola : null,
+            reported_by: user.id,
+          });
+        }
       }
 
       // Check if this cigar already exists in humidor

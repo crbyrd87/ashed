@@ -9,6 +9,7 @@ const SECTIONS = [
   { id: "moderation", icon: "🚩", label: "Moderation" },
   { id: "badges",     icon: "🏅", label: "Badges" },
   { id: "database",   icon: "🗄️", label: "DB" },
+  { id: "missing",    icon: "🔍", label: "Missing" },
 ];
 
 export default function AdminConsole({ user, onClose }) {
@@ -38,6 +39,7 @@ export default function AdminConsole({ user, onClose }) {
         {section === "moderation" && <ModerationSection />}
         {section === "badges"     && <BadgesSection />}
         {section === "database"   && <DatabaseSection />}
+        {section === "missing"    && <MissingCigarsSection />}
       </div>
     </div>
   );
@@ -900,6 +902,86 @@ function DatabaseSection() {
                   {deleting === c.id ? "..." : "Confirm"}
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MissingCigarsSection() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showResolved, setShowResolved] = useState(false);
+
+  useEffect(() => { loadMissing(); }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadMissing = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("missing_cigars")
+      .select("*, users(username)")
+      .eq("resolved", showResolved)
+      .order("created_at", { ascending: false });
+    setItems(data || []);
+    setLoading(false);
+  };
+
+  const handleResolve = async (id) => {
+    await supabase.from("missing_cigars").update({ resolved: true }).eq("id", id);
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleDismiss = async (id) => {
+    await supabase.from("missing_cigars").delete().eq("id", id);
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Missing Cigars</div>
+        <button onClick={() => setShowResolved(v => !v)}
+          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          {showResolved ? "Show Pending" : "Show Resolved"}
+        </button>
+      </div>
+
+      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
+        {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet. Add them manually, then mark resolved."}
+      </div>
+
+      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+
+      {!loading && items.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "No missing cigars reported."}</div>
+        </div>
+      )}
+
+      {items.map(item => (
+        <div key={item.id} style={{ background: "#221508", border: "1px solid #c9a84c33", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>
+            {item.brand} · {item.line}
+          </div>
+          {item.vitola && (
+            <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>Vitola: {item.vitola}</div>
+          )}
+          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>
+            Reported by @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </div>
+          {!showResolved && (
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => handleResolve(item.id)}
+                style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                ✓ Mark Resolved
+              </button>
+              <button onClick={() => handleDismiss(item.id)}
+                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                Dismiss
+              </button>
             </div>
           )}
         </div>
