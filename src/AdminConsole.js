@@ -918,7 +918,6 @@ const TASTING_NOTE_OPTIONS = [
 ];
 
 function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel }) {
-  const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
   const [form, setForm] = useState({
     brand: item.brand || "",
     line: item.line || "",
