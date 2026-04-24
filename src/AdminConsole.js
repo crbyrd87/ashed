@@ -790,6 +790,8 @@ function DatabaseSection() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [deleting, setDeleting] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [msg, setMsg] = useState(null);
 
   useEffect(() => { loadCigars(); }, [sourceFilter]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -852,22 +854,54 @@ function DatabaseSection() {
       <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
 
       {filtered.map(c => (
-        <div key={c.id} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px", marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {c.brand} · {c.line} · {c.vitola}
+        <div key={c.id} style={{ background: "#221508", border: `1px solid ${confirmDeleteId === c.id ? "#a0522d" : "#3a2510"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {c.brand} · {c.line} · {c.vitola}
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
+                <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || "#8a7055", background: (SOURCE_COLORS[c.source] || "#8a7055") + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || "#8a7055")}55`, borderRadius: 8, padding: "1px 6px" }}>
+                  {c.source || "manual"}
+                </span>
+                {c.strength && <span style={{ fontSize: 10, color: "#5a4535" }}>{c.strength}</span>}
+              </div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
-              <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || "#8a7055", background: (SOURCE_COLORS[c.source] || "#8a7055") + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || "#8a7055")}55`, borderRadius: 8, padding: "1px 6px" }}>
-                {c.source || "manual"}
-              </span>
-              {c.strength && <span style={{ fontSize: 10, color: "#5a4535" }}>{c.strength}</span>}
-            </div>
+            {confirmDeleteId === c.id ? (
+              <button onClick={() => { setConfirmDeleteId(null); setDeleteConfirmText(""); }}
+                style={{ background: "none", border: "1px solid #3a2510", borderRadius: 6, padding: "4px 10px", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                Cancel
+              </button>
+            ) : (
+              <button onClick={() => { setConfirmDeleteId(c.id); setDeleteConfirmText(""); }}
+                style={{ background: "none", border: "1px solid #a0522d44", borderRadius: 6, padding: "4px 10px", color: "#a0522d", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                Delete
+              </button>
+            )}
           </div>
-          <button onClick={() => handleDelete(c)} disabled={deleting === c.id}
-            style={{ background: "none", border: "1px solid #a0522d44", borderRadius: 6, padding: "4px 10px", color: "#a0522d", fontSize: 11, cursor: deleting === c.id ? "default" : "pointer", fontFamily: SANS, flexShrink: 0 }}>
-            {deleting === c.id ? "..." : "Delete"}
-          </button>
+
+          {/* Type DELETE confirmation */}
+          {confirmDeleteId === c.id && (
+            <div style={{ marginTop: 10, borderTop: "1px solid #3a2510", paddingTop: 10 }}>
+              <div style={{ fontSize: 11, color: "#a0522d", marginBottom: 6 }}>
+                Type <strong>DELETE</strong> to confirm deletion of {c.brand} {c.line} {c.vitola}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE"
+                  style={{ flex: 1, background: "#1a0f08", border: `1px solid ${deleteConfirmText === "DELETE" ? "#a0522d" : "#3a2510"}`, borderRadius: 6, padding: "6px 10px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                />
+                <button
+                  onClick={() => { if (deleteConfirmText === "DELETE") { handleDelete(c); setConfirmDeleteId(null); setDeleteConfirmText(""); } }}
+                  disabled={deleteConfirmText !== "DELETE" || deleting === c.id}
+                  style={{ background: deleteConfirmText === "DELETE" ? "#a0522d" : "#2a1a0e", border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? "#e8d5b7" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
+                  {deleting === c.id ? "..." : "Confirm"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>
