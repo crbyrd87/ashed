@@ -878,7 +878,7 @@ export default function App() {
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
                         <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap", alignItems: "center" }}>
-                          {v.length_inches && <span style={{ fontSize: 11, color: "#5a4535" }}>{v.length_inches}" × {v.ring_gauge}</span>}
+                          
                           {mixedStrengths && v.strength && <Badge label={v.strength} color={strengthColor(v.strength)} />}
                         </div>
                       </div>
