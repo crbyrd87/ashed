@@ -23,28 +23,33 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
     try {
       const { data: existing } = await supabase
         .from("cigars")
-        .select("id")
+        .select("id, brand, line, vitola, strength, origin, wrapper, tasting_notes")
         .eq("brand", result.brand)
         .eq("line", result.line)
         .eq("vitola", result.vitola)
         .maybeSingle();
-      if (!existing) {
-        const { data: inserted } = await supabase.from("cigars").insert({
+
+      if (existing) return existing;
+
+      // Not in DB — report as missing for admin review, do NOT auto-insert
+      const { data: alreadyReported } = await supabase
+        .from("missing_cigars")
+        .select("id")
+        .eq("brand", result.brand)
+        .eq("line", result.line)
+        .maybeSingle();
+
+      if (!alreadyReported) {
+        await supabase.from("missing_cigars").insert({
           brand: result.brand,
           line: result.line,
-          vitola: result.vitola,
-          wrapper: result.wrapper || null,
-          origin: result.origin || null,
-          strength: result.strength || null,
-          tasting_notes: result.tasting_notes || null,
-          description: result.description || null,
-          ai_generated: true,
-          verified: false,
-          total_checkins: 0,
-        }).select().single();
-        return inserted;
+          vitola: result.vitola !== "Unknown" ? result.vitola : null,
+          reported_by: user?.id || null,
+        });
       }
-      return existing;
+
+      // Return AI result as display-only (no DB id)
+      return { ...result, id: null };
     } catch (e) {
       console.error("Cache to DB failed:", e);
       return null;
