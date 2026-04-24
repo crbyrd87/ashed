@@ -561,7 +561,7 @@ export default function App() {
       setUpgradeFeature("wishlist_cap");
       return;
     }
-    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
+    const isRealCigar = !!cigar.id;
     const { data: existing } = await supabase
       .from("wishlist")
       .select("id")
@@ -581,12 +581,11 @@ export default function App() {
 
   const handleRemoveFromWishlist = async (id) => {
     await supabase.from("wishlist").delete().eq("id", id);
-    setWishlist(prev => prev.filter(w => w.id !== id));
+    fetchWishlist();
   };
 
   const isOnWishlist = (cigar) => {
-    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
-    if (isRealCigar) return wishlist.some(w => w.cigar_id === cigar.id);
+    if (cigar.id) return wishlist.some(w => w.cigar_id === cigar.id);
     return wishlist.some(w => w.cigar_name === (cigar.line || cigar.cigar_name));
   };
 
