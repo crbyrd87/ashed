@@ -8,6 +8,7 @@ const SECTIONS = [
   { id: "users",      icon: "👤", label: "Users" },
   { id: "moderation", icon: "🚩", label: "Moderation" },
   { id: "badges",     icon: "🏅", label: "Badges" },
+  { id: "database",   icon: "🗄️", label: "DB" },
 ];
 
 export default function AdminConsole({ user, onClose }) {
@@ -36,6 +37,7 @@ export default function AdminConsole({ user, onClose }) {
         {section === "users"      && <UsersSection />}
         {section === "moderation" && <ModerationSection />}
         {section === "badges"     && <BadgesSection />}
+        {section === "database"   && <DatabaseSection />}
       </div>
     </div>
   );
@@ -778,6 +780,96 @@ function BadgesSection() {
           );
         })
       }
+    </div>
+  );
+}
+
+function DatabaseSection() {
+  const [cigars, setCigars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [deleting, setDeleting] = useState(null);
+  const [msg, setMsg] = useState(null);
+
+  useEffect(() => { loadCigars(); }, [sourceFilter]);
+
+  const loadCigars = async () => {
+    setLoading(true);
+    let query = supabase.from("cigars").select("id, brand, line, vitola, strength, source").order("brand").order("line").order("vitola");
+    if (sourceFilter !== "all") query = query.eq("source", sourceFilter);
+    const { data } = await query;
+    setCigars(data || []);
+    setLoading(false);
+  };
+
+  const handleDelete = async (cigar) => {
+    setDeleting(cigar.id);
+    await supabase.from("cigars").delete().eq("id", cigar.id);
+    setCigars(prev => prev.filter(c => c.id !== cigar.id));
+    setDeleting(null);
+    setMsg(`Deleted ${cigar.brand} ${cigar.line} ${cigar.vitola}`);
+    setTimeout(() => setMsg(null), 3000);
+  };
+
+  const SOURCE_COLORS = {
+    manual: "#7a9a7a",
+    ai_generated: "#c9a84c",
+    user_submitted: "#7a8a9a",
+    admin_approved: "#9a7a9a",
+  };
+
+  const filtered = cigars.filter(c => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return c.brand?.toLowerCase().includes(q) || c.line?.toLowerCase().includes(q) || c.vitola?.toLowerCase().includes(q);
+  });
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
+
+      {msg && <div style={{ background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: "#7a9a7a" }}>{msg}</div>}
+
+      {/* Source filter */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+        {["all", "manual", "ai_generated", "user_submitted", "admin_approved"].map(s => (
+          <button key={s} onClick={() => setSourceFilter(s)}
+            style={{ background: sourceFilter === s ? "#c9a84c22" : "none", border: `1px solid ${sourceFilter === s ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            {s === "all" ? "All" : s.replace("_", " ")}
+          </button>
+        ))}
+      </div>
+
+      {/* Search */}
+      <input
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder="Search brand, line, vitola..."
+        style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
+      />
+
+      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
+
+      {filtered.map(c => (
+        <div key={c.id} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px", marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {c.brand} · {c.line} · {c.vitola}
+            </div>
+            <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
+              <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || "#8a7055", background: (SOURCE_COLORS[c.source] || "#8a7055") + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || "#8a7055")}55`, borderRadius: 8, padding: "1px 6px" }}>
+                {c.source || "manual"}
+              </span>
+              {c.strength && <span style={{ fontSize: 10, color: "#5a4535" }}>{c.strength}</span>}
+            </div>
+          </div>
+          <button onClick={() => handleDelete(c)} disabled={deleting === c.id}
+            style={{ background: "none", border: "1px solid #a0522d44", borderRadius: 6, padding: "4px 10px", color: "#a0522d", fontSize: 11, cursor: deleting === c.id ? "default" : "pointer", fontFamily: SANS, flexShrink: 0 }}>
+            {deleting === c.id ? "..." : "Delete"}
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

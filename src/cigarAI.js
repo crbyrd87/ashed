@@ -62,7 +62,8 @@ export async function getVitolas(brand, line, onPartialResults) {
   if (cached && cached.length > 0 && onPartialResults) onPartialResults(cached);
 
   // TODO (Week 29): Re-enable AI vitola lookup before launch.
-  // Disabled during development to prevent AI-generated vitolas polluting the display.
+  // When re-enabling: uncomment the callAI block below and set source = 'ai_generated' on inserts.
+  // All AI-generated rows will be clearly tagged and visible in the admin console for review.
   // Only DB vitolas shown until re-enabled.
   return cached || [];
 }
