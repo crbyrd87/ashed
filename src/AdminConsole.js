@@ -1000,6 +1000,7 @@ function MissingCigarsSection() {
   const [loading, setLoading] = useState(true);
   const [showResolved, setShowResolved] = useState(false);
   const [addingId, setAddingId] = useState(null);
+  const [dismissConfirmId, setDismissConfirmId] = useState(null);
   const [msg, setMsg] = useState(null);
   const [originOptions, setOriginOptions] = useState([]);
   const [wrapperOptions, setWrapperOptions] = useState([]);
@@ -1132,10 +1133,28 @@ function MissingCigarsSection() {
                 style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a22, #d4b45a11)", border: "1px solid #d4b45a55", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 + Add to DB
               </button>
-              <button onClick={() => handleDismiss(item.id)}
-                style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                Dismiss
-              </button>
+              {dismissConfirmId === item.id ? (
+                <>
+                  <button onClick={() => handleDismiss(item.id)}
+                    style={{ flex: 1, background: "#a0522d22", border: "1px solid #a0522d", borderRadius: 8, padding: "7px 0", color: "#e8a07a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                    Yes
+                  </button>
+                  <button onClick={() => setDismissConfirmId(null)}
+                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => setDismissConfirmId(item.id)}
+                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Dismiss
+                </button>
+              )}
+            </div>
+          )}
+          {dismissConfirmId === item.id && (
+            <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, textAlign: "center" }}>
+              Are you sure you want to dismiss this cigar addition?
             </div>
           )}
         </div>

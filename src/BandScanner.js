@@ -15,6 +15,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const [cigar, setCigar] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [confidence, setConfidence] = useState(null);
+  const [dbMatch, setDbMatch] = useState(false);
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
   const fileInputRef = useRef(null);
@@ -145,7 +146,8 @@ Be as specific as possible. If you can read text on the band, use it.`
 
       // Cache to DB for medium/high confidence
       const cached = await cacheCigarToDB(result);
-
+      const isDbMatch = !!(cached?.id);
+      setDbMatch(isDbMatch);
       setConfidence(result.confidence);
       setCigar({
         id: cached?.id || null,
@@ -260,10 +262,18 @@ Be as specific as possible. If you can read text on the band, use it.`
           )}
 
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? "#7a9a7a22" : confidence === "medium" ? "#c9a84c22" : "#a0522d22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : confidence === "medium" ? "#c9a84c55" : "#a0522d55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ background: confidence === "high" ? "#7a9a7a22" : confidence === "medium" ? "#c9a84c22" : "#a0522d22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : confidence === "medium" ? "#c9a84c55" : "#a0522d55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : confidence === "medium" ? "~" : "?"}</span>
             <span style={{ fontSize: 12, color: confidence === "high" ? "#7a9a7a" : confidence === "medium" ? "#c9a84c" : "#a0522d" }}>
               {confidence === "high" ? "High confidence identification" : confidence === "medium" ? "Medium confidence — please verify" : "Low confidence — please verify carefully"}
+            </span>
+          </div>
+
+          {/* DB match indicator */}
+          <div style={{ background: dbMatch ? "#7a9a7a11" : "#a0522d11", border: `1px solid ${dbMatch ? "#7a9a7a44" : "#a0522d44"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 13 }}>{dbMatch ? "✅" : "⚠️"}</span>
+            <span style={{ fontSize: 12, color: dbMatch ? "#7a9a7a" : "#e8a07a" }}>
+              {dbMatch ? "Database match found — verified cigar data" : "Not in our database yet — sent for admin review to add"}
             </span>
           </div>
 
