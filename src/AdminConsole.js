@@ -918,8 +918,22 @@ function MissingCigarsSection() {
   const [addForm, setAddForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [originOptions, setOriginOptions] = useState([]);
+  const [wrapperOptions, setWrapperOptions] = useState([]);
 
-  useEffect(() => { loadMissing(); }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    loadMissing();
+    loadOptions();
+  }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadOptions = async () => {
+    const [{ data: origins }, { data: wrappers }] = await Promise.all([
+      supabase.from("cigars").select("origin").not("origin", "is", null),
+      supabase.from("cigars").select("wrapper").not("wrapper", "is", null),
+    ]);
+    if (origins) setOriginOptions([...new Set(origins.map(r => r.origin))].sort());
+    if (wrappers) setWrapperOptions([...new Set(wrappers.map(r => r.wrapper))].sort());
+  };
 
   const loadMissing = async () => {
     setLoading(true);
@@ -984,14 +998,14 @@ function MissingCigarsSection() {
 
   const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
 
-  const Field = ({ label, field, placeholder, select }) => (
+  const Field = ({ label, field, placeholder, select, options }) => (
     <div style={{ marginBottom: 8 }}>
       <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      {select ? (
-        <select value={addForm[field]} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
+      {select || options ? (
+        <select value={addForm[field] || ""} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
           style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 6, padding: "7px 10px", color: addForm[field] ? "#e8d5b7" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
-          <option value="">Select strength...</option>
-          {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
+          <option value="">Select {label.toLowerCase()}...</option>
+          {(options || STRENGTHS).map(s => <option key={s} value={s}>{s}</option>)}
         </select>
       ) : (
         <input value={addForm[field] || ""} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
@@ -1048,8 +1062,8 @@ function MissingCigarsSection() {
               <Field label="LINE" field="line" placeholder="Line name" />
               <Field label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
               <Field label="STRENGTH" field="strength" select />
-              <Field label="ORIGIN" field="origin" placeholder="e.g. Nicaragua" />
-              <Field label="WRAPPER" field="wrapper" placeholder="e.g. Ecuadorian Habano" />
+              <Field label="ORIGIN" field="origin" options={originOptions} />
+              <Field label="WRAPPER" field="wrapper" options={wrapperOptions} />
               <Field label="TASTING NOTES" field="tasting_notes" placeholder="e.g. Cedar, leather, pepper" />
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                 <button onClick={() => handleSaveToDb(item)} disabled={saving}
