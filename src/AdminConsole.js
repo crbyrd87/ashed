@@ -1030,7 +1030,7 @@ function MissingCigarsSection() {
   };
 
   const handleSaveToDb = async (item, formData) => {
-    const { error } = await supabase.from("cigars").insert({
+    const { data: newCigar, error } = await supabase.from("cigars").insert({
       brand: formData.brand,
       line: formData.line,
       vitola: formData.vitola,
@@ -1039,17 +1039,36 @@ function MissingCigarsSection() {
       wrapper: formData.wrapper || null,
       tasting_notes: formData.tasting_notes || null,
       source: "admin_approved",
-    });
+    }).select().single();
+
     if (error) {
       setMsg({ text: "Error saving cigar.", isError: true });
       setTimeout(() => setMsg(null), 3000);
       return;
     }
+
+    // Backfill cigar_id on any existing humidor rows that match brand/line/vitola
+    await supabase.from("humidor")
+      .update({ cigar_id: newCigar.id })
+      .eq("cigar_brand", formData.brand)
+      .eq("cigar_name", formData.line)
+      .eq("cigar_vitola", formData.vitola)
+      .is("cigar_id", null);
+
+    // Backfill cigar_id on any existing checkin rows that match
+    await supabase.from("checkins")
+      .update({ cigar_id: newCigar.id })
+      .eq("cigar_brand", formData.brand)
+      .eq("cigar_name", formData.line)
+      .eq("cigar_vitola", formData.vitola)
+      .is("cigar_id", null);
+
+    // Mark missing cigar as resolved
     await supabase.from("missing_cigars").update({ resolved: true }).eq("id", item.id);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setAddingId(null);
-    setMsg({ text: `${formData.brand} ${formData.line} ${formData.vitola} added to DB!`, isError: false });
-    setTimeout(() => setMsg(null), 4000);
+    setMsg({ text: `${formData.brand} ${formData.line} ${formData.vitola} added — existing entries linked.`, isError: false });
+    setTimeout(() => setMsg(null), 5000);
   };
 
   const handleDismiss = async (id) => {
