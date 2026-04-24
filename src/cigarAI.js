@@ -61,46 +61,8 @@ export async function getVitolas(brand, line, onPartialResults) {
 
   if (cached && cached.length > 0 && onPartialResults) onPartialResults(cached);
 
-  try {
-    const raw = await callAI(
-      "You are a cigar database API. Your only job is to return JSON data.\n\n" +
-      "Find ALL vitolas/sizes for: " + brand + " - " + line + "\n\n" +
-      "CRITICAL RULES:\n" +
-      "- Return ONLY a raw JSON array\n" +
-      "- NO explanatory text, NO markdown\n" +
-      "- If you don't know, return []\n\n" +
-      "Format:\n" +
-      "[{\n" +
-      "  \"brand\": \"" + brand + "\",\n" +
-      "  \"line\": \"" + line + "\",\n" +
-      "  \"vitola\": \"Robusto\",\n" +
-      "  \"wrapper\": \"Country\",\n" +
-      "  \"binder\": \"Country\",\n" +
-      "  \"filler\": \"Country\",\n" +
-      "  \"origin\": \"Country\",\n" +
-      "  \"strength\": \"Light|Medium|Medium-Full|Full\",\n" +
-      "  \"length_inches\": 5.0,\n" +
-      "  \"ring_gauge\": 50,\n" +
-      "  \"tasting_notes\": \"Brief tasting notes\",\n" +
-      "  \"description\": \"One sentence\"\n" +
-      "}]"
-    );
-
-    let aiVitolas;
-    try { aiVitolas = JSON.parse(extractJSON(raw)); } catch { aiVitolas = []; }
-    if (!aiVitolas.length) return cached || [];
-
-    // TODO (Week 29): Re-enable AI writes to DB before launch.
-    // AI vitola inserts are disabled during development to keep DB clean.
-    // To re-enable: uncomment the insert block below and remove the display-only merge.
-
-    // Display-only merge — AI results shown but NOT written to DB
-    const cachedKeys = new Set((cached || []).map(c => c.vitola));
-    const aiOnly = aiVitolas.filter(c => !cachedKeys.has(c.vitola));
-    return [...(cached || []), ...aiOnly];
-
-  } catch (err) {
-    console.error("Vitola lookup failed:", err);
-    return cached || [];
-  }
+  // TODO (Week 29): Re-enable AI vitola lookup before launch.
+  // Disabled during development to prevent AI-generated vitolas polluting the display.
+  // Only DB vitolas shown until re-enabled.
+  return cached || [];
 }
