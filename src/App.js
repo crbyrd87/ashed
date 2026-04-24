@@ -35,7 +35,7 @@ const ScoreBar = ({ rating }) => (
 );
 
 const LoungeScene = () => (
-  <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+  <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%" }}>
     {/* Background - warm dark lounge */}
     <rect width="420" height="220" fill="#1a0d06" />
     {/* Back wall wood paneling */}
