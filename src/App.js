@@ -865,6 +865,22 @@ export default function App() {
           {/* LINE MODE: vitola list with Log buttons */}
           {isLine && (
             <div style={{ marginBottom: 16 }}>
+
+              {/* Drink Pairings strip — above vitola list */}
+              <button
+                onClick={() => { if (isPremium) { setPairingsCigar(firstVitola); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a8a9a44", borderRadius: 10, padding: "10px 16px", color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>🥃</span>
+                  <span style={{ fontWeight: 600 }}>Drink Pairings</span>
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                  <span style={{ fontSize: 16, color: "#5a4535" }}>›</span>
+                </span>
+              </button>
+
               <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>SELECT A VITOLA</div>
               {violasLoading && vitolas.length === 0 && (
                 <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
@@ -910,13 +926,6 @@ export default function App() {
               {violasLoading && vitolas.length > 0 && (
                 <div style={{ fontSize: 11, color: "#7a9a7a", textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
               )}
-              {/* Pairings at line level */}
-              <button
-                onClick={() => { if (isPremium) { setPairingsCigar(firstVitola); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
-                style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-              >
-                🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
-              </button>
             </div>
           )}
 
