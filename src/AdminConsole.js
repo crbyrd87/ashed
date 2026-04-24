@@ -914,6 +914,10 @@ function MissingCigarsSection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showResolved, setShowResolved] = useState(false);
+  const [addingId, setAddingId] = useState(null);
+  const [addForm, setAddForm] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState(null);
 
   useEffect(() => { loadMissing(); }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -928,15 +932,74 @@ function MissingCigarsSection() {
     setLoading(false);
   };
 
-  const handleResolve = async (id) => {
-    await supabase.from("missing_cigars").update({ resolved: true }).eq("id", id);
-    setItems(prev => prev.filter(i => i.id !== id));
+  const handleStartAdd = (item) => {
+    setAddingId(item.id);
+    setAddForm({
+      brand: item.brand || "",
+      line: item.line || "",
+      vitola: item.vitola || "",
+      strength: "",
+      origin: "",
+      wrapper: "",
+      tasting_notes: "",
+    });
+  };
+
+  const handleSaveToDb = async (item) => {
+    if (!addForm.brand || !addForm.line || !addForm.vitola) {
+      setMsg({ text: "Brand, line, and vitola are required.", isError: true });
+      setTimeout(() => setMsg(null), 3000);
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("cigars").insert({
+      brand: addForm.brand,
+      line: addForm.line,
+      vitola: addForm.vitola,
+      strength: addForm.strength || null,
+      origin: addForm.origin || null,
+      wrapper: addForm.wrapper || null,
+      tasting_notes: addForm.tasting_notes || null,
+      source: "admin_approved",
+    });
+    if (error) {
+      setMsg({ text: "Error saving cigar.", isError: true });
+      setSaving(false);
+      setTimeout(() => setMsg(null), 3000);
+      return;
+    }
+    // Mark as resolved
+    await supabase.from("missing_cigars").update({ resolved: true }).eq("id", item.id);
+    setItems(prev => prev.filter(i => i.id !== item.id));
+    setAddingId(null);
+    setSaving(false);
+    setMsg({ text: `${addForm.brand} ${addForm.line} ${addForm.vitola} added to DB!`, isError: false });
+    setTimeout(() => setMsg(null), 4000);
   };
 
   const handleDismiss = async (id) => {
     await supabase.from("missing_cigars").delete().eq("id", id);
     setItems(prev => prev.filter(i => i.id !== id));
   };
+
+  const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
+
+  const Field = ({ label, field, placeholder, select }) => (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      {select ? (
+        <select value={addForm[field]} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
+          style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 6, padding: "7px 10px", color: addForm[field] ? "#e8d5b7" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+          <option value="">Select strength...</option>
+          {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      ) : (
+        <input value={addForm[field] || ""} onChange={e => setAddForm(p => ({ ...p, [field]: e.target.value }))}
+          placeholder={placeholder}
+          style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 6, padding: "7px 10px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -949,8 +1012,14 @@ function MissingCigarsSection() {
       </div>
 
       <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet. Add them manually, then mark resolved."}
+        {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet."}
       </div>
+
+      {msg && (
+        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
+          {msg.text}
+        </div>
+      )}
 
       {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
 
@@ -962,21 +1031,44 @@ function MissingCigarsSection() {
       )}
 
       {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: "1px solid #c9a84c33", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+        <div key={item.id} style={{ background: "#221508", border: `1px solid ${addingId === item.id ? "#c9a84c55" : "#c9a84c22"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>
             {item.brand} · {item.line}
           </div>
-          {item.vitola && (
-            <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>Vitola: {item.vitola}</div>
-          )}
+          {item.vitola && <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>Vitola: {item.vitola}</div>}
           <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>
             Reported by @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
-          {!showResolved && (
+
+          {/* Add to DB form */}
+          {addingId === item.id && (
+            <div style={{ borderTop: "1px solid #3a2510", paddingTop: 12, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
+              <Field label="BRAND" field="brand" placeholder="Brand name" />
+              <Field label="LINE" field="line" placeholder="Line name" />
+              <Field label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
+              <Field label="STRENGTH" field="strength" select />
+              <Field label="ORIGIN" field="origin" placeholder="e.g. Nicaragua" />
+              <Field label="WRAPPER" field="wrapper" placeholder="e.g. Ecuadorian Habano" />
+              <Field label="TASTING NOTES" field="tasting_notes" placeholder="e.g. Cedar, leather, pepper" />
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <button onClick={() => handleSaveToDb(item)} disabled={saving}
+                  style={{ flex: 2, background: saving ? "#3a2510" : "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: saving ? "#5a4535" : "#1a0f08", fontSize: 13, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
+                  {saving ? "Saving..." : "✓ Save to DB"}
+                </button>
+                <button onClick={() => setAddingId(null)}
+                  style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "9px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!showResolved && addingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => handleResolve(item.id)}
-                style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Mark Resolved
+              <button onClick={() => handleStartAdd(item)}
+                style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c22, #c9a84c11)", border: "1px solid #c9a84c55", borderRadius: 8, padding: "7px 0", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                + Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
                 style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
