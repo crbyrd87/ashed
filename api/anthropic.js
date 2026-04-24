@@ -4,10 +4,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
 const RATE_LIMITS = {
-  band_scanner:    { max: 10, windowMinutes: 60 },
+  band_scanner:    { max: 15, windowMinutes: 60 },
   recommendations: { max: 5,  windowMinutes: 60 },
-  pairings:        { max: 10, windowMinutes: 60 },
-  tasting_notes:   { max: 20, windowMinutes: 60 },
+  pairings:        { max: 5,  windowMinutes: 60 },
+  tasting_notes:   { max: 10, windowMinutes: 60 },
 };
 
 export default async function handler(req, res) {

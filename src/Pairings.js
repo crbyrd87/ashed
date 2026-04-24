@@ -74,6 +74,13 @@ Return ONLY a raw JSON object, no markdown:
         });
 
         const data = await response.json();
+
+        if (response.status === 429) {
+          setError(data.error || "You've reached the pairings limit for this hour. Please try again later.");
+          setLoading(false);
+          return;
+        }
+
         const raw = data.content?.[0]?.text || "{}";
         const match = raw.match(/\{[\s\S]*\}/);
         const result = match ? JSON.parse(match[0]) : null;

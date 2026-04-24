@@ -128,6 +128,13 @@ Be as specific as possible. If you can read text on the band, use it.`
       });
 
       const data = await response.json();
+
+      if (response.status === 429) {
+        setErrorMsg(data.error || "You've reached the scan limit for this hour. Please try again later.");
+        setStage("error");
+        return;
+      }
+
       const raw = data.content?.[0]?.text || "{}";
       const match = raw.match(/\{[\s\S]*\}/);
       const result = match ? JSON.parse(match[0]) : {};

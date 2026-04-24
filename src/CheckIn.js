@@ -28,6 +28,9 @@ Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dri
     }),
   });
   const data = await response.json();
+  if (response.status === 429) {
+    throw new Error(data.error || "You've reached the tasting notes limit for this hour. Please try again later.");
+  }
   const raw = data.content?.[0]?.text || "[]";
   const match = raw.match(/\[[\s\S]*\]/);
   return match ? JSON.parse(match[0]) : [];
@@ -213,6 +216,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       setAiSuggestions(suggestions);
     } catch (e) {
       console.error("AI suggestions error:", e);
+      setError(e.message || "Could not load suggestions. Please try again.");
     }
     setLoadingSuggestions(false);
     setSuggestionsUsed(true);

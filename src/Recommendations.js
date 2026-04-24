@@ -103,6 +103,11 @@ Recommend a variety of well-known, widely available cigars that match their pref
         }),
       });
       const data = await response.json();
+      if (response.status === 429) {
+        setError(data.error || "You've reached the recommendations limit for this hour. Please try again later.");
+        setMode(hasEnoughData ? "auto" : "survey");
+        return;
+      }
       const raw = data.content?.[0]?.text || "[]";
       const match = raw.match(/\[[\s\S]*\]/);
       const results = match ? JSON.parse(match[0]) : [];
