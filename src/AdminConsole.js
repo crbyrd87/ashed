@@ -12,8 +12,13 @@ const SECTIONS = [
   { id: "missing",    icon: "🔍", label: "Missing" },
 ];
 
-export default function AdminConsole({ user, isSuperAdmin, onClose }) {
-  const [section, setSection] = useState("stats");
+export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
+  const [section, setSection] = useState(isModerator ? "moderation" : "stats");
+
+  // Moderators only see the Moderation tab
+  const visibleSections = isModerator
+    ? SECTIONS.filter(s => s.id === "moderation")
+    : SECTIONS;
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 500, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 900, margin: "0 auto" }}>
@@ -25,7 +30,7 @@ export default function AdminConsole({ user, isSuperAdmin, onClose }) {
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
       </div>
       <div style={{ display: "flex", borderBottom: "1px solid #3a2510", background: "#1a0f08", position: "sticky", top: 57, zIndex: 9 }}>
-        {SECTIONS.map(s => (
+        {visibleSections.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
             style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? "#c9a84c" : "transparent"}`, color: section === s.id ? "#c9a84c" : "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 16 }}>{s.icon}</span>
@@ -268,7 +273,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
     const q = query.trim();
     let req = supabase
       .from("users")
-      .select("id, username, display_name, email, member_since, is_admin, is_super_admin, is_flagged, is_premium, is_partner, partner_place_id, location")
+      .select("id, username, display_name, email, member_since, is_admin, is_super_admin, is_moderator, is_flagged, is_premium, is_partner, partner_place_id, location")
       .order("member_since", { ascending: false })
       .limit(50);
     if (q) req = req.or(`username.ilike.%${q}%,email.ilike.%${q}%,display_name.ilike.%${q}%`);
@@ -314,6 +319,16 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
     setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
     setSelectedUser(updated);
     showMsg(newVal ? `Admin granted to @${u.username}.` : `Admin revoked from @${u.username}.`);
+  };
+
+  const handleToggleModerator = async (u) => {
+    const newVal = !u.is_moderator;
+    const { error } = await supabase.from("users").update({ is_moderator: newVal }).eq("id", u.id);
+    if (error) { showMsg("Error updating moderator status.", true); return; }
+    const updated = { ...u, is_moderator: newVal };
+    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
+    setSelectedUser(updated);
+    showMsg(newVal ? `Moderator role granted to @${u.username}.` : `Moderator role revoked from @${u.username}.`);
   };
 
   const handleGrantPartner = async (u) => {
@@ -399,6 +414,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: "#e8cc7a" }}>👑 Super Admin</span>}
                 {selectedUser.is_admin && <span style={{ marginLeft: 8, color: "#c9a84c" }}>⚙️ Admin</span>}
+                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🛡️ Mod</span>}
                 {selectedUser.is_premium && <span style={{ marginLeft: 8, color: "#7a9a7a" }}>⭐ Premium</span>}
                 {selectedUser.is_partner && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🏪 Partner</span>}
                 {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: "#e8632a" }}>🚩 Flagged</span>}
@@ -470,6 +486,13 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
               <button onClick={() => handleToggleAdmin(selectedUser)}
                 style={{ flex: 1, background: "none", border: "1px solid #c9a84c44", borderRadius: 8, padding: "8px 0", color: "#c9a84c", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_admin ? "Revoke Admin" : "Grant Admin"}
+              </button>
+            )}
+            {/* Super admin only — Grant/Revoke Moderator */}
+            {isSuperAdmin && selectedUser.id !== currentUserId && !selectedUser.is_admin && (
+              <button onClick={() => handleToggleModerator(selectedUser)}
+                style={{ flex: 1, background: "none", border: "1px solid #7a8a9a44", borderRadius: 8, padding: "8px 0", color: "#7a8a9a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                {selectedUser.is_moderator ? "Revoke Mod" : "Grant Mod"}
               </button>
             )}
           </div>

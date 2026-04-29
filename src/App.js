@@ -318,6 +318,7 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [isPartner, setIsPartner] = useState(false);
   const [partnerPlaceId, setPartnerPlaceId] = useState(null);
   const [showPartner, setShowPartner] = useState(false);
@@ -401,11 +402,12 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
     setIsSuperAdmin(data?.is_super_admin || false);
+    setIsModerator(data?.is_moderator || false);
     setIsPartner(data?.is_partner || false);
     setPartnerPlaceId(data?.partner_place_id || null);
     setIsPremium(data?.is_premium || false);
@@ -1085,14 +1087,14 @@ export default function App() {
             </button>
           </div>
 
-          {/* Admin button — only visible to admins */}
-          {isAdmin && (
+          {/* Admin/Moderator console button */}
+          {(isAdmin || isModerator) && (
             <div style={{ marginBottom: 16 }}>
               <button
                 onClick={() => setShowAdmin(true)}
                 style={{ width: "100%", background: "#2a1a0e", border: "1px solid #d4b45a44", borderRadius: 10, padding: "10px 16px", color: "#d4b45a", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
               >
-                ⚙️ Admin Console
+                {isAdmin ? "⚙️ Admin Console" : "🚩 Moderation Console"}
               </button>
             </div>
           )}
@@ -1664,6 +1666,7 @@ export default function App() {
         <AdminConsole
           user={user}
           isSuperAdmin={isSuperAdmin}
+          isModerator={isModerator && !isAdmin}
           onClose={() => setShowAdmin(false)}
         />
       )}
