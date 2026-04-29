@@ -18,6 +18,7 @@ import AdminConsole from "./AdminConsole";
 import PartnerDashboard from "./PartnerDashboard";
 import UpgradePrompt from "./UpgradePrompt";
 import OnboardingTour from "./OnboardingTour";
+import Settings from "./Settings";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -327,7 +328,8 @@ export default function App() {
   const [upgradeFeature, setUpgradeFeature] = useState(null);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [showTour, setShowTour] = useState(false); // which feature triggered the prompt
+  const [showTour, setShowTour] = useState(false);
+  const [showSettings, setShowSettings] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -643,6 +645,11 @@ export default function App() {
   const handleCompleteTour = async () => {
     setShowTour(false);
     await supabase.from("users").update({ tour_completed: true }).eq("id", user.id);
+  };
+
+  const handleReplayTour = () => {
+    setShowSettings(false);
+    setShowTour(true);
   };
 
   const handleSelectCheckin = async (c) => {
@@ -1006,7 +1013,10 @@ export default function App() {
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, color: "#d4b45a", textTransform: "uppercase" }}>🚬 Ashed</div>
           <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginTop: 2 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
-        <button style={s.logoutBtn} onClick={handleLogout}>Log out</button>
+        <button onClick={() => setShowSettings(true)}
+          style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#a08060", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+          ⚙️
+        </button>
       </div>
 
       {tab === "search" && (
@@ -1720,6 +1730,15 @@ export default function App() {
       {/* Onboarding tour */}
       {showTour && (
         <OnboardingTour onComplete={handleCompleteTour} />
+      )}
+
+      {showSettings && (
+        <Settings
+          user={user}
+          onClose={() => setShowSettings(false)}
+          onSignOut={handleLogout}
+          onReplayTour={handleReplayTour}
+        />
       )}
 
       {showAdmin && (
