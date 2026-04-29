@@ -5,7 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import posthog from 'posthog-js';
 
-posthog.init('YOUR_PROJECT_API_KEY', {
+posthog.init('phc_njN5RPiHnyve9MoZaVp46jujZZozXithFLsMwfMhvBTg', {
   api_host: 'https://us.i.posthog.com',
   person_profiles: 'identified_only',
 });
