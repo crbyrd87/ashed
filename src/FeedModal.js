@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { createNotification } from "./notificationHelpers";
+import { sanitizeLong } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -79,7 +80,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   };
 
   const handlePostComment = async () => {
-    const body = commentInput.trim();
+    const body = sanitizeLong(commentInput.trim());
     if (!body || posting) return;
     setPosting(true);
     const { data, error } = await supabase

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
+import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -166,7 +167,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     if (!newPlaceName.trim()) return;
     const { data } = await supabase
       .from("places")
-      .insert({ user_id: user.id, name: newPlaceName.trim() })
+      .insert({ user_id: user.id, name: sanitizeShort(newPlaceName.trim()) })
       .select()
       .single();
     if (data) {
@@ -258,9 +259,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       cigar_brand: cigar.brand || null,
       cigar_vitola: cigar.vitola || null,
       rating: displayScore,
-      tasting_notes: notes || null,
+      tasting_notes: notes ? sanitizeLong(notes) : null,
       smoke_date: smokeDate,
-      smoke_location: location || null,
+      smoke_location: location ? sanitizeMedium(location) : null,
       visibility: isPrivate ? "private" : "public",
       ai_band_identified: false,
       voice_entry: false,
@@ -290,7 +291,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       construction: null,
       flavor: null,
       finish: null,
-      overall_notes: notes || null,
+      overall_notes: notes ? sanitizeLong(notes) : null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       would_smoke_again: wouldSmokeAgain || null,
       value_for_price: valueForPrice || null,

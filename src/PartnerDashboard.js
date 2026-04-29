@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -247,7 +248,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
     setSaving(true);
     const { data, error } = await supabase
       .from("places")
-      .upsert({ place_id: placeId, ...form }, { onConflict: "place_id" })
+      .upsert({ place_id: placeId, name: sanitizeShort(form.name), address: sanitizeMedium(form.address), phone: sanitizeShort(form.phone), hours: sanitizeMedium(form.hours), description: sanitizeLong(form.description) }, { onConflict: "place_id" })
       .select()
       .single();
     if (error) { setMsg({ text: "Error saving listing.", isError: true }); }
@@ -322,7 +323,7 @@ function AnnounceSection({ placeId, user }) {
     setPosting(true);
     const { data, error } = await supabase
       .from("announcements")
-      .insert({ place_id: placeId, user_id: user.id, content: text.trim() })
+      .insert({ place_id: placeId, user_id: user.id, content: sanitizeLong(text.trim()) })
       .select()
       .single();
     if (!error && data) {
