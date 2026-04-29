@@ -636,8 +636,8 @@ export default function App() {
 
   const handleAcceptWelcome = async () => {
     setShowWelcome(false);
-    await supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
     setShowTour(true);
+    supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
   };
 
   const handleCompleteTour = async () => {
@@ -1716,7 +1716,7 @@ export default function App() {
       )}
 
       {/* Onboarding tour */}
-      {showTour && !showWelcome && !showDisclaimer && (
+      {showTour && (
         <OnboardingTour onComplete={handleCompleteTour} />
       )}
 
