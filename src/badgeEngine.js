@@ -216,7 +216,7 @@ const checkReferralBadges = async (userId, earned) => {
   const tiers = [
     [1, "ambassador"],
     [5, "recruiter"],
-    [25, "legend_maker"],
+    [15, "legend_maker"],
   ];
 
   for (const [threshold, key] of tiers) {
