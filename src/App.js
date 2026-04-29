@@ -317,6 +317,7 @@ export default function App() {
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isPartner, setIsPartner] = useState(false);
   const [partnerPlaceId, setPartnerPlaceId] = useState(null);
   const [showPartner, setShowPartner] = useState(false);
@@ -400,10 +401,11 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
+    setIsSuperAdmin(data?.is_super_admin || false);
     setIsPartner(data?.is_partner || false);
     setPartnerPlaceId(data?.partner_place_id || null);
     setIsPremium(data?.is_premium || false);
@@ -1661,6 +1663,7 @@ export default function App() {
       {showAdmin && (
         <AdminConsole
           user={user}
+          isSuperAdmin={isSuperAdmin}
           onClose={() => setShowAdmin(false)}
         />
       )}

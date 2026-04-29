@@ -12,7 +12,7 @@ const SECTIONS = [
   { id: "missing",    icon: "🔍", label: "Missing" },
 ];
 
-export default function AdminConsole({ user, onClose }) {
+export default function AdminConsole({ user, isSuperAdmin, onClose }) {
   const [section, setSection] = useState("stats");
 
   return (
@@ -35,7 +35,7 @@ export default function AdminConsole({ user, onClose }) {
       </div>
       <div style={{ padding: 20 }}>
         {section === "stats"      && <StatsSection />}
-        {section === "users"      && <UsersSection />}
+        {section === "users"      && <UsersSection isSuperAdmin={isSuperAdmin} currentUserId={user?.id} />}
         {section === "moderation" && <ModerationSection />}
         {section === "badges"     && <BadgesSection />}
         {section === "database"   && <DatabaseSection />}
@@ -247,7 +247,7 @@ function groupByDay(records, dateField) {
 
 // ─── USERS SECTION ───────────────────────────────────────────────────────────
 
-function UsersSection() {
+function UsersSection({ isSuperAdmin, currentUserId }) {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -268,7 +268,7 @@ function UsersSection() {
     const q = query.trim();
     let req = supabase
       .from("users")
-      .select("id, username, display_name, email, member_since, is_admin, is_flagged, is_premium, is_partner, partner_place_id, location")
+      .select("id, username, display_name, email, member_since, is_admin, is_super_admin, is_flagged, is_premium, is_partner, partner_place_id, location")
       .order("member_since", { ascending: false })
       .limit(50);
     if (q) req = req.or(`username.ilike.%${q}%,email.ilike.%${q}%,display_name.ilike.%${q}%`);
@@ -304,6 +304,16 @@ function UsersSection() {
     setSelectedUser(null);
     setConfirmDelete(null);
     showMsg("User deleted.");
+  };
+
+  const handleToggleAdmin = async (u) => {
+    const newVal = !u.is_admin;
+    const { error } = await supabase.from("users").update({ is_admin: newVal }).eq("id", u.id);
+    if (error) { showMsg("Error updating admin status.", true); return; }
+    const updated = { ...u, is_admin: newVal };
+    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
+    setSelectedUser(updated);
+    showMsg(newVal ? `Admin granted to @${u.username}.` : `Admin revoked from @${u.username}.`);
   };
 
   const handleGrantPartner = async (u) => {
@@ -387,6 +397,7 @@ function UsersSection() {
               <div style={{ fontSize: 12, color: "#8a7055", marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
               <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: "#e8cc7a" }}>👑 Super Admin</span>}
                 {selectedUser.is_admin && <span style={{ marginLeft: 8, color: "#c9a84c" }}>⚙️ Admin</span>}
                 {selectedUser.is_premium && <span style={{ marginLeft: 8, color: "#7a9a7a" }}>⭐ Premium</span>}
                 {selectedUser.is_partner && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🏪 Partner</span>}
@@ -440,14 +451,25 @@ function UsersSection() {
 
           {/* Actions */}
           <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-            <button onClick={() => handleFlag(selectedUser)}
-              style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? "#7a9a7a55" : "#e8632a55"}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? "#7a9a7a" : "#e8632a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-              {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
-            </button>
-            {!selectedUser.is_admin && (
+            {/* Flag — blocked on admin accounts unless super admin, blocked on self */}
+            {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
+              <button onClick={() => handleFlag(selectedUser)}
+                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? "#7a9a7a55" : "#e8632a55"}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? "#7a9a7a" : "#e8632a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
+              </button>
+            )}
+            {/* Delete — blocked on admin accounts unless super admin, blocked on self */}
+            {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => setConfirmDelete(selectedUser)}
                 style={{ flex: 1, background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 🗑 Delete Account
+              </button>
+            )}
+            {/* Super admin only — Grant/Revoke Admin */}
+            {isSuperAdmin && selectedUser.id !== currentUserId && (
+              <button onClick={() => handleToggleAdmin(selectedUser)}
+                style={{ flex: 1, background: "none", border: "1px solid #c9a84c44", borderRadius: 8, padding: "8px 0", color: "#c9a84c", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                {selectedUser.is_admin ? "Revoke Admin" : "Grant Admin"}
               </button>
             )}
           </div>
