@@ -17,6 +17,7 @@ import { fetchUnreadCount } from "./notificationHelpers";
 import AdminConsole from "./AdminConsole";
 import PartnerDashboard from "./PartnerDashboard";
 import UpgradePrompt from "./UpgradePrompt";
+import OnboardingTour from "./OnboardingTour";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -325,7 +326,8 @@ export default function App() {
   const [isPremium, setIsPremium] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState(null);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false); // which feature triggered the prompt
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showTour, setShowTour] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -403,7 +405,7 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete, tour_completed")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
@@ -414,6 +416,7 @@ export default function App() {
     setIsPremium(data?.is_premium || false);
     if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
     if (data && data.disclaimer_accepted && !data.first_login_complete) setShowWelcome(true);
+    if (data && data.first_login_complete && !data.tour_completed) setShowTour(true);
   };
 
   useEffect(() => {
@@ -634,6 +637,12 @@ export default function App() {
   const handleAcceptWelcome = async () => {
     setShowWelcome(false);
     await supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
+    setShowTour(true);
+  };
+
+  const handleCompleteTour = async () => {
+    setShowTour(false);
+    await supabase.from("users").update({ tour_completed: true }).eq("id", user.id);
   };
 
   const handleSelectCheckin = async (c) => {
@@ -1704,6 +1713,11 @@ export default function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Onboarding tour */}
+      {showTour && !showWelcome && !showDisclaimer && (
+        <OnboardingTour onComplete={handleCompleteTour} />
       )}
 
       {showAdmin && (
