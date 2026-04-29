@@ -324,7 +324,8 @@ export default function App() {
   const [showPartner, setShowPartner] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState(null);
-  const [showDisclaimer, setShowDisclaimer] = useState(false); // which feature triggered the prompt
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -402,7 +403,7 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
@@ -412,6 +413,7 @@ export default function App() {
     setPartnerPlaceId(data?.partner_place_id || null);
     setIsPremium(data?.is_premium || false);
     if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
+    if (data && data.disclaimer_accepted && !data.first_login_complete) setShowWelcome(true);
   };
 
   useEffect(() => {
@@ -626,6 +628,12 @@ export default function App() {
   const handleAcceptDisclaimer = async () => {
     setShowDisclaimer(false);
     await supabase.from("users").update({ disclaimer_accepted: true }).eq("id", user.id);
+    if (!showWelcome) setShowWelcome(true);
+  };
+
+  const handleAcceptWelcome = async () => {
+    setShowWelcome(false);
+    await supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
   };
 
   const handleSelectCheckin = async (c) => {
@@ -1662,6 +1670,42 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Welcome modal — shown once after disclaimer on first login */}
+      {showWelcome && !showDisclaimer && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 36, textAlign: "center", marginBottom: 16 }}>🔥</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a", textAlign: "center", letterSpacing: 1, marginBottom: 4 }}>Welcome to Ashed</div>
+            <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, textAlign: "center", marginBottom: 24 }}>CIGAR JOURNAL & COMMUNITY</div>
+            <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 12 }}>
+              Ashed is your personal cigar journal — log every smoke, track your favorites, and discover new cigars tailored to your taste.
+            </div>
+            <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 24 }}>
+              Connect with fellow enthusiasts, find nearby lounges, and let AI help you find your next perfect smoke.
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+              {[
+                ["📔", "Log smokes with ratings and tasting notes"],
+                ["✨", "AI recommendations based on your palate"],
+                ["📷", "Scan any cigar band to identify it instantly"],
+                ["🏪", "Find cigar lounges near you"],
+                ["👥", "Share check-ins with the community"],
+              ].map(([icon, text]) => (
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+                  <span style={{ fontSize: 13, color: "#a08060" }}>{text}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={handleAcceptWelcome}
+              style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              Let's Get Started
+            </button>
+          </div>
+        </div>
+      )}
+
       {showAdmin && (
         <AdminConsole
           user={user}
