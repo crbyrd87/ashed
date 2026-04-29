@@ -89,13 +89,6 @@ const SCREENS = [
     pro: false,
   },
   {
-    icon: "📷",
-    title: "Band Scanner",
-    description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin. No typing required.",
-    features: ["AI-powered band identification", "Auto-fills your check-in", "Add directly to humidor or wishlist"],
-    pro: true,
-  },
-  {
     Icon: HumidorIcon,
     title: "My Humidor",
     description: "Keep a digital inventory of every cigar in your collection. Track quantities, scan bands to add cigars, and smoke directly from your humidor.",
@@ -108,20 +101,6 @@ const SCREENS = [
     description: "Save cigars you want to try before you forget them. Your wishlist is always with you at the shop or lounge.",
     features: ["Save up to 20 cigars free", "Search and add from the app", "Unlimited with Premium"],
     pro: false,
-  },
-  {
-    icon: "✨",
-    title: "AI Recommendations",
-    description: "After 5 check-ins, Ashed learns your palate and recommends cigars you'll actually love — with an explanation of why each one fits your taste.",
-    features: ["Tailored to your exact taste profile", "Updates as you smoke more", "Explains why each cigar matches you"],
-    pro: true,
-  },
-  {
-    icon: "🥃",
-    title: "Drink Pairings",
-    description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options, with seasonal suggestions.",
-    features: ["Spirits, beer, coffee & non-alcoholic", "Seasonal suggestions", "Instant load after first fetch"],
-    pro: true,
   },
   {
     Icon: VenueIcon,
@@ -143,6 +122,27 @@ const SCREENS = [
     description: "Share your personal referral link and earn exclusive badges as your friends join. The more you bring in, the higher you climb.",
     features: ["Unique referral link per user", "Ambassador → Recruiter → Legend Maker", "Badges auto-awarded when friends join"],
     pro: false,
+  },
+  {
+    icon: "📷",
+    title: "Band Scanner",
+    description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin. No typing required.",
+    features: ["AI-powered band identification", "Auto-fills your check-in", "Add directly to humidor or wishlist"],
+    pro: true,
+  },
+  {
+    icon: "✨",
+    title: "AI Recommendations",
+    description: "After 5 check-ins, Ashed learns your palate and recommends cigars you'll actually love — with an explanation of why each one fits your taste.",
+    features: ["Tailored to your exact taste profile", "Updates as you smoke more", "Explains why each cigar matches you"],
+    pro: true,
+  },
+  {
+    icon: "🥃",
+    title: "Drink Pairings",
+    description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options, with seasonal suggestions.",
+    features: ["Spirits, beer, coffee & non-alcoholic", "Seasonal suggestions", "Instant load after first fetch"],
+    pro: true,
   },
 ];
 

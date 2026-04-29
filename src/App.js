@@ -415,8 +415,8 @@ export default function App() {
     setPartnerPlaceId(data?.partner_place_id || null);
     setIsPremium(data?.is_premium || false);
     if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
-    if (data && data.disclaimer_accepted && !data.first_login_complete) setShowWelcome(true);
-    if (data && data.first_login_complete && !data.tour_completed) setShowTour(true);
+    else if (data && !data.first_login_complete) setShowWelcome(true);
+    else if (data && !data.tour_completed) setShowTour(true);
   };
 
   useEffect(() => {
@@ -631,13 +631,13 @@ export default function App() {
   const handleAcceptDisclaimer = async () => {
     setShowDisclaimer(false);
     await supabase.from("users").update({ disclaimer_accepted: true }).eq("id", user.id);
-    if (!showWelcome) setShowWelcome(true);
+    setShowWelcome(true);
   };
 
   const handleAcceptWelcome = async () => {
     setShowWelcome(false);
     setShowTour(true);
-    supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
+    await supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
   };
 
   const handleCompleteTour = async () => {
@@ -1695,15 +1695,17 @@ export default function App() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
               {[
-                ["📔", "Log smokes with ratings and tasting notes"],
-                ["✨", "AI recommendations based on your palate"],
-                ["📷", "Scan any cigar band to identify it instantly"],
-                ["🏪", "Find cigar lounges near you"],
-                ["👥", "Share check-ins with the community"],
-              ].map(([icon, text]) => (
-                <div key={text} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
-                  <span style={{ fontSize: 13, color: "#a08060" }}>{text}</span>
+                { svg: <svg width="20" height="20" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="24" width="40" height="8" rx="4" fill="#a07830"/><rect x="4" y="25" width="40" height="3" rx="2" fill="#c9a84c" opacity="0.5"/><rect x="40" y="22" width="10" height="12" rx="2" fill="#d4b45a"/><path d="M44 22 Q46 16 48 14" stroke="#8a8a8a" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>, text: "Log smokes with ratings and tasting notes" },
+                { icon: "✨", text: "AI recommendations based on your palate" },
+                { icon: "📷", text: "Scan any cigar band to identify it instantly" },
+                { svg: <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="9" width="18" height="13" rx="1" fill="#d4b45a"/><polygon points="1,9 23,9 21,5 3,5" fill="#d4b45a"/><rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/><rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/><rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/></svg>, text: "Find cigar lounges near you" },
+                { icon: "👥", text: "Share check-ins with the community" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ flexShrink: 0, width: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item.svg || <span style={{ fontSize: 18 }}>{item.icon}</span>}
+                  </span>
+                  <span style={{ fontSize: 13, color: "#a08060" }}>{item.text}</span>
                 </div>
               ))}
             </div>
