@@ -109,16 +109,6 @@ function AccountSection({ user, displayName, username, onSignOut }) {
     return error ? { error: error.message } : {};
   };
 
-  const saveUsername = async (val) => {
-    if (!val) return { error: "Username cannot be empty." };
-    if (!/^[a-zA-Z0-9_]+$/.test(val)) return { error: "Username can only contain letters, numbers, and underscores." };
-    const { data: existing } = await supabase.from("users").select("id").eq("username", val).neq("id", user.id).maybeSingle();
-    if (existing) return { error: "That username is already taken." };
-    const { error } = await supabase.auth.updateUser({ data: { username: val } });
-    if (!error) await supabase.from("users").update({ username: val }).eq("id", user.id);
-    return error ? { error: error.message } : {};
-  };
-
   const saveEmail = async (val) => {
     if (!val) return { error: "Email cannot be empty." };
     const { error } = await supabase.auth.updateUser({ email: val });
@@ -150,7 +140,13 @@ function AccountSection({ user, displayName, username, onSignOut }) {
     <div>
       <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
       <Field label="DISPLAY NAME" value={displayName} onSave={saveDisplayName} />
-      <Field label="USERNAME" value={username ? `@${username}` : ""} onSave={val => saveUsername(val.replace(/^@/, ""))} hint="Letters, numbers, and underscores only." />
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
+        <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 14, color: "#5a4535" }}>{username ? `@${username}` : "Not set"}</span>
+          <span style={{ fontSize: 11, color: "#5a4535" }}>Cannot be changed</span>
+        </div>
+      </div>
       
       <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>SECURITY</div>
       <Field label="EMAIL ADDRESS" value={user?.email} onSave={saveEmail} hint="A confirmation will be sent to your current email address." />
