@@ -505,7 +505,7 @@ function HelpSection({ onReplayTour, user }) {
 
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#d4b45a", letterSpacing: 2 }}>ASHED</div>
-        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>Version 1.0 · ashed.app</div>
+        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
       </div>
     </div>
   );
