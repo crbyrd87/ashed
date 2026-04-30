@@ -34,7 +34,7 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
       <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
         {section === "account" && <AccountSection user={user} displayName={displayName} username={username} onSignOut={onSignOut} />}
         {section === "privacy" && <PrivacySection user={user} />}
-        {section === "help" && <HelpSection onReplayTour={onReplayTour} />}
+        {section === "help" && <HelpSection onReplayTour={onReplayTour} user={user} />}
       </div>
     </div>
   );
@@ -263,9 +263,94 @@ function PrivacySection({ user }) {
   );
 }
 
-function HelpSection({ onReplayTour }) {
+function HelpSection({ onReplayTour, user }) {
+  const [type, setType] = useState("bug");
+  const [description, setDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async () => {
+    if (!description.trim()) return;
+    setSubmitting(true);
+    setError(null);
+
+    // Get PostHog session ID if available
+    let posthogSessionId = null;
+    try {
+      // eslint-disable-next-line no-undef
+      posthogSessionId = window.posthog?.get_session_id?.() || null;
+    } catch (e) {}
+
+    const { error: dbError } = await supabase
+      .from("feedback")
+      .insert({
+        user_id: user?.id || null,
+        type,
+        description: description.trim(),
+        posthog_session_id: posthogSessionId,
+      });
+
+    setSubmitting(false);
+    if (dbError) {
+      setError("Something went wrong. Please try again.");
+    } else {
+      setSubmitted(true);
+      setDescription("");
+    }
+  };
+
   return (
     <div>
+      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>REPORT A BUG / GIVE FEEDBACK</div>
+
+      {submitted ? (
+        <div style={{ background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
+          <div style={{ fontSize: 14, color: "#7a9a7a", fontWeight: 700, marginBottom: 4 }}>Thanks for the report!</div>
+          <div style={{ fontSize: 12, color: "#5a4535" }}>We'll look into it and follow up if needed.</div>
+          <button onClick={() => setSubmitted(false)}
+            style={{ marginTop: 14, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 16px", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            Submit Another
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Type selector */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            {[["bug", "🐛 Bug Report"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
+              <button key={val} onClick={() => setType(val)}
+                style={{ flex: 1, background: type === val ? "#d4b45a22" : "none", border: `1px solid ${type === val ? "#d4b45a" : "#4a3520"}`, borderRadius: 8, padding: "10px 0", color: type === val ? "#d4b45a" : "#7a6048", fontSize: 13, fontWeight: type === val ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 6 }}>
+            {type === "bug" ? "DESCRIBE THE BUG — WHAT HAPPENED?" : "WHAT'S ON YOUR MIND?"}
+          </div>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder={type === "bug"
+              ? "e.g. When I tap the fire button on a check-in, the count doesn't update..."
+              : "e.g. It would be great if I could filter my journal by brand..."}
+            rows={5}
+            style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", color: "#f5ead8", fontSize: 13, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
+          />
+          {error && <div style={{ fontSize: 12, color: "#e8a07a", marginBottom: 8 }}>{error}</div>}
+          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
+            {type === "bug" ? "Your session replay will be attached so we can see exactly what happened." : "Your feedback helps us build a better app."}
+          </div>
+          <button onClick={handleSubmit} disabled={submitting || !description.trim()}
+            style={{ width: "100%", background: description.trim() ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 10, padding: 14, color: description.trim() ? "#1a0f08" : "#5a4535", fontSize: 14, fontWeight: 700, cursor: description.trim() ? "pointer" : "default", fontFamily: SANS }}>
+            {submitting ? "Submitting..." : "Submit"}
+          </button>
+        </>
+      )}
+
+      <div style={{ height: 1, background: "#3a2510", margin: "24px 0" }} />
+
       <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
 
       <button onClick={onReplayTour}

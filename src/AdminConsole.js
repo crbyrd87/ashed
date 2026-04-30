@@ -10,6 +10,7 @@ const SECTIONS = [
   { id: "badges",     icon: "🏅", label: "Badges" },
   { id: "database",   icon: "🗄️", label: "DB" },
   { id: "missing",    icon: "🔍", label: "Missing" },
+  { id: "feedback",   icon: "💬", label: "Feedback" },
 ];
 
 export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
@@ -45,6 +46,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "badges"     && <BadgesSection />}
         {section === "database"   && <DatabaseSection />}
         {section === "missing"    && <MissingCigarsSection />}
+        {section === "feedback"   && <FeedbackSection />}
       </div>
     </div>
   );
@@ -1202,6 +1204,95 @@ function MissingCigarsSection() {
               Are you sure you want to dismiss this cigar addition?
             </div>
           )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FeedbackSection() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [showResolved, setShowResolved] = useState(false);
+
+  useEffect(() => { loadFeedback(); }, [filter, showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadFeedback = async () => {
+    setLoading(true);
+    let query = supabase
+      .from("feedback")
+      .select("*, users(username)")
+      .eq("resolved", showResolved)
+      .order("created_at", { ascending: false });
+    if (filter !== "all") query = query.eq("type", filter);
+    const { data } = await query;
+    setItems(data || []);
+    setLoading(false);
+  };
+
+  const handleResolve = async (id) => {
+    await supabase.from("feedback").update({ resolved: true }).eq("id", id);
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const getPostHogUrl = (sessionId) =>
+    `https://us.posthog.com/replay?sessionId=${sessionId}`;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Bug Reports & Feedback</div>
+        <button onClick={() => setShowResolved(v => !v)}
+          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          {showResolved ? "Show Pending" : "Show Resolved"}
+        </button>
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        {[["all", "All"], ["bug", "🐛 Bugs"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
+          <button key={val} onClick={() => setFilter(val)}
+            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+
+      {!loading && items.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "Nothing pending."}</div>
+        </div>
+      )}
+
+      {items.map(item => (
+        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 11, background: item.type === "bug" ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${item.type === "bug" ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? "#e8a07a" : "#7a9a7a" }}>
+              {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
+            </span>
+            <span style={{ fontSize: 11, color: "#5a4535", marginLeft: "auto" }}>
+              @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            </span>
+          </div>
+          <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {item.posthog_session_id && (
+              <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
+                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
+                📹 Watch Session
+              </a>
+            )}
+            {!showResolved && (
+              <button onClick={() => handleResolve(item.id)}
+                style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                ✓ Resolve
+              </button>
+            )}
+          </div>
         </div>
       ))}
     </div>
