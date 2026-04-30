@@ -22,7 +22,7 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
 
       {/* Section tabs */}
       <div style={{ display: "flex", borderBottom: "1px solid #4a3520", padding: "0 16px" }}>
-        {[["account", "Account"], ["privacy", "Privacy"], ["help", "Help"]].map(([id, label]) => (
+        {[["account", "Account"], ["privacy", "Privacy"], ["guide", "Guide"], ["help", "Help"]].map(([id, label]) => (
           <button key={id} onClick={() => setSection(id)}
             style={{ background: "none", border: "none", borderBottom: `2px solid ${section === id ? "#d4b45a" : "transparent"}`, padding: "10px 16px 10px 0", color: section === id ? "#d4b45a" : "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS, fontWeight: section === id ? 700 : 400, marginRight: 4 }}>
             {label}
@@ -34,7 +34,8 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
       <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
         {section === "account" && <AccountSection user={user} displayName={displayName} username={username} onSignOut={onSignOut} />}
         {section === "privacy" && <PrivacySection user={user} />}
-        {section === "help" && <HelpSection onReplayTour={onReplayTour} user={user} />}
+        {section === "guide"   && <GuideSection />}
+        {section === "help"    && <HelpSection onReplayTour={onReplayTour} user={user} />}
       </div>
     </div>
   );
@@ -259,6 +260,135 @@ function PrivacySection({ user }) {
       <div style={{ fontSize: 12, color: "#5a4535", marginTop: 16, lineHeight: 1.6 }}>
         Individual check-in visibility can always be changed from your journal.
       </div>
+    </div>
+  );
+}
+
+function GuideSection() {
+  const [openSection, setOpenSection] = useState(null);
+
+  const toggle = (id) => setOpenSection(prev => prev === id ? null : id);
+
+  const Section = ({ id, title, children }) => (
+    <div style={{ marginBottom: 10 }}>
+      <button onClick={() => toggle(id)}
+        style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: "#f5ead8", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+        {title}
+        <span style={{ color: "#d4b45a", fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
+      </button>
+      {openSection === id && (
+        <div style={{ background: "#1e1208", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+
+  const Row = ({ label, value, sub }) => (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
+      <div>
+        <div style={{ fontSize: 13, color: "#f5ead8", fontWeight: 600 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{sub}</div>}
+      </div>
+      <div style={{ fontSize: 13, color: "#a08060", textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
+    </div>
+  );
+
+  const Term = ({ word, def }) => (
+    <div style={{ padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
+      <div style={{ fontSize: 13, color: "#d4b45a", fontWeight: 600, marginBottom: 2 }}>{word}</div>
+      <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{def}</div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
+
+      <Section id="vitolas" title="🎋 Vitola Size Chart">
+        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
+        <Row label="Petit Corona" value='4–4.5" × 40–42 ring' sub="~20–30 min" />
+        <Row label="Corona" value='5.5" × 42 ring' sub="~30–45 min" />
+        <Row label="Robusto" value='4.75–5.5" × 48–52 ring' sub="~45–60 min" />
+        <Row label="Toro" value='6" × 50–52 ring' sub="~60–75 min" />
+        <Row label="Churchill" value='7" × 47–50 ring' sub="~60–90 min" />
+        <Row label="Belicoso" value='5–5.5" × 50–52 ring' sub="Pointed head" />
+        <Row label="Torpedo" value='6–7" × 52–54 ring' sub="Pointed head, wide body" />
+        <Row label="Gordo/60 Ring" value='6" × 60 ring' sub="~75–90 min, very full" />
+        <Row label="Lancero/Panetela" value='7+" × 38–40 ring' sub="Slim, long — complex draw" />
+        <Row label="Perfecto" value="Varies" sub="Tapered at both ends" />
+        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
+      </Section>
+
+      <Section id="strength" title="💪 Body & Strength Guide">
+        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
+        <Row label="Light" value="Mild, smooth, little nicotine" sub="Good for beginners" />
+        <Row label="Medium" value="Balanced flavor and nicotine" sub="Most popular range" />
+        <Row label="Medium-Full" value="More complexity, noticeable nicotine" sub="For experienced smokers" />
+        <Row label="Full" value="Bold, rich, strong nicotine hit" sub="Smoke after a meal" />
+        <div style={{ fontSize: 12, color: "#a08060", marginTop: 10, lineHeight: 1.6 }}>
+          💡 A cigar can be full-bodied (complex flavor) but medium strength (low nicotine) — like a Padron 1964. Don't confuse the two.
+        </div>
+      </Section>
+
+      <Section id="wrappers" title="🍂 Wrapper Types">
+        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
+        <Row label="Claro" value="Light tan, mild and creamy" />
+        <Row label="Colorado Claro" value="Medium brown, balanced" />
+        <Row label="Colorado" value="Reddish-brown, full flavor" />
+        <Row label="Colorado Maduro" value="Dark brown, rich and sweet" />
+        <Row label="Maduro" value="Very dark, fermented longer — sweet, earthy, full" />
+        <Row label="Oscuro" value="Almost black, strongest maduro" />
+        <Row label="Natural" value="Light, slightly oily — Connecticut style" />
+        <Row label="Candela" value="Green, very rare, grassy/sweet" />
+        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
+      </Section>
+
+      <Section id="origins" title="🌍 Origins Guide">
+        <Row label="Nicaragua" value="Spicy, complex, full-bodied. Jalapa and Estelí valleys." />
+        <Row label="Dominican Republic" value="Smooth, creamy, medium body. Long tradition of quality." />
+        <Row label="Honduras" value="Earthy, woody, medium-full. Often blended." />
+        <Row label="Cuba" value="The original benchmark. Earthy, floral, nuanced. Limited availability." />
+        <Row label="Ecuador" value="Known for wrapper leaves. Consistent humidity produces oily, even wrappers." />
+        <Row label="Mexico" value="San Andrés maduro wrapper capital. Earthy and sweet." />
+        <Row label="Peru" value="Emerging region. Similar profile to Nicaragua." />
+        <Row label="Brazil" value="Mata Fina wrappers — oily, sweet, very dark." />
+        <Row label="Cameroon" value="African wrapper leaf. Unique spice and wood notes." />
+      </Section>
+
+      <Section id="tasting" title="👅 Tasting Terms Glossary">
+        <Term word="Retrohale" def="Exhaling smoke through your nose to intensify flavor. Practice slowly — it's an acquired technique." />
+        <Term word="Draw" def="The resistance when pulling air through the cigar. Should feel like sipping through a slightly restricted straw." />
+        <Term word="Burn" def="How evenly the cigar burns. A good cigar burns evenly without needing constant touch-ups." />
+        <Term word="Ash" def="Firm, white ash signals quality tobacco and a good burn. Flaky grey ash may indicate uneven aging." />
+        <Term word="Pepper" def="A sharp spice — most common on the palate and retrohale in Nicaraguan cigars." />
+        <Term word="Earthiness" def="A soil or forest floor note — common in full-bodied cigars." />
+        <Term word="Creaminess" def="A smooth, buttery texture — often from Connecticut wrappers or Dominican tobacco." />
+        <Term word="Sweetness" def="Natural sweetness from maduro wrappers or fermentation. Not artificial — more like cocoa or dried fruit." />
+        <Term word="Complexity" def="How much the flavor changes as you smoke. A complex cigar evolves from first third to last." />
+        <Term word="Transition" def="When flavor noticeably shifts — usually at the first and second third marks." />
+        <Term word="Finish" def="The flavor that lingers after you exhale. A long, pleasant finish is a sign of quality." />
+        <Term word="Plug" def="A blockage in the cigar that restricts draw. Sometimes resolved by gently squeezing the cigar." />
+      </Section>
+
+      <Section id="etiquette" title="🎩 Lounge & Smoking Etiquette">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            "Never cut someone else's cigar without asking.",
+            "Don't stub out a cigar like a cigarette — set it in the ashtray and let it go out naturally.",
+            "Ash when it naturally falls or is long enough to drop. Don't tap obsessively.",
+            "In a lounge, always ask before lighting up near others if in a non-smoking section.",
+            "Don't blow smoke in anyone's direction.",
+            "It's fine to relight a cigar within the first hour. After that, it may taste harsh.",
+            "Don't comment negatively on someone else's cigar choice — taste is personal.",
+          ].map((tip, i) => (
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ color: "#d4b45a", flexShrink: 0 }}>•</span>
+              <span style={{ fontSize: 13, color: "#a08060", lineHeight: 1.5 }}>{tip}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
     </div>
   );
 }
