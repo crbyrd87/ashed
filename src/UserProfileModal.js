@@ -27,7 +27,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
     setLoading(true);
     try {
       const [profileRes, checkinsRes, badgesRes] = await Promise.all([
-        supabase.from("users").select("id, username, display_name, created_at").eq("id", userId).maybeSingle(),
+        supabase.from("users").select("id, username, member_since").eq("id", userId).maybeSingle(),
         supabase.from("checkins").select("id, cigar_name, cigar_brand, cigar_vitola, rating, created_at, cigars(line, brand, vitola)").eq("user_id", userId).eq("visibility", "public").order("created_at", { ascending: false }).limit(5),
         supabase.from("user_badges").select("badge_key").eq("user_id", userId),
       ]);
@@ -63,9 +63,9 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
     setActionLoading(false);
   };
 
-  const displayName = profile?.display_name || profile?.username || "Unknown";
+  const displayName = profile?.username || "Unknown";
   const username = profile?.username ? `@${profile.username}` : "";
-  const memberSince = profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
+  const memberSince = profile?.member_since ? new Date(profile.member_since).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 600, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: SANS }}
