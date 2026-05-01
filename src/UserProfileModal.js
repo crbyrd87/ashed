@@ -36,12 +36,11 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
       if (checkinsRes.data) setCheckins(checkinsRes.data);
       if (badgesRes.data) setBadges(badgesRes.data.map(b => b.badge_key));
 
-      // Friends query separately to avoid breaking the Promise.all
+      // Friends query separately
       const { data: friendData } = await supabase
         .from("friends")
         .select("id, status, requester_id, recipient_id")
-        .or(`requester_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`)
-        .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`);
+        .or(`requester_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`);
 
       if (friendData) {
         const rel = friendData.find(f =>
