@@ -296,6 +296,8 @@ function AdvancedStats({ checkins }) {
   );
 }
 
+const APP_VERSION = "0.9.2";
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -329,7 +331,8 @@ export default function App() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(false);
-  const [showSettings, setShowSettings] = useState(false); // which feature triggered the prompt
+  const [showSettings, setShowSettings] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -407,7 +410,7 @@ export default function App() {
     if (!user) return;
     const { data } = await supabase
       .from("users")
-      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete, tour_completed")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete, tour_completed, last_seen_version")
       .eq("id", user.id)
       .single();
     setIsAdmin(data?.is_admin || false);
@@ -419,6 +422,7 @@ export default function App() {
     if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
     else if (data && !data.first_login_complete) setShowWelcome(true);
     else if (data && !data.tour_completed) setShowTour(true);
+    else if (data && data.last_seen_version && data.last_seen_version !== APP_VERSION) setShowWhatsNew(true);
   };
 
   useEffect(() => {
@@ -644,7 +648,12 @@ export default function App() {
 
   const handleCompleteTour = async () => {
     setShowTour(false);
-    await supabase.from("users").update({ tour_completed: true }).eq("id", user.id);
+    await supabase.from("users").update({ tour_completed: true, last_seen_version: APP_VERSION }).eq("id", user.id);
+  };
+
+  const handleDismissWhatsNew = async () => {
+    setShowWhatsNew(false);
+    await supabase.from("users").update({ last_seen_version: APP_VERSION }).eq("id", user.id);
   };
 
   const handleReplayTour = () => {
@@ -1730,6 +1739,42 @@ export default function App() {
       {/* Onboarding tour */}
       {showTour && (
         <OnboardingTour onComplete={handleCompleteTour} />
+      )}
+
+      {showWhatsNew && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%", maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#f5ead8" }}>What's New</div>
+                <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>Version {APP_VERSION}</div>
+              </div>
+              <div style={{ fontSize: 24 }}>🎉</div>
+            </div>
+
+            {[
+              { icon: "⚙️", title: "Settings Screen", desc: "Edit your display name, email, and password. Manage privacy settings." },
+              { icon: "📖", title: "Cigar Guide", desc: "New guide covering vitola sizes, strength levels, wrapper types, origins, and tasting terms. Find it in Settings → Guide." },
+              { icon: "🐛", title: "Bug Reports & Feedback", desc: "Tap Help in Settings to send us bug reports or suggestions directly from the app." },
+              { icon: "🎯", title: "Onboarding Tour", desc: "New users now get a full walkthrough of every feature. Replay it anytime from Settings → Help." },
+              { icon: "💬", title: "Comment Counts", desc: "Feed cards now show how many comments a check-in has." },
+              { icon: "📊", title: "Analytics", desc: "We've added anonymous usage analytics to help us improve the app." },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 2 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            <button onClick={handleDismissWhatsNew}
+              style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginTop: 8 }}>
+              Got It
+            </button>
+          </div>
+        </div>
       )}
 
       {showSettings && (
