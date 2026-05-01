@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
+import UserProfileModal from "./UserProfileModal";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -54,6 +55,7 @@ export default function Feed({ user }) {
   const [firedIds, setFiredIds] = useState(new Set());
   const [commentCounts, setCommentCounts] = useState({});
   const [selectedCheckin, setSelectedCheckin] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   const [refreshCount] = useState(0);
   const [userTopBadges, setUserTopBadges] = useState({});
 
@@ -241,7 +243,10 @@ export default function Feed({ user }) {
                   {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
+                  <span
+                    onClick={e => { e.stopPropagation(); if (!isOwn && !isCommunity) setSelectedProfile({ userId: item.user_id, username: item.users?.username, displayName: item.users?.display_name }); }}
+                    style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c", cursor: !isOwn && !isCommunity ? "pointer" : "default" }}
+                  >{handle}</span>
                   {(userTopBadges[item.user_id] || []).map(key => (
                     <span key={key} title={BADGE_NAMES[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())} style={{ marginLeft: 4, fontSize: 11 }}>
                       {BADGE_ICONS[key]}
@@ -294,6 +299,13 @@ export default function Feed({ user }) {
           onFireToggle={(id) => {
             handleFireToggle(id);
           }}
+        />
+      )}
+      {selectedProfile && (
+        <UserProfileModal
+          userId={selectedProfile.userId}
+          currentUser={user}
+          onClose={() => setSelectedProfile(null)}
         />
       )}
     </>
