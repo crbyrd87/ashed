@@ -25,25 +25,35 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
 
   const loadProfile = async () => {
     setLoading(true);
-    const [profileRes, checkinsRes, badgesRes, friendRes] = await Promise.all([
-      supabase.from("users").select("id, username, display_name, created_at").eq("id", userId).single(),
-      supabase.from("checkins").select("id, cigar_name, cigar_brand, cigar_vitola, rating, created_at, cigars(line, brand, vitola)").eq("user_id", userId).eq("visibility", "public").order("created_at", { ascending: false }).limit(5),
-      supabase.from("user_badges").select("badge_key").eq("user_id", userId),
-      supabase.from("friends").select("id, status, requester_id, recipient_id")
-        .or(`and(requester_id.eq.${currentUser.id},recipient_id.eq.${userId}),and(requester_id.eq.${userId},recipient_id.eq.${currentUser.id})`),
-    ]);
+    try {
+      const [profileRes, checkinsRes, badgesRes] = await Promise.all([
+        supabase.from("users").select("id, username, display_name, created_at").eq("id", userId).maybeSingle(),
+        supabase.from("checkins").select("id, cigar_name, cigar_brand, cigar_vitola, rating, created_at, cigars(line, brand, vitola)").eq("user_id", userId).eq("visibility", "public").order("created_at", { ascending: false }).limit(5),
+        supabase.from("user_badges").select("badge_key").eq("user_id", userId),
+      ]);
 
-    if (profileRes.data) setProfile(profileRes.data);
-    if (checkinsRes.data) setCheckins(checkinsRes.data);
-    if (badgesRes.data) setBadges(badgesRes.data.map(b => b.badge_key));
+      if (profileRes.data) setProfile(profileRes.data);
+      if (checkinsRes.data) setCheckins(checkinsRes.data);
+      if (badgesRes.data) setBadges(badgesRes.data.map(b => b.badge_key));
 
-    if (friendRes.data && friendRes.data.length > 0) {
-      const f = friendRes.data[0];
-      setFriendStatus(f.status === "accepted" ? "friends" : "pending");
-    } else {
-      setFriendStatus(null);
+      // Friends query separately to avoid breaking the Promise.all
+      const { data: friendData } = await supabase
+        .from("friends")
+        .select("id, status, requester_id, recipient_id")
+        .or(`requester_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`)
+        .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`);
+
+      if (friendData) {
+        const rel = friendData.find(f =>
+          (f.requester_id === currentUser.id && f.recipient_id === userId) ||
+          (f.requester_id === userId && f.recipient_id === currentUser.id)
+        );
+        if (rel) setFriendStatus(rel.status === "accepted" ? "friends" : "pending");
+        else setFriendStatus(null);
+      }
+    } catch (e) {
+      console.error("Profile load error:", e);
     }
-
     setLoading(false);
   };
 
