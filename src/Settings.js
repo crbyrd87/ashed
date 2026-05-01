@@ -21,10 +21,10 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
       </div>
 
       {/* Section tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid #4a3520", padding: "0 16px" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid #4a3520" }}>
         {[["account", "Account"], ["privacy", "Privacy"], ["guide", "Guide"], ["help", "Help"]].map(([id, label]) => (
           <button key={id} onClick={() => setSection(id)}
-            style={{ background: "none", border: "none", borderBottom: `2px solid ${section === id ? "#d4b45a" : "transparent"}`, padding: "10px 16px 10px 0", color: section === id ? "#d4b45a" : "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS, fontWeight: section === id ? 700 : 400, marginRight: 4 }}>
+            style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${section === id ? "#d4b45a" : "transparent"}`, padding: "10px 0", color: section === id ? "#d4b45a" : "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS, fontWeight: section === id ? 700 : 400, textAlign: "center" }}>
             {label}
           </button>
         ))}
