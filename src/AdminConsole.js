@@ -1273,12 +1273,15 @@ function FeedbackSection() {
 
     // Notify the user if we have their user_id
     if (item.user_id) {
-      await supabase.from("notifications").insert({
+      const { error: notifError } = await supabase.from("notifications").insert({
         user_id: item.user_id,
         type: "feedback_reply",
         message: `Ashed replied to your ${item.type === "bug" ? "bug report" : "feedback"}: "${replyText.trim().substring(0, 100)}${replyText.length > 100 ? "..." : ""}"`,
         is_read: false,
       });
+      console.log("[feedback reply] user_id:", item.user_id, "notif error:", notifError);
+    } else {
+      console.log("[feedback reply] no user_id on item:", item.id);
     }
 
     await logAction("reply_feedback", "feedback", item.id, null, `Reply: ${replyText.trim().substring(0, 80)}`);
