@@ -1248,7 +1248,7 @@ function FeedbackSection() {
     setLoading(true);
     let query = supabase
       .from("feedback")
-      .select("*, users(username)")
+      .select("*")
       .eq("resolved", showResolved)
       .order("created_at", { ascending: false });
     if (filter !== "all") query = query.eq("type", filter);
@@ -1270,7 +1270,7 @@ function FeedbackSection() {
       replied_at: new Date().toISOString(),
       resolved: true,
     }).eq("id", item.id);
-    await logAction("reply_feedback", "feedback", item.id, null, `Replied to @${item.users?.username}: ${replyText.trim().substring(0, 80)}`);
+    await logAction("reply_feedback", "feedback", item.id, null, `Reply: ${replyText.trim().substring(0, 80)}`);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setReplyingId(null);
     setReplyText("");
@@ -1316,7 +1316,7 @@ function FeedbackSection() {
               {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
             </span>
             <span style={{ fontSize: 11, color: "#5a4535", marginLeft: "auto" }}>
-              @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
           </div>
           <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
