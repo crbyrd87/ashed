@@ -19,6 +19,7 @@ import PartnerDashboard from "./PartnerDashboard";
 import UpgradePrompt from "./UpgradePrompt";
 import OnboardingTour from "./OnboardingTour";
 import Settings from "./Settings";
+import CigarSubmitModal from "./CigarSubmitModal";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
@@ -332,7 +333,8 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showWhatsNew, setShowWhatsNew] = useState(false); // which feature triggered the prompt
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [showCigarSubmit, setShowCigarSubmit] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -529,7 +531,7 @@ export default function App() {
       setProfileLoading(true);
       const { data } = await supabase
         .from("checkins")
-        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating), ratings(value_for_price, would_smoke_again)")
+        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating, verified, rejection_reason), ratings(value_for_price, would_smoke_again)")
         .eq("user_id", user.id)
         .order("smoke_date", { ascending: false });
       setCheckins(data || []);
@@ -659,6 +661,12 @@ export default function App() {
   const handleReplayTour = () => {
     setShowSettings(false);
     setShowTour(true);
+  };
+
+  const handleCigarSubmitted = (cigar) => {
+    setShowCigarSubmit(false);
+    setSelectedCigar(cigar);
+    setShowCheckin(true);
   };
 
   const handleSelectCheckin = async (c) => {
@@ -1044,8 +1052,15 @@ export default function App() {
                 {searching && searchResults.length === 0 && (
                   <div style={{ padding: "12px 14px", fontSize: 12, color: "#7a9a7a" }}>Searching...</div>
                 )}
-                {!searching && searchResults.length === 0 && (
-                  <div style={{ padding: "12px 14px", fontSize: 12, color: "#7a6048" }}>No results found</div>
+                {!searching && searchResults.length === 0 && query.length >= 2 && (
+                  <div style={{ padding: "10px 14px" }}>
+                    <div style={{ fontSize: 12, color: "#7a6048", marginBottom: 8 }}>No results found</div>
+                    <button
+                      onMouseDown={() => { setShowDropdown(false); setShowCigarSubmit(true); }}
+                      style={{ width: "100%", background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "8px 12px", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, textAlign: "left" }}>
+                      + Can't find your cigar? Submit it →
+                    </button>
+                  </div>
                 )}
                 {searchResults.map((c, i) => (
                   <div key={i} style={s.dropdownItem} onMouseDown={() => handleLineSelect(c)}>
@@ -1317,7 +1332,18 @@ export default function App() {
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                               {vitola && <Badge label={vitola} />}
                               {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                              {c.cigars && !c.cigars.verified && !c.cigars.rejection_reason && (
+                                <span style={{ fontSize: 10, background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 6, padding: "1px 6px", color: "#c9a84c" }}>⏳ Pending verification</span>
+                              )}
+                              {c.cigars?.rejection_reason && (
+                                <span style={{ fontSize: 10, background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 6, padding: "1px 6px", color: "#e8a07a" }}>⚠️ Not verified</span>
+                              )}
                             </div>
+                            {c.cigars?.rejection_reason && (
+                              <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, lineHeight: 1.5 }}>
+                                {c.cigars.rejection_reason}
+                              </div>
+                            )}
                           </div>
                           <div style={{ textAlign: "right" }}>
                             <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a" }}>{c.rating?.toFixed(1)}</div>
@@ -1775,6 +1801,14 @@ export default function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {showCigarSubmit && (
+        <CigarSubmitModal
+          user={user}
+          onClose={() => setShowCigarSubmit(false)}
+          onSubmitted={handleCigarSubmitted}
+        />
       )}
 
       {showSettings && (
