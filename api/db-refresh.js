@@ -79,10 +79,15 @@ If nothing found, return: []`,
     });
 
     const data = await response.json();
+    console.log(`[db-refresh] API status: ${response.status}`);
+    console.log(`[db-refresh] Content blocks:`, JSON.stringify(data.content?.map(b => b.type)));
+    console.log(`[db-refresh] Full response:`, JSON.stringify(data).substring(0, 1000));
 
-    // Extract text content from response
-    const textContent = data.content?.find(b => b.type === "text")?.text || "[]";
-    console.log(`[db-refresh] Raw AI response for ${label}:`, textContent.substring(0, 500));
+    // Extract text from all text blocks (web search may produce multiple)
+    const textContent = (data.content || [])
+      .filter(b => b.type === "text")
+      .map(b => b.text)
+      .join("\n") || "[]";
     const match = textContent.match(/\[[\s\S]*\]/);
     if (!match) {
       return res.status(200).json({ message: "No releases found.", month: label });
