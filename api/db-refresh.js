@@ -56,17 +56,19 @@ export default async function handler(req, res) {
         "anthropic-beta": "web-search-2025-03-05",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
+        model: "claude-sonnet-4-6",
+        max_tokens: 4000,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
-        system: `You are a cigar industry researcher. Search halfwheel.com for new cigar releases announced or released in ${label}. 
-        
-Only return cigars from these brands that are already in our database: ${brandList}.
+        system: `You are a cigar industry researcher. Search halfwheel.com for new cigar lines or vitolas announced or released in ${label}. 
 
-Return ONLY a valid JSON array, no markdown, no explanation:
+Our database contains these brands: ${brandList}
+
+Search halfwheel.com for "${label} new cigar releases" and "halfwheel ${label}" to find what was announced.
+
+Return ONLY a valid JSON array, no markdown, no explanation. Include any release from a brand that closely matches our list (e.g. "My Father Cigars" matches "My Father"):
 [
   {
-    "brand": "exact brand name from the list above",
+    "brand": "exact brand name from our list above",
     "line": "cigar line name",
     "vitolas": "comma-separated vitola names if known, or null",
     "source_url": "halfwheel.com URL where you found this",
@@ -78,7 +80,7 @@ If no new releases found from those brands, return an empty array: []`,
         messages: [
           {
             role: "user",
-            content: `Search halfwheel.com for new cigar releases from ${label}. Only include brands from this list: ${brandList}. Return results as a JSON array.`
+            content: `Search halfwheel.com for new cigar releases announced in ${label}. Look for releases from any of these brands: ${brandList}. Return a JSON array of matches.`
           }
         ]
       })
@@ -88,12 +90,14 @@ If no new releases found from those brands, return an empty array: []`,
 
     // Extract text content from response
     const textContent = data.content?.find(b => b.type === "text")?.text || "[]";
+    console.log(`[db-refresh] Raw AI response for ${label}:`, textContent.substring(0, 500));
     const match = textContent.match(/\[[\s\S]*\]/);
     if (!match) {
       return res.status(200).json({ message: "No releases found.", month: label });
     }
 
     const candidates = JSON.parse(match[0]);
+    console.log(`[db-refresh] Found ${candidates.length} candidates for ${label}:`, JSON.stringify(candidates));
 
     if (!candidates.length) {
       return res.status(200).json({ message: `No new releases found for ${label} from brands in our DB.` });
