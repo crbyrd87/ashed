@@ -49,28 +49,30 @@ export default async function handler(req, res) {
         model: "claude-sonnet-4-6",
         max_tokens: 4000,
         tools: [{ type: "web_search_20260209", name: "web_search" }],
-        system: `You are a cigar industry researcher. Search halfwheel.com for new cigar lines or vitolas announced or released in ${label}. 
+        system: `You are a cigar industry researcher. Your job is to find new cigar releases from ${label} that would interest retailers and consumers in the US.
 
-Our database contains these brands: ${brandList}
+Search halfwheel.com for new cigar lines or vitolas announced or released in ${label}.
 
-Search halfwheel.com for "${label} new cigar releases" and "halfwheel ${label}" to find what was announced.
+Our database has these brands: ${brandList}
 
-Return ONLY a valid JSON array, no markdown, no explanation. Include any release from a brand that closely matches our list (e.g. "My Father Cigars" matches "My Father"):
+Return matches where the brand name is the same or very similar to one in our list (e.g. "Espinosa Premium Cigars" matches "Espinosa", "My Father Cigars Inc" matches "My Father"). Use the EXACT brand name from our list in your response.
+
+Return ONLY a valid JSON array, no markdown, no explanation, no preamble:
 [
   {
-    "brand": "exact brand name from our list above",
-    "line": "cigar line name",
+    "brand": "exact brand name from our list",
+    "line": "new cigar line name",
     "vitolas": "comma-separated vitola names if known, or null",
-    "source_url": "halfwheel.com URL where you found this",
+    "source_url": "halfwheel.com URL",
     "notes": "one sentence about the release"
   }
 ]
 
-If no new releases found from those brands, return an empty array: []`,
+If nothing found, return: []`,
         messages: [
           {
             role: "user",
-            content: `Search halfwheel.com for new cigar releases announced in ${label}. Look for releases from any of these brands: ${brandList}. Return a JSON array of matches.`
+            content: `Search halfwheel.com for new cigar releases announced or released in ${label}. Look especially for releases from: Espinosa, My Father, Plasencia, La Aurora, Davidoff, Rocky Patel, Perdomo, Drew Estate, Padron, Oliva, Arturo Fuente, Alec Bradley, CAO, Tatuaje, Warped, Crowned Heads, Dunbarton, AJ Fernandez, Caldwell, Camacho. Return a JSON array of any matches from our full brand list.`
           }
         ]
       })
