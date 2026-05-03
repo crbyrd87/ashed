@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       .order("brand");
 
     const brands = [...new Set(brandsData?.map(r => r.brand) || [])];
+    console.log(`[db-refresh] Brands found: ${brands.length}`, brands.slice(0, 5));
 
     if (brands.length === 0) {
       return res.status(200).json({ message: "No brands in DB to check against." });
@@ -90,14 +91,14 @@ If nothing found, return: []`,
       .join("\n") || "[]";
     const match = textContent.match(/\[[\s\S]*\]/);
     if (!match) {
-      return res.status(200).json({ message: "No releases found.", month: label });
+      return res.status(200).json({ message: "No releases found.", month: label, brandsChecked: brands.length, rawText: textContent.substring(0, 300) });
     }
 
     const candidates = JSON.parse(match[0]);
     console.log(`[db-refresh] Found ${candidates.length} candidates for ${label}:`, JSON.stringify(candidates));
 
     if (!candidates.length) {
-      return res.status(200).json({ message: `No new releases found for ${label} from brands in our DB.` });
+      return res.status(200).json({ message: `No new releases found for ${label} from brands in our DB.`, brandsChecked: brands.length, textContent: textContent.substring(0, 200) });
     }
 
     // Insert candidates — skip duplicates (same brand + line already pending)
