@@ -665,8 +665,7 @@ export default function App() {
 
   const handleCigarSubmitted = (cigar) => {
     setShowCigarSubmit(false);
-    setSelectedCigar(cigar);
-    setShowCheckin(true);
+    setCheckingIn(cigar);
   };
 
   const handleSelectCheckin = async (c) => {
