@@ -14,7 +14,18 @@ const SECTIONS = [
   { id: "refresh",    icon: "🔄", label: "Refresh" },
   { id: "qa",         icon: "✅", label: "QA" },
   { id: "dedup",      icon: "🔁", label: "Dedup" },
+  { id: "audit",      icon: "📋", label: "Audit" },
 ];
+
+const logAction = async (action, targetType, targetId, performedBy, notes) => {
+  await supabase.from("audit_log").insert({
+    action,
+    target_type: targetType,
+    target_id: String(targetId || ""),
+    performed_by: performedBy || null,
+    notes: notes || null,
+  });
+};
 
 export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
   const [section, setSection] = useState(isModerator ? "moderation" : "stats");
@@ -48,11 +59,12 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "moderation" && <ModerationSection />}
         {section === "badges"     && <BadgesSection />}
         {section === "database"   && <DatabaseSection />}
-        {section === "missing"    && <MissingCigarsSection />}
+        {section === "missing"    && <MissingCigarsSection currentUserId={user?.id} />}
         {section === "feedback"   && <FeedbackSection />}
         {section === "refresh"    && <DbRefreshSection />}
-        {section === "qa"         && <QASection />}
-        {section === "dedup"      && <DedupSection />}
+        {section === "qa"         && <QASection currentUserId={user?.id} />}
+        {section === "dedup"      && <DedupSection currentUserId={user?.id} />}
+        {section === "audit"      && <AuditSection />}
       </div>
     </div>
   );
@@ -313,6 +325,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
   const handleDelete = async (u) => {
     const { error } = await supabase.from("users").delete().eq("id", u.id);
     if (error) { showMsg("Error deleting user.", true); setConfirmDelete(null); return; }
+    await logAction("delete_user", "user", u.id, currentUserId, `@${u.username}`);
     setUsers(prev => prev.filter(x => x.id !== u.id));
     setSelectedUser(null);
     setConfirmDelete(null);
@@ -323,6 +336,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
     const newVal = !u.is_admin;
     const { error } = await supabase.from("users").update({ is_admin: newVal }).eq("id", u.id);
     if (error) { showMsg("Error updating admin status.", true); return; }
+    await logAction(newVal ? "grant_admin" : "revoke_admin", "user", u.id, currentUserId, `@${u.username}`);
     const updated = { ...u, is_admin: newVal };
     setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
     setSelectedUser(updated);
@@ -333,6 +347,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
     const newVal = !u.is_moderator;
     const { error } = await supabase.from("users").update({ is_moderator: newVal }).eq("id", u.id);
     if (error) { showMsg("Error updating moderator status.", true); return; }
+    await logAction(newVal ? "grant_mod" : "revoke_mod", "user", u.id, currentUserId, `@${u.username}`);
     const updated = { ...u, is_moderator: newVal };
     setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
     setSelectedUser(updated);
@@ -1048,7 +1063,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
   );
 }
 
-function MissingCigarsSection() {
+function MissingCigarsSection({ currentUserId }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showResolved, setShowResolved] = useState(false);
@@ -1119,6 +1134,7 @@ function MissingCigarsSection() {
 
     // Mark missing cigar as resolved
     await supabase.from("missing_cigars").update({ resolved: true }).eq("id", item.id);
+    await logAction("approve_missing_cigar", "cigar", newCigar.id, currentUserId, `${formData.brand} ${formData.line} ${formData.vitola} added from missing cigars`);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setAddingId(null);
     setMsg({ text: `${formData.brand} ${formData.line} ${formData.vitola} added — existing entries linked.`, isError: false });
@@ -1127,6 +1143,7 @@ function MissingCigarsSection() {
 
   const handleDismiss = async (id) => {
     await supabase.from("missing_cigars").delete().eq("id", id);
+    await logAction("dismiss_missing_cigar", "missing_cigar", id, currentUserId, null);
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
@@ -1417,7 +1434,7 @@ function DbRefreshSection() {
   );
 }
 
-function QASection() {
+function QASection({ currentUserId }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
@@ -1467,6 +1484,7 @@ function QASection() {
     };
     const { error } = await supabase.from("cigars").update(update).eq("id", item.id);
     if (error) { showMsg("Error approving cigar.", true); return; }
+    await logAction("approve_cigar", "cigar", item.id, currentUserId, `${item.brand} ${item.line} ${item.vitola}`);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setEditingId(null);
     showMsg(`${item.brand} ${item.line} approved ✓`);
@@ -1480,6 +1498,7 @@ function QASection() {
       rejection_reason: rejectReason.trim(),
     }).eq("id", item.id);
     if (error) { showMsg("Error rejecting cigar.", true); return; }
+    await logAction("reject_cigar", "cigar", item.id, currentUserId, `${item.brand} ${item.line} ${item.vitola} — reason: ${rejectReason.trim()}`);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setRejectingId(null);
     setRejectReason("");
@@ -1609,7 +1628,7 @@ function QASection() {
   );
 }
 
-function DedupSection() {
+function DedupSection({ currentUserId }) {
   const [groups, setGroups] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [skipped, setSkipped] = useState(new Set());
@@ -1689,6 +1708,7 @@ function DedupSection() {
         // Delete the duplicate
         await supabase.from("cigars").delete().eq("id", dupId);
       }
+      await logAction("dedup_merge", "cigar", group.keep.id, currentUserId, `Merged ${group.duplicates.length} duplicate(s) of ${group.key} into ID ${group.keep.id}`);
       setMerged(prev => [...prev, group.key]);
       setGroups(prev => prev.filter(g => g.key !== group.key));
     } catch (e) {
@@ -1791,6 +1811,96 @@ function DedupSection() {
           <div style={{ fontSize: 11, color: "#5a4535" }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
         </div>
       )}
+    </div>
+  );
+}
+
+function AuditSection() {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+
+  const ACTION_LABELS = {
+    approve_cigar: { label: "Cigar Approved", icon: "✅", color: "#7a9a7a" },
+    reject_cigar: { label: "Cigar Rejected", icon: "❌", color: "#a0522d" },
+    approve_missing_cigar: { label: "Missing → Added", icon: "➕", color: "#7a9a7a" },
+    dismiss_missing_cigar: { label: "Missing Dismissed", icon: "🗑", color: "#5a4535" },
+    dedup_merge: { label: "Duplicate Merged", icon: "🔁", color: "#7a8a9a" },
+    delete_user: { label: "User Deleted", icon: "🗑", color: "#a0522d" },
+    grant_admin: { label: "Admin Granted", icon: "⚙️", color: "#d4b45a" },
+    revoke_admin: { label: "Admin Revoked", icon: "⚙️", color: "#7a6048" },
+    grant_mod: { label: "Mod Granted", icon: "🛡️", color: "#7a8a9a" },
+    revoke_mod: { label: "Mod Revoked", icon: "🛡️", color: "#5a4535" },
+  };
+
+  const FILTERS = [
+    ["all", "All"],
+    ["cigar", "Cigars"],
+    ["user", "Users"],
+    ["dedup", "Dedup"],
+  ];
+
+  useEffect(() => { loadLogs(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadLogs = async () => {
+    setLoading(true);
+    let query = supabase
+      .from("audit_log")
+      .select("*, users(username)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (filter === "cigar") query = query.in("action", ["approve_cigar", "reject_cigar", "approve_missing_cigar", "dismiss_missing_cigar"]);
+    else if (filter === "user") query = query.in("action", ["delete_user", "grant_admin", "revoke_admin", "grant_mod", "revoke_mod"]);
+    else if (filter === "dedup") query = query.eq("action", "dedup_merge");
+
+    const { data } = await query;
+    setLogs(data || []);
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 12 }}>Audit Log</div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        {FILTERS.map(([val, label]) => (
+          <button key={val} onClick={() => setFilter(val)}
+            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+
+      {!loading && logs.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>No audit entries yet.</div>
+        </div>
+      )}
+
+      {logs.map(log => {
+        const meta = ACTION_LABELS[log.action] || { label: log.action, icon: "•", color: "#7a6048" };
+        return (
+          <div key={log.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid #2a1a0e" }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>{meta.icon}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: meta.color }}>{meta.label}</span>
+                <span style={{ fontSize: 10, color: "#5a4535" }}>
+                  {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                </span>
+              </div>
+              {log.notes && <div style={{ fontSize: 12, color: "#a08060", marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
+              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>
+                by @{log.users?.username || "unknown"}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
