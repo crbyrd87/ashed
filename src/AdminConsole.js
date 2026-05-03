@@ -1271,9 +1271,15 @@ function FeedbackSection({ currentUser }) {
       resolved: true,
     }).eq("id", item.id);
 
+    // Get admin display name from public users table
+    let adminName = "Ashed";
+    if (currentUser?.id) {
+      const { data: adminUser } = await supabase.from("users").select("display_name, username").eq("id", currentUser.id).maybeSingle();
+      adminName = adminUser?.display_name || adminUser?.username || currentUser?.user_metadata?.display_name || "Ashed";
+    }
+
     // Notify the user if we have their user_id
     if (item.user_id) {
-      const adminName = currentUser?.user_metadata?.display_name || currentUser?.email?.split("@")[0] || "Ashed";
       await supabase.from("notifications").insert({
         user_id: item.user_id,
         type: "feedback_reply",
