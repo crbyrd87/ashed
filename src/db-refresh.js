@@ -14,16 +14,18 @@ function getPriorMonth() {
 }
 
 export default async function handler(req, res) {
-  // Allow manual trigger via POST, or cron via GET
+  // Allow GET (cron) or POST (manual admin trigger)
   if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Simple auth check for manual triggers
-  const authHeader = req.headers.authorization;
+  // Only enforce secret on GET (cron calls) if CRON_SECRET is set
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return res.status(401).json({ error: "Unauthorized" });
+  if (req.method === "GET" && cronSecret) {
+    const authHeader = req.headers.authorization;
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
