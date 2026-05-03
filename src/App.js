@@ -434,7 +434,7 @@ export default function App() {
     refreshIsAdmin();
     processReferral(user);
     // Poll unread count every 60 seconds
-    const interval = setInterval(refreshUnreadNotifCount, 60000);
+    const interval = setInterval(refreshUnreadNotifCount, 30000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);

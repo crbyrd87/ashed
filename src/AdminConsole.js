@@ -60,7 +60,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "badges"     && <BadgesSection />}
         {section === "database"   && <DatabaseSection />}
         {section === "missing"    && <MissingCigarsSection currentUserId={user?.id} />}
-        {section === "feedback"   && <FeedbackSection />}
+        {section === "feedback"   && <FeedbackSection currentUser={user} />}
         {section === "refresh"    && <DbRefreshSection />}
         {section === "qa"         && <QASection currentUserId={user?.id} />}
         {section === "dedup"      && <DedupSection currentUserId={user?.id} />}
@@ -1233,7 +1233,7 @@ function MissingCigarsSection({ currentUserId }) {
   );
 }
 
-function FeedbackSection() {
+function FeedbackSection({ currentUser }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -1273,15 +1273,13 @@ function FeedbackSection() {
 
     // Notify the user if we have their user_id
     if (item.user_id) {
-      const { error: notifError } = await supabase.from("notifications").insert({
+      const adminName = currentUser?.user_metadata?.display_name || currentUser?.email?.split("@")[0] || "Ashed";
+      await supabase.from("notifications").insert({
         user_id: item.user_id,
         type: "feedback_reply",
-        message: `Ashed replied to your ${item.type === "bug" ? "bug report" : "feedback"}: "${replyText.trim().substring(0, 100)}${replyText.length > 100 ? "..." : ""}"`,
+        message: `${adminName} at Ashed replied to your ${item.type === "bug" ? "bug report" : "feedback"}: "${replyText.trim().substring(0, 100)}${replyText.length > 100 ? "..." : ""}"`,
         is_read: false,
       });
-      console.log("[feedback reply] user_id:", item.user_id, "notif error:", notifError);
-    } else {
-      console.log("[feedback reply] no user_id on item:", item.id);
     }
 
     await logAction("reply_feedback", "feedback", item.id, null, `Reply: ${replyText.trim().substring(0, 80)}`);
