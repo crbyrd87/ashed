@@ -1632,6 +1632,7 @@ function DedupSection() {
       .order("created_at", { ascending: true });
 
     if (!cigars) { setScanning(false); return; }
+    console.log(`[dedup] Fetched ${cigars.length} cigars`);
 
     // Group by normalized brand+line+vitola
     const map = {};
@@ -1650,6 +1651,7 @@ function DedupSection() {
         duplicates: g.slice(1),
       }));
 
+    console.log(`[dedup] Found ${dupGroups.length} duplicate groups`);
     setGroups(dupGroups);
     setHasScanned(true);
     setScanning(false);
@@ -1736,7 +1738,7 @@ function DedupSection() {
             <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
             <div style={{ background: "#1a0f08", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "8px 10px" }}>
               <div style={{ fontSize: 11, color: "#ddc9a8" }}>
-                ID: <span style={{ color: "#7a6048" }}>{group.keep.id.substring(0, 8)}...</span>
+                ID: <span style={{ color: "#7a6048" }}>{String(group.keep.id).substring(0, 8)}</span>
                 {" · "}Source: <span style={{ color: "#a08060" }}>{group.keep.source}</span>
                 {" · "}Check-ins: <span style={{ color: "#a08060" }}>{group.keep.total_checkins || 0}</span>
                 {" · "}{new Date(group.keep.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -1750,7 +1752,7 @@ function DedupSection() {
               <div style={{ fontSize: 10, color: "#a0522d", letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
               <div style={{ background: "#1a0f08", border: "1px solid #a0522d33", borderRadius: 8, padding: "8px 10px" }}>
                 <div style={{ fontSize: 11, color: "#ddc9a8" }}>
-                  ID: <span style={{ color: "#7a6048" }}>{dup.id.substring(0, 8)}...</span>
+                  ID: <span style={{ color: "#7a6048" }}>{String(dup.id).substring(0, 8)}</span>
                   {" · "}Source: <span style={{ color: "#a08060" }}>{dup.source}</span>
                   {" · "}Check-ins: <span style={{ color: "#a08060" }}>{dup.total_checkins || 0}</span>
                   {" · "}{new Date(dup.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
