@@ -14,18 +14,9 @@ function getPriorMonth() {
 }
 
 export default async function handler(req, res) {
-  // Allow GET (cron) or POST (manual admin trigger)
-  if (req.method !== "GET" && req.method !== "POST") {
+  // Allow GET only (both cron and manual admin trigger)
+  if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  // Only enforce secret on GET (cron calls) if CRON_SECRET is set
-  const cronSecret = process.env.CRON_SECRET;
-  if (req.method === "GET" && cronSecret) {
-    const authHeader = req.headers.authorization;
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -53,12 +44,11 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         "x-api-key": ANTHROPIC_KEY,
         "anthropic-version": "2023-06-01",
-        "anthropic-beta": "web-search-2025-03-05",
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4000,
-        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        tools: [{ type: "web_search_20260209", name: "web_search" }],
         system: `You are a cigar industry researcher. Search halfwheel.com for new cigar lines or vitolas announced or released in ${label}. 
 
 Our database contains these brands: ${brandList}
