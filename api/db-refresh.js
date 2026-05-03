@@ -83,8 +83,17 @@ If nothing found, return: []`,
 
     const data = await response.json();
     console.log(`[db-refresh] API status: ${response.status}`);
-    console.log(`[db-refresh] Content blocks:`, JSON.stringify(data.content?.map(b => b.type)));
-    console.log(`[db-refresh] Full response:`, JSON.stringify(data).substring(0, 1000));
+    console.log(`[db-refresh] Full response:`, JSON.stringify(data).substring(0, 2000));
+
+    // Return the raw response for debugging
+    if (!data.content) {
+      return res.status(200).json({ 
+        message: "No content in response", 
+        brandsChecked: brands.length,
+        apiStatus: response.status,
+        apiResponse: JSON.stringify(data).substring(0, 500)
+      });
+    }
 
     // Extract text from all text blocks (web search may produce multiple)
     const textContent = (data.content || [])
