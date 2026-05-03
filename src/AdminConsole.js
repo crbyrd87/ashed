@@ -11,6 +11,7 @@ const SECTIONS = [
   { id: "database",   icon: "🗄️", label: "DB" },
   { id: "missing",    icon: "🔍", label: "Missing" },
   { id: "feedback",   icon: "💬", label: "Feedback" },
+  { id: "refresh",    icon: "🔄", label: "Refresh" },
 ];
 
 export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
@@ -47,6 +48,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "database"   && <DatabaseSection />}
         {section === "missing"    && <MissingCigarsSection />}
         {section === "feedback"   && <FeedbackSection />}
+        {section === "refresh"    && <DbRefreshSection />}
       </div>
     </div>
   );
@@ -1293,6 +1295,143 @@ function FeedbackSection() {
               </button>
             )}
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DbRefreshSection() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("pending");
+  const [running, setRunning] = useState(false);
+  const [runMsg, setRunMsg] = useState(null);
+
+  useEffect(() => { loadCandidates(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadCandidates = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("db_refresh_candidates")
+      .select("*")
+      .eq("status", filter)
+      .order("created_at", { ascending: false });
+    setItems(data || []);
+    setLoading(false);
+  };
+
+  const handleApprove = async (item) => {
+    // Insert into cigars table
+    const vitolas = item.vitolas ? item.vitolas.split(",").map(v => v.trim()) : ["Robusto"];
+    for (const vitola of vitolas) {
+      const { data: existing } = await supabase
+        .from("cigars")
+        .select("id")
+        .eq("brand", item.brand)
+        .eq("line", item.line)
+        .eq("vitola", vitola)
+        .maybeSingle();
+      if (!existing) {
+        await supabase.from("cigars").insert({
+          brand: item.brand,
+          line: item.line,
+          vitola,
+          source: "admin_approved",
+        });
+      }
+    }
+    await supabase.from("db_refresh_candidates").update({ status: "approved" }).eq("id", item.id);
+    setItems(prev => prev.filter(i => i.id !== item.id));
+  };
+
+  const handleDismiss = async (id) => {
+    await supabase.from("db_refresh_candidates").update({ status: "dismissed" }).eq("id", id);
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleRunNow = async () => {
+    setRunning(true);
+    setRunMsg(null);
+    try {
+      const res = await fetch("/api/db-refresh", { method: "POST" });
+      const data = await res.json();
+      setRunMsg({ text: data.message || "Done.", isError: !res.ok });
+      if (res.ok) loadCandidates();
+    } catch (e) {
+      setRunMsg({ text: "Failed to run refresh.", isError: true });
+    }
+    setRunning(false);
+    setTimeout(() => setRunMsg(null), 6000);
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>DB Refresh Candidates</div>
+        <button onClick={handleRunNow} disabled={running}
+          style={{ background: running ? "#3a2510" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 20, padding: "5px 14px", color: running ? "#7a6048" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: running ? "default" : "pointer", fontFamily: SANS }}>
+          {running ? "Running..." : "▶ Run Now"}
+        </button>
+      </div>
+
+      {runMsg && (
+        <div style={{ background: runMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${runMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: runMsg.isError ? "#e8a07a" : "#7a9a7a" }}>
+          {runMsg.text}
+        </div>
+      )}
+
+      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
+        Runs automatically on the 1st of each month. Searches Halfwheel for new releases from brands in our DB.
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        {[["pending", "Pending"], ["approved", "✓ Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
+          <button key={val} onClick={() => setFilter(val)}
+            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+
+      {!loading && items.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>No {filter} candidates.</div>
+        </div>
+      )}
+
+      {items.map(item => (
+        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 4 }}>
+            {item.brand} · {item.line}
+          </div>
+          {item.vitolas && <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
+          {item.notes && <div style={{ fontSize: 12, color: "#7a6048", lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
+          {item.source_url && (
+            <a href={item.source_url} target="_blank" rel="noreferrer"
+              style={{ fontSize: 11, color: "#d4b45a", textDecoration: "none", display: "block", marginBottom: 10 }}>
+              📰 View on Halfwheel
+            </a>
+          )}
+          <div style={{ fontSize: 10, color: "#5a4535", marginBottom: item.status === "pending" ? 10 : 0 }}>
+            Found: {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </div>
+          {filter === "pending" && (
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => handleApprove(item)}
+                style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                ✓ Add to DB
+              </button>
+              <button onClick={() => handleDismiss(item.id)}
+                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                Dismiss
+              </button>
+            </div>
+          )}
         </div>
       ))}
     </div>
