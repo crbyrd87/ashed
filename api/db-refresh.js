@@ -38,7 +38,27 @@ export default async function handler(req, res) {
 
     const brandList = brands.join(", ");
 
-    // Call Anthropic with web search to find new releases
+    // Step 1: Fetch Halfwheel's 2026 release list directly
+    let halfwheelContent = "";
+    try {
+      const hwRes = await fetch("https://halfwheel.com/2026-new-cigars/", {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; AshedApp/1.0)" }
+      });
+      halfwheelContent = await hwRes.text();
+      // Extract just the table text — strip HTML tags
+      halfwheelContent = halfwheelContent
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .substring(0, 8000);
+      console.log(`[db-refresh] Halfwheel content length: ${halfwheelContent.length}`);
+    } catch (e) {
+      console.error("[db-refresh] Halfwheel fetch failed:", e.message);
+      return res.status(200).json({ message: "Could not fetch Halfwheel data.", brandsChecked: brands.length });
+    }
+
+    // Step 2: Use Haiku to filter releases matching our brands
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -47,37 +67,20 @@ export default async function handler(req, res) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 4000,
-        tools: [{ type: "web_search_20260209", name: "web_search" }],
-        system: `You are a cigar industry researcher. Search halfwheel.com for new cigar releases that have been announced or released recently.
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2000,
+        system: `You are a cigar database assistant. Extract new cigar releases from the provided Halfwheel data that match brands in our database.
 
-Our database has these brands: ${brandList}
+Our brands: ${brandList}
 
-Search for:
-1. "halfwheel PCA 2026" releases from our brands
-2. Any new cigar lines or vitolas from our brands announced in the past 60 days
+Return ONLY a valid JSON array. Match brand names loosely (e.g. "Espinosa Premium Cigars" → "Espinosa"). Use exact brand name from our list:
+[{"brand":"exact brand from list","line":"line name","vitolas":"vitola names or null","source_url":"https://halfwheel.com/2026-new-cigars/","notes":"one sentence"}]
 
-Return matches where the brand closely matches our list. Use the EXACT brand name from our list.
-
-Return ONLY a valid JSON array, no markdown, no explanation:
-[
-  {
-    "brand": "exact brand name from our list",
-    "line": "new cigar line name",
-    "vitolas": "comma-separated vitola names if known, or null",
-    "source_url": "halfwheel.com URL",
-    "notes": "one sentence about the release"
-  }
-]
-
-If nothing found, return: []`,
-        messages: [
-          {
-            role: "user",
-            content: `Search halfwheel.com for PCA 2026 new cigar releases and any recent releases from these brands: Asylum, Buffalo Trace, CAO, Macanudo, Drew Estate, Espinosa, My Father, Plasencia, La Aurora, Davidoff, Rocky Patel, Perdomo, Arturo Fuente, Alec Bradley, Tatuaje, Warped, Crowned Heads, Dunbarton Tobacco & Trust, AJ Fernandez, Caldwell, Camacho, Oliva, Padron. Return a JSON array of new lines or vitolas not previously in wide distribution.`
-          }
-        ]
+Return [] if no matches found.`,
+        messages: [{
+          role: "user",
+          content: `Here is the Halfwheel 2026 release data. Find any releases from our brand list:\n\n${halfwheelContent}`
+        }]
       })
     });
 
