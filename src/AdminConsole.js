@@ -1354,7 +1354,7 @@ function DbRefreshSection() {
     setRunning(true);
     setRunMsg(null);
     try {
-      const res = await fetch("/api/db-refresh", { method: "POST" });
+      const res = await fetch("/api/db-refresh", { method: "GET" });
       const data = await res.json();
       setRunMsg({ text: data.message || "Done.", isError: !res.ok });
       if (res.ok) loadCandidates();
