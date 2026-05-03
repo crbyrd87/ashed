@@ -1305,8 +1305,6 @@ function DbRefreshSection() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
-  const [running, setRunning] = useState(false);
-  const [runMsg, setRunMsg] = useState(null);
 
   useEffect(() => { loadCandidates(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1350,39 +1348,16 @@ function DbRefreshSection() {
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
-  const handleRunNow = async () => {
-    setRunning(true);
-    setRunMsg(null);
-    try {
-      const res = await fetch("/api/db-refresh", { method: "GET" });
-      const data = await res.json();
-      setRunMsg({ text: data.message || "Done.", isError: !res.ok });
-      if (res.ok) loadCandidates();
-    } catch (e) {
-      setRunMsg({ text: "Failed to run refresh.", isError: true });
-    }
-    setRunning(false);
-    setTimeout(() => setRunMsg(null), 6000);
-  };
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>DB Refresh Candidates</div>
-        <button onClick={handleRunNow} disabled={running}
-          style={{ background: running ? "#3a2510" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 20, padding: "5px 14px", color: running ? "#7a6048" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: running ? "default" : "pointer", fontFamily: SANS }}>
-          {running ? "Running..." : "▶ Run Now"}
-        </button>
+        <div style={{ fontSize: 11, color: "#5a4535" }}>Runs 1st of each month</div>
       </div>
 
-      {runMsg && (
-        <div style={{ background: runMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${runMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: runMsg.isError ? "#e8a07a" : "#7a9a7a" }}>
-          {runMsg.text}
-        </div>
-      )}
-
       <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        Runs automatically on the 1st of each month. Searches Halfwheel for new releases from brands in our DB.
+        Searches Halfwheel for new releases from brands in our DB. To trigger manually, run: <span style={{ color: "#a08060", fontFamily: "monospace" }}>curl https://ashed.app/api/db-refresh</span>
       </div>
 
       {/* Filter tabs */}
