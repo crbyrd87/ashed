@@ -1,1414 +1,1873 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Auth from "./Auth";
 import { supabase } from "./supabase";
+import { searchCigarLines, getVitolas } from "./cigarAI";
+import CheckIn from "./CheckIn";
+import BandScanner from "./BandScanner";
+import Recommendations from "./Recommendations";
+import Humidor from "./Humidor";
+import Pairings from "./Pairings";
+import Friends from "./Friends";
+import Feed from "./Feed";
+import Badges from "./Badges";
+import { checkAndAwardBadges } from "./badgeEngine";
+import Venues from "./Venues";
+import Notifications from "./Notifications";
+import { fetchUnreadCount } from "./notificationHelpers";
+import AdminConsole from "./AdminConsole";
+import PartnerDashboard from "./PartnerDashboard";
+import UpgradePrompt from "./UpgradePrompt";
+import OnboardingTour from "./OnboardingTour";
+import Settings from "./Settings";
+import CigarSubmitModal from "./CigarSubmitModal";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
-const SECTIONS = [
-  { id: "stats",      icon: "📊", label: "Stats" },
-  { id: "users",      icon: "👤", label: "Users" },
-  { id: "moderation", icon: "🚩", label: "Moderation" },
-  { id: "badges",     icon: "🏅", label: "Badges" },
-  { id: "database",   icon: "🗄️", label: "DB" },
-  { id: "missing",    icon: "🔍", label: "Missing" },
-  { id: "feedback",   icon: "💬", label: "Feedback" },
-  { id: "refresh",    icon: "🔄", label: "Refresh" },
-];
+const Badge = ({ label, color = "#d4b45a" }) => (
+  <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
+);
 
-export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
-  const [section, setSection] = useState(isModerator ? "moderation" : "stats");
+const ScoreBar = ({ rating }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+    <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ width: `${rating}%`, height: "100%", background: "linear-gradient(90deg, #d4b45a, #e8cc7a)", borderRadius: 3 }} />
+    </div>
+    <span style={{ color: "#d4b45a", fontSize: 14, fontWeight: 700 }}>{rating}</span>
+  </div>
+);
 
-  // Moderators only see the Moderation tab
-  const visibleSections = isModerator
-    ? SECTIONS.filter(s => s.id === "moderation")
-    : SECTIONS;
+const LoungeScene = () => (
+  <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%" }}>
+    {/* Background - warm dark lounge */}
+    <rect width="420" height="220" fill="#1a0d06" />
+    {/* Back wall wood paneling */}
+    <rect x="0" y="0" width="420" height="140" fill="#2a1508" />
+    <rect x="0" y="0" width="420" height="3" fill="#d4b45a" opacity="0.3" />
+    {/* Wood panel lines */}
+    {[60,120,180,240,300,360].map(x => (
+      <line key={x} x1={x} y1="0" x2={x} y2="140" stroke="#1a0d06" strokeWidth="1.5" opacity="0.5" />
+    ))}
+    {/* Ambient ceiling light glow */}
+    <ellipse cx="210" cy="0" rx="160" ry="60" fill="#d4b45a" opacity="0.06" />
+    {/* Table */}
+    <ellipse cx="210" cy="175" rx="100" ry="22" fill="#3a1e0a" />
+    <ellipse cx="210" cy="172" rx="98" ry="20" fill="#4a2810" />
+    <rect x="112" y="172" width="196" height="8" fill="#5a3418" />
+    {/* Table leg */}
+    <rect x="200" y="180" width="20" height="40" fill="#3a1e0a" />
+    {/* Ashtray */}
+    <ellipse cx="210" cy="170" rx="28" ry="8" fill="#2a1508" />
+    <ellipse cx="210" cy="168" rx="25" ry="6" fill="#221006" stroke="#5a3510" strokeWidth="1" />
+    {/* Resting cigar in ashtray */}
+    <rect x="188" y="165" width="44" height="6" rx="3" fill="#5a3520" transform="rotate(-5 210 168)" />
+    <rect x="188" y="166" width="39" height="4" rx="2" fill="#7a4a28" transform="rotate(-5 210 168)" />
+    <rect x="224" y="164" width="8" height="6" rx="1" fill="#d4b45a" opacity="0.8" transform="rotate(-5 210 168)" />
+    {/* Cigar smoke from ashtray */}
+    <path d="M232 162 Q235 150 231 138 Q234 148 238 140 Q236 152 239 160" stroke="#f5ead8" strokeWidth="1.2" fill="none" opacity="0.12" />
+    {/* Woman - left side */}
+    {/* Body/dress */}
+    <ellipse cx="120" cy="200" rx="38" ry="50" fill="#1a0d06" />
+    <path d="M85 155 Q90 120 120 115 Q150 120 155 155 Q145 160 120 162 Q95 160 85 155Z" fill="#3a1e2e" />
+    {/* Woman head */}
+    <circle cx="120" cy="100" r="22" fill="#c8a882" />
+    {/* Hair */}
+    <ellipse cx="120" cy="88" rx="22" ry="14" fill="#2a1508" />
+    <path d="M98 100 Q94 120 96 135" stroke="#2a1508" strokeWidth="8" fill="none" strokeLinecap="round" />
+    <path d="M142 100 Q146 120 144 135" stroke="#2a1508" strokeWidth="8" fill="none" strokeLinecap="round" />
+    {/* Woman face */}
+    <circle cx="113" cy="102" r="2.5" fill="#5a3020" />
+    <circle cx="127" cy="102" r="2.5" fill="#5a3020" />
+    <path d="M114 112 Q120 116 126 112" stroke="#c87060" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    {/* Woman arm holding cigar */}
+    <path d="M148 135 Q165 148 172 155" stroke="#c8a882" strokeWidth="8" fill="none" strokeLinecap="round" />
+    {/* Woman's cigar */}
+    <rect x="168" y="150" width="30" height="5" rx="2.5" fill="#7a4a28" transform="rotate(20 183 152)" />
+    <rect x="194" y="149" width="6" height="5" rx="1" fill="#d4b45a" opacity="0.8" transform="rotate(20 183 152)" />
+    {/* Woman cigar smoke */}
+    <path d="M200 144 Q204 132 200 120 Q204 130 208 122 Q205 134 208 142" stroke="#f5ead8" strokeWidth="1" fill="none" opacity="0.15" />
+    {/* Man - right side */}
+    {/* Body/suit */}
+    <path d="M265 155 Q270 118 300 114 Q330 118 335 155 Q322 162 300 163 Q278 162 265 155Z" fill="#1a1a2a" />
+    {/* Suit lapels */}
+    <path d="M290 114 L282 145 L300 138Z" fill="#2a2a3a" />
+    <path d="M310 114 L318 145 L300 138Z" fill="#2a2a3a" />
+    {/* Tie */}
+    <path d="M297 118 L300 140 L303 118Z" fill="#8a2020" />
+    {/* Man head */}
+    <circle cx="300" cy="98" r="24" fill="#b08060" />
+    {/* Hair */}
+    <ellipse cx="300" cy="82" rx="24" ry="12" fill="#1a1008" />
+    {/* Man face */}
+    <circle cx="292" cy="100" r="2.5" fill="#3a2010" />
+    <circle cx="308" cy="100" r="2.5" fill="#3a2010" />
+    <path d="M292 110 Q300 114 308 110" stroke="#8a5040" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    {/* Man mustache */}
+    <path d="M294 107 Q300 110 306 107" stroke="#2a1508" strokeWidth="2" fill="none" strokeLinecap="round" />
+    {/* Man arm */}
+    <path d="M265 138 Q248 148 242 156" stroke="#b08060" strokeWidth="9" fill="none" strokeLinecap="round" />
+    {/* Man's cigar */}
+    <rect x="210" y="152" width="34" height="6" rx="3" fill="#6a3a20" transform="rotate(-15 227 155)" />
+    <rect x="210" y="153" width="29" height="4" rx="2" fill="#8a4a28" transform="rotate(-15 227 155)" />
+    <rect x="208" y="151" width="8" height="6" rx="1" fill="#d4b45a" opacity="0.8" transform="rotate(-15 227 155)" />
+    {/* Lit end glow */}
+    <circle cx="213" cy="157" r="5" fill="#e8632a" opacity="0.6" />
+    <circle cx="213" cy="157" r="3" fill="#ffc060" opacity="0.5" />
+    {/* Man cigar smoke */}
+    <path d="M211 150 Q207 138 211 124 Q207 136 203 126 Q206 138 203 148" stroke="#f5ead8" strokeWidth="1.2" fill="none" opacity="0.18" />
+    {/* Whiskey glasses */}
+    <rect x="165" y="152" width="16" height="18" rx="2" fill="#d4b45a" opacity="0.25" />
+    <rect x="166" y="153" width="14" height="6" fill="#d4b45a" opacity="0.3" />
+    <rect x="242" y="152" width="16" height="18" rx="2" fill="#d4b45a" opacity="0.25" />
+    <rect x="243" y="153" width="14" height="6" fill="#d4b45a" opacity="0.3" />
+    {/* Warm light overlay at bottom */}
+    <rect x="0" y="140" width="420" height="80" fill="#3a1e0a" opacity="0.4" />
+    {/* Gradient overlay for text readability */}
+    <rect x="0" y="100" width="420" height="120" fill="url(#fadeDown)" opacity="0.5" />
+    <defs>
+      <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#1a0d06" stopOpacity="0" />
+        <stop offset="100%" stopColor="#1a0d06" stopOpacity="1" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
-  return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 500, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c", letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
-        </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
-      </div>
-      <div style={{ display: "flex", borderBottom: "1px solid #3a2510", background: "#1a0f08", position: "sticky", top: 57, zIndex: 9 }}>
-        {visibleSections.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? "#c9a84c" : "transparent"}`, color: section === s.id ? "#c9a84c" : "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 16 }}>{s.icon}</span>
-            <span>{s.label.toUpperCase()}</span>
-          </button>
-        ))}
-      </div>
-      <div style={{ padding: 20 }}>
-        {section === "stats"      && <StatsSection />}
-        {section === "users"      && <UsersSection isSuperAdmin={isSuperAdmin} currentUserId={user?.id} />}
-        {section === "moderation" && <ModerationSection />}
-        {section === "badges"     && <BadgesSection />}
-        {section === "database"   && <DatabaseSection />}
-        {section === "missing"    && <MissingCigarsSection />}
-        {section === "feedback"   && <FeedbackSection />}
-        {section === "refresh"    && <DbRefreshSection />}
-      </div>
+function AdvancedStats({ checkins }) {
+  const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+  if (checkins.length === 0) return (
+    <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#7a6048", fontFamily: SANS }}>
+      Log some smokes to see your advanced stats!
     </div>
   );
-}
 
-function StatsSection() {
-  const [loading, setLoading] = useState(true);
-  const [totals, setTotals] = useState({ users: 0, checkins: 0, cigars: 0, fires: 0, comments: 0 });
-  const [signupsByDay, setSignupsByDay] = useState([]);
-  const [checkinsByDay, setCheckinsByDay] = useState([]);
-  const [topCigars, setTopCigars] = useState([]);
-
-  useEffect(() => { loadStats(); }, []);
-
-  const loadStats = async () => {
-    setLoading(true);
-
-    const [
-      { count: userCount },
-      { count: checkinCount },
-      { count: cigarCount },
-      { count: fireCount },
-      { count: commentCount },
-    ] = await Promise.all([
-      supabase.from("users").select("*", { count: "exact", head: true }),
-      supabase.from("checkins").select("*", { count: "exact", head: true }),
-      supabase.from("cigars").select("*", { count: "exact", head: true }),
-      supabase.from("fires").select("*", { count: "exact", head: true }),
-      supabase.from("comments").select("*", { count: "exact", head: true }),
-    ]);
-    setTotals({ users: userCount || 0, checkins: checkinCount || 0, cigars: cigarCount || 0, fires: fireCount || 0, comments: commentCount || 0 });
-
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-
-    const { data: recentUsers } = await supabase
-      .from("users")
-      .select("member_since")
-      .gte("member_since", thirtyDaysAgo)
-      .order("member_since", { ascending: true });
-    setSignupsByDay(groupByDay(recentUsers || [], "member_since"));
-
-    const { data: recentCheckins } = await supabase
-      .from("checkins")
-      .select("created_at")
-      .gte("created_at", thirtyDaysAgo)
-      .order("created_at", { ascending: true });
-    setCheckinsByDay(groupByDay(recentCheckins || [], "created_at"));
-
-    const { data: allCheckins } = await supabase
-      .from("checkins")
-      .select("cigar_id, cigar_name, cigar_brand, cigars(brand, line)");
-    if (allCheckins) {
-      const counts = {};
-      for (const c of allCheckins) {
-        const key = c.cigar_id || c.cigar_name || "Unknown";
-        const label = c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : (c.cigar_brand ? `${c.cigar_brand} ${c.cigar_name}` : "Unknown");
-        if (!counts[key]) counts[key] = { label, count: 0 };
-        counts[key].count++;
-      }
-      setTopCigars(Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 10));
-    }
-
-    setLoading(false);
-  };
-
-  if (loading) return (
-    <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading stats...</div>
-  );
-
-  const maxSignups  = Math.max(...signupsByDay.map(d => d.count), 1);
-  const maxCheckins = Math.max(...checkinsByDay.map(d => d.count), 1);
-  const maxTopCount = topCigars[0]?.count || 1;
-
-  return (
-    <div>
-      {/* Stat boxes */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 28 }}>
-        {[
-          ["Users",        totals.users,    "#c9a84c", "👤"],
-          ["Check-ins",    totals.checkins, "#7a9a7a", "🚬"],
-          ["Cigars in DB", totals.cigars,   "#7a8a9a", "📋"],
-          ["Fires",        totals.fires,    "#e8632a", "🔥"],
-          ["Comments",     totals.comments, "#9a7a9a", "💬"],
-        ].map(([label, value, color, icon]) => (
-          <div key={label} style={{ background: "#221508", border: `1px solid ${color}33`, borderRadius: 12, padding: "16px 10px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: color, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
-            <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color, letterSpacing: -0.5 }}>{value.toLocaleString()}</div>
-            <div style={{ fontSize: 10, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Signups chart */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
-          <div style={{ fontSize: 11, color: "#7a6050" }}>Last 30 days</div>
-        </div>
-        {signupsByDay.every(d => d.count === 0)
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No signups in this period</div>
-          : <MiniBarChart data={signupsByDay} max={maxSignups} color="#c9a84c" />}
-      </div>
-
-      {/* Check-ins chart */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
-          <div style={{ fontSize: 11, color: "#7a6050" }}>Last 30 days</div>
-        </div>
-        {checkinsByDay.every(d => d.count === 0)
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No check-ins in this period</div>
-          : <MiniBarChart data={checkinsByDay} max={maxCheckins} color="#7a9a7a" />}
-      </div>
-
-      {/* Top cigars */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5, marginBottom: 16 }}>Top Cigars by Check-ins</div>
-        {topCigars.length === 0
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No data yet</div>
-          : topCigars.map((c, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "#5a4535", width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{c.label}</div>
-                <div style={{ height: 6, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${Math.round((c.count / maxTopCount) * 100)}%`, height: "100%", background: `linear-gradient(90deg, #c9a84c, #e8cc7a)`, borderRadius: 3, transition: "width 0.3s" }} />
-                </div>
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c", flexShrink: 0, minWidth: 20, textAlign: "right" }}>{c.count}</div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  );
-}
-
-function MiniBarChart({ data, max, color }) {
-  // Gridline values — 25%, 50%, 75%, 100% of max
-  const gridLines = [0.25, 0.5, 0.75, 1].map(f => Math.round(f * max)).filter(v => v > 0);
-
-  return (
-    <div style={{ position: "relative" }}>
-      {/* Y-axis gridlines */}
-      <div style={{ position: "absolute", inset: "0 0 24px 0", pointerEvents: "none" }}>
-        {gridLines.map(val => (
-          <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / max) * 100)}%`, borderTop: "1px solid #5a4535", display: "flex", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 10, color: "#8a7060", paddingRight: 3, lineHeight: 1, transform: "translateY(50%)" }}>{val}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Bars */}
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 110, paddingLeft: 22 }}>
-        {data.map((d, i) => {
-          const pct = Math.round((d.count / max) * 100);
-          const isZero = d.count === 0;
-          return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
-              {!isZero && (
-                <div style={{ fontSize: 11, color, marginBottom: 3, fontWeight: 700, opacity: 0.95 }}>{d.count}</div>
-              )}
-              <div
-                title={`${d.label}: ${d.count}`}
-                style={{
-                  width: "100%",
-                  borderRadius: "3px 3px 0 0",
-                  height: isZero ? 2 : `${Math.max(pct, 3)}%`,
-                  background: isZero
-                    ? "#2a1a0e"
-                    : `linear-gradient(180deg, ${color}ff 0%, ${color}99 100%)`,
-                  opacity: isZero ? 0.3 : 1,
-                  transition: "height 0.2s",
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* X-axis dates */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingLeft: 22 }}>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[0]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[Math.floor(data.length / 2)]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[data.length - 1]?.label?.slice(5)}</span>
-      </div>
-    </div>
-  );
-}
-
-function groupByDay(records, dateField) {
-  const map = {};
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-    const key = d.toISOString().split("T")[0];
-    map[key] = 0;
+  // Monthly check-ins — last 6 months
+  const now = new Date();
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    return { label: d.toLocaleString("en-US", { month: "short" }), year: d.getFullYear(), month: d.getMonth(), count: 0 };
+  });
+  for (const c of checkins) {
+    const d = new Date(c.smoke_date || c.created_at);
+    const m = months.find(m => m.month === d.getMonth() && m.year === d.getFullYear());
+    if (m) m.count++;
   }
-  for (const r of records) {
-    const key = r[dateField]?.split("T")[0];
-    if (key && map[key] !== undefined) map[key]++;
+  const maxMonth = Math.max(...months.map(m => m.count), 1);
+
+  // Brand breakdown — top 8
+  const brandCounts = {};
+  for (const c of checkins) {
+    const b = c.cigars?.brand || c.cigar_brand;
+    if (b) brandCounts[b] = (brandCounts[b] || 0) + 1;
   }
-  return Object.entries(map).map(([label, count]) => ({ label, count }));
-}
+  const topBrands = Object.entries(brandCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxBrand = topBrands[0]?.[1] || 1;
 
-// ─── USERS SECTION ───────────────────────────────────────────────────────────
+  // Strength breakdown
+  const strengthCounts = { Light: 0, Medium: 0, "Medium-Full": 0, Full: 0 };
+  for (const c of checkins) {
+    const s = c.cigars?.strength;
+    if (s && strengthCounts[s] !== undefined) strengthCounts[s]++;
+  }
+  const strengthColors = { Light: "#a8c5a0", Medium: "#d4b483", "Medium-Full": "#c4894a", Full: "#a0522d" };
+  const totalStrength = Object.values(strengthCounts).reduce((a, b) => a + b, 0) || 1;
 
-function UsersSection({ isSuperAdmin, currentUserId }) {
-  const [query, setQuery] = useState("");
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userCheckins, setUserCheckins] = useState([]);
-  const [actionMsg, setActionMsg] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [partnerPlaceId, setPartnerPlaceId] = useState("");
+  // Origin breakdown — top 6
+  const originCounts = {};
+  for (const c of checkins) {
+    const o = c.cigars?.origin;
+    if (o) originCounts[o] = (originCounts[o] || 0) + 1;
+  }
+  const topOrigins = Object.entries(originCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const maxOrigin = topOrigins[0]?.[1] || 1;
 
-  const showMsg = (msg, isError = false) => {
-    setActionMsg({ msg, isError });
-    setTimeout(() => setActionMsg(null), 3000);
-  };
-
-  const searchUsers = async () => {
-    setLoading(true);
-    setSelectedUser(null);
-    const q = query.trim();
-    let req = supabase
-      .from("users")
-      .select("id, username, display_name, email, member_since, is_admin, is_super_admin, is_moderator, is_flagged, is_premium, is_partner, partner_place_id, location")
-      .order("member_since", { ascending: false })
-      .limit(50);
-    if (q) req = req.or(`username.ilike.%${q}%,email.ilike.%${q}%,display_name.ilike.%${q}%`);
-    const { data } = await req;
-    setUsers(data || []);
-    setLoading(false);
-  };
-
-  const loadUserDetail = async (u) => {
-    setSelectedUser(u);
-    const { data } = await supabase
-      .from("checkins")
-      .select("id, created_at, cigar_name, cigar_brand, rating, cigars(brand, line)")
-      .eq("user_id", u.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
-    setUserCheckins(data || []);
-  };
-
-  const handleFlag = async (u) => {
-    const newVal = !u.is_flagged;
-    const { error } = await supabase.from("users").update({ is_flagged: newVal }).eq("id", u.id);
-    if (error) { showMsg("Error updating flag.", true); return; }
-    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, is_flagged: newVal } : x));
-    if (selectedUser?.id === u.id) setSelectedUser(prev => ({ ...prev, is_flagged: newVal }));
-    showMsg(newVal ? "Account flagged." : "Flag removed.");
-  };
-
-  const handleDelete = async (u) => {
-    const { error } = await supabase.from("users").delete().eq("id", u.id);
-    if (error) { showMsg("Error deleting user.", true); setConfirmDelete(null); return; }
-    setUsers(prev => prev.filter(x => x.id !== u.id));
-    setSelectedUser(null);
-    setConfirmDelete(null);
-    showMsg("User deleted.");
-  };
-
-  const handleToggleAdmin = async (u) => {
-    const newVal = !u.is_admin;
-    const { error } = await supabase.from("users").update({ is_admin: newVal }).eq("id", u.id);
-    if (error) { showMsg("Error updating admin status.", true); return; }
-    const updated = { ...u, is_admin: newVal };
-    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
-    setSelectedUser(updated);
-    showMsg(newVal ? `Admin granted to @${u.username}.` : `Admin revoked from @${u.username}.`);
-  };
-
-  const handleToggleModerator = async (u) => {
-    const newVal = !u.is_moderator;
-    const { error } = await supabase.from("users").update({ is_moderator: newVal }).eq("id", u.id);
-    if (error) { showMsg("Error updating moderator status.", true); return; }
-    const updated = { ...u, is_moderator: newVal };
-    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
-    setSelectedUser(updated);
-    showMsg(newVal ? `Moderator role granted to @${u.username}.` : `Moderator role revoked from @${u.username}.`);
-  };
-
-  const handleGrantPartner = async (u) => {
-    if (!partnerPlaceId.trim()) { showMsg("Please enter a Google Place ID.", true); return; }
-    const { error } = await supabase.from("users")
-      .update({ is_partner: true, partner_place_id: partnerPlaceId.trim() })
-      .eq("id", u.id);
-    if (error) { showMsg("Error granting partner access.", true); return; }
-    const updated = { ...u, is_partner: true, partner_place_id: partnerPlaceId.trim() };
-    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
-    setSelectedUser(updated);
-    setPartnerPlaceId("");
-    showMsg(`Partner access granted to @${u.username}.`);
-  };
-
-  const handleRevokePartner = async (u) => {
-    const { error } = await supabase.from("users")
-      .update({ is_partner: false, partner_place_id: null })
-      .eq("id", u.id);
-    if (error) { showMsg("Error revoking partner access.", true); return; }
-    const updated = { ...u, is_partner: false, partner_place_id: null };
-    setUsers(prev => prev.map(x => x.id === u.id ? updated : x));
-    setSelectedUser(updated);
-    showMsg(`Partner access revoked from @${u.username}.`);
-  };
-
-  // Load all users on mount
-  useEffect(() => { searchUsers(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div>
-      {/* Search bar */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && searchUsers()}
-          placeholder="Search by username, email, or name..."
-          style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none" }}
-        />
-        <button onClick={searchUsers}
-          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 18px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-          Search
-        </button>
-      </div>
-
-      {/* Action message */}
-      {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
-          {actionMsg.msg}
-        </div>
-      )}
-
-      {/* Delete confirmation */}
-      {confirmDelete && (
-        <div style={{ background: "#2a1a0e", border: "1px solid #a0522d55", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, color: "#e8d5b7", marginBottom: 12 }}>
-            Delete <strong style={{ color: "#e8632a" }}>@{confirmDelete.username}</strong>? This cannot be undone. All their check-ins, ratings, and data will be removed.
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => handleDelete(confirmDelete)}
-              style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "10px 0", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-              Yes, Delete
-            </button>
-            <button onClick={() => setConfirmDelete(null)}
-              style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {loading && <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>}
-
-      {/* User detail panel */}
-      {selectedUser && (
-        <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7" }}>{selectedUser.display_name || selectedUser.username}</div>
-              <div style={{ fontSize: 12, color: "#8a7055", marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
-              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>
-                Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: "#e8cc7a" }}>👑 Super Admin</span>}
-                {selectedUser.is_admin && <span style={{ marginLeft: 8, color: "#c9a84c" }}>⚙️ Admin</span>}
-                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🛡️ Mod</span>}
-                {selectedUser.is_premium && <span style={{ marginLeft: 8, color: "#7a9a7a" }}>⭐ Premium</span>}
-                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🏪 Partner</span>}
-                {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: "#e8632a" }}>🚩 Flagged</span>}
-              </div>
-            </div>
-            <button onClick={() => setSelectedUser(null)}
-              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
-          </div>
-
-          {/* Recent check-ins */}
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
-          {userCheckins.length === 0
-            ? <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 12 }}>No check-ins yet</div>
-            : userCheckins.slice(0, 5).map(c => (
-              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #3a251022", fontSize: 12 }}>
-                <span style={{ color: "#c8b89a" }}>{c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : `${c.cigar_brand || ""} ${c.cigar_name || ""}`}</span>
-                <span style={{ color: "#c9a84c", flexShrink: 0, marginLeft: 8 }}>{c.rating ?? "—"}</span>
-              </div>
-            ))
-          }
-
-          {/* Partner access */}
-          <div style={{ borderTop: "1px solid #3a251033", marginTop: 14, paddingTop: 14 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
-            {selectedUser.is_partner ? (
-              <div>
-                <div style={{ fontSize: 12, color: "#7a8a9a", marginBottom: 8 }}>
-                  🏪 Active partner · Place ID: <span style={{ color: "#c8b89a", fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
-                </div>
-                <button onClick={() => handleRevokePartner(selectedUser)}
-                  style={{ background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "7px 14px", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  Revoke Partner Access
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  value={partnerPlaceId}
-                  onChange={e => setPartnerPlaceId(e.target.value)}
-                  placeholder="Google Place ID..."
-                  style={{ flex: 1, background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "7px 12px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
-                />
-                <button onClick={() => handleGrantPartner(selectedUser)}
-                  style={{ background: "linear-gradient(135deg, #7a8a9a, #5a6a7a)", border: "none", borderRadius: 8, padding: "7px 14px", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
-                  🏪 Grant Partner
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-            {/* Flag — blocked on admin accounts unless super admin, blocked on self */}
-            {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
-              <button onClick={() => handleFlag(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? "#7a9a7a55" : "#e8632a55"}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? "#7a9a7a" : "#e8632a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
-              </button>
-            )}
-            {/* Delete — blocked on admin accounts unless super admin, blocked on self */}
-            {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
-              <button onClick={() => setConfirmDelete(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                🗑 Delete Account
-              </button>
-            )}
-            {/* Super admin only — Grant/Revoke Admin */}
-            {isSuperAdmin && selectedUser.id !== currentUserId && (
-              <button onClick={() => handleToggleAdmin(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #c9a84c44", borderRadius: 8, padding: "8px 0", color: "#c9a84c", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                {selectedUser.is_admin ? "Revoke Admin" : "Grant Admin"}
-              </button>
-            )}
-            {/* Super admin only — Grant/Revoke Moderator */}
-            {isSuperAdmin && selectedUser.id !== currentUserId && !selectedUser.is_admin && (
-              <button onClick={() => handleToggleModerator(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #7a8a9a44", borderRadius: 8, padding: "8px 0", color: "#7a8a9a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                {selectedUser.is_moderator ? "Revoke Mod" : "Grant Mod"}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* User list */}
-      {!loading && users.length === 0 && (
-        <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>No users found</div>
-      )}
-      {users.map(u => (
-        <div key={u.id}
-          onClick={() => loadUserDetail(u)}
-          style={{ background: selectedUser?.id === u.id ? "#2a1a0e" : "#1e1208", border: `1px solid ${selectedUser?.id === u.id ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", display: "flex", alignItems: "center", gap: 6 }}>
-              {u.display_name || u.username}
-              {u.is_admin && <span style={{ fontSize: 10, color: "#c9a84c" }}>⚙️</span>}
-              {u.is_partner && <span style={{ fontSize: 10, color: "#7a8a9a" }}>🏪</span>}
-              {u.is_flagged && <span style={{ fontSize: 10, color: "#e8632a" }}>🚩</span>}
-            </div>
-            <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>@{u.username} · {u.email}</div>
-          </div>
-          <div style={{ fontSize: 11, color: "#5a4535", flexShrink: 0, marginLeft: 8 }}>
-            {new Date(u.member_since || u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── MODERATION SECTION ──────────────────────────────────────────────────────
-
-function ModerationSection() {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [actionMsg, setActionMsg] = useState(null);
-
-  const showMsg = (msg, isError = false) => {
-    setActionMsg({ msg, isError });
-    setTimeout(() => setActionMsg(null), 3000);
-  };
-
-  useEffect(() => { loadReports(); }, []);
-
-  const loadReports = async () => {
-    setLoading(true);
-
-    // Get all reports, grouped by comment_id with count
-    const { data } = await supabase
-      .from("reports")
-      .select("id, comment_id, created_at, reporter:reporter_id(username), comments(id, content, user_id, checkin_id, users(username, display_name))")
-      .order("created_at", { ascending: false });
-
-    if (!data) { setLoading(false); return; }
-
-    // Group by comment_id, keep unique comments with report count
-    const grouped = {};
-    for (const r of data) {
-      const key = r.comment_id;
-      if (!grouped[key]) {
-        grouped[key] = { ...r, reportCount: 0, reportIds: [] };
-      }
-      grouped[key].reportCount++;
-      grouped[key].reportIds.push(r.id);
-    }
-
-    setReports(Object.values(grouped).sort((a, b) => b.reportCount - a.reportCount));
-    setLoading(false);
-  };
-
-  const handleRemoveComment = async (item) => {
-    // Delete the comment (cascade will remove reports too)
-    const { error } = await supabase.from("comments").delete().eq("id", item.comment_id);
-    if (error) { showMsg("Error removing comment.", true); return; }
-    setReports(prev => prev.filter(r => r.comment_id !== item.comment_id));
-    showMsg("Comment removed.");
-  };
-
-  const handleDismiss = async (item) => {
-    // Delete all reports for this comment without removing the comment
-    const { error } = await supabase.from("reports").delete().in("id", item.reportIds);
-    if (error) { showMsg("Error dismissing reports.", true); return; }
-    setReports(prev => prev.filter(r => r.comment_id !== item.comment_id));
-    showMsg("Reports dismissed.");
-  };
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Reported Comments</div>
-        {!loading && <div style={{ fontSize: 11, color: "#7a6050" }}>{reports.length} pending</div>}
-      </div>
-
-      {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
-          {actionMsg.msg}
-        </div>
-      )}
-
-      {loading && <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>}
-
-      {!loading && reports.length === 0 && (
-        <div style={{ textAlign: "center", padding: "60px 20px" }}>
-          <div style={{ fontSize: 36, marginBottom: 16 }}>✅</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>All clear</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No reported comments to review.</div>
-        </div>
-      )}
-
-      {reports.map(item => {
-        const comment = item.comments;
-        const author = comment?.users;
-        return (
-          <div key={item.comment_id} style={{ background: "#221508", border: "1px solid #a0522d44", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-            {/* Report count badge */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 20, padding: "2px 10px", fontSize: 11, color: "#e8a07a", fontWeight: 700 }}>
-                  🚩 {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
-                </span>
-                <span style={{ fontSize: 11, color: "#5a4535" }}>
-                  {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </span>
-              </div>
-            </div>
-
-            {/* Comment author */}
-            <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 6 }}>
-              by <span style={{ color: "#c9a84c" }}>@{author?.username || "unknown"}</span>
-            </div>
-
-            {/* Comment content */}
-            <div style={{ fontSize: 14, color: "#e8d5b7", lineHeight: 1.5, background: "#2a1a0e", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
-              {comment?.content || <span style={{ color: "#5a4535", fontStyle: "italic" }}>Comment not found</span>}
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => handleRemoveComment(item)}
-                style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                🗑 Remove Comment
-              </button>
-              <button onClick={() => handleDismiss(item)}
-                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                Dismiss
-              </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── BADGES SECTION ──────────────────────────────────────────────────────────
-
-function BadgesSection() {
-  const [badges, setBadges] = useState([]);
-  const [earnedCounts, setEarnedCounts] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [userQuery, setUserQuery] = useState("");
-  const [userResults, setUserResults] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userBadges, setUserBadges] = useState(new Set());
-  const [searching, setSearching] = useState(false);
-  const [actionMsg, setActionMsg] = useState(null);
-
-  const showMsg = (msg, isError = false) => {
-    setActionMsg({ msg, isError });
-    setTimeout(() => setActionMsg(null), 3000);
-  };
-
-  useEffect(() => { loadBadges(); }, []);
-
-  const loadBadges = async () => {
-    setLoading(true);
-    const [{ data: allBadges }, { data: allEarned }] = await Promise.all([
-      supabase.from("badges").select("*").order("category").order("name"),
-      supabase.from("user_badges").select("badge_key"),
-    ]);
-    setBadges(allBadges || []);
-    const counts = {};
-    for (const b of (allEarned || [])) {
-      counts[b.badge_key] = (counts[b.badge_key] || 0) + 1;
-    }
-    setEarnedCounts(counts);
-    setLoading(false);
-  };
-
-  const searchUsers = async () => {
-    if (!userQuery.trim()) return;
-    setSearching(true);
-    const { data } = await supabase
-      .from("users")
-      .select("id, username, display_name")
-      .or(`username.ilike.%${userQuery.trim()}%,display_name.ilike.%${userQuery.trim()}%`)
-      .limit(10);
-    setUserResults(data || []);
-    setSearching(false);
-  };
-
-  const loadUserBadges = async (u) => {
-    setSelectedUser(u);
-    setUserResults([]);
-    setUserQuery(u.username);
-    const { data } = await supabase
-      .from("user_badges")
-      .select("badge_key")
-      .eq("user_id", u.id);
-    setUserBadges(new Set((data || []).map(b => b.badge_key)));
-  };
-
-  const handleAward = async (badgeKey) => {
-    if (!selectedUser) return;
-    const { error } = await supabase.from("user_badges").insert({
-      user_id: selectedUser.id,
-      badge_key: badgeKey,
-      awarded_at: new Date().toISOString(),
+  // Average rating by month
+  const monthlyRatings = months.map(m => {
+    const monthCheckins = checkins.filter(c => {
+      const d = new Date(c.smoke_date || c.created_at);
+      return d.getMonth() === m.month && d.getFullYear() === m.year && c.rating != null;
     });
-    if (error && error.message.includes("unique")) {
-      showMsg("User already has this badge."); return;
-    }
-    if (error) { showMsg("Error awarding badge.", true); return; }
-    setUserBadges(prev => new Set([...prev, badgeKey]));
-    setEarnedCounts(prev => ({ ...prev, [badgeKey]: (prev[badgeKey] || 0) + 1 }));
-    showMsg(`Awarded "${badgeKey}" to @${selectedUser.username}.`);
-  };
+    return monthCheckins.length > 0
+      ? parseFloat((monthCheckins.reduce((a, c) => a + c.rating, 0) / monthCheckins.length).toFixed(1))
+      : null;
+  });
 
-  const handleRevoke = async (badgeKey) => {
-    if (!selectedUser) return;
-    const { error } = await supabase.from("user_badges")
-      .delete()
-      .eq("user_id", selectedUser.id)
-      .eq("badge_key", badgeKey);
-    if (error) { showMsg("Error revoking badge.", true); return; }
-    setUserBadges(prev => { const s = new Set(prev); s.delete(badgeKey); return s; });
-    setEarnedCounts(prev => ({ ...prev, [badgeKey]: Math.max(0, (prev[badgeKey] || 1) - 1) }));
-    showMsg(`Revoked "${badgeKey}" from @${selectedUser.username}.`);
-  };
-
-  const CATEGORY_LABELS = { milestone: "Milestones", variety: "Variety", social: "Social", referral: "Referrals" };
-  const CATEGORY_ORDER = ["milestone", "variety", "social", "referral"];
-  const grouped = {};
-  for (const b of badges) {
-    if (!grouped[b.category]) grouped[b.category] = [];
-    grouped[b.category].push(b);
-  }
+  const cardStyle = { background: "#261a0a", border: "1px solid #4a3520", borderRadius: 12, padding: 16, marginBottom: 16 };
+  const titleStyle = { fontSize: 12, color: "#ddc9a8", fontWeight: 600, marginBottom: 16 };
 
   return (
-    <div>
-      {/* User search */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <input
-            value={userQuery}
-            onChange={e => setUserQuery(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && searchUsers()}
-            placeholder="Search by username or display name..."
-            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "9px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none" }}
-          />
-          <button onClick={searchUsers}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-            Find
-          </button>
+    <div style={{ fontFamily: SANS }}>
+
+      {/* Monthly check-ins */}
+      <div style={cardStyle}>
+        <div style={titleStyle}>Check-ins by Month</div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 90 }}>
+          {months.map((m, i) => {
+            const pct = Math.round((m.count / maxMonth) * 100);
+            return (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
+                {m.count > 0 && <div style={{ fontSize: 10, color: "#d4b45a", fontWeight: 700 }}>{m.count}</div>}
+                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: m.count === 0 ? 2 : `${Math.max(pct, 4)}%`, background: m.count === 0 ? "#2a1a0e" : "linear-gradient(180deg, #d4b45aff 0%, #d4b45a99 100%)", opacity: m.count === 0 ? 0.3 : 1 }} />
+                <div style={{ fontSize: 9, color: "#7a6050" }}>{m.label}</div>
+              </div>
+            );
+          })}
         </div>
-
-        {/* Search results dropdown */}
-        {searching && <div style={{ fontSize: 12, color: "#5a4535", padding: "6px 0" }}>Searching...</div>}
-        {userResults.map(u => (
-          <div key={u.id} onClick={() => loadUserBadges(u)}
-            style={{ padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, marginBottom: 4, cursor: "pointer", fontSize: 13, color: "#e8d5b7" }}>
-            <span style={{ color: "#c9a84c" }}>@{u.username}</span>
-            {u.display_name && u.display_name !== u.username && <span style={{ color: "#8a7055", marginLeft: 8 }}>{u.display_name}</span>}
-          </div>
-        ))}
-
-        {/* Selected user */}
-        {selectedUser && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, border: "1px solid #c9a84c44" }}>
-            <span style={{ fontSize: 13, color: "#c9a84c" }}>@{selectedUser.username}</span>
-            <span style={{ fontSize: 11, color: "#7a9a7a" }}>{userBadges.size} badges earned</span>
-            <button onClick={() => { setSelectedUser(null); setUserBadges(new Set()); setUserQuery(""); }}
-              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 16, cursor: "pointer" }}>×</button>
-          </div>
-        )}
       </div>
 
-      {/* Action message */}
-      {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
-          {actionMsg.msg}
+      {/* Avg rating by month */}
+      {monthlyRatings.some(r => r !== null) && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Average Rating by Month</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+            {months.map((m, i) => (
+              <div key={i} style={{ flex: 1, textAlign: "center" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: monthlyRatings[i] ? "#d4b45a" : "#4a3520" }}>
+                  {monthlyRatings[i] ?? "—"}
+                </div>
+                <div style={{ fontSize: 9, color: "#7a6050", marginTop: 4 }}>{m.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Badge list by category */}
-      {loading
-        ? <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>Loading badges...</div>
-        : CATEGORY_ORDER.map(cat => {
-          const catBadges = grouped[cat];
-          if (!catBadges) return null;
-          return (
-            <div key={cat} style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
-              {catBadges.map(b => {
-                const earned = userBadges.has(b.key);
-                const count = earnedCounts[b.key] || 0;
-                return (
-                  <div key={b.key} style={{ background: "#221508", border: `1px solid ${earned ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ fontSize: 24, flexShrink: 0, filter: earned ? "none" : "grayscale(1)", opacity: earned ? 1 : 0.5 }}>{b.icon}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: earned ? "#e8d5b7" : "#8a7055" }}>{b.name}</div>
-                      <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>{b.description}</div>
-                      <div style={{ fontSize: 10, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
-                    </div>
-                    {selectedUser && (
-                      <button
-                        onClick={() => earned ? handleRevoke(b.key) : handleAward(b.key)}
-                        style={{ background: earned ? "none" : "linear-gradient(135deg, #c9a84c, #a07830)", border: earned ? "1px solid #a0522d55" : "none", borderRadius: 8, padding: "6px 12px", color: earned ? "#a0522d" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
-                        {earned ? "Revoke" : "Award"}
-                      </button>
-                    )}
-                    {!selectedUser && earned !== undefined && (
-                      <div style={{ fontSize: 10, color: "#4a3525", flexShrink: 0 }}>Search user to manage</div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })
-      }
-    </div>
-  );
-}
-
-function DatabaseSection() {
-  const [cigars, setCigars] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [sourceFilter, setSourceFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [deleting, setDeleting] = useState(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [msg, setMsg] = useState(null);
-
-  useEffect(() => { loadCigars(); }, [sourceFilter]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadCigars = async () => {
-    setLoading(true);
-    let query = supabase.from("cigars").select("id, brand, line, vitola, strength, source").order("brand").order("line").order("vitola");
-    if (sourceFilter !== "all") query = query.eq("source", sourceFilter);
-    const { data } = await query;
-    setCigars(data || []);
-    setLoading(false);
-  };
-
-  const handleDelete = async (cigar) => {
-    setDeleting(cigar.id);
-    await supabase.from("cigars").delete().eq("id", cigar.id);
-    setCigars(prev => prev.filter(c => c.id !== cigar.id));
-    setDeleting(null);
-    setMsg(`Deleted ${cigar.brand} ${cigar.line} ${cigar.vitola}`);
-    setTimeout(() => setMsg(null), 3000);
-  };
-
-  const SOURCE_COLORS = {
-    manual: "#7a9a7a",
-    ai_generated: "#c9a84c",
-    user_submitted: "#7a8a9a",
-    admin_approved: "#9a7a9a",
-  };
-
-  const filtered = cigars.filter(c => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return c.brand?.toLowerCase().includes(q) || c.line?.toLowerCase().includes(q) || c.vitola?.toLowerCase().includes(q);
-  });
-
-  return (
-    <div>
-      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
-
-      {msg && <div style={{ background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: "#7a9a7a" }}>{msg}</div>}
-
-      {/* Source filter */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-        {["all", "manual", "ai_generated", "user_submitted", "admin_approved"].map(s => (
-          <button key={s} onClick={() => setSourceFilter(s)}
-            style={{ background: sourceFilter === s ? "#c9a84c22" : "none", border: `1px solid ${sourceFilter === s ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-            {s === "all" ? "All" : s.replace("_", " ")}
-          </button>
-        ))}
-      </div>
-
-      {/* Search */}
-      <input
-        value={searchQuery}
-        onChange={e => setSearchQuery(e.target.value)}
-        placeholder="Search brand, line, vitola..."
-        style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
-      />
-
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
-
-      {filtered.map(c => (
-        <div key={c.id} style={{ background: "#221508", border: `1px solid ${confirmDeleteId === c.id ? "#a0522d" : "#3a2510"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {c.brand} · {c.line} · {c.vitola}
+      {/* Strength breakdown */}
+      <div style={cardStyle}>
+        <div style={titleStyle}>Strength Profile</div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          {Object.entries(strengthCounts).map(([s, count]) => {
+            const pct = Math.round((count / totalStrength) * 100);
+            return (
+              <div key={s} style={{ flex: count || 1, height: 28, background: count > 0 ? strengthColors[s] + "88" : "#2a1a0e", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s" }}>
+                {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: strengthColors[s] }}>{pct}%</span>}
               </div>
-              <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
-                <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || "#8a7055", background: (SOURCE_COLORS[c.source] || "#8a7055") + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || "#8a7055")}55`, borderRadius: 8, padding: "1px 6px" }}>
-                  {c.source || "manual"}
-                </span>
-                {c.strength && <span style={{ fontSize: 10, color: "#5a4535" }}>{c.strength}</span>}
-              </div>
-            </div>
-            {confirmDeleteId === c.id ? (
-              <button onClick={() => { setConfirmDeleteId(null); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: "1px solid #3a2510", borderRadius: 6, padding: "4px 10px", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
-                Cancel
-              </button>
-            ) : (
-              <button onClick={() => { setConfirmDeleteId(c.id); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: "1px solid #a0522d44", borderRadius: 6, padding: "4px 10px", color: "#a0522d", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
-                Delete
-              </button>
-            )}
-          </div>
-
-          {/* Type DELETE confirmation */}
-          {confirmDeleteId === c.id && (
-            <div style={{ marginTop: 10, borderTop: "1px solid #3a2510", paddingTop: 10 }}>
-              <div style={{ fontSize: 11, color: "#a0522d", marginBottom: 6 }}>
-                Type <strong>DELETE</strong> to confirm deletion of {c.brand} {c.line} {c.vitola}
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  value={deleteConfirmText}
-                  onChange={e => setDeleteConfirmText(e.target.value)}
-                  placeholder="Type DELETE"
-                  style={{ flex: 1, background: "#1a0f08", border: `1px solid ${deleteConfirmText === "DELETE" ? "#a0522d" : "#3a2510"}`, borderRadius: 6, padding: "6px 10px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
-                />
-                <button
-                  onClick={() => { if (deleteConfirmText === "DELETE") { handleDelete(c); setConfirmDeleteId(null); setDeleteConfirmText(""); } }}
-                  disabled={deleteConfirmText !== "DELETE" || deleting === c.id}
-                  style={{ background: deleteConfirmText === "DELETE" ? "#a0522d" : "#2a1a0e", border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? "#e8d5b7" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
-                  {deleting === c.id ? "..." : "Confirm"}
-                </button>
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
-      ))}
+        <div style={{ display: "flex", gap: 6 }}>
+          {Object.entries(strengthCounts).map(([s, count]) => (
+            <div key={s} style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontSize: 10, color: strengthColors[s], fontWeight: count > 0 ? 700 : 400 }}>{s.replace("Medium-Full", "Med-Full")}</div>
+              <div style={{ fontSize: 11, color: "#7a6048" }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top brands */}
+      {topBrands.length > 0 && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Top Brands</div>
+          {topBrands.map(([brand, count], i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: "#7a6048", width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: "#f5ead8", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{brand}</div>
+                <div style={{ height: 5, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((count / maxBrand) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #d4b45a, #e8cc7a)", borderRadius: 3 }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#d4b45a", flexShrink: 0 }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Origin breakdown */}
+      {topOrigins.length > 0 && (
+        <div style={cardStyle}>
+          <div style={titleStyle}>Origins</div>
+          {topOrigins.map(([origin, count], i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: "#f5ead8", marginBottom: 4 }}>{origin}</div>
+                <div style={{ height: 5, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((count / maxOrigin) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#7a9a7a", flexShrink: 0 }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
     </div>
   );
 }
 
-const TASTING_NOTE_OPTIONS = [
-  "Cedar", "Leather", "Earth", "Pepper", "Spice", "Coffee", "Espresso",
-  "Dark Chocolate", "Cocoa", "Cream", "Nuts", "Almonds", "Cashews",
-  "Dried Fruit", "Raisin", "Brown Sugar", "Caramel", "Vanilla",
-  "Oak", "Toast", "Hay", "Floral", "Citrus", "Honey", "Molasses",
-];
+const APP_VERSION = "0.9.2";
 
-function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel }) {
-  const [form, setForm] = useState({
-    brand: item.brand || "",
-    line: item.line || "",
-    vitola: item.vitola || "",
-    strength: "",
-    origin: "",
-    wrapper: "",
-  });
-  const [selectedNotes, setSelectedNotes] = useState([]);
-  const [saving, setSaving] = useState(false);
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [tab, setTab] = useState("search");
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedLine, setSelectedLine] = useState(null);
+  const [vitolas, setVitolas] = useState([]);
+  const [violasLoading, setViolasLoading] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(null);
+  const [showBandScanner, setShowBandScanner] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [showPairings, setShowPairings] = useState(false);
+  const [pairingsCigar, setPairingsCigar] = useState(null);
+  const [showFriends, setShowFriends] = useState(false);
+  const [pendingFriendCount, setPendingFriendCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
+  const [isPartner, setIsPartner] = useState(false);
+  const [partnerPlaceId, setPartnerPlaceId] = useState(null);
+  const [showPartner, setShowPartner] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState(null);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [showCigarSubmit, setShowCigarSubmit] = useState(false); // which feature triggered the prompt
+  const [communityRating, setCommunityRating] = useState(null);
+  const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
+  const [profileTab, setProfileTab] = useState("journal");
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [wishlistFilterBrand, setWishlistFilterBrand] = useState("");
+  const [wishlistFilterStrength, setWishlistFilterStrength] = useState([]);
+  const [wishlistSearchQuery, setWishlistSearchQuery] = useState("");
+  const [wishlistSearchResults, setWishlistSearchResults] = useState([]);
+  const [wishlistSearching, setWishlistSearching] = useState(false);
+  const wishlistSearchTimeout = useRef(null);
+  const [humidor, setHumidor] = useState([]);
+  const [checkins, setCheckins] = useState([]);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [selectedCheckin, setSelectedCheckin] = useState(null);
+  const [checkinRating, setCheckinRating] = useState(null);
+  const [historySortBy, setHistorySortBy] = useState("date");
+  const [historySortDir, setHistorySortDir] = useState("desc");
+  const [showFilterDrawer, setShowFilterDrawer] = useState(false);
+  const [filterName, setFilterName] = useState("");
+  const [filterNameOpen, setFilterNameOpen] = useState(false);
+  const [filterBrand, setFilterBrand] = useState("");
+  const [filterBrandOpen, setFilterBrandOpen] = useState(false);
+  const [filterNoteTags, setFilterNoteTags] = useState([]);
 
-  const toggleNote = (note) => {
-    setSelectedNotes(prev => prev.includes(note) ? prev.filter(n => n !== note) : [...prev, note]);
-  };
+  const FLAVOR_TAGS = ["Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper", "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice", "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"];
 
-  const handleSave = async () => {
-    if (!form.brand || !form.line || !form.vitola) return;
-    setSaving(true);
-    await onSave({ ...form, tasting_notes: selectedNotes.join(", ") || null });
-    setSaving(false);
-  };
+  const uniqueNames = [...new Set(checkins.map(c => c.cigars?.line || c.cigar_name).filter(Boolean))].sort();
+  const uniqueBrands = [...new Set(checkins.map(c => c.cigars?.brand || c.cigar_brand).filter(Boolean))].sort();
 
-  const SelectField = ({ label, field, options }) => (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: form[field] ? "#f5ead8" : "#7a6048", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
-        <option value="">Select {label.toLowerCase()}...</option>
-        {options.map(s => <option key={s} value={s}>{s}</option>)}
-      </select>
-    </div>
-  );
+  const filteredNames = filterName ? uniqueNames.filter(n => n.toLowerCase().includes(filterName.toLowerCase())) : uniqueNames;
+  const filteredBrands = filterBrand ? uniqueBrands.filter(b => b.toLowerCase().includes(filterBrand.toLowerCase())) : uniqueBrands;
+  const [filterScoreMin, setFilterScoreMin] = useState(0);
+  const [filterScoreMax, setFilterScoreMax] = useState(10);
+  const [filterValue, setFilterValue] = useState([]);
+  const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
 
-  const TextField = ({ label, field, placeholder }) => (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        placeholder={placeholder}
-        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
-    </div>
-  );
-
-  return (
-    <div style={{ borderTop: "1px solid #4a3520", paddingTop: 12, marginBottom: 10 }}>
-      <div style={{ fontSize: 11, color: "#d4b45a", letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
-      <TextField label="BRAND" field="brand" placeholder="Brand name" />
-      <TextField label="LINE" field="line" placeholder="Line name" />
-      <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
-      <SelectField label="STRENGTH" field="strength" options={["Light", "Medium", "Medium-Full", "Full"]} />
-      <SelectField label="ORIGIN" field="origin" options={originOptions} />
-      <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} />
-
-      {/* Tasting notes bubbles */}
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-        {TASTING_NOTE_OPTIONS.map(note => (
-          <button key={note} onClick={() => toggleNote(note)}
-            style={{ background: selectedNotes.includes(note) ? "#d4b45a22" : "none", border: `1px solid ${selectedNotes.includes(note) ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-            {note}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={handleSave} disabled={saving || !form.brand || !form.line || !form.vitola}
-          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? "#1a0f08" : "#7a6048", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-          {saving ? "Saving..." : "✓ Save to DB"}
-        </button>
-        <button onClick={onCancel}
-          style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function MissingCigarsSection() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showResolved, setShowResolved] = useState(false);
-  const [addingId, setAddingId] = useState(null);
-  const [dismissConfirmId, setDismissConfirmId] = useState(null);
-  const [msg, setMsg] = useState(null);
-  const [originOptions, setOriginOptions] = useState([]);
-  const [wrapperOptions, setWrapperOptions] = useState([]);
+  const activeFilterCount = [
+    filterName, filterBrand,
+    filterNoteTags.length > 0 ? "tags" : "",
+    filterScoreMin > 0 || filterScoreMax < 10 ? "score" : "",
+    filterValue.length > 0 ? "value" : "",
+    filterWouldSmoke.length > 0 ? "smoke" : "",
+  ].filter(Boolean).length;
+  const searchTimeout = useRef(null);
 
   useEffect(() => {
-    loadMissing();
-    loadOptions();
-  }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-  const loadOptions = async () => {
-    const [{ data: origins }, { data: wrappers }] = await Promise.all([
-      supabase.from("cigars").select("origin").not("origin", "is", null),
-      supabase.from("cigars").select("wrapper").not("wrapper", "is", null),
-    ]);
-    if (origins) setOriginOptions([...new Set(origins.map(r => r.origin))].sort());
-    if (wrappers) setWrapperOptions([...new Set(wrappers.map(r => r.wrapper))].sort());
+  const refreshPendingFriendCount = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("friends")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", user.id)
+      .eq("status", "pending");
+    setPendingFriendCount(count || 0);
   };
 
-  const loadMissing = async () => {
-    setLoading(true);
+  const refreshUnreadNotifCount = async () => {
+    if (!user) return;
+    const count = await fetchUnreadCount(user.id);
+    setUnreadNotifCount(count);
+  };
+
+  const refreshIsAdmin = async () => {
+    if (!user) return;
     const { data } = await supabase
-      .from("missing_cigars")
-      .select("*, users(username)")
-      .eq("resolved", showResolved)
-      .order("created_at", { ascending: false });
-    setItems(data || []);
-    setLoading(false);
+      .from("users")
+      .select("is_admin, is_partner, partner_place_id, is_premium, disclaimer_accepted, is_super_admin, is_moderator, first_login_complete, tour_completed, last_seen_version")
+      .eq("id", user.id)
+      .single();
+    setIsAdmin(data?.is_admin || false);
+    setIsSuperAdmin(data?.is_super_admin || false);
+    setIsModerator(data?.is_moderator || false);
+    setIsPartner(data?.is_partner || false);
+    setPartnerPlaceId(data?.partner_place_id || null);
+    setIsPremium(data?.is_premium || false);
+    if (data && !data.disclaimer_accepted) setShowDisclaimer(true);
+    else if (data && !data.first_login_complete) setShowWelcome(true);
+    else if (data && !data.tour_completed) setShowTour(true);
+    else if (data && data.last_seen_version && data.last_seen_version !== APP_VERSION) setShowWhatsNew(true);
   };
 
-  const handleSaveToDb = async (item, formData) => {
-    const { data: newCigar, error } = await supabase.from("cigars").insert({
-      brand: formData.brand,
-      line: formData.line,
-      vitola: formData.vitola,
-      strength: formData.strength || null,
-      origin: formData.origin || null,
-      wrapper: formData.wrapper || null,
-      tasting_notes: formData.tasting_notes || null,
-      source: "admin_approved",
-    }).select().single();
+  useEffect(() => {
+    if (!user) return;
+    refreshPendingFriendCount();
+    refreshUnreadNotifCount();
+    refreshIsAdmin();
+    processReferral(user);
+    // Poll unread count every 60 seconds
+    const interval = setInterval(refreshUnreadNotifCount, 60000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-    if (error) {
-      setMsg({ text: "Error saving cigar.", isError: true });
-      setTimeout(() => setMsg(null), 3000);
+  // Fetch community average rating when a cigar detail is opened
+  useEffect(() => {
+    if (!selected) { setCommunityRating(null); setShowVitolaBreakdown(false); return; }
+    const fetchCommunityRating = async () => {
+      const brand = selected.brand;
+      const line = selected.line;
+      if (!brand || !line) { setCommunityRating(null); return; }
+      // Get all cigar_ids for this brand+line (all vitolas)
+      const { data: cigarsForLine } = await supabase
+        .from("cigars")
+        .select("id")
+        .eq("brand", brand)
+        .eq("line", line);
+      if (!cigarsForLine || cigarsForLine.length === 0) { setCommunityRating({ avg: null, count: 0, ready: false }); return; }
+      const ids = cigarsForLine.map(c => c.id);
+      // Get all check-ins for any vitola of this line
+      const { data } = await supabase
+        .from("checkins")
+        .select("rating, cigar_vitola, cigars(vitola)")
+        .in("cigar_id", ids)
+        .not("rating", "is", null);
+      if (data && data.length > 0) {
+        const avg = data.reduce((sum, c) => sum + c.rating, 0) / data.length;
+        // Per-vitola breakdown
+        const byVitola = {};
+        for (const row of data) {
+          const vit = row.cigar_vitola || row.cigars?.vitola || "Unknown";
+          if (!byVitola[vit]) byVitola[vit] = [];
+          byVitola[vit].push(row.rating);
+        }
+        const vitolaSummary = Object.entries(byVitola)
+          .map(([vitola, ratings]) => ({
+            vitola,
+            avg: parseFloat((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)),
+            count: ratings.length,
+          }))
+          .sort((a, b) => b.avg - a.avg);
+        setCommunityRating({ avg: parseFloat(avg.toFixed(1)), count: data.length, ready: true, vitolas: vitolaSummary });
+      } else {
+        setCommunityRating({ avg: null, count: 0, ready: false, vitolas: [] });
+      }
+    };
+    fetchCommunityRating();
+  }, [selected]);
+
+  const processReferral = async (currentUser) => {
+    const referralUsername = localStorage.getItem("ashed_referral");
+    if (!referralUsername) return;
+
+    // Check if this user has already been referred
+    const { data: existingReferral } = await supabase
+      .from("referrals")
+      .select("id")
+      .eq("referred_id", currentUser.id)
+      .maybeSingle();
+    if (existingReferral) {
+      localStorage.removeItem("ashed_referral");
       return;
     }
 
-    // Backfill cigar_id on any existing humidor rows that match brand/line/vitola
-    await supabase.from("humidor")
-      .update({ cigar_id: newCigar.id })
-      .eq("cigar_brand", formData.brand)
-      .eq("cigar_name", formData.line)
-      .eq("cigar_vitola", formData.vitola)
-      .is("cigar_id", null);
+    // Look up referrer by username
+    const { data: referrer } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", referralUsername)
+      .maybeSingle();
+    if (!referrer || referrer.id === currentUser.id) {
+      localStorage.removeItem("ashed_referral");
+      return;
+    }
 
-    // Backfill cigar_id on any existing checkin rows that match
-    await supabase.from("checkins")
-      .update({ cigar_id: newCigar.id })
-      .eq("cigar_brand", formData.brand)
-      .eq("cigar_name", formData.line)
-      .eq("cigar_vitola", formData.vitola)
-      .is("cigar_id", null);
+    // Record the referral
+    await supabase.from("referrals").insert({
+      referrer_id: referrer.id,
+      referred_id: currentUser.id,
+    });
 
-    // Mark missing cigar as resolved
-    await supabase.from("missing_cigars").update({ resolved: true }).eq("id", item.id);
-    setItems(prev => prev.filter(i => i.id !== item.id));
-    setAddingId(null);
-    setMsg({ text: `${formData.brand} ${formData.line} ${formData.vitola} added — existing entries linked.`, isError: false });
-    setTimeout(() => setMsg(null), 5000);
+    // Update referred_by on the new user
+    await supabase.from("users").update({ referred_by: referrer.id }).eq("id", currentUser.id);
+
+    // Check referral badges for the referrer
+    checkAndAwardBadges(referrer.id, "referral").catch(() => {});
+
+    localStorage.removeItem("ashed_referral");
   };
 
-  const handleDismiss = async (id) => {
-    await supabase.from("missing_cigars").delete().eq("id", id);
-    setItems(prev => prev.filter(i => i.id !== id));
+  useEffect(() => {
+    if (!user) return;
+    const fetchCheckins = async () => {
+      setProfileLoading(true);
+      const { data } = await supabase
+        .from("checkins")
+        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating, verified, rejection_reason), ratings(value_for_price, would_smoke_again)")
+        .eq("user_id", user.id)
+        .order("smoke_date", { ascending: false });
+      setCheckins(data || []);
+      setProfileLoading(false);
+    };
+    fetchCheckins();
+
+    // Fetch wishlist inline to avoid dependency warning
+    const loadWishlist = async () => {
+      setWishlistLoading(true);
+      const { data: wData } = await supabase
+        .from("wishlist")
+        .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setWishlist(wData || []);
+      setWishlistLoading(false);
+    };
+    loadWishlist();
+  }, [user]);
+
+  const refreshCheckins = async () => {
+    const { data } = await supabase
+      .from("checkins")
+      .select("*, cigars(brand, line, vitola, strength, origin, avg_rating), ratings(value_for_price, would_smoke_again)")
+      .eq("user_id", user.id)
+      .order("smoke_date", { ascending: false });
+    setCheckins(data || []);
   };
 
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Missing Cigars</div>
-        <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-          {showResolved ? "Show Pending" : "Show Resolved"}
-        </button>
-      </div>
+  const fetchWishlist = async () => {
+    setWishlistLoading(true);
+    const { data } = await supabase
+      .from("wishlist")
+      .select("*, cigars(brand, line, vitola, strength, origin, avg_rating)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setWishlist(data || []);
+    setWishlistLoading(false);
+  };
 
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet."}
-      </div>
+  const handleAddToWishlist = async (cigar) => {
+    if (!isPremium && wishlist.length >= 20) {
+      setUpgradeFeature("wishlist_cap");
+      return;
+    }
+    const isRealCigar = !!cigar.id;
+    const { data: existing } = await supabase
+      .from("wishlist")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq(isRealCigar ? "cigar_id" : "cigar_name", isRealCigar ? cigar.id : (cigar.line || cigar.cigar_name))
+      .maybeSingle();
+    if (existing) return; // already on wishlist
+    await supabase.from("wishlist").insert({
+      user_id: user.id,
+      cigar_id: isRealCigar ? cigar.id : null,
+      cigar_name: cigar.line || cigar.cigar_name || null,
+      cigar_brand: cigar.brand || cigar.cigar_brand || null,
+      cigar_vitola: cigar.vitola || cigar.cigar_vitola || null,
+    });
+    fetchWishlist();
+  };
 
-      {msg && (
-        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
-          {msg.text}
-        </div>
-      )}
+  const handleRemoveFromWishlist = async (id) => {
+    await supabase.from("wishlist").delete().eq("id", id);
+    fetchWishlist();
+  };
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+  const isOnWishlist = (cigar) => {
+    if (cigar.id) return wishlist.some(w => w.cigar_id === cigar.id);
+    return wishlist.some(w => w.cigar_name === (cigar.line || cigar.cigar_name));
+  };
 
-      {!loading && items.length === 0 && (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "No missing cigars reported."}</div>
-        </div>
-      )}
+  const handleAddToHumidor = async (cigar) => {
+    const existing = humidor.find(h =>
+      cigar.id ? h.cigar_id === cigar.id : h.cigar_name === (cigar.line || cigar.cigar_name)
+    );
+    if (existing) {
+      await supabase.from("humidor").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+    } else {
+      await supabase.from("humidor").insert({
+        user_id: user.id,
+        cigar_id: cigar.id || null,
+        cigar_brand: cigar.brand || null,
+        cigar_name: cigar.line || null,
+        cigar_vitola: cigar.vitola || null,
+        quantity: 1,
+      });
+    }
+    const { data } = await supabase.from("humidor").select("*").eq("user_id", user.id);
+    setHumidor(data || []);
+  };
 
-      {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: `1px solid ${addingId === item.id ? "#c9a84c55" : "#c9a84c22"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>
-            {item.brand} · {item.line}
+  const isInHumidor = (cigar) => {
+    if (cigar.id) return humidor.some(h => h.cigar_id === cigar.id);
+    return humidor.some(h => h.cigar_name === (cigar.line || cigar.cigar_name));
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
+  const handleAcceptDisclaimer = async () => {
+    setShowDisclaimer(false);
+    await supabase.from("users").update({ disclaimer_accepted: true }).eq("id", user.id);
+    setShowWelcome(true);
+  };
+
+  const handleAcceptWelcome = async () => {
+    setShowWelcome(false);
+    setShowTour(true);
+    await supabase.from("users").update({ first_login_complete: true }).eq("id", user.id);
+  };
+
+  const handleCompleteTour = async () => {
+    setShowTour(false);
+    await supabase.from("users").update({ tour_completed: true, last_seen_version: APP_VERSION }).eq("id", user.id);
+  };
+
+  const handleDismissWhatsNew = async () => {
+    setShowWhatsNew(false);
+    await supabase.from("users").update({ last_seen_version: APP_VERSION }).eq("id", user.id);
+  };
+
+  const handleReplayTour = () => {
+    setShowSettings(false);
+    setShowTour(true);
+  };
+
+  const handleCigarSubmitted = (cigar) => {
+    setShowCigarSubmit(false);
+    setCheckingIn(cigar);
+  };
+
+  const handleSelectCheckin = async (c) => {
+    setSelectedCheckin(c);
+    setCheckinRating(null);
+    const { data } = await supabase
+      .from("ratings")
+      .select("*")
+      .eq("checkin_id", c.id)
+      .single();
+    setCheckinRating(data || null);
+  };
+
+  const handleDeleteCheckin = async (checkin) => {
+    if (!window.confirm("Delete this check-in? This cannot be undone.")) return;
+    await supabase.from("ratings").delete().eq("checkin_id", checkin.id);
+    await supabase.from("checkins").delete().eq("id", checkin.id);
+    setSelectedCheckin(null);
+    setCheckins(prev => prev.filter(c => c.id !== checkin.id));
+  };
+
+  const handleExportCSV = async () => {
+    // Fetch full check-in data with ratings
+    const { data } = await supabase
+      .from("checkins")
+      .select("*, cigars(brand, line, vitola, strength, origin), ratings(score, aroma, draw, burn, construction, flavor, finish, value_for_price, would_smoke_again, flavor_tags)")
+      .eq("user_id", user.id)
+      .order("smoke_date", { ascending: false });
+
+    if (!data || data.length === 0) {
+      alert("No check-ins to export yet.");
+      return;
+    }
+
+    const headers = [
+      "Date", "Brand", "Line", "Vitola", "Strength", "Origin",
+      "Overall Score", "Aroma", "Draw", "Burn", "Construction", "Flavor", "Finish",
+      "Value for Price", "Would Smoke Again", "Flavor Tags", "Notes", "Location", "Visibility"
+    ];
+
+    const rows = data.map(c => {
+      const r = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
+      return [
+        c.smoke_date || "",
+        c.cigars?.brand || c.cigar_brand || "",
+        c.cigars?.line || c.cigar_name || "",
+        c.cigars?.vitola || c.cigar_vitola || "",
+        c.cigars?.strength || "",
+        c.cigars?.origin || "",
+        c.rating ?? "",
+        r?.aroma ?? "",
+        r?.draw ?? "",
+        r?.burn ?? "",
+        r?.construction ?? "",
+        r?.flavor ?? "",
+        r?.finish ?? "",
+        r?.value_for_price || "",
+        r?.would_smoke_again || "",
+        r?.flavor_tags || "",
+        (c.tasting_notes || "").replace(/"/g, '""'),
+        c.smoke_location || "",
+        c.visibility || "public",
+      ].map(v => `"${v}"`).join(",");
+    });
+
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ashed-journal-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleInputChange = (val) => {
+    setQuery(val);
+    setSelectedLine(null);
+    setVitolas([]);
+    setSearchResults([]);
+    if (val.length < 2) { setShowDropdown(false); return; }
+    setShowDropdown(true);
+    setSearching(true);
+    clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(async () => {
+      const results = await searchCigarLines(val, (partial) => {
+        setSearchResults(partial);
+        setSearching(false);
+      });
+      setSearchResults(results);
+      setSearching(false);
+    }, 350);
+  };
+
+  const handleLineSelect = async (line) => {
+    setShowDropdown(false);
+    setQuery(`${line.brand} — ${line.line}`);
+    setSelectedLine(line);
+    setVitolas([]);
+    setViolasLoading(true);
+    // Open the line detail page immediately — vitolas load into it
+    setSelected({ ...line, _isLine: true });
+    const results = await getVitolas(line.brand, line.line, (partial) => {
+      setVitolas(partial);
+    });
+    setVitolas(results);
+    setViolasLoading(false);
+  };
+
+
+  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Profile";
+  const username = user?.user_metadata?.username ? user.user_metadata.username.replace(/^@/, "") : null;
+
+  const s = {
+    app: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#f5ead8", maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
+    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "20px 20px 12px", borderBottom: "1px solid #4a3520", display: "flex", justifyContent: "space-between", alignItems: "center" },
+    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #4a3520", display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
+    navBtn: a => ({ flex: 1, padding: "10px 0", background: "none", border: "none", color: a ? "#d4b45a" : "#7a6048", fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
+    card: { background: "linear-gradient(135deg, #2a1a0e 0%, #261a0a 100%)", border: "1px solid #4a3520", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
+    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#5a4030"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
+    statBox: { background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
+    logoutBtn: { background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", color: "#a08060", fontSize: 11, cursor: "pointer", fontFamily: SANS },
+    dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
+    dropdownItem: { padding: "12px 14px", cursor: "pointer", borderBottom: "1px solid #4a352033" },
+    sortBtn: a => ({ padding: "4px 12px", borderRadius: 20, border: `1px solid ${a ? "#d4b45a" : "#4a3520"}`, background: a ? "#d4b45a22" : "transparent", color: a ? "#d4b45a" : "#a08060", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
+  };
+
+  if (authLoading) return (
+    <div style={{ background: "#1a0f08", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#d4b45a", fontFamily: SANS, fontSize: 16, letterSpacing: 2 }}>
+      Loading...
+    </div>
+  );
+
+  if (!user) return <Auth onLogin={() => supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user))} />;
+
+  if (selected) {
+    const c = selected;
+    const isLine = !!c._isLine;
+
+    // Compute strength display for line mode
+    const STRENGTH_ORDER = ["Light", "Medium", "Medium-Full", "Full"];
+    const strengthValues = isLine
+      ? [...new Set((vitolas || []).map(v => v.strength).filter(Boolean))]
+          .sort((a, b) => STRENGTH_ORDER.indexOf(a) - STRENGTH_ORDER.indexOf(b))
+      : [];
+    const strengthDisplay = strengthValues.length > 1
+      ? strengthValues.join(" / ")
+      : strengthValues[0] || c.strength;
+
+    // Use first vitola for line-level specs
+    const firstVitola = isLine ? (vitolas?.[0] || c) : c;
+    const origin = firstVitola.origin || c.origin;
+    const wrapper = firstVitola.wrapper || c.wrapper;
+    const tastingNotes = firstVitola.tasting_notes || c.tasting_notes;
+
+    const handleBack = () => {
+      setSelected(null);
+      if (isLine) { setSelectedLine(null); setVitolas([]); setQuery(""); }
+    };
+
+    return (
+      <div style={{ ...s.app, overflowY: "auto" }}>
+        <div style={{ position: "relative", height: 140 }}>
+          <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, #1a0f0844 0%, #1a0f08 100%)" }} />
+          <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: "#1a0f08bb", border: "1px solid #4a3520", color: "#d4b45a", fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
+          {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: "#d4b45add", color: "#1a0f08", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
+          {/* Brand + Line overlapping image at bottom */}
+          <div style={{ position: "absolute", bottom: 12, left: 20, right: 20 }}>
+            <div style={{ fontSize: 11, color: "#ddc9a899", letterSpacing: 2, textTransform: "uppercase" }}>{c.brand}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: "#f5ead8", margin: "2px 0 0", textShadow: "0 1px 4px #1a0f08" }}>{c.line}</div>
           </div>
-          {item.vitola && <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>Vitola: {item.vitola}</div>}
-          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>
-            Reported by @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+        </div>
+
+        <div style={{ padding: "0 20px 30px" }}>
+          {/* Line-level badges — wrapper, strength, origin */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16, marginTop: 12 }}>
+            {wrapper && <Badge label={wrapper} color="#a07830" />}
+            {strengthDisplay && <Badge label={strengthDisplay} color={strengthColor(strengthValues[0] || c.strength)} />}
+            {origin && <Badge label={origin} color="#7a9a7a" />}
           </div>
 
-          {/* Add to DB form */}
-          {addingId === item.id && (
-            <AddCigarForm
-              item={item}
-              originOptions={originOptions}
-              wrapperOptions={wrapperOptions}
-              onSave={(formData) => handleSaveToDb(item, formData)}
-              onCancel={() => setAddingId(null)}
-            />
-          )}
+          {/* Critic score */}
+          {!isLine && c.rating && <><ScoreBar rating={c.rating} /><div style={{ fontSize: 11, color: "#a08060", marginTop: 4, marginBottom: 20 }}>CRITIC SCORE</div></>}
 
-          {!showResolved && addingId !== item.id && (
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setAddingId(item.id)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a22, #d4b45a11)", border: "1px solid #d4b45a55", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                + Add to DB
-              </button>
-              {dismissConfirmId === item.id ? (
-                <>
-                  <button onClick={() => handleDismiss(item.id)}
-                    style={{ flex: 1, background: "#a0522d22", border: "1px solid #a0522d", borderRadius: 8, padding: "7px 0", color: "#e8a07a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                    Yes
-                  </button>
-                  <button onClick={() => setDismissConfirmId(null)}
-                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button onClick={() => setDismissConfirmId(item.id)}
-                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  Dismiss
-                </button>
+          {/* Community rating */}
+          {communityRating && (
+            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, marginBottom: 20, overflow: "hidden" }}>
+              {/* Header row — always visible, tappable */}
+              <div
+                onClick={() => communityRating.ready && setShowVitolaBreakdown(p => !p)}
+                style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: communityRating.ready ? "pointer" : "default" }}
+              >
+                <div>
+                  <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 4 }}>ASHED COMMUNITY</div>
+                  {communityRating.ready ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ color: "#7a9a7a", fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "#5a4030", fontStyle: "italic" }}>No ratings yet</div>
+                  )}
+                </div>
+                <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                  <div style={{ fontSize: 12, color: "#ddc9a8" }}>{communityRating.count} {communityRating.count === 1 ? "rating" : "ratings"}</div>
+                  {communityRating.ready && (
+                    <span style={{ fontSize: 11, color: "#a08060" }}>{showVitolaBreakdown ? "▲" : "▼"} by vitola</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Vitola breakdown — expandable */}
+              {showVitolaBreakdown && communityRating.vitolas?.length > 0 && (
+                <div style={{ borderTop: "1px solid #4a352033", padding: "10px 16px 14px" }}>
+                  {communityRating.vitolas.map((v, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < communityRating.vitolas.length - 1 ? 10 : 0 }}>
+                      <div style={{ fontSize: 12, color: "#ddc9a8", width: 110, flexShrink: 0 }}>{v.vitola}</div>
+                      <div style={{ flex: 1, height: 5, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ width: `${v.avg * 10}%`, height: "100%", background: "linear-gradient(90deg, #7a9a7a, #a0c4a0)", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#7a9a7a", width: 32, textAlign: "right" }}>{v.avg}</span>
+                      <span style={{ fontSize: 10, color: "#5a4030", width: 24, textAlign: "right" }}>×{v.count}</span>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}
-          {dismissConfirmId === item.id && (
-            <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, textAlign: "center" }}>
-              Are you sure you want to dismiss this cigar addition?
+
+          {/* Tasting notes */}
+          {tastingNotes && (
+            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16, marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginBottom: 8 }}>TASTING NOTES</div>
+              <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.6 }}>{tastingNotes}</div>
             </div>
           )}
+
+          {/* LINE MODE: vitola list with Log buttons */}
+          {isLine && (
+            <div style={{ marginBottom: 16 }}>
+
+              {/* Drink Pairings strip — above vitola list */}
+              <button
+                onClick={() => { if (isPremium) { setPairingsCigar(firstVitola); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a8a9a44", borderRadius: 10, padding: "10px 16px", color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>🥃</span>
+                  <span style={{ fontWeight: 600 }}>Drink Pairings</span>
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                  <span style={{ fontSize: 16, color: "#7a6048" }}>›</span>
+                </span>
+              </button>
+
+              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 10 }}>SELECT A VITOLA</div>
+              {violasLoading && vitolas.length === 0 && (
+                <div style={{ fontSize: 12, color: "#7a9a7a", marginBottom: 10 }}>Loading sizes...</div>
+              )}
+              {vitolas.map((v, i) => {
+                const mixedStrengths = strengthValues.length > 1;
+                return (
+                  <div key={i} style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
+                    {/* Vitola name + size + strength */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#f5ead8" }}>{v.vitola}</div>
+                        <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap", alignItems: "center" }}>
+                          
+                          {mixedStrengths && v.strength && <Badge label={v.strength} color={strengthColor(v.strength)} />}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setCheckingIn(v)}
+                        style={{ background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 8, padding: "8px 22px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                      >
+                        Log this Smoke 🚬
+                      </button>
+                    </div>
+                    {/* Wishlist + Humidor per vitola */}
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button
+                        onClick={() => handleAddToWishlist(v)}
+                        style={{ flex: 1, background: isOnWishlist(v) ? "#d4b45a22" : "none", border: `1px solid ${isOnWishlist(v) ? "#d4b45a" : "#a08060"}`, borderRadius: 8, padding: "6px 0", color: isOnWishlist(v) ? "#d4b45a" : "#ddc9a8", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        {isOnWishlist(v) ? "✓ Wishlisted" : "+ Wishlist"}
+                      </button>
+                      <button
+                        onClick={() => handleAddToHumidor(v)}
+                        style={{ flex: 1, background: isInHumidor(v) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(v) ? "#7a9a7a" : "#a08060"}`, borderRadius: 8, padding: "6px 0", color: isInHumidor(v) ? "#7a9a7a" : "#ddc9a8", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        {isInHumidor(v) ? "✓ In Humidor" : "+ Humidor"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {violasLoading && vitolas.length > 0 && (
+                <div style={{ fontSize: 11, color: "#7a9a7a", textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
+              )}
+            </div>
+          )}
+
+          {/* SINGLE VITOLA MODE: original buttons */}
+          {!isLine && (
+            c.smoked ? (
+              <div style={{ background: "#2a1a0e", border: "1px solid #d4b45a44", borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 11, color: "#d4b45a", letterSpacing: 2, marginBottom: 10 }}>YOUR REVIEW · {c.smokedDate}</div>
+                <ScoreBar rating={c.userRating} />
+                <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.6, fontStyle: "italic", marginTop: 10 }}>"{c.notes}"</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
+                  + LOG THIS SMOKE
+                </button>
+                <button
+                  onClick={() => { if (isPremium) { setPairingsCigar(c); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
+                  style={{ width: "100%", background: "none", border: "1px solid #7a8a9a55", borderRadius: 10, padding: 12, color: "#7a8a9a", fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                >
+                  🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: "#7a8a9a22", border: "1px solid #7a8a9a55", borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => handleAddToWishlist(c)}
+                    style={{ flex: 1, background: isOnWishlist(c) ? "#d4b45a22" : "none", border: `1px solid ${isOnWishlist(c) ? "#d4b45a" : "#4a3520"}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? "#d4b45a" : "#a08060", fontSize: 12, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
+                  >
+                    {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
+                  </button>
+                  <button
+                    onClick={() => handleAddToHumidor(c)}
+                    style={{ flex: 1, background: isInHumidor(c) ? "#7a9a7a22" : "none", border: `1px solid ${isInHumidor(c) ? "#7a9a7a" : "#4a3520"}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? "#7a9a7a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                  >
+                    {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
+                  </button>
+                </div>
+              </div>
+            )
+          )}
         </div>
-      ))}
-    </div>
-  );
-}
 
-function FeedbackSection() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
-  const [showResolved, setShowResolved] = useState(false);
-
-  useEffect(() => { loadFeedback(); }, [filter, showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadFeedback = async () => {
-    setLoading(true);
-    let query = supabase
-      .from("feedback")
-      .select("*, users(username)")
-      .eq("resolved", showResolved)
-      .order("created_at", { ascending: false });
-    if (filter !== "all") query = query.eq("type", filter);
-    const { data } = await query;
-    setItems(data || []);
-    setLoading(false);
-  };
-
-  const handleResolve = async (id) => {
-    await supabase.from("feedback").update({ resolved: true }).eq("id", id);
-    setItems(prev => prev.filter(i => i.id !== id));
-  };
-
-  const getPostHogUrl = (sessionId) =>
-    `https://us.posthog.com/replay?sessionId=${sessionId}`;
+        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); refreshCheckins(); }} />}
+        {showPairings && pairingsCigar && (
+          <Pairings
+            cigar={pairingsCigar}
+            onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Bug Reports & Feedback</div>
-        <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-          {showResolved ? "Show Pending" : "Show Resolved"}
+    <div style={s.app}>
+      <div style={s.header}>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, color: "#d4b45a", textTransform: "uppercase" }}>🚬 Ashed</div>
+          <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginTop: 2 }}>CIGAR JOURNAL & COMMUNITY</div>
+        </div>
+        <button onClick={() => setShowSettings(true)}
+          style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#a08060", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+          ⚙️
         </button>
       </div>
 
-      {/* Filter tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["all", "All"], ["bug", "🐛 Bugs"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
-          <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
-
-      {!loading && items.length === 0 && (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "Nothing pending."}</div>
-        </div>
-      )}
-
-      {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 11, background: item.type === "bug" ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${item.type === "bug" ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? "#e8a07a" : "#7a9a7a" }}>
-              {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
-            </span>
-            <span style={{ fontSize: 11, color: "#5a4535", marginLeft: "auto" }}>
-              @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </span>
-          </div>
-          <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {item.posthog_session_id && (
-              <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
-                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
-                📹 Watch Session
-              </a>
-            )}
-            {!showResolved && (
-              <button onClick={() => handleResolve(item.id)}
-                style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Resolve
-              </button>
+      {tab === "search" && (
+        <div style={{ padding: 16 }}>
+          <div style={{ position: "relative" }}>
+            <input
+              style={s.input}
+              placeholder="Search by cigar name or brand..."
+              value={query}
+              onChange={e => handleInputChange(e.target.value)}
+              onFocus={() => query.length >= 2 && searchResults.length > 0 && setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            />
+            {showDropdown && (
+              <div style={s.dropdown}>
+                {searching && searchResults.length === 0 && (
+                  <div style={{ padding: "12px 14px", fontSize: 12, color: "#7a9a7a" }}>Searching...</div>
+                )}
+                {!searching && searchResults.length === 0 && query.length >= 2 && (
+                  <div style={{ padding: "10px 14px" }}>
+                    <div style={{ fontSize: 12, color: "#7a6048", marginBottom: 8 }}>No results found</div>
+                    <button
+                      onMouseDown={() => { setShowDropdown(false); setShowCigarSubmit(true); }}
+                      style={{ width: "100%", background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "8px 12px", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, textAlign: "left" }}>
+                      + Can't find your cigar? Submit it →
+                    </button>
+                  </div>
+                )}
+                {searchResults.map((c, i) => (
+                  <div key={i} style={s.dropdownItem} onMouseDown={() => handleLineSelect(c)}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "#f5ead8" }}>{c.line}</div>
+                        <div style={{ fontSize: 11, color: "#a08060", marginTop: 2 }}>{c.brand}</div>
+                      </div>
+                      {c.avg_rating && <span style={{ fontSize: 14, fontWeight: 700, color: "#d4b45a" }}>{c.avg_rating}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
-function DbRefreshSection() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("pending");
-
-  useEffect(() => { loadCandidates(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadCandidates = async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("db_refresh_candidates")
-      .select("*")
-      .eq("status", filter)
-      .order("created_at", { ascending: false });
-    setItems(data || []);
-    setLoading(false);
-  };
-
-  const handleApprove = async (item) => {
-    // Insert into cigars table
-    const vitolas = item.vitolas ? item.vitolas.split(",").map(v => v.trim()) : ["Robusto"];
-    for (const vitola of vitolas) {
-      const { data: existing } = await supabase
-        .from("cigars")
-        .select("id")
-        .eq("brand", item.brand)
-        .eq("line", item.line)
-        .eq("vitola", vitola)
-        .maybeSingle();
-      if (!existing) {
-        await supabase.from("cigars").insert({
-          brand: item.brand,
-          line: item.line,
-          vitola,
-          source: "admin_approved",
-        });
-      }
-    }
-    await supabase.from("db_refresh_candidates").update({ status: "approved" }).eq("id", item.id);
-    setItems(prev => prev.filter(i => i.id !== item.id));
-  };
-
-  const handleDismiss = async (id) => {
-    await supabase.from("db_refresh_candidates").update({ status: "dismissed" }).eq("id", id);
-    setItems(prev => prev.filter(i => i.id !== id));
-  };
-
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>DB Refresh Candidates</div>
-        <div style={{ fontSize: 11, color: "#5a4535" }}>Runs 1st of each month</div>
-      </div>
-
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        Searches Halfwheel for new releases from brands in our DB. To trigger manually, run: <span style={{ color: "#a08060", fontFamily: "monospace" }}>curl https://ashed.app/api/db-refresh</span>
-      </div>
-
-      {/* Filter tabs */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["pending", "Pending"], ["approved", "✓ Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
-          <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
-
-      {!loading && items.length === 0 && (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No {filter} candidates.</div>
-        </div>
-      )}
-
-      {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 4 }}>
-            {item.brand} · {item.line}
-          </div>
-          {item.vitolas && <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
-          {item.notes && <div style={{ fontSize: 12, color: "#7a6048", lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
-          {item.source_url && (
-            <a href={item.source_url} target="_blank" rel="noreferrer"
-              style={{ fontSize: 11, color: "#d4b45a", textDecoration: "none", display: "block", marginBottom: 10 }}>
-              📰 View on Halfwheel
-            </a>
-          )}
-          <div style={{ fontSize: 10, color: "#5a4535", marginBottom: item.status === "pending" ? 10 : 0 }}>
-            Found: {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          </div>
-          {filter === "pending" && (
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Add to DB
+          {/* Scan Band and Recommendations buttons — shown when no search active */}
+          {!query && !selectedLine && (
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+              <button
+                onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
+                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #d4b45a55", borderRadius: 10, padding: 14, color: "#d4b45a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
               </button>
-              <button onClick={() => handleDismiss(item.id)}
-                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                Dismiss
+              <button
+                onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
+                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                ✨ For Me {!isPremium && <span style={{ fontSize: 10, background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
               </button>
             </div>
           )}
+
+          {!selectedLine && !query && (
+            <Feed user={user} />
+          )}
         </div>
-      ))}
+      )}
+
+      {tab === "profile" && (
+        <div style={{ padding: 16 }}>
+          {/* User header - always visible */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, padding: "16px 0", borderBottom: "1px solid #4a3520" }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #d4b45a, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#f5ead8" }}>{displayName}</div>
+              <div style={{ fontSize: 12, color: "#a08060" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
+              <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <Badge label="🏅 Aficionado" color="#d4b45a" />
+                {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
+              </div>
+            </div>
+            <button
+              onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
+              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative" }}
+            >
+              👥 Friends
+              {pendingFriendCount > 0 && (
+                <span style={{ position: "absolute", top: -6, right: -6, background: "#e8632a", color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
+                  {pendingFriendCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
+              style={{ background: "none", border: `1px solid ${unreadNotifCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 12px", color: unreadNotifCount > 0 ? "#d4b45a" : "#a08060", fontSize: 16, cursor: "pointer", fontFamily: SANS, position: "relative", lineHeight: 1 }}
+            >
+              🔔
+              {unreadNotifCount > 0 && (
+                <span style={{ position: "absolute", top: -6, right: -6, background: "#e8632a", color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
+                  {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Admin/Moderator console button */}
+          {(isAdmin || isModerator) && (
+            <div style={{ marginBottom: 16 }}>
+              <button
+                onClick={() => setShowAdmin(true)}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #d4b45a44", borderRadius: 10, padding: "10px 16px", color: "#d4b45a", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
+              >
+                {isAdmin ? "⚙️ Admin Console" : "🚩 Moderation Console"}
+              </button>
+            </div>
+          )}
+
+          {/* Partner Dashboard button — only visible to partners */}
+          {isPartner && (
+            <div style={{ marginBottom: 16 }}>
+              <button
+                onClick={() => setShowPartner(true)}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a8a9a44", borderRadius: 10, padding: "10px 16px", color: "#7a8a9a", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
+              >
+                🏪 Partner Dashboard
+              </button>
+            </div>
+          )}
+
+          {/* Stat boxes - always visible */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {[
+              ["Smoked", checkins.length],
+              ["AVG RATING", checkins.length ? (checkins.reduce((a, c) => a + c.rating, 0) / checkins.length).toFixed(1) : "—"],
+              ["This Year", checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length]
+            ].map(([k, v]) => (
+              <div key={k} style={{ ...s.statBox, padding: "10px 8px" }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a" }}>{v}</div>
+                <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginTop: 1 }}>{k.toUpperCase()}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sub-tabs */}
+          <div style={{ display: "flex", borderBottom: "1px solid #4a3520", marginBottom: 16 }}>
+            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"], ["advanced", isPremium ? "Advanced" : "⭐ Advanced"]].map(([id, label]) => (
+              <button key={id} onClick={() => setProfileTab(id)}
+                style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? "#d4b45a" : "transparent"}`, color: profileTab === id ? "#d4b45a" : "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
+                {label.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* JOURNAL SUB-TAB */}
+          {profileTab === "journal" && (
+            <>
+              {checkins.length > 0 && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <button onClick={() => setShowFilterDrawer(true)}
+                      style={{ background: activeFilterCount > 0 ? "#d4b45a22" : "none", border: `1px solid ${activeFilterCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}>
+                      🔧 Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
+                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[["date", "Date"], ["score", "Score"], ["name", "Name"]].map(([val, label]) => (
+                        <button key={val} onClick={() => {
+                          if (historySortBy === val) setHistorySortDir(d => d === "desc" ? "asc" : "desc");
+                          else { setHistorySortBy(val); setHistorySortDir("desc"); }
+                        }} style={s.sortBtn(historySortBy === val)}>
+                          {label} {historySortBy === val ? (historySortDir === "desc" ? "↓" : "↑") : ""}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showFilterDrawer && (
+                <div style={{ background: "#261a0a", border: "1px solid #4a3520", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, color: "#a08060", letterSpacing: 2, marginBottom: 16 }}>FILTER SMOKES</div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
+                    <input style={{ width: "100%", background: "#2a1a0e", border: "1px solid #5a4030", borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                      placeholder="Search your smokes..." value={filterName}
+                      onChange={e => { setFilterName(e.target.value); setFilterNameOpen(true); }}
+                      onFocus={() => setFilterNameOpen(true)} onBlur={() => setTimeout(() => setFilterNameOpen(false), 150)} />
+                    {filterNameOpen && (
+                      <div style={{ background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
+                        {filteredNames.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: "#7a6048" }}>No logged smokes found</div>
+                          : filteredNames.map(n => <div key={n} style={{ padding: "10px 12px", fontSize: 13, color: "#f5ead8", cursor: "pointer", borderBottom: "1px solid #4a352033" }} onMouseDown={() => { setFilterName(n); setFilterNameOpen(false); }}>{n}</div>)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>BRAND</div>
+                    <input style={{ width: "100%", background: "#2a1a0e", border: "1px solid #5a4030", borderRadius: filterBrandOpen && filteredBrands.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                      placeholder="Search your brands..." value={filterBrand}
+                      onChange={e => { setFilterBrand(e.target.value); setFilterBrandOpen(true); }}
+                      onFocus={() => setFilterBrandOpen(true)} onBlur={() => setTimeout(() => setFilterBrandOpen(false), 150)} />
+                    {filterBrandOpen && (
+                      <div style={{ background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
+                        {filteredBrands.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: "#7a6048" }}>No logged smokes found</div>
+                          : filteredBrands.map(b => <div key={b} style={{ padding: "10px 12px", fontSize: 13, color: "#f5ead8", cursor: "pointer", borderBottom: "1px solid #4a352033" }} onMouseDown={() => { setFilterBrand(b); setFilterBrandOpen(false); }}>{b}</div>)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {FLAVOR_TAGS.map(tag => (
+                        <button key={tag} onClick={() => setFilterNoteTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}
+                          style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? "#d4b45a" : "#4a3520"}`, background: filterNoteTags.includes(tag) ? "#d4b45a22" : "transparent", color: filterNoteTags.includes(tag) ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 12 }}>SCORE RANGE</div>
+                    <div style={{ display: "flex", gap: 16 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>MINIMUM: <span style={{ color: "#d4b45a", fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ width: "100%", accentColor: "#d4b45a" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#7a6048", marginTop: 2 }}><span>0</span><span>10</span></div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>MAXIMUM: <span style={{ color: "#d4b45a", fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ width: "100%", accentColor: "#d4b45a" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#7a6048", marginTop: 2 }}><span>0</span><span>10</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>VALUE FOR PRICE</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {["Good value", "OK value", "Poor value"].map(opt => (
+                        <button key={opt} onClick={() => setFilterValue(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
+                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterValue.includes(opt) ? "#d4b45a" : "#4a3520"}`, background: filterValue.includes(opt) ? "#d4b45a22" : "transparent", color: filterValue.includes(opt) ? "#d4b45a" : "#a08060", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>WOULD SMOKE AGAIN</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {["Yes", "Maybe", "No"].map(opt => (
+                        <button key={opt} onClick={() => setFilterWouldSmoke(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
+                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? "#d4b45a" : "#4a3520"}`, background: filterWouldSmoke.includes(opt) ? "#d4b45a22" : "transparent", color: filterWouldSmoke.includes(opt) ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                    Apply Filters
+                  </button>
+                </div>
+              )}
+
+              {profileLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
+              {!profileLoading && checkins.length === 0 && (
+                <div style={{ fontSize: 13, color: "#7a6048", textAlign: "center", padding: 30 }}>No smokes logged yet — find a cigar and tap Log This Smoke!</div>
+              )}
+
+              {(() => {
+                const filtered = checkins.filter(c => {
+                  const brand = (c.cigars?.brand || c.cigar_brand || "").toLowerCase();
+                  const line = (c.cigars?.line || c.cigar_name || "").toLowerCase();
+                  const notes = (c.tasting_notes || "").toLowerCase();
+                  const rating = Array.isArray(c.ratings) ? c.ratings[0] : c.ratings;
+                  if (filterName && !line.includes(filterName.toLowerCase())) return false;
+                  if (filterBrand && !brand.includes(filterBrand.toLowerCase())) return false;
+                  if (filterNoteTags.length > 0 && !filterNoteTags.every(tag => notes.includes(tag.toLowerCase()))) return false;
+                  if (c.rating < filterScoreMin || c.rating > filterScoreMax) return false;
+                  if (filterValue.length > 0 && !filterValue.includes(rating?.value_for_price || "")) return false;
+                  if (filterWouldSmoke.length > 0 && !filterWouldSmoke.includes(rating?.would_smoke_again || "")) return false;
+                  return true;
+                });
+                const sorted = [...filtered].sort((a, b) => {
+                  let val = 0;
+                  if (historySortBy === "score") val = b.rating - a.rating;
+                  else if (historySortBy === "name") val = (a.cigars?.line || a.cigar_name || "").localeCompare(b.cigars?.line || b.cigar_name || "");
+                  else val = new Date(b.smoke_date) - new Date(a.smoke_date);
+                  return historySortDir === "asc" ? -val : val;
+                });
+                if (sorted.length === 0 && checkins.length > 0) return (
+                  <div style={{ fontSize: 13, color: "#7a6048", textAlign: "center", padding: 30 }}>No smokes match your filters.</div>
+                );
+                return sorted.map(c => {
+                  const brand = c.cigars?.brand || c.cigar_brand || "Unknown";
+                  const line = c.cigars?.line || c.cigar_name || "Unknown";
+                  const vitola = c.cigars?.vitola || c.cigar_vitola || null;
+                  const strength = c.cigars?.strength || null;
+                  const isSelected = selectedCheckin?.id === c.id;
+                  return (
+                    <div key={c.id} style={{ ...s.card, borderColor: isSelected ? "#d4b45a55" : "#4a3520" }} onClick={() => isSelected ? setSelectedCheckin(null) : handleSelectCheckin(c)}>
+                      <div style={{ padding: "12px 14px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", margin: "2px 0 6px" }}>{line}</div>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {vitola && <Badge label={vitola} />}
+                              {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                              {c.cigars && !c.cigars.verified && !c.cigars.rejection_reason && (
+                                <span style={{ fontSize: 10, background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 6, padding: "1px 6px", color: "#c9a84c" }}>⏳ Pending verification</span>
+                              )}
+                              {c.cigars?.rejection_reason && (
+                                <span style={{ fontSize: 10, background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 6, padding: "1px 6px", color: "#e8a07a" }}>⚠️ Not verified</span>
+                              )}
+                            </div>
+                            {c.cigars?.rejection_reason && (
+                              <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, lineHeight: 1.5 }}>
+                                {c.cigars.rejection_reason}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a" }}>{c.rating?.toFixed(1)}</div>
+                            <div style={{ fontSize: 11, color: "#7a6048" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+                            {c.visibility === "private" && <div style={{ fontSize: 10, color: "#7a6048", marginTop: 2 }}>🔒 Private</div>}
+                            {c.visibility === "friends_only" && <div style={{ fontSize: 10, color: "#7a9a7a", marginTop: 2 }}>👥 Friends</div>}
+                          </div>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div style={{ borderTop: "1px solid #4a3520", padding: "12px 14px" }}>
+                          {checkinRating && (
+                            <div style={{ marginBottom: 12 }}>
+                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>DETAILED RATINGS</div>
+                              {[["Aroma", checkinRating.aroma], ["Draw", checkinRating.draw], ["Burn", checkinRating.burn], ["Construction", checkinRating.construction], ["Flavor", checkinRating.flavor], ["Finish", checkinRating.finish]].filter(([, v]) => v != null).map(([label, val]) => (
+                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                  <div style={{ fontSize: 11, color: "#a08060", width: 80 }}>{label}</div>
+                                  <div style={{ flex: 1, height: 4, background: "#4a3520", borderRadius: 2, overflow: "hidden" }}>
+                                    <div style={{ width: `${val * 10}%`, height: "100%", background: "linear-gradient(90deg, #d4b45a, #e8cc7a)", borderRadius: 2 }} />
+                                  </div>
+                                  <div style={{ fontSize: 12, color: "#d4b45a", fontWeight: 700, width: 28 }}>{val?.toFixed(1)}</div>
+                                </div>
+                              ))}
+                              {checkinRating.value_for_price && <div style={{ fontSize: 12, color: "#a08060", marginTop: 8 }}>Value: <span style={{ color: "#f5ead8" }}>{checkinRating.value_for_price}</span></div>}
+                              {checkinRating.would_smoke_again && <div style={{ fontSize: 12, color: "#a08060", marginTop: 4 }}>Smoke again: <span style={{ color: "#f5ead8" }}>{checkinRating.would_smoke_again}</span></div>}
+                              {checkinRating.flavor_tags && (
+                                <div style={{ marginTop: 10 }}>
+                                  <div style={{ fontSize: 11, color: "#a08060", marginBottom: 6 }}>FLAVOR TAGS</div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                    {checkinRating.flavor_tags.split(", ").map(tag => (
+                                      <span key={tag} style={{ background: "#d4b45a22", color: "#d4b45a", border: "1px solid #d4b45a55", borderRadius: 20, padding: "2px 10px", fontSize: 11 }}>{tag}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {c.tasting_notes && (
+                            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginBottom: 8 }}>COMMENTS</div>
+                              <div style={{ fontSize: 14, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
+                            </div>
+                          )}
+                          <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16 }}>
+                            <div style={{ fontSize: 12, color: "#a08060", letterSpacing: 1, marginBottom: 10 }}>VISIBILITY</div>
+                            <div style={{ display: "flex", gap: 6 }}>
+                              {[
+                                { value: "public", label: "🌍 Public" },
+                                { value: "friends_only", label: "👥 Friends" },
+                                { value: "private", label: "🔒 Private" },
+                              ].map(opt => (
+                                <button
+                                  key={opt.value}
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (c.visibility === opt.value) return;
+                                    const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
+                                    if (data) {
+                                      setSelectedCheckin(data);
+                                      setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x));
+                                    }
+                                  }}
+                                  style={{
+                                    flex: 1, padding: "7px 4px", borderRadius: 8, cursor: "pointer", fontFamily: SANS,
+                                    border: `1px solid ${c.visibility === opt.value ? "#d4b45a" : "#4a3520"}`,
+                                    background: c.visibility === opt.value ? "#d4b45a22" : "transparent",
+                                    color: c.visibility === opt.value ? "#d4b45a" : "#7a6048",
+                                    fontSize: 11, fontWeight: c.visibility === opt.value ? 700 : 400,
+                                  }}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }} style={{ width: "100%", background: "none", border: "1px solid #a0522d55", borderRadius: 10, padding: 14, color: "#a0522d", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 12 }}>
+                            Delete this check-in
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </>
+          )}
+
+          {profileTab === "journal" && checkins.length > 0 && (
+            <button
+              onClick={handleExportCSV}
+              style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#a08060", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 8, marginBottom: 8 }}
+            >
+              ⬇️ Export My Journal (CSV)
+            </button>
+          )}
+
+          {/* STATS SUB-TAB */}
+          {profileTab === "stats" && (
+            <>
+              {checkins.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#7a6048" }}>Log some smokes to see your stats!</div>
+              ) : (() => {
+                const locCounts = checkins.reduce((acc, c) => { if (c.smoke_location) acc[c.smoke_location] = (acc[c.smoke_location] || 0) + 1; return acc; }, {});
+                const topLoc = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0];
+                const top3 = [...checkins].sort((a, b) => b.rating - a.rating).slice(0, 3);
+                const brandCounts = checkins.reduce((acc, c) => { const b = c.cigars?.brand || c.cigar_brand; if (b) acc[b] = (acc[b] || 0) + 1; return acc; }, {});
+                const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0];
+                const vitolaRatings = checkins.reduce((acc, c) => { const v = c.cigars?.vitola || c.cigar_vitola; if (v) { if (!acc[v]) acc[v] = []; acc[v].push(c.rating); } return acc; }, {});
+                const bestVitola = Object.entries(vitolaRatings).map(([v, ratings]) => [v, ratings.reduce((a, b) => a + b, 0) / ratings.length]).sort((a, b) => b[1] - a[1])[0];
+                return (
+                  <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 14 }}>
+                    {topLoc && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #4a352033" }}><div style={{ fontSize: 11, color: "#a08060" }}>📍 TOP LOCATION</div><div style={{ fontSize: 13, color: "#f5ead8" }}>{topLoc[0]} <span style={{ color: "#d4b45a" }}>({topLoc[1]})</span></div></div>}
+                    {topBrand && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #4a352033" }}><div style={{ fontSize: 11, color: "#a08060" }}>🏆 MOST SMOKED BRAND</div><div style={{ fontSize: 13, color: "#f5ead8" }}>{topBrand[0]} <span style={{ color: "#d4b45a" }}>({topBrand[1]})</span></div></div>}
+                    {bestVitola && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #4a352033" }}><div style={{ fontSize: 11, color: "#a08060" }}>🎯 FAVORITE VITOLA</div><div style={{ fontSize: 13, color: "#f5ead8" }}>{bestVitola[0]} <span style={{ color: "#d4b45a" }}>({bestVitola[1].toFixed(1)})</span></div></div>}
+                    {top3.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 11, color: "#a08060", marginBottom: 8 }}>⭐ TOP RATED</div>
+                        {top3.map((c, i) => (
+                          <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < 2 ? 6 : 0 }}>
+                            <div style={{ fontSize: 13, color: "#ddc9a8", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              <span style={{ color: "#7a6048", marginRight: 6 }}>#{i + 1}</span>
+                              {c.cigars?.brand || c.cigar_brand ? `${c.cigars?.brand || c.cigar_brand} — ` : ""}{c.cigars?.line || c.cigar_name || "Unknown"}
+                            </div>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#d4b45a", marginLeft: 8 }}>{c.rating?.toFixed(1)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </>
+          )}
+
+          {/* BADGES SUB-TAB */}
+          {profileTab === "badges" && (
+            <Badges userId={user.id} />
+          )}
+
+          {/* ADVANCED STATS SUB-TAB */}
+          {profileTab === "advanced" && (
+            isPremium ? (
+              <AdvancedStats checkins={checkins} />
+            ) : (
+              <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                <div style={{ fontSize: 36, marginBottom: 16 }}>📊</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", marginBottom: 8 }}>Advanced Stats is Premium</div>
+                <div style={{ fontSize: 13, color: "#7a6048", lineHeight: 1.6, marginBottom: 20 }}>Monthly trends, flavor profile, brand breakdown and more.</div>
+                <button onClick={() => setUpgradeFeature("advanced_stats")}
+                  style={{ background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: "12px 28px", color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  ⭐ Upgrade to Premium
+                </button>
+              </div>
+            )
+          )}
+        </div>
+      )}
+
+      {tab === "wishlist" && (
+        <div style={{ padding: 16 }}>
+          <div style={{ fontSize: 12, color: "#a08060", letterSpacing: 2, marginBottom: 12 }}>YOUR WISHLIST</div>
+
+          {/* Search to add */}
+          <div style={{ position: "relative", marginBottom: 16 }}>
+            <input
+              value={wishlistSearchQuery}
+              onChange={e => {
+                const val = e.target.value;
+                setWishlistSearchQuery(val);
+                setWishlistSearchResults([]);
+                if (val.length < 2) return;
+                setWishlistSearching(true);
+                clearTimeout(wishlistSearchTimeout.current);
+                wishlistSearchTimeout.current = setTimeout(async () => {
+                  const results = await searchCigarLines(val);
+                  setWishlistSearchResults(results);
+                  setWishlistSearching(false);
+                }, 350);
+              }}
+              placeholder="Search cigars to add to wishlist..."
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #5a4030", borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+            />
+            {wishlistSearching && (
+              <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#7a9a7a" }}>Searching...</div>
+            )}
+            {wishlistSearchResults.length > 0 && (
+              <div style={{ position: "absolute", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, maxHeight: 200, overflowY: "auto" }}>
+                {wishlistSearchResults.map((r, i) => (
+                  <div key={i}
+                    onClick={() => {
+                      handleAddToWishlist({ id: r.id, brand: r.brand, line: r.line });
+                      setWishlistSearchQuery("");
+                      setWishlistSearchResults([]);
+                    }}
+                    style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #4a352033", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, color: "#f5ead8" }}>{r.line}</div>
+                      <div style={{ fontSize: 11, color: "#a08060" }}>{r.brand}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#d4b45a" }}>+ Add</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Brand filter */}
+          {wishlist.length > 0 && (() => {
+            const uniqueWishlistBrands = [...new Set(wishlist.map(w => w.cigars?.brand || w.cigar_brand).filter(Boolean))].sort();
+            return (
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                  <select
+                    value={wishlistFilterBrand}
+                    onChange={e => setWishlistFilterBrand(e.target.value)}
+                    style={{ flex: 1, background: "#2a1a0e", border: `1px solid ${wishlistFilterBrand ? "#d4b45a" : "#4a3520"}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? "#d4b45a" : "#a08060", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  >
+                    <option value="">All Brands</option>
+                    {uniqueWishlistBrands.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                  {wishlistFilterBrand && (
+                    <button onClick={() => setWishlistFilterBrand("")} style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 12px", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
+                  )}
+                </div>
+                {/* Strength filter */}
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["Light", "Medium", "Medium-Full", "Full"].map(str => (
+                    <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
+                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : "#4a3520"}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "22" : "transparent", color: wishlistFilterStrength.includes(str) ? strengthColor(str) : "#7a6048", fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 400 }}>
+                      {str}
+                    </button>
+                  ))}
+                </div>
+                {(wishlistFilterBrand || wishlistFilterStrength.length > 0) && (
+                  <div style={{ textAlign: "right", marginTop: 6 }}>
+                    <span onClick={() => { setWishlistFilterBrand(""); setWishlistFilterStrength([]); }} style={{ fontSize: 11, color: "#7a6048", cursor: "pointer" }}>Clear all filters</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {wishlistLoading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
+          {!wishlistLoading && wishlist.length === 0 && (
+            <div style={{ textAlign: "center", padding: 40 }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🔖</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", marginBottom: 8 }}>Your wishlist is empty</div>
+              <div style={{ fontSize: 13, color: "#7a6048" }}>Search for a cigar or scan a band and tap "Add to Wishlist"</div>
+            </div>
+          )}
+          {(() => {
+            const filtered = wishlist.filter(w => {
+              const brand = w.cigars?.brand || w.cigar_brand || "";
+              const strength = w.cigars?.strength || "";
+              if (wishlistFilterBrand && brand !== wishlistFilterBrand) return false;
+              if (wishlistFilterStrength.length > 0 && !wishlistFilterStrength.includes(strength)) return false;
+              return true;
+            });
+            if (filtered.length === 0 && wishlist.length > 0) return (
+              <div style={{ textAlign: "center", padding: 30, fontSize: 13, color: "#7a6048" }}>No wishlist items match your filters.</div>
+            );
+            return filtered.map(w => {
+              const brand = w.cigars?.brand || w.cigar_brand || "Unknown";
+              const line = w.cigars?.line || w.cigar_name || "Unknown Cigar";
+              const vitola = w.cigars?.vitola || w.cigar_vitola || "";
+              const strength = w.cigars?.strength || "";
+              return (
+                <div key={w.id} style={{ ...s.card, borderColor: "#4a3520" }}>
+                  <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ flex: 1 }} onClick={() => w.cigars && setSelected(w.cigars)}>
+                      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", margin: "2px 0 4px" }}>{line}</div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {vitola && <Badge label={vitola} />}
+                        {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#7a6048", marginTop: 6 }}>
+                        Added {new Date(w.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginLeft: 12 }}>
+                      {w.cigars && (
+                        <button
+                          onClick={() => { setCheckingIn(w.cigars); }}
+                          style={{ background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                        >
+                          + Log
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
+                        style={{ background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "6px 12px", color: "#7a9a7a", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                      >
+                        Purchased
+                      </button>
+                      <button
+                        onClick={() => handleRemoveFromWishlist(w.id)}
+                        style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "6px 12px", color: "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      )}
+
+      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
+      {showBandScanner && (
+        <BandScanner
+          user={user}
+          onClose={() => setShowBandScanner(false)}
+          onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
+          onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
+          onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
+          onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
+        />
+      )}
+      {showRecommendations && (
+        <Recommendations
+          user={user}
+          checkins={checkins}
+          onAddToWishlist={(cigar) => handleAddToWishlist(cigar)}
+          onClose={() => setShowRecommendations(false)}
+        />
+      )}
+      {showPairings && pairingsCigar && (
+        <Pairings
+          cigar={pairingsCigar}
+          onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
+        />
+      )}
+      {showFriends && (
+        <Friends
+          user={user}
+          onClose={() => setShowFriends(false)}
+          onRequestHandled={() => refreshPendingFriendCount()}
+        />
+      )}
+      {showNotifications && (
+        <Notifications
+          user={user}
+          onClose={() => { setShowNotifications(false); setUnreadNotifCount(0); }}
+        />
+      )}
+      {upgradeFeature && (
+        <UpgradePrompt
+          feature={upgradeFeature}
+          onClose={() => setUpgradeFeature(null)}
+        />
+      )}
+
+      {/* Health disclaimer — shown once on first login */}
+      {showDisclaimer && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%" }}>
+            <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginBottom: 12 }}>HEALTH DISCLAIMER</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#f5ead8", marginBottom: 16 }}>Before you get started</div>
+            <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 16 }}>
+              Ashed is a <strong style={{ color: "#f5ead8" }}>journal and community tool</strong> for adult cigar enthusiasts. It is not intended to encourage tobacco use.
+            </div>
+            <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 16 }}>
+              Tobacco products contain nicotine and other chemicals known to cause <strong style={{ color: "#f5ead8" }}>cancer, heart disease, and other serious health conditions</strong>. There is no safe level of tobacco use.
+            </div>
+            <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 24 }}>
+              By continuing, you confirm you are a legal adult and understand the health risks associated with tobacco use.
+            </div>
+            <button
+              onClick={handleAcceptDisclaimer}
+              style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+            >
+              I Understand, Let's Go
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome modal — shown once after disclaimer on first login */}
+      {showWelcome && !showDisclaimer && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 36, textAlign: "center", marginBottom: 16 }}>🔥</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a", textAlign: "center", letterSpacing: 1, marginBottom: 4 }}>Welcome to Ashed</div>
+            <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, textAlign: "center", marginBottom: 24 }}>CIGAR JOURNAL & COMMUNITY</div>
+            <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 12 }}>
+              Ashed is your personal cigar journal — log every smoke, track your favorites, and discover new cigars tailored to your taste.
+            </div>
+            <div style={{ fontSize: 14, color: "#ddc9a8", lineHeight: 1.7, marginBottom: 24 }}>
+              Connect with fellow enthusiasts, find nearby lounges, and let AI help you find your next perfect smoke.
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+              {[
+                { svg: <svg width="20" height="20" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="24" width="40" height="8" rx="4" fill="#a07830"/><rect x="4" y="25" width="40" height="3" rx="2" fill="#c9a84c" opacity="0.5"/><rect x="40" y="22" width="10" height="12" rx="2" fill="#d4b45a"/><path d="M44 22 Q46 16 48 14" stroke="#8a8a8a" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>, text: "Log smokes with ratings and tasting notes" },
+                { icon: "✨", text: "AI recommendations based on your palate" },
+                { icon: "📷", text: "Scan any cigar band to identify it instantly" },
+                { svg: <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="9" width="18" height="13" rx="1" fill="#d4b45a"/><polygon points="1,9 23,9 21,5 3,5" fill="#d4b45a"/><rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/><rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/><rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/></svg>, text: "Find cigar lounges near you" },
+                { icon: "👥", text: "Share check-ins with the community" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ flexShrink: 0, width: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item.svg || <span style={{ fontSize: 18 }}>{item.icon}</span>}
+                  </span>
+                  <span style={{ fontSize: 13, color: "#a08060" }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={handleAcceptWelcome}
+              style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              Let's Get Started
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Onboarding tour */}
+      {showTour && (
+        <OnboardingTour onComplete={handleCompleteTour} />
+      )}
+
+      {showWhatsNew && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 28, maxWidth: 380, width: "100%", maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#f5ead8" }}>What's New</div>
+                <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>Version {APP_VERSION}</div>
+              </div>
+              <div style={{ fontSize: 24 }}>🎉</div>
+            </div>
+
+            {[
+              { icon: "⚙️", title: "Settings Screen", desc: "Edit your display name, email, and password. Manage privacy settings." },
+              { icon: "📖", title: "Cigar Guide", desc: "New guide covering vitola sizes, strength levels, wrapper types, origins, and tasting terms. Find it in Settings → Guide." },
+              { icon: "🐛", title: "Bug Reports & Feedback", desc: "Tap Help in Settings to send us bug reports or suggestions directly from the app." },
+              { icon: "🎯", title: "Onboarding Tour", desc: "New users now get a full walkthrough of every feature. Replay it anytime from Settings → Help." },
+              { icon: "💬", title: "Comment Counts", desc: "Feed cards now show how many comments a check-in has." },
+              { icon: "📊", title: "Analytics", desc: "We've added anonymous usage analytics to help us improve the app." },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 2 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            <button onClick={handleDismissWhatsNew}
+              style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginTop: 8 }}>
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showCigarSubmit && (
+        <CigarSubmitModal
+          user={user}
+          onClose={() => setShowCigarSubmit(false)}
+          onSubmitted={handleCigarSubmitted}
+        />
+      )}
+
+      {showSettings && (
+        <Settings
+          user={user}
+          onClose={() => setShowSettings(false)}
+          onSignOut={handleLogout}
+          onReplayTour={handleReplayTour}
+        />
+      )}
+
+      {showAdmin && (
+        <AdminConsole
+          user={user}
+          isSuperAdmin={isSuperAdmin}
+          isModerator={isModerator && !isAdmin}
+          onClose={() => setShowAdmin(false)}
+        />
+      )}
+      {showPartner && (
+        <PartnerDashboard
+          user={user}
+          placeId={partnerPlaceId}
+          onClose={() => setShowPartner(false)}
+        />
+      )}
+      {tab === "humidor" && (
+        <Humidor
+          user={user}
+          onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
+          onSearchToAdd={() => { setTab("search"); }}
+          isPremium={isPremium}
+          onUpgrade={() => setUpgradeFeature("band_scanner")}
+        />
+      )}
+      {tab === "venues" && <Venues />}
+      <nav style={s.nav}>
+        {[["search", "🔍", "Search"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
+          <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
+            <span style={{ fontSize: 18 }}>{icon}</span>
+            <span>{label}</span>
+          </button>
+        ))}
+        <button style={s.navBtn(tab === "venues")} onClick={() => setTab("venues")}>
+          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="9" width="18" height="13" rx="1" fill={tab === "venues" ? "#d4b45a" : "#7a6048"}/>
+              <polygon points="1,9 23,9 21,5 3,5" fill={tab === "venues" ? "#d4b45a" : "#7a6048"}/>
+              <line x1="7" y1="5" x2="6" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="11" y1="5" x2="10" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="15" y1="5" x2="14" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <line x1="19" y1="5" x2="18" y2="9" stroke="#a07830" strokeWidth="0.8"/>
+              <rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/>
+              <rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
+              <rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
+            </svg>
+          </span>
+          <span>Venues</span>
+        </button>
+      </nav>
     </div>
   );
 }
