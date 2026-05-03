@@ -1700,13 +1700,13 @@ function DedupSection({ currentUserId }) {
     try {
       // Update all references to point to keepId
       for (const dupId of dupIds) {
-        await supabase.from("checkins").update({ cigar_id: keepId }).eq("cigar_id", dupId);
-        await supabase.from("humidor").update({ cigar_id: keepId }).eq("cigar_id", dupId);
-        await supabase.from("wishlist").update({ cigar_id: keepId }).eq("cigar_id", dupId);
-        await supabase.from("pairings").delete().eq("cigar_id", dupId);
-        await supabase.from("ratings").update({ cigar_id: keepId }).eq("cigar_id", dupId);
-        // Delete the duplicate
-        await supabase.from("cigars").delete().eq("id", dupId);
+        const r1 = await supabase.from("checkins").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        const r2 = await supabase.from("humidor").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        const r3 = await supabase.from("wishlist").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        const r4 = await supabase.from("pairings").delete().eq("cigar_id", dupId);
+        const r5 = await supabase.from("ratings").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        const r6 = await supabase.from("cigars").delete().eq("id", dupId);
+        console.log("[dedup] merge results:", { dupId, keepId, r1: r1.error, r2: r2.error, r3: r3.error, r4: r4.error, r5: r5.error, r6: r6.error });
       }
       await logAction("dedup_merge", "cigar", group.keep.id, currentUserId, `Merged ${group.duplicates.length} duplicate(s) of ${group.key} into ID ${group.keep.id}`);
       setMerged(prev => [...prev, group.key]);
