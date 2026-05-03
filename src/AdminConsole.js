@@ -1629,7 +1629,8 @@ function DedupSection() {
     const { data: cigars } = await supabase
       .from("cigars")
       .select("id, brand, line, vitola, source, verified, created_at, total_checkins")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .limit(10000);
 
     if (!cigars) { setScanning(false); return; }
     console.log(`[dedup] Fetched ${cigars.length} cigars`);
