@@ -1238,6 +1238,9 @@ function FeedbackSection() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [showResolved, setShowResolved] = useState(false);
+  const [replyingId, setReplyingId] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { loadFeedback(); }, [filter, showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1257,6 +1260,21 @@ function FeedbackSection() {
   const handleResolve = async (id) => {
     await supabase.from("feedback").update({ resolved: true }).eq("id", id);
     setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleReply = async (item) => {
+    if (!replyText.trim()) return;
+    setSaving(true);
+    await supabase.from("feedback").update({
+      reply_text: replyText.trim(),
+      replied_at: new Date().toISOString(),
+      resolved: true,
+    }).eq("id", item.id);
+    await logAction("reply_feedback", "feedback", item.id, null, `Replied to @${item.users?.username}: ${replyText.trim().substring(0, 80)}`);
+    setItems(prev => prev.filter(i => i.id !== item.id));
+    setReplyingId(null);
+    setReplyText("");
+    setSaving(false);
   };
 
   const getPostHogUrl = (sessionId) =>
@@ -1302,6 +1320,35 @@ function FeedbackSection() {
             </span>
           </div>
           <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
+
+          {/* Existing reply */}
+          {item.reply_text && (
+            <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
+              <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
+              <div style={{ fontSize: 12, color: "#ddc9a8", lineHeight: 1.5 }}>{item.reply_text}</div>
+            </div>
+          )}
+
+          {/* Reply form */}
+          {replyingId === item.id && (
+            <div style={{ marginBottom: 10 }}>
+              <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
+                placeholder="Write a reply to the user..."
+                rows={3}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #d4b45a55", borderRadius: 8, padding: "8px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => handleReply(item)} disabled={saving || !replyText.trim()}
+                  style={{ flex: 2, background: replyText.trim() ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? "#1a0f08" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  {saving ? "Sending..." : "Send Reply"}
+                </button>
+                <button onClick={() => { setReplyingId(null); setReplyText(""); }}
+                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 8 }}>
             {item.posthog_session_id && (
               <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
@@ -1309,11 +1356,17 @@ function FeedbackSection() {
                 📹 Watch Session
               </a>
             )}
-            {!showResolved && (
-              <button onClick={() => handleResolve(item.id)}
-                style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Resolve
-              </button>
+            {!showResolved && replyingId !== item.id && (
+              <>
+                <button onClick={() => { setReplyingId(item.id); setReplyText(""); }}
+                  style={{ flex: 1, background: "none", border: "1px solid #d4b45a44", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Reply
+                </button>
+                <button onClick={() => handleResolve(item.id)}
+                  style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  ✓ Resolve
+                </button>
+              </>
             )}
           </div>
         </div>

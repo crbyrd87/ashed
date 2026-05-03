@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -399,6 +399,13 @@ function HelpSection({ onReplayTour, user }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  const [pastFeedback, setPastFeedback] = useState([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("feedback").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5)
+      .then(({ data }) => setPastFeedback(data || []));
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async () => {
     if (!description.trim()) return;
@@ -480,6 +487,35 @@ function HelpSection({ onReplayTour, user }) {
       )}
 
       <div style={{ height: 1, background: "#3a2510", margin: "24px 0" }} />
+
+      {/* Past feedback with replies */}
+      {pastFeedback.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 12 }}>YOUR PREVIOUS SUBMISSIONS</div>
+          {pastFeedback.map(item => (
+            <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: item.type === "bug" ? "#e8a07a" : "#7a9a7a" }}>
+                  {item.type === "bug" ? "🐛 Bug Report" : "💡 Feedback"}
+                </span>
+                <span style={{ fontSize: 10, color: "#5a4535", marginLeft: "auto" }}>
+                  {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5, marginBottom: item.reply_text ? 8 : 0 }}>
+                {item.description}
+              </div>
+              {item.reply_text && (
+                <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "8px 10px", marginTop: 8 }}>
+                  <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
+                  <div style={{ fontSize: 12, color: "#ddc9a8", lineHeight: 1.5 }}>{item.reply_text}</div>
+                </div>
+              )}
+            </div>
+          ))}
+          <div style={{ height: 1, background: "#3a2510", margin: "16px 0" }} />
+        </div>
+      )}
 
       <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
 
