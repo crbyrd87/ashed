@@ -13,6 +13,7 @@ const SECTIONS = [
   { id: "feedback",   icon: "💬", label: "Feedback" },
   { id: "refresh",    icon: "🔄", label: "Refresh" },
   { id: "qa",         icon: "✅", label: "QA" },
+  { id: "dedup",      icon: "🔁", label: "Dedup" },
 ];
 
 export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
@@ -51,6 +52,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "feedback"   && <FeedbackSection />}
         {section === "refresh"    && <DbRefreshSection />}
         {section === "qa"         && <QASection />}
+        {section === "dedup"      && <DedupSection />}
       </div>
     </div>
   );
@@ -1603,6 +1605,178 @@ function QASection() {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function DedupSection() {
+  const [groups, setGroups] = useState([]);
+  const [scanning, setScanning] = useState(false);
+  const [skipped, setSkipped] = useState(new Set());
+  const [merging, setMerging] = useState(null);
+  const [merged, setMerged] = useState([]);
+  const [msg, setMsg] = useState(null);
+  const [hasScanned, setHasScanned] = useState(false);
+
+  const handleScan = async () => {
+    setScanning(true);
+    setGroups([]);
+    setSkipped(new Set());
+    setMerged([]);
+    setMsg(null);
+
+    // Fetch all cigars
+    const { data: cigars } = await supabase
+      .from("cigars")
+      .select("id, brand, line, vitola, source, verified, created_at, total_checkins")
+      .order("created_at", { ascending: true });
+
+    if (!cigars) { setScanning(false); return; }
+
+    // Group by normalized brand+line+vitola
+    const map = {};
+    for (const c of cigars) {
+      const key = `${c.brand?.trim().toLowerCase()}|||${c.line?.trim().toLowerCase()}|||${c.vitola?.trim().toLowerCase()}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(c);
+    }
+
+    // Find groups with duplicates
+    const dupGroups = Object.values(map)
+      .filter(g => g.length > 1)
+      .map(g => ({
+        key: `${g[0].brand} · ${g[0].line} · ${g[0].vitola}`,
+        keep: g[0], // oldest
+        duplicates: g.slice(1),
+      }));
+
+    setGroups(dupGroups);
+    setHasScanned(true);
+    setScanning(false);
+    setMsg(dupGroups.length === 0
+      ? { text: "No duplicates found — DB is clean! ✅", isError: false }
+      : { text: `Found ${dupGroups.length} duplicate group${dupGroups.length > 1 ? "s" : ""}.`, isError: false }
+    );
+  };
+
+  const handleMerge = async (group) => {
+    setMerging(group.key);
+    const keepId = group.keep.id;
+    const dupIds = group.duplicates.map(d => d.id);
+
+    try {
+      // Update all references to point to keepId
+      for (const dupId of dupIds) {
+        await supabase.from("checkins").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        await supabase.from("humidor").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        await supabase.from("wishlist").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        await supabase.from("pairings").delete().eq("cigar_id", dupId);
+        await supabase.from("ratings").update({ cigar_id: keepId }).eq("cigar_id", dupId);
+        // Delete the duplicate
+        await supabase.from("cigars").delete().eq("id", dupId);
+      }
+      setMerged(prev => [...prev, group.key]);
+      setGroups(prev => prev.filter(g => g.key !== group.key));
+    } catch (e) {
+      console.error("Merge error:", e);
+    }
+    setMerging(null);
+  };
+
+  const handleSkip = (key) => {
+    setSkipped(prev => new Set([...prev, key]));
+  };
+
+  const pending = groups.filter(g => !skipped.has(g.key));
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Duplicate Finder</div>
+        <button onClick={handleScan} disabled={scanning}
+          style={{ background: scanning ? "#3a2510" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? "#7a6048" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
+          {scanning ? "Scanning..." : "▶ Find Duplicates"}
+        </button>
+      </div>
+
+      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14, lineHeight: 1.6 }}>
+        Finds cigars with the same brand, line, and vitola. Review each group before merging. The oldest record is kept and all check-ins, humidor, and wishlist entries are updated automatically.
+      </div>
+
+      {msg && (
+        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
+          {msg.text}
+        </div>
+      )}
+
+      {merged.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
+          {merged.map(key => (
+            <div key={key} style={{ fontSize: 12, color: "#7a9a7a", padding: "4px 0", borderBottom: "1px solid #2a1a0e" }}>✓ {key}</div>
+          ))}
+        </div>
+      )}
+
+      {hasScanned && pending.length === 0 && groups.length === 0 && merged.length === 0 && (
+        <div style={{ textAlign: "center", padding: "30px 0" }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+          <div style={{ fontSize: 13, color: "#5a4535" }}>No duplicates found.</div>
+        </div>
+      )}
+
+      {pending.map(group => (
+        <div key={group.key} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#d4b45a", fontWeight: 700, marginBottom: 10 }}>
+            {group.key}
+          </div>
+
+          {/* Keep record */}
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
+            <div style={{ background: "#1a0f08", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "8px 10px" }}>
+              <div style={{ fontSize: 11, color: "#ddc9a8" }}>
+                ID: <span style={{ color: "#7a6048" }}>{group.keep.id.substring(0, 8)}...</span>
+                {" · "}Source: <span style={{ color: "#a08060" }}>{group.keep.source}</span>
+                {" · "}Check-ins: <span style={{ color: "#a08060" }}>{group.keep.total_checkins || 0}</span>
+                {" · "}{new Date(group.keep.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </div>
+            </div>
+          </div>
+
+          {/* Duplicate records */}
+          {group.duplicates.map(dup => (
+            <div key={dup.id} style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#a0522d", letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
+              <div style={{ background: "#1a0f08", border: "1px solid #a0522d33", borderRadius: 8, padding: "8px 10px" }}>
+                <div style={{ fontSize: 11, color: "#ddc9a8" }}>
+                  ID: <span style={{ color: "#7a6048" }}>{dup.id.substring(0, 8)}...</span>
+                  {" · "}Source: <span style={{ color: "#a08060" }}>{dup.source}</span>
+                  {" · "}Check-ins: <span style={{ color: "#a08060" }}>{dup.total_checkins || 0}</span>
+                  {" · "}{new Date(dup.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <button onClick={() => handleMerge(group)} disabled={merging === group.key}
+              style={{ flex: 2, background: merging === group.key ? "#3a2510" : "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? "#5a4535" : "#f5ead8", fontSize: 12, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
+              {merging === group.key ? "Merging..." : "⟶ Merge into Keep"}
+            </button>
+            <button onClick={() => handleSkip(group.key)}
+              style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+              Skip
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {skipped.size > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: "#5a4535" }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
+        </div>
+      )}
     </div>
   );
 }
