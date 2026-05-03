@@ -50,15 +50,17 @@ export default async function handler(req, res) {
         model: "claude-sonnet-4-6",
         max_tokens: 4000,
         tools: [{ type: "web_search_20260209", name: "web_search" }],
-        system: `You are a cigar industry researcher. Your job is to find new cigar releases from ${label} that would interest retailers and consumers in the US.
-
-Search halfwheel.com for new cigar lines or vitolas announced or released in ${label}.
+        system: `You are a cigar industry researcher. Search halfwheel.com for new cigar releases that have been announced or released recently.
 
 Our database has these brands: ${brandList}
 
-Return matches where the brand name is the same or very similar to one in our list (e.g. "Espinosa Premium Cigars" matches "Espinosa", "My Father Cigars Inc" matches "My Father"). Use the EXACT brand name from our list in your response.
+Search for:
+1. "halfwheel PCA 2026" releases from our brands
+2. Any new cigar lines or vitolas from our brands announced in the past 60 days
 
-Return ONLY a valid JSON array, no markdown, no explanation, no preamble:
+Return matches where the brand closely matches our list. Use the EXACT brand name from our list.
+
+Return ONLY a valid JSON array, no markdown, no explanation:
 [
   {
     "brand": "exact brand name from our list",
@@ -73,7 +75,7 @@ If nothing found, return: []`,
         messages: [
           {
             role: "user",
-            content: `Search halfwheel.com for new cigar releases announced or released in ${label}. Look especially for releases from: Espinosa, My Father, Plasencia, La Aurora, Davidoff, Rocky Patel, Perdomo, Drew Estate, Padron, Oliva, Arturo Fuente, Alec Bradley, CAO, Tatuaje, Warped, Crowned Heads, Dunbarton, AJ Fernandez, Caldwell, Camacho. Return a JSON array of any matches from our full brand list.`
+            content: `Search halfwheel.com for PCA 2026 new cigar releases and any recent releases from these brands: Asylum, Buffalo Trace, CAO, Macanudo, Drew Estate, Espinosa, My Father, Plasencia, La Aurora, Davidoff, Rocky Patel, Perdomo, Arturo Fuente, Alec Bradley, Tatuaje, Warped, Crowned Heads, Dunbarton Tobacco & Trust, AJ Fernandez, Caldwell, Camacho, Oliva, Padron. Return a JSON array of new lines or vitolas not previously in wide distribution.`
           }
         ]
       })
