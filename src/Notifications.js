@@ -9,6 +9,7 @@ const TYPE_META = {
   comment:          { icon: "💬", label: "commented on your check-in" },
   badge:            { icon: "🏅", label: "You earned a badge" },
   friend_accepted:  { icon: "🤝", label: "accepted your friend request" },
+  feedback_reply:   { icon: "💬", label: "replied to your feedback" },
 };
 
 function timeAgo(dateStr) {
@@ -136,6 +137,9 @@ export default function Notifications({ user, onClose, onOpenCheckin }) {
         } else if (n.type === "friend_accepted") {
           title = `${actorName} ${meta.label}`;
           subtitle = "You're now friends. See their check-ins in your feed.";
+        } else if (n.type === "feedback_reply") {
+          title = n.message || "Ashed replied to your feedback";
+          subtitle = "View your reply in Settings → Help";
         } else {
           title = `${actorName} ${meta.label}`;
           subtitle = n.message || "";
