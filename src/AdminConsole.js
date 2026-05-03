@@ -1626,11 +1626,22 @@ function DedupSection() {
     setMsg(null);
 
     // Fetch all cigars
-    const { data: cigars } = await supabase
-      .from("cigars")
-      .select("id, brand, line, vitola, source, verified, created_at, total_checkins")
-      .order("created_at", { ascending: true })
-      .limit(10000);
+    // Fetch all cigars in batches to get past 1000 row limit
+    let allCigars = [];
+    let from = 0;
+    const batchSize = 1000;
+    while (true) {
+      const { data: batch } = await supabase
+        .from("cigars")
+        .select("id, brand, line, vitola, source, verified, created_at, total_checkins")
+        .order("created_at", { ascending: true })
+        .range(from, from + batchSize - 1);
+      if (!batch || batch.length === 0) break;
+      allCigars = [...allCigars, ...batch];
+      if (batch.length < batchSize) break;
+      from += batchSize;
+    }
+    const cigars = allCigars;
 
     if (!cigars) { setScanning(false); return; }
     console.log(`[dedup] Fetched ${cigars.length} cigars`);
