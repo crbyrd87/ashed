@@ -1252,7 +1252,8 @@ function FeedbackSection() {
       .eq("resolved", showResolved)
       .order("created_at", { ascending: false });
     if (filter !== "all") query = query.eq("type", filter);
-    const { data } = await query;
+    const { data, error } = await query;
+    console.log("[feedback] showResolved:", showResolved, "data:", data?.length, "error:", error);
     setItems(data || []);
     setLoading(false);
   };
