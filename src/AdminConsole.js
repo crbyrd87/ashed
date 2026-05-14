@@ -72,7 +72,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
 
 function StatsSection() {
   const [loading, setLoading] = useState(true);
-  const [totals, setTotals] = useState({ users: 0, checkins: 0, cigars: 0, fires: 0, comments: 0 });
+  const [totals, setTotals] = useState({ users: 0, checkins: 0, cigars: 0, fires: 0, comments: 0, mau: 0 });
   const [signupsByDay, setSignupsByDay] = useState([]);
   const [checkinsByDay, setCheckinsByDay] = useState([]);
   const [topCigars, setTopCigars] = useState([]);
@@ -98,6 +98,14 @@ function StatsSection() {
     setTotals({ users: userCount || 0, checkins: checkinCount || 0, cigars: cigarCount || 0, fires: fireCount || 0, comments: commentCount || 0 });
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    // MAU — distinct users who checked in at least once in last 30 days
+    const { data: mauData } = await supabase
+      .from("checkins")
+      .select("user_id")
+      .gte("created_at", thirtyDaysAgo);
+    const mauCount = new Set((mauData || []).map(r => r.user_id)).size;
+    setTotals(prev => ({ ...prev, mau: mauCount }));
 
     const { data: recentUsers } = await supabase
       .from("users")
@@ -144,6 +152,7 @@ function StatsSection() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 28 }}>
         {[
           ["Users",        totals.users,    "#c9a84c", "👤"],
+          ["MAU",          totals.mau,      "#d4b45a", "📈"],
           ["Check-ins",    totals.checkins, "#7a9a7a", "🚬"],
           ["Cigars in DB", totals.cigars,   "#7a8a9a", "📋"],
           ["Fires",        totals.fires,    "#e8632a", "🔥"],
