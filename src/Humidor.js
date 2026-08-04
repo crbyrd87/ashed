@@ -2,23 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
 const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function Humidor({ user, onSmokeOne, onSearchToAdd, isPremium, onUpgrade }) {
+export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [scanStage, setScanStage] = useState("idle"); // idle | analyzing | confirm | error
   const [scanResult, setScanResult] = useState(null);
-  const [vitolaOptions, setVitolaOptions] = useState({});
-  const [editingVitola, setEditingVitola] = useState(null); // item id
-  const [editVitolaOptions, setEditVitolaOptions] = useState([]);
-  const [editVitolaValue, setEditVitolaValue] = useState("");
   const [scanError, setScanError] = useState("");
   const [photoPreview, setPhotoPreview] = useState(null);
   const [editingQty, setEditingQty] = useState(null);
@@ -64,17 +59,14 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd, isPremium, on
     });
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/anthropic", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-opus-4-6",
           max_tokens: 2048,
+          user_id: user?.id,
+          feature: "band_scanner",
           messages: [{
             role: "user",
             content: [
@@ -93,8 +85,8 @@ If you cannot identify anything, return:
 IMPORTANT RULES:
 - Only return "high" confidence if you can clearly read the brand and line name on the band.
 - Return "medium" if you can read the brand but are inferring the line.
-- Return "low" if the band is blurry, angled, partially obscured, or you are guessing. Low confidence entries will be filtered out and the user will search manually.
-- It is better to return "low" and let the user search manually than to return a wrong cigar with "high" or "medium" confidence.
+- Return "low" if the band is blurry, angled, partially obscured, or you are guessing.
+- It is better to return "low" and let the user search manually than to return a wrong cigar.
 - For multi-cigar photos, each cigar gets its own confidence rating independently.
 
 Return ONLY raw JSON, no markdown, no explanation.` }
@@ -104,6 +96,13 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       });
 
       const data = await response.json();
+
+      if (response.status === 429) {
+        setScanError(data.error || "You've reached the scan limit for this hour. Please try again later.");
+        setScanStage("error");
+        return;
+      }
+
       const raw = data.content?.[0]?.text || "{}";
       const match = raw.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
       const result = match ? JSON.parse(match[0]) : {};
@@ -127,23 +126,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         return;
       }
 
-      const mappedCigars = cigars.map(c => ({ ...c, qty: 1, notes: "" }));
-      setScanResult(mappedCigars);
+      setScanResult(cigars.map(c => ({ ...c, qty: 1, notes: "" })));
       setScanStage("confirm");
-
-      // Fetch vitola options for each scanned cigar from DB
-      const options = {};
-      await Promise.all(mappedCigars.map(async (c, i) => {
-        if (!c.brand || !c.line) return;
-        const { data } = await supabase
-          .from("cigars")
-          .select("vitola")
-          .eq("brand", c.brand)
-          .eq("line", c.line)
-          .order("vitola");
-        options[i] = data ? data.map(r => r.vitola) : [];
-      }));
-      setVitolaOptions(options);
 
     } catch (err) {
       console.error("Humidor scan error:", err);
@@ -162,25 +146,21 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         .eq("line", cigar.line)
         .maybeSingle();
 
+      // Cache to cigars table if not found
       let cigarId = match?.id || null;
-
-      // If not found — report as missing for admin review, do NOT auto-insert
-      if (!cigarId && cigar.brand && cigar.line) {
-        // Check if already reported to avoid duplicates
-        const { data: alreadyReported } = await supabase
-          .from("missing_cigars")
-          .select("id")
-          .eq("brand", cigar.brand)
-          .eq("line", cigar.line)
-          .maybeSingle();
-        if (!alreadyReported) {
-          await supabase.from("missing_cigars").insert({
-            brand: cigar.brand,
-            line: cigar.line,
-            vitola: cigar.vitola !== "Unknown" ? cigar.vitola : null,
-            reported_by: user.id,
-          });
-        }
+      if (!cigarId) {
+        const { data: inserted } = await supabase.from("cigars").insert({
+          brand: cigar.brand,
+          line: cigar.line,
+          vitola: cigar.vitola !== "Unknown" ? cigar.vitola : null,
+          strength: cigar.strength || null,
+          origin: cigar.origin || null,
+          wrapper: cigar.wrapper || null,
+          ai_generated: true,
+          verified: false,
+          total_checkins: 0,
+        }).select().single();
+        cigarId = inserted?.id || null;
       }
 
       // Check if this cigar already exists in humidor
@@ -254,27 +234,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     if (qty < 1) return;
     await supabase.from("humidor").update({ quantity: qty }).eq("id", id);
     setEditingQty(null);
-    fetchHumidor();
-  };
-
-  const handleStartEditVitola = async (item) => {
-    const brand = item.cigars?.brand || item.cigar_brand;
-    const line = item.cigars?.line || item.cigar_name;
-    setEditingVitola(item.id);
-    setEditVitolaValue("");
-    if (brand && line) {
-      const { data } = await supabase.from("cigars").select("vitola").eq("brand", brand).eq("line", line).order("vitola");
-      setEditVitolaOptions(data ? data.map(r => r.vitola) : []);
-    } else {
-      setEditVitolaOptions([]);
-    }
-  };
-
-  const handleSaveVitola = async (item) => {
-    if (!editVitolaValue) return;
-    await supabase.from("humidor").update({ cigar_vitola: editVitolaValue }).eq("id", item.id);
-    setEditingVitola(null);
-    setEditVitolaValue("");
     fetchHumidor();
   };
 
@@ -381,24 +340,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
               />
 
-              {/* Vitola dropdown */}
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>VITOLA</div>
-              <select
-                value={cigar.vitola === "Unknown" ? "" : (cigar.vitola || "")}
-                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: cigar.vitola && cigar.vitola !== "Unknown" ? "#e8d5b7" : "#8a7055", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
-              >
-                <option value="">Select vitola...</option>
-                {(vitolaOptions[i] || []).map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-                {/* If AI returned a vitola not in DB, include it as an option */}
-                {cigar.vitola && cigar.vitola !== "Unknown" && !(vitolaOptions[i] || []).includes(cigar.vitola) && (
-                  <option value={cigar.vitola}>{cigar.vitola} (AI suggestion)</option>
-                )}
-              </select>
-
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
                 {cigar.origin && <Badge label={cigar.origin} color="#7a9a7a" />}
               </div>
@@ -410,6 +353,13 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: c.qty + 1 } : c))}
                   style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #3a2510", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>+</button>
               </div>
+              {cigar.vitola === "Unknown" && (
+                <input
+                  placeholder="Size/vitola (optional, e.g. Robusto)"
+                  style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }}
+                  onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
+                />
+              )}
               <input
                 placeholder="Notes (optional, e.g. aging until Christmas)"
                 style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
@@ -457,9 +407,9 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             style={{ background: "none", border: "1px solid #c9a84c55", borderRadius: 20, padding: "6px 14px", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
             🔍 Search
           </button>
-          <button onClick={() => isPremium ? setScanning(true) : onUpgrade && onUpgrade()}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4 }}>
-            📷 Scan {!isPremium && <span style={{ fontSize: 9, background: "rgba(0,0,0,0.2)", borderRadius: 6, padding: "1px 5px" }}>PRO</span>}
+          <button onClick={() => setScanning(true)}
+            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            📷 Scan
           </button>
         </div>
       </div>
@@ -487,32 +437,9 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                   <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{line}</div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-                    {vitola ? <Badge label={vitola} /> : (
-                      <span style={{ fontSize: 10, color: "#a0522d", background: "#a0522d22", border: "1px solid #a0522d44", borderRadius: 8, padding: "1px 8px", cursor: "pointer" }}
-                        onClick={() => editingVitola === item.id ? setEditingVitola(null) : handleStartEditVitola(item)}>
-                        ⚠️ No vitola — tap to set
-                      </span>
-                    )}
+                    {vitola && <Badge label={vitola} />}
                     {strength && <Badge label={strength} color={strengthColor(strength)} />}
                   </div>
-
-                  {/* Vitola editor */}
-                  {editingVitola === item.id && (
-                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <select
-                        value={editVitolaValue}
-                        onChange={e => setEditVitolaValue(e.target.value)}
-                        style={{ flex: 1, background: "#1a0f08", border: "1px solid #c9a84c", borderRadius: 8, padding: "6px 10px", color: editVitolaValue ? "#e8d5b7" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none" }}
-                      >
-                        <option value="">Select vitola...</option>
-                        {editVitolaOptions.map(v => <option key={v} value={v}>{v}</option>)}
-                      </select>
-                      <button onClick={() => handleSaveVitola(item)} disabled={!editVitolaValue}
-                        style={{ background: editVitolaValue ? "linear-gradient(135deg, #c9a84c, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "6px 12px", color: editVitolaValue ? "#1a0f08" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: editVitolaValue ? "pointer" : "default", fontFamily: SANS }}>
-                        Save
-                      </button>
-                    </div>
-                  )}
                   {item.notes && (
                     <div style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic", marginBottom: 4 }}>{item.notes}</div>
                   )}
