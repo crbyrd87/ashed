@@ -88,7 +88,7 @@ export default function UpgradePrompt({ feature, onClose }) {
       onClick={onClose}
     >
       <div
-        style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", padding: "24px 24px 36px" }}
+        style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", padding: "24px 24px 36px", maxHeight: "90vh", overflowY: "auto" }}
         onClick={e => e.stopPropagation()}
       >
         {/* Gold top accent */}
