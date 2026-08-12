@@ -10,7 +10,7 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
   const username = user?.user_metadata?.username?.replace(/^@/, "") || "";
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 600, display: "flex", flexDirection: "column", fontFamily: SANS }}>
+    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 600, display: "flex", flexDirection: "column", fontFamily: SANS, maxWidth: 420, margin: "0 auto", left: "50%", transform: "translateX(-50%)", width: "100%" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 16px 12px", borderBottom: "1px solid #4a3520" }}>
         <button onClick={onClose}
