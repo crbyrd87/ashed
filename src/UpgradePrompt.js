@@ -1,4 +1,8 @@
+import { useState, useEffect } from "react";
+import { supabase } from "./supabase";
+
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const FOUNDING_MEMBER_SLOTS = 100;
 
 const FEATURE_COPY = {
   band_scanner: {
@@ -59,6 +63,18 @@ const FEATURE_COPY = {
 };
 
 export default function UpgradePrompt({ feature, onClose }) {
+  const [foundingCount, setFoundingCount] = useState(null);
+
+  useEffect(() => {
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("is_founding_member", true)
+      .then(({ count }) => setFoundingCount(count || 0));
+  }, []);
+
+  const slotsRemaining = foundingCount !== null ? Math.max(0, FOUNDING_MEMBER_SLOTS - foundingCount) : null;
+
   const copy = FEATURE_COPY[feature] || {
     icon: "⭐",
     title: "Premium Feature",
@@ -120,7 +136,37 @@ export default function UpgradePrompt({ feature, onClose }) {
           ))}
         </div>
 
-        {/* Pricing */}
+        {/* Founding Member Banner */}
+        {slotsRemaining !== null && slotsRemaining > 0 && (
+          <div style={{ background: "linear-gradient(135deg, #2a1a0e, #1a0f08)", border: "1px solid #c9a84c55", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <span style={{ fontSize: 18 }}>🎖️</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c" }}>Founding Member Offer</span>
+              <span style={{ marginLeft: "auto", background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, color: "#c9a84c", fontWeight: 700 }}>
+                {slotsRemaining} left
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <div style={{ flex: 1, background: "#1a0f08", border: "1px solid #c9a84c33", borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#c9a84c" }}>$4.99</div>
+                <div style={{ fontSize: 10, color: "#7a6048", marginTop: 2, letterSpacing: 1 }}>/ MONTH</div>
+              </div>
+              <div style={{ flex: 1, background: "#1a0f08", border: "1px solid #c9a84c55", borderRadius: 8, padding: "10px 8px", textAlign: "center", position: "relative" }}>
+                <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "#c9a84c", color: "#1a0f08", fontSize: 8, fontWeight: 700, padding: "2px 6px", borderRadius: 8, letterSpacing: 1, whiteSpace: "nowrap" }}>BEST DEAL</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#c9a84c" }}>$39.99</div>
+                <div style={{ fontSize: 10, color: "#7a6048", marginTop: 2, letterSpacing: 1 }}>/ YEAR</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: "#7a6048", lineHeight: 1.5 }}>
+              First {FOUNDING_MEMBER_SLOTS} members lock this rate forever — as long as your subscription stays active.
+            </div>
+          </div>
+        )}
+
+        {/* Regular Pricing */}
+        <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 8 }}>
+          {slotsRemaining !== null && slotsRemaining > 0 ? "REGULAR PRICING" : "PRICING"}
+        </div>
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
           <div style={{ flex: 1, background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: "12px 10px", textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c" }}>$7.99</div>
