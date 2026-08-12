@@ -650,6 +650,7 @@ export default function App() {
 
   const handleCompleteTour = async () => {
     setShowTour(false);
+    setTab("journal");
     await supabase.from("users").update({ tour_completed: true, last_seen_version: APP_VERSION }).eq("id", user.id);
   };
 

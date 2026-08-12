@@ -82,6 +82,27 @@ const SCREENS = [
     pro: false,
   },
   {
+    icon: "📷",
+    title: "Band Scanner",
+    description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin. No typing required.",
+    features: ["AI-powered band identification", "Auto-fills your check-in", "Add directly to humidor or wishlist"],
+    pro: true,
+  },
+  {
+    icon: "✨",
+    title: "AI Recommendations",
+    description: "After 5 check-ins, Ashed learns your palate and recommends cigars you'll actually love — with an explanation of why each one fits your taste.",
+    features: ["Tailored to your exact taste profile", "Updates as you smoke more", "Explains why each cigar matches you"],
+    pro: true,
+  },
+  {
+    icon: "🥃",
+    title: "Drink Pairings",
+    description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options, with seasonal suggestions.",
+    features: ["Spirits, beer, coffee & non-alcoholic", "Seasonal suggestions", "Instant load after first fetch"],
+    pro: true,
+  },
+  {
     Icon: FeedIcon,
     title: "The Feed",
     description: "See what your friends are smoking in real time. Fire check-ins you love, leave comments, and discover cigars through the people you trust.",
@@ -122,27 +143,6 @@ const SCREENS = [
     description: "Share your personal referral link and earn exclusive badges as your friends join. The more you bring in, the higher you climb.",
     features: ["Unique referral link per user", "Ambassador → Recruiter → Legend Maker", "Badges auto-awarded when friends join"],
     pro: false,
-  },
-  {
-    icon: "📷",
-    title: "Band Scanner",
-    description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin. No typing required.",
-    features: ["AI-powered band identification", "Auto-fills your check-in", "Add directly to humidor or wishlist"],
-    pro: true,
-  },
-  {
-    icon: "✨",
-    title: "AI Recommendations",
-    description: "After 5 check-ins, Ashed learns your palate and recommends cigars you'll actually love — with an explanation of why each one fits your taste.",
-    features: ["Tailored to your exact taste profile", "Updates as you smoke more", "Explains why each cigar matches you"],
-    pro: true,
-  },
-  {
-    icon: "🥃",
-    title: "Drink Pairings",
-    description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options, with seasonal suggestions.",
-    features: ["Spirits, beer, coffee & non-alcoholic", "Seasonal suggestions", "Instant load after first fetch"],
-    pro: true,
   },
 ];
 
