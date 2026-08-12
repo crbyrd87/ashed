@@ -185,10 +185,14 @@ export default function UpgradePrompt({ feature, onClose }) {
             alert("Premium subscriptions are coming soon! You'll be among the first to know when they launch.");
             onClose();
           }}
-          style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 12, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 12 }}
+          style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 12, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 8 }}
         >
-          ⭐ Upgrade to Premium
+          ⭐ Start Free 7-Day Trial
         </button>
+
+        <div style={{ fontSize: 11, color: "#5a4535", textAlign: "center", marginBottom: 12, lineHeight: 1.6 }}>
+          Card required. No charge for 7 days. Cancel anytime in Settings — takes 10 seconds.
+        </div>
 
         <button onClick={onClose}
           style={{ width: "100%", background: "none", border: "none", color: "#5a4535", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
