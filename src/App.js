@@ -786,7 +786,7 @@ export default function App() {
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #4a3520", display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
     navBtn: a => ({ flex: 1, padding: "10px 0", background: "none", border: "none", color: a ? "#d4b45a" : "#7a6048", fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #261a0a 100%)", border: "1px solid #4a3520", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
-    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#5a4030"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
+    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#5a4030"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
     logoutBtn: { background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", color: "#a08060", fontSize: 11, cursor: "pointer", fontFamily: SANS },
     dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
@@ -1037,7 +1037,7 @@ export default function App() {
       </div>
 
       {tab === "search" && (
-        <div style={{ padding: 16 }}>
+        <div style={{ padding: 16, position: "sticky", top: 0, background: "#1a0f08", zIndex: 20 }}>
           <div style={{ position: "relative" }}>
             <input
               id="cigar-search-input"
