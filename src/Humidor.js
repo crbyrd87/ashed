@@ -286,7 +286,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           </div>
           <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c33", borderRadius: 10, padding: 12, marginBottom: 16 }}>
             <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 1, marginBottom: 6 }}>TIPS FOR BEST RESULTS</div>
-            {["Photograph 3 cigars at a time max for best accuracy", "Bands should face the camera directly, not at an angle", "Good lighting and a steady hand make a big difference", "You can always edit brand and line on the confirm screen"].map((tip, i) => (
+            {["Photograph up to 3 cigars at a time for best accuracy", "Bands should face the camera directly, not at an angle", "Good lighting and a steady hand make a big difference", "You can always edit brand and line on the confirm screen"].map((tip, i) => (
               <div key={i} style={{ fontSize: 12, color: "#8a7055", marginBottom: 4, display: "flex", gap: 6 }}>
                 <span style={{ color: "#c9a84c" }}>→</span>{tip}
               </div>
