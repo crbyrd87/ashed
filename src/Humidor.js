@@ -447,7 +447,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               value={addSearchQuery}
               onChange={e => handleAddSearch(e.target.value)}
               placeholder="Search by cigar name or brand..."
-              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }}
+              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }}
             />
 
             {addSearching && <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: 8 }}>Searching...</div>}
