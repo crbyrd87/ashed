@@ -408,7 +408,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             🔍 Search
           </button>
           <button onClick={() => setScanning(true)}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 20, padding: "6px 14px", color: "#7a9a7a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
             📷 Scan
           </button>
         </div>
