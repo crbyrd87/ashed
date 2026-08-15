@@ -17,6 +17,7 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [scanError, setScanError] = useState("");
   const [photoPreview, setPhotoPreview] = useState(null);
   const [editingQty, setEditingQty] = useState(null);
+  const [showAddOptions, setShowAddOptions] = useState(false);
   const fileInputRef = useRef(null);
 
   const fetchHumidor = async () => {
@@ -402,17 +403,31 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>MY HUMIDOR</div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => onSearchToAdd && onSearchToAdd()}
-            style={{ background: "none", border: "1px solid #c9a84c55", borderRadius: 20, padding: "6px 14px", color: "#c9a84c", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-            🔍 Search
-          </button>
-          <button onClick={() => setScanning(true)}
-            style={{ background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 20, padding: "6px 14px", color: "#7a9a7a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-            📷 Scan
-          </button>
-        </div>
+        <button onClick={() => setShowAddOptions(true)}
+          style={{ background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#f5ead8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          + Add a Cigar
+        </button>
       </div>
+
+      {/* Add options sheet */}
+      {showAddOptions && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={() => setShowAddOptions(false)}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "24px 20px 36px" }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 20px" }} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 16, textAlign: "center" }}>Add a Cigar to Your Humidor</div>
+            <button onClick={() => { setShowAddOptions(false); onSearchToAdd && onSearchToAdd(); }}
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 12, padding: 14, color: "#c9a84c", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              🔍 Search for a Cigar
+            </button>
+            <button onClick={() => { setShowAddOptions(false); setScanning(true); }}
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 12, padding: 14, color: "#7a9a7a", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              📷 Scan a Band
+            </button>
+          </div>
+        </div>
+      )}
 
       {items.length === 0 && (
         <div style={{ textAlign: "center", padding: 40 }}>
@@ -473,15 +488,15 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                 <button onClick={() => handleSmokeOne(item)}
-                  style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "8px 0", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "8px 0", color: "#f5ead8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   🚬 Smoke One
                 </button>
                 <button onClick={() => handleRemoveOne(item)}
-                  style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "8px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  - Remove One
+                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "8px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  Remove One
                 </button>
                 <button onClick={() => handleRemoveAll(item.id)}
-                  style={{ flex: 1, background: "none", border: "1px solid #a0522d44", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #a0522d44", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Remove All
                 </button>
               </div>
