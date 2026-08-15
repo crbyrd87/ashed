@@ -428,7 +428,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>MY HUMIDOR</div>
         <button onClick={() => setShowAddOptions(true)}
-          style={{ background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#f5ead8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           + Add a Cigar
         </button>
       </div>
