@@ -18,6 +18,9 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [editingQty, setEditingQty] = useState(null);
   const [showAddOptions, setShowAddOptions] = useState(false);
+  const [addSearchQuery, setAddSearchQuery] = useState("");
+  const [addSearchResults, setAddSearchResults] = useState([]);
+  const [addSearching, setAddSearching] = useState(false);
   const fileInputRef = useRef(null);
 
   const fetchHumidor = async () => {
@@ -238,8 +241,29 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     fetchHumidor();
   };
 
-  const resetScan = () => {
-    setScanStage("idle");
+  const handleAddSearch = async (q) => {
+    setAddSearchQuery(q);
+    if (q.length < 2) { setAddSearchResults([]); return; }
+    setAddSearching(true);
+    const { data } = await supabase.from("cigars").select("id, brand, line, vitola, strength").or(`line.ilike.%${q}%,brand.ilike.%${q}%`).limit(10);
+    setAddSearchResults(data || []);
+    setAddSearching(false);
+  };
+
+  const handleAddFromSearch = async (cigar) => {
+    const { data: existing } = await supabase.from("humidor").select("id, quantity").eq("user_id", user.id).eq("cigar_brand", cigar.brand).eq("cigar_name", cigar.line).maybeSingle();
+    if (existing) {
+      await supabase.from("humidor").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+    } else {
+      await supabase.from("humidor").insert({ user_id: user.id, cigar_id: cigar.id, cigar_brand: cigar.brand, cigar_name: cigar.line, cigar_vitola: cigar.vitola || null, quantity: 1 });
+    }
+    setShowAddOptions(false);
+    setAddSearchQuery("");
+    setAddSearchResults([]);
+    fetchHumidor();
+  };
+
+  const resetScan = () => {    setScanStage("idle");
     setScanResult(null);
     setScanError("");
     setPhotoPreview(null);
@@ -412,19 +436,38 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {/* Add options sheet */}
       {showAddOptions && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
-          onClick={() => setShowAddOptions(false)}>
-          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "24px 20px 36px" }}
+          onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setAddSearchResults([]); }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "24px 20px 36px", maxHeight: "80vh", overflowY: "auto" }}
             onClick={e => e.stopPropagation()}>
             <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 20px" }} />
             <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 16, textAlign: "center" }}>Add a Cigar to Your Humidor</div>
-            <button onClick={() => { setShowAddOptions(false); onSearchToAdd && onSearchToAdd(); }}
-              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #c9a84c55", borderRadius: 12, padding: 14, color: "#c9a84c", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              🔍 Search for a Cigar
-            </button>
-            <button onClick={() => { setShowAddOptions(false); setScanning(true); }}
-              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 12, padding: 14, color: "#7a9a7a", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              📷 Scan a Band
-            </button>
+
+            {/* Inline search */}
+            <input
+              value={addSearchQuery}
+              onChange={e => handleAddSearch(e.target.value)}
+              placeholder="Search by cigar name or brand..."
+              autoFocus
+              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }}
+            />
+
+            {addSearching && <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: 8 }}>Searching...</div>}
+
+            {addSearchResults.map(c => (
+              <div key={c.id} onClick={() => handleAddFromSearch(c)}
+                style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "10px 14px", marginBottom: 8, cursor: "pointer" }}>
+                <div style={{ fontSize: 11, color: "#a08060" }}>{c.brand}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8" }}>{c.line}</div>
+                {c.vitola && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{c.vitola}</div>}
+              </div>
+            ))}
+
+            {addSearchQuery.length < 2 && (
+              <button onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setScanning(true); }}
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 12, padding: 14, color: "#7a9a7a", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
+                📷 Scan a Band Instead
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -488,7 +531,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                 <button onClick={() => handleSmokeOne(item)}
-                  style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "8px 0", color: "#f5ead8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "8px 0", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   🚬 Smoke One
                 </button>
                 <button onClick={() => handleRemoveOne(item)}
