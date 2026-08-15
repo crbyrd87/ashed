@@ -1040,6 +1040,7 @@ export default function App() {
         <div style={{ padding: 16 }}>
           <div style={{ position: "relative" }}>
             <input
+              id="cigar-search-input"
               style={s.input}
               placeholder="Search by cigar name or brand..."
               value={query}
@@ -1079,19 +1080,27 @@ export default function App() {
 
           {/* Scan Band and Recommendations buttons — shown when no search active */}
           {!query && !selectedLine && (
-            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            <div style={{ marginTop: 10 }}>
               <button
-                onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
-                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #d4b45a55", borderRadius: 10, padding: 14, color: "#d4b45a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                onClick={() => { setQuery(""); setShowDropdown(false); setTimeout(() => document.getElementById("cigar-search-input")?.focus(), 100); }}
+                style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10, boxSizing: "border-box" }}
               >
-                📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                🚬 Log a Smoke
               </button>
-              <button
-                onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
-                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-              >
-                ✨ For Me {!isPremium && <span style={{ fontSize: 10, background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
-              </button>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
+                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #d4b45a55", borderRadius: 10, padding: 14, color: "#d4b45a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                >
+                  📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                </button>
+                <button
+                  onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
+                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                >
+                  ✨ For Me {!isPremium && <span style={{ fontSize: 10, background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                </button>
+              </div>
             </div>
           )}
 
