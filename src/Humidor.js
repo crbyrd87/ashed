@@ -447,7 +447,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               value={addSearchQuery}
               onChange={e => handleAddSearch(e.target.value)}
               placeholder="Search by cigar name or brand..."
-              autoFocus
               style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }}
             />
 
