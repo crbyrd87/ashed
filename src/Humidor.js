@@ -437,18 +437,20 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {showAddOptions && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
           onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setAddSearchResults([]); }}>
-          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "24px 20px 36px", maxHeight: "80vh", overflowY: "auto" }}
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "24px 20px 36px", maxHeight: "60vh", overflowY: "auto", display: "flex", flexDirection: "column" }}
             onClick={e => e.stopPropagation()}>
-            <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 20px" }} />
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 16, textAlign: "center" }}>Add a Cigar to Your Humidor</div>
+            <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 20px", flexShrink: 0 }} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 16, textAlign: "center", flexShrink: 0 }}>Add a Cigar to Your Humidor</div>
 
-            {/* Inline search */}
-            <input
-              value={addSearchQuery}
-              onChange={e => handleAddSearch(e.target.value)}
-              placeholder="Search by cigar name or brand..."
-              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }}
-            />
+            {/* Sticky search input */}
+            <div style={{ position: "sticky", top: 0, background: "#1a0f08", paddingBottom: 8, flexShrink: 0 }}>
+              <input
+                value={addSearchQuery}
+                onChange={e => handleAddSearch(e.target.value)}
+                placeholder="Search by cigar name or brand..."
+                style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+              />
+            </div>
 
             {addSearching && <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: 8 }}>Searching...</div>}
 
