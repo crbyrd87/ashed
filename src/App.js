@@ -1090,9 +1090,9 @@ export default function App() {
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
-                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #d4b45a55", borderRadius: 10, padding: 14, color: "#d4b45a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                  📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
                 </button>
                 <button
                   onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
