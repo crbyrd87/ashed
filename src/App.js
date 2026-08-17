@@ -1038,6 +1038,11 @@ export default function App() {
 
       {tab === "search" && (
         <div style={{ padding: 16, position: "sticky", top: 0, background: "#1a0f08", zIndex: 20 }}>
+          {!query && !selectedLine && (
+            <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 8, textAlign: "center" }}>
+              Search below to find a cigar or log a smoke
+            </div>
+          )}
           <div style={{ position: "relative" }}>
             <input
               id="cigar-search-input"
@@ -1081,9 +1086,6 @@ export default function App() {
           {/* Scan Band and Recommendations buttons — shown when no search active */}
           {!query && !selectedLine && (
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 8, textAlign: "center" }}>
-                Search below to find a cigar or log a smoke
-              </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
