@@ -334,7 +334,8 @@ export default function App() {
   const [showTour, setShowTour] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
-  const [showCigarSubmit, setShowCigarSubmit] = useState(false); // which feature triggered the prompt
+  const [showCigarSubmit, setShowCigarSubmit] = useState(false);
+  const [logSmokePrompt, setLogSmokePrompt] = useState(false); // which feature triggered the prompt
   const [communityRating, setCommunityRating] = useState(null);
   const [showVitolaBreakdown, setShowVitolaBreakdown] = useState(false);
   const [profileTab, setProfileTab] = useState("journal");
@@ -786,7 +787,7 @@ export default function App() {
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: "#1a0f08", borderTop: "1px solid #4a3520", display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
     navBtn: a => ({ flex: 1, padding: "10px 0", background: "none", border: "none", color: a ? "#d4b45a" : "#7a6048", fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: a ? 700 : 400, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: "linear-gradient(135deg, #2a1a0e 0%, #261a0a 100%)", border: "1px solid #4a3520", borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
-    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${searching ? "#7a9a7a" : "#5a4030"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
+    input: { width: "100%", background: "#2a1a0e", border: `1px solid ${logSmokePrompt ? "#c9a84c" : searching ? "#7a9a7a" : "#5a4030"}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
     logoutBtn: { background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", color: "#a08060", fontSize: 11, cursor: "pointer", fontFamily: SANS },
     dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
@@ -1045,9 +1046,14 @@ export default function App() {
               placeholder="Search by cigar name or brand..."
               value={query}
               onChange={e => handleInputChange(e.target.value)}
-              onFocus={() => query.length >= 2 && searchResults.length > 0 && setShowDropdown(true)}
+              onFocus={() => { setLogSmokePrompt(false); query.length >= 2 && searchResults.length > 0 && setShowDropdown(true); }}
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
             />
+            {logSmokePrompt && !query && (
+              <div style={{ fontSize: 12, color: "#c9a84c", marginTop: 6, textAlign: "center" }}>
+                👆 Tap the search bar to find your cigar
+              </div>
+            )}
             {showDropdown && (
               <div style={s.dropdown}>
                 {searching && searchResults.length === 0 && (
@@ -1082,7 +1088,7 @@ export default function App() {
           {!query && !selectedLine && (
             <div style={{ marginTop: 10 }}>
               <button
-                onClick={() => { setQuery(""); setShowDropdown(false); setTimeout(() => document.getElementById("cigar-search-input")?.focus(), 100); }}
+                onClick={() => { setLogSmokePrompt(true); setTimeout(() => { document.getElementById("cigar-search-input")?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100); setTimeout(() => setLogSmokePrompt(false), 3000); }}
                 style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10, boxSizing: "border-box" }}
               >
                 🚬 Log a Smoke
@@ -1855,7 +1861,7 @@ export default function App() {
       )}
       {tab === "venues" && <Venues />}
       <nav style={s.nav}>
-        {[["search", "🔍", "Search"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Feed"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
             <span style={{ fontSize: 18 }}>{icon}</span>
             <span>{label}</span>
