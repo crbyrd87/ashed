@@ -7,6 +7,26 @@ const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const COMMUNITY_LIMIT = 10;
 const FRIEND_LIMIT = 20;
 
+const strengthColor = s => ({ "Light": "#7a9a7a", "Medium": "#c9a84c", "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || "#8a7055");
+
+const avatarColor = (str) => {
+  const colors = [
+    ["#4a7a9a", "#2a4a6a"], ["#7a4a8a", "#4a2a6a"], ["#4a8a6a", "#2a6a4a"],
+    ["#8a6a4a", "#6a4a2a"], ["#8a4a4a", "#6a2a2a"], ["#4a6a8a", "#2a4a6a"],
+  ];
+  let hash = 0;
+  for (let i = 0; i < (str || "").length; i++) hash = (hash * 31 + str.charCodeAt(i)) & 0xffff;
+  return colors[hash % colors.length];
+};
+
+const ratingBarColor = (flames) => {
+  if (!flames) return "#3a2510";
+  if (flames >= 4.5) return "linear-gradient(to bottom, #ffcc00, #ff6600)";
+  if (flames >= 3.5) return "linear-gradient(to bottom, #ffaa00, #cc4400)";
+  if (flames >= 2.5) return "linear-gradient(to bottom, #cc7a2a, #8a4a1a)";
+  return "linear-gradient(to bottom, #8a5a3a, #5a3a2a)";
+};
+
 function FlameIcon({ fill, size = 13 }) {
   const id = `ff-${Math.random().toString(36).slice(2)}`;
   return (
@@ -146,69 +166,85 @@ export default function Feed({ user }) {
         const timeAgo = getTimeAgo(item.created_at);
         const flames = item.rating ? item.rating / 2 : null;
         const flavorTags = item.ratings?.[0]?.flavor_tags ? item.ratings[0].flavor_tags.split(", ") : [];
+        const wouldSmokeAgain = item.ratings?.[0]?.would_smoke_again;
+        const [avatarFrom, avatarTo] = avatarColor(item.users?.username || "");
 
         return (
           <div
             key={item.id}
-            style={{ background: "#1a0f08", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
+            style={{ background: "#1a0f08", border: "1px solid #c9a84c33", borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
             onClick={() => setSelectedCheckin(item)}
           >
-            {/* Left flame accent bar */}
-            <div style={{ width: 3, background: flames ? "linear-gradient(to bottom, #ffcc00, #cc2200)" : "#3a2510", flexShrink: 0 }} />
+            {/* Rating-based left accent bar */}
+            <div style={{ width: 4, background: ratingBarColor(flames), flexShrink: 0 }} />
 
-            <div style={{ flex: 1, padding: "12px 14px" }}>
-              {/* User row */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: isCommunity ? "linear-gradient(135deg,#3a5a3a,#1a2a1a)" : "linear-gradient(135deg,#c9a84c,#7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: isCommunity ? "#7a9a7a" : "#1a0f08", fontWeight: 700, flexShrink: 0 }}>
-                    {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
+            <div style={{ flex: 1 }}>
+              {/* Dark header */}
+              <div style={{ background: "linear-gradient(135deg, #2d1208 0%, #1a0f08 100%)", padding: "12px 14px 10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                  {/* Avatar + user */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#f5ead8", fontWeight: 700, flexShrink: 0 }}>
+                      {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
+                      {isCommunity && <span style={{ marginLeft: 6, fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 6px" }}>Community</span>}
+                      <span style={{ fontSize: 10, color: "#5a4535", marginLeft: 6 }}>{timeAgo}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
-                    {isCommunity && <span style={{ marginLeft: 6, fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 6px" }}>Community</span>}
-                    <span style={{ fontSize: 10, color: "#5a4535", marginLeft: 6 }}>{timeAgo}</span>
-                  </div>
+
+                  {/* Rating badge */}
+                  {flames && (
+                    <div style={{ background: "#1a0f0888", border: "0.5px solid #c9a84c44", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 }}>
+                      <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
+                      <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
+                        {[1, 2, 3, 4, 5].map(i => {
+                          const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
+                          return <FlameIcon key={i} fill={fill} size={13} />;
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Rating badge */}
-                {flames && (
-                  <div style={{ background: "linear-gradient(135deg, #2a1a0e, #1a0f08)", border: "0.5px solid #c9a84c44", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 }}>
-                    <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
-                    <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
-                      {[1, 2, 3, 4, 5].map(i => {
-                        const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
-                        return <FlameIcon key={i} fill={fill} size={13} />;
-                      })}
-                    </div>
+                {/* Brand */}
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#a08060", letterSpacing: "0.08em", marginBottom: 3 }}>{cigarBrand.toUpperCase()}</div>
+                {/* Cigar name */}
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#f5ead8" }}>{cigarName}</div>
+                {/* Vitola + strength */}
+                {(vitola || strength) && (
+                  <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+                    {vitola && <span style={{ fontSize: 12, color: "#a08060" }}>{vitola}</span>}
+                    {vitola && strength && <span style={{ fontSize: 10, color: "#5a4535" }}>·</span>}
+                    {strength && <span style={{ fontSize: 12, fontWeight: 600, color: strengthColor(strength) }}>{strength}</span>}
                   </div>
                 )}
               </div>
 
-              {/* Cigar info */}
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 2 }}>{cigarBrand.toUpperCase()}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", marginBottom: 6 }}>
-                {cigarName}
-                {(vitola || strength) && <span style={{ fontSize: 11, color: "#7a6048", fontWeight: 400 }}> · {[vitola, strength].filter(Boolean).join(" · ")}</span>}
-              </div>
-
-              {/* Flavor tags */}
-              {flavorTags.length > 0 && (
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                  {flavorTags.map(tag => (
-                    <span key={tag} style={{ fontSize: 11, background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>{tag}</span>
-                  ))}
+              {/* Footer — smoke again + tags + like */}
+              <div style={{ padding: "10px 14px 12px", borderTop: "0.5px solid #3a251033" }}>
+                {(wouldSmokeAgain || flavorTags.length > 0) && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                    {wouldSmokeAgain && (
+                      <span style={{ fontSize: 10, background: wouldSmokeAgain === "Yes" ? "#4a7a4a22" : wouldSmokeAgain === "Maybe" ? "#8a7a4a22" : "#8a3a2a22", color: wouldSmokeAgain === "Yes" ? "#7a9a7a" : wouldSmokeAgain === "Maybe" ? "#c9a84c" : "#e8632a", border: `0.5px solid ${wouldSmokeAgain === "Yes" ? "#4a7a4a55" : wouldSmokeAgain === "Maybe" ? "#8a7a4a55" : "#8a3a2a55"}`, borderRadius: 20, padding: "2px 8px" }}>
+                        {wouldSmokeAgain === "Yes" ? "👍" : wouldSmokeAgain === "Maybe" ? "🤔" : "👎"} {wouldSmokeAgain}
+                      </span>
+                    )}
+                    {flavorTags.map(tag => (
+                      <span key={tag} style={{ fontSize: 11, background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>{tag}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
+                    disabled={isOwn}
+                    style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 12, cursor: isOwn ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 5 }}
+                  >
+                    👍 {fireCount}
+                  </button>
                 </div>
-              )}
-
-              {/* Footer — like button */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                <button
-                  onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
-                  disabled={isOwn}
-                  style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 12, cursor: isOwn ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  👍 {fireCount}
-                </button>
               </div>
             </div>
           </div>
