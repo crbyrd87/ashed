@@ -1363,72 +1363,100 @@ export default function App() {
                         </div>
                       </div>
                       {isSelected && (
-                        <div style={{ borderTop: "1px solid #4a3520", padding: "12px 14px" }}>
-                          {checkinRating && (
-                            <div style={{ marginBottom: 12 }}>
-                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>DETAILED RATINGS</div>
-                              {[["Aroma", checkinRating.aroma], ["Draw", checkinRating.draw], ["Burn", checkinRating.burn], ["Construction", checkinRating.construction], ["Flavor", checkinRating.flavor], ["Finish", checkinRating.finish]].filter(([, v]) => v != null).map(([label, val]) => (
-                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                                  <div style={{ fontSize: 11, color: "#a08060", width: 80 }}>{label}</div>
-                                  <div style={{ flex: 1, height: 4, background: "#4a3520", borderRadius: 2, overflow: "hidden" }}>
-                                    <div style={{ width: `${val * 10}%`, height: "100%", background: "linear-gradient(90deg, #d4b45a, #e8cc7a)", borderRadius: 2 }} />
-                                  </div>
-                                  <div style={{ fontSize: 12, color: "#d4b45a", fontWeight: 700, width: 28 }}>{val?.toFixed(1)}</div>
+                        <div style={{ borderTop: "1px solid #4a3520", padding: "14px 14px" }}>
+
+                          {/* Would Smoke Again + Value for Price */}
+                          {checkinRating && (checkinRating.would_smoke_again || checkinRating.value_for_price) && (
+                            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                              {checkinRating.would_smoke_again && (
+                                <div style={{
+                                  flex: 1, padding: "10px 8px", borderRadius: 10, textAlign: "center",
+                                  background: checkinRating.would_smoke_again === "Yes" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.would_smoke_again === "Maybe" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
+                                  border: `1px solid ${checkinRating.would_smoke_again === "Yes" ? "#4a7a4a" : checkinRating.would_smoke_again === "Maybe" ? "#8a7a4a" : "#7a3a2a"}`,
+                                }}>
+                                  <div style={{ fontSize: 18 }}>{checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"}</div>
+                                  <div style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700, marginTop: 4 }}>Smoke Again</div>
+                                  <div style={{ fontSize: 11, color: "#f5ead8aa" }}>{checkinRating.would_smoke_again}</div>
                                 </div>
-                              ))}
-                              {checkinRating.value_for_price && <div style={{ fontSize: 12, color: "#a08060", marginTop: 8 }}>Value: <span style={{ color: "#f5ead8" }}>{checkinRating.value_for_price}</span></div>}
-                              {checkinRating.would_smoke_again && <div style={{ fontSize: 12, color: "#a08060", marginTop: 4 }}>Smoke again: <span style={{ color: "#f5ead8" }}>{checkinRating.would_smoke_again}</span></div>}
-                              {checkinRating.flavor_tags && (
-                                <div style={{ marginTop: 10 }}>
-                                  <div style={{ fontSize: 11, color: "#a08060", marginBottom: 6 }}>FLAVOR TAGS</div>
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                                    {checkinRating.flavor_tags.split(", ").map(tag => (
-                                      <span key={tag} style={{ background: "#d4b45a22", color: "#d4b45a", border: "1px solid #d4b45a55", borderRadius: 20, padding: "2px 10px", fontSize: 11 }}>{tag}</span>
-                                    ))}
-                                  </div>
+                              )}
+                              {checkinRating.value_for_price && (
+                                <div style={{
+                                  flex: 1, padding: "10px 8px", borderRadius: 10, textAlign: "center",
+                                  background: checkinRating.value_for_price === "Good value" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.value_for_price === "OK value" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
+                                  border: `1px solid ${checkinRating.value_for_price === "Good value" ? "#4a7a4a" : checkinRating.value_for_price === "OK value" ? "#8a7a4a" : "#7a3a2a"}`,
+                                }}>
+                                  <div style={{ fontSize: 18 }}>{checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"}</div>
+                                  <div style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700, marginTop: 4 }}>Value</div>
+                                  <div style={{ fontSize: 11, color: "#f5ead8aa" }}>{checkinRating.value_for_price}</div>
                                 </div>
                               )}
                             </div>
                           )}
-                          {c.tasting_notes && (
-                            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginBottom: 8 }}>COMMENTS</div>
-                              <div style={{ fontSize: 14, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
+
+                          {/* Flavor Tags */}
+                          {checkinRating?.flavor_tags && (
+                            <div style={{ marginBottom: 14 }}>
+                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                {checkinRating.flavor_tags.split(", ").map(tag => (
+                                  <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600 }}>{tag}</span>
+                                ))}
+                              </div>
                             </div>
                           )}
-                          <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16 }}>
-                            <div style={{ fontSize: 12, color: "#a08060", letterSpacing: 1, marginBottom: 10 }}>VISIBILITY</div>
-                            <div style={{ display: "flex", gap: 6 }}>
+
+                          {/* Tasting notes text if no flavor tags */}
+                          {c.tasting_notes && !checkinRating?.flavor_tags && (
+                            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
+                              <div style={{ fontSize: 13, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
+                            </div>
+                          )}
+
+                          {/* Visibility */}
+                          <div style={{ marginBottom: 12 }}>
+                            <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>VISIBILITY</div>
+                            <div style={{ display: "flex", gap: 8 }}>
                               {[
-                                { value: "public", label: "🌍 Public" },
-                                { value: "friends_only", label: "👥 Friends" },
-                                { value: "private", label: "🔒 Private" },
-                              ].map(opt => (
-                                <button
-                                  key={opt.value}
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    if (c.visibility === opt.value) return;
-                                    const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
-                                    if (data) {
-                                      setSelectedCheckin(data);
-                                      setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x));
-                                    }
-                                  }}
-                                  style={{
-                                    flex: 1, padding: "7px 4px", borderRadius: 8, cursor: "pointer", fontFamily: SANS,
-                                    border: `1px solid ${c.visibility === opt.value ? "#d4b45a" : "#4a3520"}`,
-                                    background: c.visibility === opt.value ? "#d4b45a22" : "transparent",
-                                    color: c.visibility === opt.value ? "#d4b45a" : "#7a6048",
-                                    fontSize: 11, fontWeight: c.visibility === opt.value ? 700 : 400,
-                                  }}
-                                >
-                                  {opt.label}
-                                </button>
-                              ))}
+                                { value: "public", label: "Public", icon: "🌍" },
+                                { value: "friends_only", label: "Friends", icon: "👥" },
+                                { value: "private", label: "Private", icon: "🔒" },
+                              ].map(opt => {
+                                const isActive = c.visibility === opt.value;
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      if (isActive) return;
+                                      const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
+                                      if (data) {
+                                        setSelectedCheckin(data);
+                                        setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x));
+                                      }
+                                    }}
+                                    style={{
+                                      flex: 1, padding: "10px 4px", borderRadius: 10, cursor: "pointer", fontFamily: SANS,
+                                      border: `1px solid ${isActive ? "#c9a84c" : "#4a3520"}`,
+                                      background: isActive ? "#c9a84c22" : "#221508",
+                                      color: isActive ? "#c9a84c" : "#7a6048",
+                                      fontSize: 11, fontWeight: isActive ? 700 : 400,
+                                      display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                                    }}
+                                  >
+                                    <span style={{ fontSize: 16 }}>{opt.icon}</span>
+                                    <span>{opt.label}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }} style={{ width: "100%", background: "none", border: "1px solid #a0522d55", borderRadius: 10, padding: 14, color: "#a0522d", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 12 }}>
+
+                          {/* Delete */}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
+                            style={{ width: "100%", background: "none", border: "1px solid #a0522d33", borderRadius: 10, padding: 12, color: "#7a3a2a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+                          >
                             Delete this check-in
                           </button>
                         </div>
