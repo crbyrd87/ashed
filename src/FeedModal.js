@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
-import { createNotification } from "./notificationHelpers";
-import { sanitizeLong } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -14,7 +12,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const [fired, setFired] = useState(false);
   const [fireCount, setFireCount] = useState(0);
   const [firingInProgress, setFiringInProgress] = useState(false);
-  const [reportedIds, setReportedIds] = useState(new Set());
   const inputRef = useRef(null);
 
   const isOwnCheckin = checkin.user_id === user.id;
@@ -66,21 +63,13 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       await supabase.from("fires").insert({ checkin_id: checkin.id, user_id: user.id });
       setFired(true);
       setFireCount(c => c + 1);
-      // Notify check-in owner
-      if (checkin.user_id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "fire", {
-          checkin_id: checkin.id,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
     setFiringInProgress(false);
     if (onFireToggle) onFireToggle(checkin.id);
   };
 
   const handlePostComment = async () => {
-    const body = sanitizeLong(commentInput.trim());
+    const body = commentInput.trim();
     if (!body || posting) return;
     setPosting(true);
     const { data, error } = await supabase
@@ -92,26 +81,8 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       setComments(prev => [...prev, data]);
       setCommentInput("");
       checkAndAwardBadges(user.id, "comment").catch(() => {});
-      // Notify check-in owner (not if commenting on own check-in)
-      if (checkin.user_id && checkin.user_id !== user.id) {
-        const cigarName = checkin.cigars?.line || checkin.cigar_name || "your check-in";
-        createNotification(checkin.user_id, user.id, "comment", {
-          checkin_id: checkin.id,
-          message: cigarName,
-        }).catch(() => {});
-      }
     }
     setPosting(false);
-  };
-
-  const handleReport = async (commentId) => {
-    if (reportedIds.has(commentId)) return;
-    const { error } = await supabase.from("reports").insert({
-      reporter_id: user.id,
-      comment_id: commentId,
-      reason: "user_report",
-    });
-    if (!error) setReportedIds(prev => new Set([...prev, commentId]));
   };
 
   const cigarName = checkin.cigars?.line || checkin.cigar_name || "Unknown Cigar";
@@ -161,11 +132,11 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                 onClick={handleFireToggle}
                 disabled={isOwnCheckin}
                 style={{
-                  background: fired ? "#e8632a18" : "none",
-                  border: `1px solid ${fired ? "#e8632a66" : "#3a2510"}`,
+                  background: fired ? "#4a7a4a22" : "none",
+                  border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`,
                   borderRadius: 20,
                   padding: "5px 12px",
-                  color: fired ? "#e8632a" : isOwnCheckin ? "#3a2510" : "#8a7055",
+                  color: fired ? "#7a9a7a" : isOwnCheckin ? "#3a2510" : "#8a7055",
                   fontSize: 13,
                   cursor: isOwnCheckin ? "default" : "pointer",
                   fontFamily: SANS,
@@ -175,7 +146,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                   whiteSpace: "nowrap",
                 }}
               >
-                🔥 {fireCount}
+                👍 {fireCount}
               </button>
             </div>
           </div>
@@ -206,15 +177,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                   <span style={{ fontSize: 9, color: "#5a4535", marginLeft: "auto" }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
-                  {!isMe && (
-                    <button
-                      onClick={() => handleReport(c.id)}
-                      title="Report comment"
-                      style={{ background: "none", border: "none", cursor: reportedIds.has(c.id) ? "default" : "pointer", padding: "0 2px", fontSize: 11, color: reportedIds.has(c.id) ? "#c9a84c" : "#3a2510", lineHeight: 1 }}
-                    >
-                      {reportedIds.has(c.id) ? "✓" : "🚩"}
-                    </button>
-                  )}
                 </div>
                 <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5, paddingLeft: 28 }}>{c.content}</div>
               </div>

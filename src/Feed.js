@@ -172,32 +172,49 @@ export default function Feed({ user }) {
         return (
           <div
             key={item.id}
-            style={{ background: "#1a0f08", border: "1px solid #c9a84c33", borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
+            style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
             onClick={() => setSelectedCheckin(item)}
           >
             {/* Rating-based left accent bar */}
             <div style={{ width: 4, background: ratingBarColor(flames), flexShrink: 0 }} />
 
-            <div style={{ flex: 1 }}>
-              {/* Dark header */}
-              <div style={{ background: "linear-gradient(135deg, #2d1208 0%, #1a0f08 100%)", padding: "12px 14px 10px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                  {/* Avatar + user */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#f5ead8", fontWeight: 700, flexShrink: 0 }}>
+            <div style={{ flex: 1, padding: "10px 14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+
+                {/* Left: cigar info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* User row */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#f5ead8", fontWeight: 700, flexShrink: 0 }}>
                       {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
                     </div>
-                    <div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
-                      {isCommunity && <span style={{ marginLeft: 6, fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 6px" }}>Community</span>}
-                      <span style={{ fontSize: 10, color: "#5a4535", marginLeft: 6 }}>{timeAgo}</span>
-                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
+                    {isCommunity && <span style={{ fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 5px" }}>Community</span>}
+                    <span style={{ fontSize: 10, color: "#5a4535" }}>· {timeAgo}</span>
                   </div>
 
-                  {/* Rating badge */}
+                  {/* Brand — Cigar Name */}
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span style={{ color: "#8a6040" }}>{cigarBrand}</span>
+                    {cigarBrand && cigarName && <span style={{ color: "#5a4535" }}> — </span>}
+                    {cigarName}
+                  </div>
+
+                  {/* Vitola + strength — larger */}
+                  {(vitola || strength) && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {vitola && <span style={{ fontSize: 14, fontWeight: 600, color: "#c9a84c" }}>{vitola}</span>}
+                      {vitola && strength && <span style={{ fontSize: 11, color: "#4a3020" }}>·</span>}
+                      {strength && <span style={{ fontSize: 14, fontWeight: 700, color: strengthColor(strength) }}>{strength}</span>}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: rating + like stacked */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
                   {flames && (
-                    <div style={{ background: "#1a0f0888", border: "0.5px solid #c9a84c44", borderRadius: 8, padding: "5px 10px", textAlign: "center", flexShrink: 0 }}>
-                      <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
+                    <div style={{ background: "#1a0f08", border: "0.5px solid #c9a84c55", borderRadius: 10, padding: "6px 10px", textAlign: "center" }}>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames.toFixed(1)}</div>
                       <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
                         {[1, 2, 3, 4, 5].map(i => {
                           const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
@@ -206,45 +223,15 @@ export default function Feed({ user }) {
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Brand */}
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#a08060", letterSpacing: "0.08em", marginBottom: 3 }}>{cigarBrand.toUpperCase()}</div>
-                {/* Cigar name */}
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#f5ead8" }}>{cigarName}</div>
-                {/* Vitola + strength */}
-                {(vitola || strength) && (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
-                    {vitola && <span style={{ fontSize: 12, color: "#a08060" }}>{vitola}</span>}
-                    {vitola && strength && <span style={{ fontSize: 10, color: "#5a4535" }}>·</span>}
-                    {strength && <span style={{ fontSize: 12, fontWeight: 600, color: strengthColor(strength) }}>{strength}</span>}
-                  </div>
-                )}
-              </div>
-
-              {/* Footer — smoke again + tags + like */}
-              <div style={{ padding: "10px 14px 12px", borderTop: "0.5px solid #3a251033" }}>
-                {(wouldSmokeAgain || flavorTags.length > 0) && (
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                    {wouldSmokeAgain && (
-                      <span style={{ fontSize: 10, background: wouldSmokeAgain === "Yes" ? "#4a7a4a22" : wouldSmokeAgain === "Maybe" ? "#8a7a4a22" : "#8a3a2a22", color: wouldSmokeAgain === "Yes" ? "#7a9a7a" : wouldSmokeAgain === "Maybe" ? "#c9a84c" : "#e8632a", border: `0.5px solid ${wouldSmokeAgain === "Yes" ? "#4a7a4a55" : wouldSmokeAgain === "Maybe" ? "#8a7a4a55" : "#8a3a2a55"}`, borderRadius: 20, padding: "2px 8px" }}>
-                        {wouldSmokeAgain === "Yes" ? "👍" : wouldSmokeAgain === "Maybe" ? "🤔" : "👎"} {wouldSmokeAgain}
-                      </span>
-                    )}
-                    {flavorTags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <button
                     onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
                     disabled={isOwn}
-                    style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 12, cursor: isOwn ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 5 }}
+                    style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "3px 10px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
                   >
                     👍 {fireCount}
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
