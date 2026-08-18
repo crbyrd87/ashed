@@ -341,8 +341,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
               {/* Confidence indicator */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? "#7a9a7a" : cigar.confidence === "medium" ? "#c9a84c" : "#a0522d" }} />
-                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? "#7a9a7a" : cigar.confidence === "medium" ? "#c9a84c" : "#e8a07a", letterSpacing: 1 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#a0522d" }} />
+                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#e8a07a", letterSpacing: 1 }}>
                   {cigar.confidence === "high" && "CONFIDENCE LEVEL: HIGH"}
                   {cigar.confidence === "medium" && "CONFIDENCE LEVEL: MEDIUM -- PLEASE VERIFY"}
                   {cigar.confidence === "low" && "CONFIDENCE LEVEL: LOW -- AI COULD NOT IDENTIFY. PLEASE CORRECT BELOW."}
@@ -368,7 +368,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
-                {cigar.origin && <Badge label={cigar.origin} color="#7a9a7a" />}
+                {cigar.origin && <Badge label={cigar.origin} color="#4caf6e" />}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                 <span style={{ fontSize: 12, color: "#8a7055" }}>Quantity:</span>
@@ -467,7 +467,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
             {addSearchQuery.length < 2 && (
               <button onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setScanning(true); }}
-                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #7a9a7a55", borderRadius: 12, padding: 14, color: "#7a9a7a", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
+                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4caf6e55", borderRadius: 12, padding: 14, color: "#4caf6e", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
                 📷 Scan a Band Instead
               </button>
             )}
