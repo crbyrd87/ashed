@@ -404,7 +404,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <FlameRating value={flames} onChange={setFlames} />
         <div style={{ textAlign: "center", marginTop: 10, fontSize: 13 }}>
           {flames === null ? (
-            <span style={{ color: "#a0522d" }}>👆 Tap the flames to rate</span>
+            <span style={{ color: "#a0522d" }}>👆 Slide the scale to rate</span>
           ) : (
             <>
               <span style={{ color: "#8a7055" }}>{FLAME_LABELS[flames] || ""}</span>
