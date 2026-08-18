@@ -64,11 +64,11 @@ Tasting notes: ${cigar.tasting_notes || "unknown"}
 
 Return ONLY a raw JSON object, no markdown:
 {
-  "spirits": "2-3 specific spirit suggestions with brief reason each",
-  "beer": "2-3 specific beer style suggestions with brief reason each",
-  "cocktails": "2-3 specific cocktail suggestions with brief reason each",
-  "coffee": "2-3 specific coffee suggestions with brief reason each",
-  "non_alcoholic": "2-3 non-alcoholic suggestions with brief reason each",
+  "spirits": "Suggestion 1 name - reason; Suggestion 2 name - reason; Suggestion 3 name - reason",
+  "beer": "Suggestion 1 name - reason; Suggestion 2 name - reason; Suggestion 3 name - reason",
+  "cocktails": "Suggestion 1 name - reason; Suggestion 2 name - reason; Suggestion 3 name - reason",
+  "coffee": "Suggestion 1 name - reason; Suggestion 2 name - reason; Suggestion 3 name - reason",
+  "non_alcoholic": "Suggestion 1 name - reason; Suggestion 2 name - reason; Suggestion 3 name - reason",
   "notes": "One sentence overall pairing philosophy for this cigar"
 }`,
             }],
@@ -137,8 +137,8 @@ Return ONLY a raw JSON object, no markdown:
 
   const PairingSection = ({ title, icon, content }) => {
     if (!content) return null;
-    // Split content into bullet points on period+space or newline
-    const lines = content.split(/\.\s+|\n/).map(l => l.trim()).filter(l => l.length > 10);
+    // Split on semicolons, newlines, or numbered list patterns
+    const lines = content.split(/;\s*|\n+|\d+\.\s+/).map(l => l.trim()).filter(l => l.length > 5);
     return (
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#c9a84c", letterSpacing: 0.5, marginBottom: 8 }}>{icon} {title}</div>
