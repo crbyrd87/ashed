@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -84,81 +84,77 @@ function FlameIcon({ fill = "full", size = 38 }) {
   );
 }
 
-// Flame rating: flames display above a slider
+// Flame rating: flames display above a custom slider
 function FlameRating({ value, onChange }) {
-  const handleSlider = (e) => {
-    const raw = parseFloat(e.target.value);
-    if (raw === 0) {
-      onChange(null); // back to unset
-      return;
-    }
-    onChange(Math.round(raw * 2) / 2);
+  const trackRef = React.useRef(null);
+
+  const getValueFromX = (clientX) => {
+    const rect = trackRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    const raw = (x / rect.width) * 5;
+    if (raw < 0.25) return null; // left edge = unset
+    return Math.min(5, Math.max(0.5, Math.round(raw * 2) / 2));
   };
 
-  // Calculate fill percentage accounting for thumb width offset
-  const thumbWidth = 24;
-  const fillPct = value ? ((value - 0) / (5 - 0)) * 100 : 0;
-  // Adjust for thumb offset at edges
-  const adjustedPct = value
-    ? `calc(${fillPct}% - ${thumbWidth * (fillPct / 100)}px + ${thumbWidth / 2}px)`
-    : "0%";
+  const handleTrackClick = (e) => {
+    onChange(getValueFromX(e.clientX));
+  };
+
+  const handleThumbTouch = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const move = (ev) => {
+      const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      onChange(getValueFromX(clientX));
+    };
+    const up = () => {
+      document.removeEventListener("touchmove", move);
+      document.removeEventListener("touchend", up);
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+    };
+    document.addEventListener("touchmove", move, { passive: false });
+    document.addEventListener("touchend", up);
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+  };
+
+  const fillPct = value ? (value / 5) * 100 : 0;
+  const thumbLeft = `calc(${fillPct}% - 12px)`;
 
   return (
     <div style={{ padding: "4px 0" }}>
-      {/* Flames display */}
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", marginBottom: 12 }}>
+      {/* Flames */}
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 14 }}>
         {[1, 2, 3, 4, 5].map(i => {
           const fill = value === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
           return <FlameIcon key={i} fill={fill} size={40} />;
         })}
       </div>
 
-      {/* Slider */}
-      <div style={{ padding: "0 8px" }}>
-        <input
-          type="range"
-          min="0"
-          max="5"
-          step="0.5"
-          value={value || 0}
-          onChange={handleSlider}
-          onTouchStart={(e) => e.stopPropagation()}
-          style={{
-            width: "100%",
-            appearance: "none",
-            WebkitAppearance: "none",
-            height: 6,
-            borderRadius: 3,
-            background: value
-              ? `linear-gradient(to right, #ff6600 0%, #ffcc00 ${fillPct}%, #3a2510 ${fillPct}%, #3a2510 100%)`
-              : "#3a2510",
-            outline: "none",
-            cursor: "pointer",
-          }}
-        />
-        <style>{`
-          input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff6600, #ffcc00);
-            cursor: pointer;
-            border: 2px solid #1a0f08;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
-          }
-          input[type=range]::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff6600, #ffcc00);
-            cursor: pointer;
-            border: 2px solid #1a0f08;
-          }
-        `}</style>
+      {/* Custom slider track */}
+      <div style={{ padding: "0 12px" }}>
+        <div
+          ref={trackRef}
+          onClick={handleTrackClick}
+          style={{ position: "relative", height: 6, borderRadius: 3, background: "#3a2510", cursor: "pointer", userSelect: "none" }}
+        >
+          {/* Filled portion */}
+          <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${fillPct}%`, borderRadius: 3, background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)", transition: "width 0.05s" }} />
+
+          {/* Thumb */}
+          {value !== null && (
+            <div
+              onMouseDown={handleThumbTouch}
+              onTouchStart={handleThumbTouch}
+              style={{ position: "absolute", top: "50%", left: thumbLeft, transform: "translateY(-50%)", width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #ff6600, #ffcc00)", border: "2px solid #1a0f08", boxShadow: "0 2px 6px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
+}
 }
 
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
