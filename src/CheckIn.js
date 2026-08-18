@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
-import { checkAndAwardBadges } from "./badgeEngine";
-import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const KEY = process.env.REACT_APP_ANTHROPIC_KEY;
 
-const fetchAISuggestions = async (cigar, userId) => {
+const fetchAISuggestions = async (cigar) => {
   const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 short tasting note descriptors a smoker might experience.
 
 Cigar: ${cigar.brand} ${cigar.line}
@@ -17,21 +16,21 @@ Known tasting notes: ${cigar.tasting_notes || "none"}
 Return ONLY a raw JSON array of short descriptor strings, no markdown, no explanation. Each descriptor should be 1-3 words maximum.
 Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dried fruit"]`;
 
-  const response = await fetch("/api/anthropic", {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": KEY,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 200,
-      feature: "tasting_notes",
-      user_id: userId || null,
       messages: [{ role: "user", content: prompt }],
     }),
   });
   const data = await response.json();
-  if (response.status === 429) {
-    throw new Error(data.error || "You've reached the tasting notes limit for this hour. Please try again later.");
-  }
   const raw = data.content?.[0]?.text || "[]";
   const match = raw.match(/\[[\s\S]*\]/);
   return match ? JSON.parse(match[0]) : [];
@@ -99,7 +98,15 @@ function FlameRating({ value, onChange }) {
 
   const handleTouch = (e) => {
     e.preventDefault();
-    onChange(getValueFromEvent(e));
+    e.stopPropagation();
+    const touch = e.changedTouches ? e.changedTouches[0] : e.touches[0];
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const flameWidth = rect.width / 5;
+    const flameIndex = Math.floor(x / flameWidth);
+    const posWithinFlame = (x - flameIndex * flameWidth) / flameWidth;
+    const raw = flameIndex + (posWithinFlame < 0.5 ? 0.5 : 1);
+    onChange(Math.min(5, Math.max(0.5, raw)));
   };
 
   return (
@@ -107,7 +114,7 @@ function FlameRating({ value, onChange }) {
       ref={containerRef}
       onClick={handleClick}
       onTouchEnd={handleTouch}
-      style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "4px 0" }}
+      style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "12px 0", touchAction: "none" }}
     >
       {[1, 2, 3, 4, 5].map(i => {
         const fill = value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
@@ -167,7 +174,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     if (!newPlaceName.trim()) return;
     const { data } = await supabase
       .from("places")
-      .insert({ user_id: user.id, name: sanitizeShort(newPlaceName.trim()) })
+      .insert({ user_id: user.id, name: newPlaceName.trim() })
       .select()
       .single();
     if (data) {
@@ -213,11 +220,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const handleGetSuggestions = async () => {
     setLoadingSuggestions(true);
     try {
-      const suggestions = await fetchAISuggestions(cigar, user?.id);
+      const suggestions = await fetchAISuggestions(cigar);
       setAiSuggestions(suggestions);
     } catch (e) {
       console.error("AI suggestions error:", e);
-      setError(e.message || "Could not load suggestions. Please try again.");
     }
     setLoadingSuggestions(false);
     setSuggestionsUsed(true);
@@ -259,10 +265,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       cigar_brand: cigar.brand || null,
       cigar_vitola: cigar.vitola || null,
       rating: displayScore,
-      tasting_notes: notes ? sanitizeLong(notes) : null,
+      tasting_notes: notes || null,
       smoke_date: smokeDate,
-      smoke_location: location ? sanitizeMedium(location) : null,
-      visibility: isPrivate ? "private" : "public",
+      smoke_location: location || null,
+      is_private: isPrivate,
       ai_band_identified: false,
       voice_entry: false,
     };
@@ -291,7 +297,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       construction: null,
       flavor: null,
       finish: null,
-      overall_notes: notes ? sanitizeLong(notes) : null,
+      overall_notes: notes || null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       would_smoke_again: wouldSmokeAgain || null,
       value_for_price: valueForPrice || null,
@@ -327,9 +333,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       if (onSaved) onSaved(savedRating);
       onClose();
     }, 1500);
-
-    // Check badges in background — never blocks UX
-    checkAndAwardBadges(user.id, "checkin").catch(() => {});
   };
 
   const s = {
