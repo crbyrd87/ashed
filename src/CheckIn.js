@@ -544,7 +544,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           {/* Date & Location */}
           <div style={s.section}>
             <div style={s.label}>Date</div>
-            <input type="date" style={s.input} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
+            <input type="date" style={{ ...s.input, maxWidth: "100%", fontSize: 16 }} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
             <div style={{ ...s.label, marginTop: 14 }}>
               Location <span style={{ color: "#5a4535", fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span>
             </div>
