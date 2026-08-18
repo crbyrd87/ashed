@@ -141,7 +141,7 @@ Return ONLY a raw JSON object, no markdown:
     const lines = content.split(/\.\s+|\n/).map(l => l.trim()).filter(l => l.length > 10);
     return (
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>{icon} {title.toUpperCase()}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#c9a84c", letterSpacing: 0.5, marginBottom: 8 }}>{icon} {title}</div>
         <div style={{ background: "#1a0f08", borderRadius: 8, padding: "10px 12px" }}>
           {lines.map((line, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: i < lines.length - 1 ? 8 : 0, alignItems: "flex-start" }}>
