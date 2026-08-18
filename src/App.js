@@ -1016,6 +1016,7 @@ export default function App() {
         {showPairings && pairingsCigar && (
           <Pairings
             cigar={pairingsCigar}
+            user={user}
             onClose={() => { setShowPairings(false); setPairingsCigar(null); }}
           />
         )}
