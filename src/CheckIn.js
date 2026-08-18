@@ -3,8 +3,14 @@ import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
+const FLAVOR_TAG_NAMES = [
+  "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
+  "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice",
+  "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"
+];
+
 const fetchAISuggestions = async (cigar, userId) => {
-  const prompt = `You are a cigar expert. Based on this cigar's profile, suggest 6-8 short tasting note descriptors a smoker might experience.
+  const prompt = `You are a cigar expert. Based on this cigar's profile, describe the tasting experience in one natural sentence, then list which of our flavor tags apply.
 
 Cigar: ${cigar.brand} ${cigar.line}
 Strength: ${cigar.strength || "unknown"}
@@ -12,8 +18,12 @@ Wrapper: ${cigar.wrapper || "unknown"}
 Origin: ${cigar.origin || "unknown"}
 Known tasting notes: ${cigar.tasting_notes || "none"}
 
-Return ONLY a raw JSON array of short descriptor strings, no markdown, no explanation. Each descriptor should be 1-3 words maximum.
-Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dried fruit"]`;
+Our flavor tags: ${FLAVOR_TAG_NAMES.join(", ")}
+
+Return ONLY raw JSON, no markdown:
+{"description":"One natural sentence describing what the smoker may taste.","tags":["Tag1","Tag2","Tag3"]}
+
+Only include tags from our list that genuinely apply. Typically 3-6 tags.`;
 
   const response = await fetch("/api/anthropic", {
     method: "POST",
@@ -27,9 +37,9 @@ Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dri
     }),
   });
   const data = await response.json();
-  const raw = data.content?.[0]?.text || "[]";
-  const match = raw.match(/\[[\s\S]*\]/);
-  return match ? JSON.parse(match[0]) : [];
+  const raw = data.content?.[0]?.text || "{}";
+  const match = raw.match(/\{[\s\S]*\}/);
+  return match ? JSON.parse(match[0]) : { description: "", tags: [] };
 };
 
 const FLAVOR_TAGS = [
@@ -153,7 +163,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
   // Details section state
   const [showDetails, setShowDetails] = useState(false);
-  const [notes, setNotes] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [valueForPrice, setValueForPrice] = useState(null);
   const [smokeDate, setSmokeDate] = useState(new Date().toISOString().split("T")[0]);
@@ -168,10 +177,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [isPrivate, setIsPrivate] = useState(false);
 
   // AI state
-  const [aiSuggestions, setAiSuggestions] = useState([]);
+  const [aiDescription, setAiDescription] = useState("");
+  const [aiSuggestedTags, setAiSuggestedTags] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionsUsed, setSuggestionsUsed] = useState(false);
-  const [listening, setListening] = useState(false);
 
   // Save state
   const [saving, setSaving] = useState(false);
@@ -242,37 +251,19 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const handleGetSuggestions = async () => {
     setLoadingSuggestions(true);
     try {
-      const suggestions = await fetchAISuggestions(cigar, user?.id);
-      setAiSuggestions(suggestions);
+      const result = await fetchAISuggestions(cigar, user?.id);
+      setAiDescription(result.description || "");
+      setAiSuggestedTags(result.tags || []);
+      // Pre-select suggested tags
+      setSelectedTags(prev => {
+        const merged = new Set([...prev, ...(result.tags || [])]);
+        return [...merged];
+      });
     } catch (e) {
       console.error("AI suggestions error:", e);
     }
     setLoadingSuggestions(false);
     setSuggestionsUsed(true);
-  };
-
-  const handleTapSuggestion = (suggestion) => {
-    setNotes(prev => prev ? prev + ", " + suggestion : suggestion);
-    setAiSuggestions(prev => prev.filter(s => s !== suggestion));
-  };
-
-  const handleVoice = () => {
-    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
-      alert("Voice input is not supported in this browser. Try Chrome on Android or Safari on iPhone.");
-      return;
-    }
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SR();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.onstart = () => setListening(true);
-    recognition.onend = () => setListening(false);
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      setNotes(prev => prev ? prev + " " + transcript : transcript);
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.start();
   };
 
   const handleSave = async () => {
@@ -291,7 +282,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       cigar_brand: cigar.brand || null,
       cigar_vitola: cigar.vitola || null,
       rating: displayScore,
-      tasting_notes: notes || null,
+      tasting_notes: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       smoke_date: smokeDate,
       smoke_location: location || null,
       is_private: isPrivate,
@@ -371,7 +362,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "linear-gradient(135deg, #c9a84c22, #a0783022)" : "#221508", color: active ? "#c9a84c" : "#7a6048", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? "0 0 8px #c9a84c33" : "none" }),
     optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
     saveBtn: { width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
-    micBtn: { background: listening ? "#c9a84c22" : "none", border: `1px solid ${listening ? "#c9a84c" : "#3a2510"}`, borderRadius: 8, padding: "8px 14px", color: listening ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" },
     detailsToggle: { width: "100%", background: showDetails ? "#2a1a0e" : "none", border: `1px solid ${showDetails ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
   };
 
@@ -455,53 +445,53 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* ── DETAILS SECTION ── */}
       {showDetails && (
         <>
-          {/* Notes */}
+          {/* Tasting Notes */}
           <div style={s.section}>
-            <div style={s.label}>Notes</div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              <textarea
-                style={{ ...s.textarea, flex: 1 }}
-                placeholder="Describe your experience — the flavors, the occasion, how it paired with your drink..."
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-              />
-            </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: aiSuggestions.length > 0 ? 10 : 0 }}>
-              <button style={s.micBtn} onClick={handleVoice}>
-                {listening ? "🎙️ Listening..." : "🎙️ Voice"}
-              </button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={s.label}>Tasting Notes</div>
               {!suggestionsUsed && (
                 <button
                   onClick={handleGetSuggestions}
                   disabled={loadingSuggestions}
-                  style={{ background: loadingSuggestions ? "#2a1a0e" : "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "8px 14px", color: loadingSuggestions ? "#5a4535" : "#7a9a7a", fontSize: 12, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                  style={{ background: loadingSuggestions ? "#2a1a0e" : "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? "#5a4535" : "#7a9a7a", fontSize: 12, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
-                  {loadingSuggestions ? "Thinking..." : "✨ Suggest notes"}
+                  {loadingSuggestions ? "Thinking..." : "✨ Suggest"}
                 </button>
               )}
             </div>
-            {aiSuggestions.length > 0 && (
-              <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 8 }}>TAP TO ADD TO YOUR NOTES</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {aiSuggestions.map((sg, i) => (
-                    <button key={i} onClick={() => handleTapSuggestion(sg)}
-                      style={{ padding: "5px 12px", borderRadius: 20, border: "1px solid #7a9a7a55", background: "#7a9a7a22", color: "#7a9a7a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                      + {sg}
-                    </button>
-                  ))}
-                </div>
+
+            {/* AI description */}
+            {aiDescription ? (
+              <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
+                <div style={{ fontSize: 12, color: "#7a9a7a", fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
+                <div style={{ fontSize: 11, color: "#5a4535" }}>If you tasted any of these — or more — select them below.</div>
+              </div>
+            ) : (
+              <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 12, fontStyle: "italic" }}>
+                Tap ✨ Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
               </div>
             )}
-          </div>
 
-          {/* Flavor Tags */}
-          <div style={s.section}>
-            <div style={s.label}>Flavor Tags</div>
+            {/* Flavor Tags */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {FLAVOR_TAGS.map(tag => (
-                <button key={tag} style={s.tag(selectedTags.includes(tag))} onClick={() => toggleTag(tag)}>{tag}</button>
-              ))}
+              {FLAVOR_TAGS.map(tag => {
+                const tagName = tag.split(" ").slice(1).join(" "); // strip emoji
+                const isSelected = selectedTags.includes(tagName);
+                const isAiSuggested = aiSuggestedTags.includes(tagName);
+                return (
+                  <button
+                    key={tag}
+                    style={{
+                      ...s.tag(isSelected),
+                      border: `1px solid ${isSelected ? "#c9a84c" : isAiSuggested ? "#7a9a7a66" : "#3a2510"}`,
+                      background: isSelected ? "linear-gradient(135deg, #c9a84c22, #a0783022)" : isAiSuggested ? "#7a9a7a11" : "#221508",
+                    }}
+                    onClick={() => toggleTag(tagName)}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
