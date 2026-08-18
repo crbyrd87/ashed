@@ -1035,7 +1035,7 @@ export default function App() {
           <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginTop: 2 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
         <button onClick={() => setShowSettings(true)}
-          style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#a08060", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#a08060", fontSize: 20, cursor: "pointer", fontFamily: SANS }}>
           ⚙️
         </button>
       </div>
