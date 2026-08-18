@@ -54,22 +54,29 @@ const FLAME_LABELS = {
 
 // SVG flame icon — full, half, or empty
 function FlameIcon({ fill = "full", size = 38 }) {
-  const id = `half-${Math.random().toString(36).slice(2)}`;
+  const id = `flame-${Math.random().toString(36).slice(2)}`;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block", flexShrink: 0 }}>
-      {fill === "half" && (
-        <defs>
-          <linearGradient id={id} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="50%" stopColor="#c9a84c" />
+      <defs>
+        {fill === "full" && (
+          <linearGradient id={id} x1="0" x2="0" y1="1" y2="0">
+            <stop offset="0%" stopColor="#cc2200" />
+            <stop offset="40%" stopColor="#ff6600" />
+            <stop offset="100%" stopColor="#ffcc00" />
+          </linearGradient>
+        )}
+        {fill === "half" && (
+          <linearGradient id={`${id}-h`} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="50%" stopColor="#ff6600" />
             <stop offset="50%" stopColor="#3a2510" />
           </linearGradient>
-        </defs>
-      )}
+        )}
+      </defs>
       <path
         d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
         fill={
-          fill === "full" ? "#c9a84c" :
-          fill === "half" ? `url(#${id})` :
+          fill === "full" ? `url(#${id})` :
+          fill === "half" ? `url(#${id}-h)` :
           "#3a2510"
         }
       />
@@ -117,7 +124,7 @@ function FlameRating({ value, onChange }) {
       style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "12px 0", touchAction: "none" }}
     >
       {[1, 2, 3, 4, 5].map(i => {
-        const fill = value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
+        const fill = flames === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
         return <FlameIcon key={i} fill={fill} size={38} />;
       })}
     </div>
@@ -126,7 +133,7 @@ function FlameRating({ value, onChange }) {
 
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   // Core quick check-in state
-  const [flames, setFlames] = useState(4);
+  const [flames, setFlames] = useState(null);
   const [wouldSmokeAgain, setWouldSmokeAgain] = useState(null);
 
   // Details section state
@@ -156,7 +163,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  const displayScore = flamesToScore(flames);
+  const displayScore = flames !== null ? flamesToScore(flames) : null;
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -254,6 +261,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   const handleSave = async () => {
+    if (flames === null) {
+      setError("Please rate this cigar before saving.");
+      return;
+    }
     setSaving(true);
     setError(null);
 
@@ -372,11 +383,17 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       <div style={{ ...s.section, paddingTop: 24, paddingBottom: 24 }}>
         <div style={{ ...s.label, justifyContent: "center" }}>Your Rating</div>
         <FlameRating value={flames} onChange={setFlames} />
-        <div style={{ textAlign: "center", marginTop: 10, fontSize: 13, color: "#8a7055" }}>
-          {FLAME_LABELS[flames] || ""}
-          {" · "}
-          <span style={{ color: "#c9a84c", fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
-          <span style={{ color: "#5a4535", fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
+        <div style={{ textAlign: "center", marginTop: 10, fontSize: 13 }}>
+          {flames === null ? (
+            <span style={{ color: "#a0522d" }}>👆 Tap the flames to rate</span>
+          ) : (
+            <>
+              <span style={{ color: "#8a7055" }}>{FLAME_LABELS[flames] || ""}</span>
+              {" · "}
+              <span style={{ color: "#c9a84c", fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
+              <span style={{ color: "#5a4535", fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -549,7 +566,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* Save Button */}
       <div style={{ padding: 20 }}>
         {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
-        <button style={s.saveBtn} onClick={handleSave} disabled={saving}>
+        <button 
+          style={{ ...s.saveBtn, opacity: flames === null ? 0.5 : 1 }} 
+          onClick={handleSave} 
+          disabled={saving || flames === null}
+        >
           {saving ? "Saving..." : "Log This Smoke 🔥"}
         </button>
       </div>
