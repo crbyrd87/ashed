@@ -88,9 +88,20 @@ function FlameIcon({ fill = "full", size = 38 }) {
 function FlameRating({ value, onChange }) {
   const handleSlider = (e) => {
     const raw = parseFloat(e.target.value);
-    // Round to nearest 0.5
+    if (raw === 0) {
+      onChange(null); // back to unset
+      return;
+    }
     onChange(Math.round(raw * 2) / 2);
   };
+
+  // Calculate fill percentage accounting for thumb width offset
+  const thumbWidth = 24;
+  const fillPct = value ? ((value - 0) / (5 - 0)) * 100 : 0;
+  // Adjust for thumb offset at edges
+  const adjustedPct = value
+    ? `calc(${fillPct}% - ${thumbWidth * (fillPct / 100)}px + ${thumbWidth / 2}px)`
+    : "0%";
 
   return (
     <div style={{ padding: "4px 0" }}>
@@ -106,10 +117,10 @@ function FlameRating({ value, onChange }) {
       <div style={{ padding: "0 8px" }}>
         <input
           type="range"
-          min="0.5"
+          min="0"
           max="5"
           step="0.5"
-          value={value || 0.5}
+          value={value || 0}
           onChange={handleSlider}
           onTouchStart={(e) => e.stopPropagation()}
           style={{
@@ -119,7 +130,7 @@ function FlameRating({ value, onChange }) {
             height: 6,
             borderRadius: 3,
             background: value
-              ? `linear-gradient(to right, #ff6600 0%, #ffcc00 ${(value / 5) * 100}%, #3a2510 ${(value / 5) * 100}%, #3a2510 100%)`
+              ? `linear-gradient(to right, #ff6600 0%, #ffcc00 ${fillPct}%, #3a2510 ${fillPct}%, #3a2510 100%)`
               : "#3a2510",
             outline: "none",
             cursor: "pointer",
