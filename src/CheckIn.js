@@ -178,7 +178,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
   // AI state
   const [aiDescription, setAiDescription] = useState("");
-  const [aiSuggestedTags, setAiSuggestedTags] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionsUsed, setSuggestionsUsed] = useState(false);
 
@@ -253,7 +252,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     try {
       const result = await fetchAISuggestions(cigar, user?.id);
       setAiDescription(result.description || "");
-      setAiSuggestedTags(result.tags || []);
     } catch (e) {
       console.error("AI suggestions error:", e);
     }
