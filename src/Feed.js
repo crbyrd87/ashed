@@ -165,8 +165,6 @@ export default function Feed({ user }) {
         const fireCount = fireCounts[item.id] || 0;
         const timeAgo = getTimeAgo(item.created_at);
         const flames = item.rating ? item.rating / 2 : null;
-        const flavorTags = item.ratings?.[0]?.flavor_tags ? item.ratings[0].flavor_tags.split(", ") : [];
-        const wouldSmokeAgain = item.ratings?.[0]?.would_smoke_again;
         const [avatarFrom, avatarTo] = avatarColor(item.users?.username || "");
 
         return (
