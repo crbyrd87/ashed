@@ -254,11 +254,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       const result = await fetchAISuggestions(cigar, user?.id);
       setAiDescription(result.description || "");
       setAiSuggestedTags(result.tags || []);
-      // Pre-select suggested tags
-      setSelectedTags(prev => {
-        const merged = new Set([...prev, ...(result.tags || [])]);
-        return [...merged];
-      });
     } catch (e) {
       console.error("AI suggestions error:", e);
     }
@@ -464,7 +459,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             {aiDescription ? (
               <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: "#7a9a7a", fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
-                <div style={{ fontSize: 11, color: "#5a4535" }}>If you tasted any of these — or more — select them below.</div>
+                <div style={{ fontSize: 11, color: "#a08060" }}>If you tasted any of these — or more — select them below.</div>
               </div>
             ) : (
               <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 12, fontStyle: "italic" }}>
@@ -475,17 +470,12 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             {/* Flavor Tags */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {FLAVOR_TAGS.map(tag => {
-                const tagName = tag.split(" ").slice(1).join(" "); // strip emoji
+                const tagName = tag.split(" ").slice(1).join(" ");
                 const isSelected = selectedTags.includes(tagName);
-                const isAiSuggested = aiSuggestedTags.includes(tagName);
                 return (
                   <button
                     key={tag}
-                    style={{
-                      ...s.tag(isSelected),
-                      border: `1px solid ${isSelected ? "#c9a84c" : isAiSuggested ? "#7a9a7a66" : "#3a2510"}`,
-                      background: isSelected ? "linear-gradient(135deg, #c9a84c22, #a0783022)" : isAiSuggested ? "#7a9a7a11" : "#221508",
-                    }}
+                    style={s.tag(isSelected)}
                     onClick={() => toggleTag(tagName)}
                   >
                     {tag}
