@@ -422,11 +422,31 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       <div style={s.section}>
         <div style={s.label}>Would you smoke this again?</div>
         <div style={{ display: "flex", gap: 10 }}>
-          {["Yes", "Maybe", "No"].map(opt => (
-            <button key={opt} style={s.optBtn(wouldSmokeAgain === opt)} onClick={() => setWouldSmokeAgain(wouldSmokeAgain === opt ? null : opt)}>
-              {opt === "Yes" ? "👍 Yes" : opt === "Maybe" ? "🤔 Maybe" : "👎 No"}
-            </button>
-          ))}
+          {[
+            { label: "Yes", icon: "👍", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
+            { label: "Maybe", icon: "🤔", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
+            { label: "No", icon: "👎", activeColor: "#7a3a2a", activeBg: "linear-gradient(135deg, #8a3a2a, #6a2a1a)" },
+          ].map(({ label, icon, activeColor, activeBg }) => {
+            const isActive = wouldSmokeAgain === label;
+            return (
+              <button
+                key={label}
+                onClick={() => setWouldSmokeAgain(wouldSmokeAgain === label ? null : label)}
+                style={{
+                  flex: 1, padding: "14px 0", borderRadius: 10,
+                  border: `1px solid ${isActive ? activeColor : "#3a2510"}`,
+                  background: isActive ? activeBg : "#221508",
+                  color: isActive ? "#f5ead8" : "#5a4535",
+                  fontSize: 13, fontWeight: isActive ? 700 : 400,
+                  cursor: "pointer", fontFamily: SANS,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                }}
+              >
+                <span style={{ fontSize: 20 }}>{icon}</span>
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
