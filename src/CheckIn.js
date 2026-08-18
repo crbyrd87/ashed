@@ -287,7 +287,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       tasting_notes: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       smoke_date: smokeDate,
       smoke_location: location || null,
-      is_private: isPrivate,
+      visibility: isPrivate ? "private" : "public",
       ai_band_identified: false,
       voice_entry: false,
     };
