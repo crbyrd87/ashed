@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -84,49 +84,68 @@ function FlameIcon({ fill = "full", size = 38 }) {
   );
 }
 
-// Flame rating: 5 flames, 0.5 increments via tap position
+// Flame rating: flames display above a slider
 function FlameRating({ value, onChange }) {
-  const containerRef = useRef(null);
-
-  const getValueFromEvent = (e) => {
-    const rect = containerRef.current.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const x = clientX - rect.left;
-    const flameWidth = rect.width / 5;
-    const flameIndex = Math.floor(x / flameWidth); // 0-4
-    const posWithinFlame = (x - flameIndex * flameWidth) / flameWidth;
-    const raw = flameIndex + (posWithinFlame < 0.5 ? 0.5 : 1);
-    return Math.min(5, Math.max(0.5, raw));
-  };
-
-  const handleClick = (e) => {
-    onChange(getValueFromEvent(e));
-  };
-
-  const handleTouch = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const touch = e.changedTouches ? e.changedTouches[0] : e.touches[0];
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const flameWidth = rect.width / 5;
-    const flameIndex = Math.floor(x / flameWidth);
-    const posWithinFlame = (x - flameIndex * flameWidth) / flameWidth;
-    const raw = flameIndex + (posWithinFlame < 0.5 ? 0.5 : 1);
-    onChange(Math.min(5, Math.max(0.5, raw)));
+  const handleSlider = (e) => {
+    const raw = parseFloat(e.target.value);
+    // Round to nearest 0.5
+    onChange(Math.round(raw * 2) / 2);
   };
 
   return (
-    <div
-      ref={containerRef}
-      onClick={handleClick}
-      onTouchEnd={handleTouch}
-      style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "12px 0", touchAction: "none" }}
-    >
-      {[1, 2, 3, 4, 5].map(i => {
-        const fill = value === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
-        return <FlameIcon key={i} fill={fill} size={38} />;
-      })}
+    <div style={{ padding: "4px 0" }}>
+      {/* Flames display */}
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", marginBottom: 12 }}>
+        {[1, 2, 3, 4, 5].map(i => {
+          const fill = value === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
+          return <FlameIcon key={i} fill={fill} size={40} />;
+        })}
+      </div>
+
+      {/* Slider */}
+      <div style={{ padding: "0 8px" }}>
+        <input
+          type="range"
+          min="0.5"
+          max="5"
+          step="0.5"
+          value={value || 0.5}
+          onChange={handleSlider}
+          onTouchStart={(e) => e.stopPropagation()}
+          style={{
+            width: "100%",
+            appearance: "none",
+            WebkitAppearance: "none",
+            height: 6,
+            borderRadius: 3,
+            background: value
+              ? `linear-gradient(to right, #ff6600 0%, #ffcc00 ${(value / 5) * 100}%, #3a2510 ${(value / 5) * 100}%, #3a2510 100%)`
+              : "#3a2510",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        />
+        <style>{`
+          input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6600, #ffcc00);
+            cursor: pointer;
+            border: 2px solid #1a0f08;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+          }
+          input[type=range]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6600, #ffcc00);
+            cursor: pointer;
+            border: 2px solid #1a0f08;
+          }
+        `}</style>
+      </div>
     </div>
   );
 }
