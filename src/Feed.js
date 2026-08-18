@@ -193,11 +193,10 @@ export default function Feed({ user }) {
 
               {/* Flavor tags */}
               {flavorTags.length > 0 && (
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
-                  {flavorTags.slice(0, 4).map(tag => (
-                    <span key={tag} style={{ fontSize: 10, background: "#c9a84c15", color: "#8a6a20", border: "0.5px solid #c9a84c44", borderRadius: 20, padding: "2px 8px" }}>{tag}</span>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                  {flavorTags.map(tag => (
+                    <span key={tag} style={{ fontSize: 11, background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "3px 10px", fontWeight: 600 }}>{tag}</span>
                   ))}
-                  {flavorTags.length > 4 && <span style={{ fontSize: 10, color: "#5a4535" }}>+{flavorTags.length - 4}</span>}
                 </div>
               )}
 
