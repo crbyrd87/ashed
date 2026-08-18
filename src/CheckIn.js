@@ -155,7 +155,6 @@ function FlameRating({ value, onChange }) {
     </div>
   );
 }
-}
 
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   // Core quick check-in state
