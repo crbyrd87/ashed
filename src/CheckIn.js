@@ -37,9 +37,9 @@ Example: ["Dark chocolate", "Cedar", "Black pepper", "Espresso", "Leather", "Dri
 };
 
 const FLAVOR_TAGS = [
-  "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
-  "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice",
-  "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"
+  "🌲 Cedar", "🤎 Leather", "🌍 Earth", "☕ Coffee", "🍫 Chocolate", "🌶️ Pepper",
+  "🥛 Cream", "🥜 Nuts", "🍯 Caramel", "🍋 Citrus", "🌸 Floral", "✨ Spice",
+  "🪵 Wood", "🌾 Hay", "🍬 Sweetness", "🍂 Tobacco", "🌿 Grass", "🪨 Mineral"
 ];
 
 const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
@@ -374,11 +374,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     label: { fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
     input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
-    tag: active => ({ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }),
+    tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "linear-gradient(135deg, #c9a84c22, #a0783022)" : "#221508", color: active ? "#c9a84c" : "#7a6048", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? "0 0 8px #c9a84c33" : "none" }),
     optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
     saveBtn: { width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
     micBtn: { background: listening ? "#c9a84c22" : "none", border: `1px solid ${listening ? "#c9a84c" : "#3a2510"}`, borderRadius: 8, padding: "8px 14px", color: listening ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" },
-    detailsToggle: { width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "12px 16px", color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    detailsToggle: { width: "100%", background: showDetails ? "#2a1a0e" : "none", border: `1px solid ${showDetails ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
   };
 
   return (
@@ -453,8 +453,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* ── ADD DETAILS TOGGLE ── */}
       <div style={{ padding: "12px 20px", borderBottom: "1px solid #3a251033" }}>
         <button style={s.detailsToggle} onClick={() => setShowDetails(!showDetails)}>
-          <span>Add details</span>
-          <span style={{ fontSize: 16 }}>{showDetails ? "−" : "+"}</span>
+          <span>📝 {showDetails ? "Hide details" : "Add details"}</span>
+          <span style={{ fontSize: 14, transition: "transform 0.2s", display: "inline-block", transform: showDetails ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
         </button>
       </div>
 
@@ -515,9 +515,31 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           <div style={s.section}>
             <div style={s.label}>Value for Price</div>
             <div style={{ display: "flex", gap: 10 }}>
-              {VALUE_OPTIONS.map(opt => (
-                <button key={opt} style={s.optBtn(valueForPrice === opt)} onClick={() => setValueForPrice(valueForPrice === opt ? null : opt)}>{opt}</button>
-              ))}
+              {[
+                { label: "Good value", icon: "💰", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
+                { label: "OK value", icon: "🤷", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
+                { label: "Poor value", icon: "📉", activeColor: "#7a3a2a", activeBg: "linear-gradient(135deg, #8a3a2a, #6a2a1a)" },
+              ].map(({ label, icon, activeColor, activeBg }) => {
+                const isActive = valueForPrice === label;
+                return (
+                  <button
+                    key={label}
+                    onClick={() => setValueForPrice(valueForPrice === label ? null : label)}
+                    style={{
+                      flex: 1, padding: "12px 4px", borderRadius: 10,
+                      border: `1px solid ${isActive ? activeColor : "#3a2510"}`,
+                      background: isActive ? activeBg : "#221508",
+                      color: isActive ? "#f5ead8" : "#5a4535",
+                      fontSize: 11, fontWeight: isActive ? 700 : 400,
+                      cursor: "pointer", fontFamily: SANS,
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                    }}
+                  >
+                    <span style={{ fontSize: 18 }}>{icon}</span>
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
