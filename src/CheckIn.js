@@ -226,7 +226,16 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         const { lat, lng } = geoData.results[0].geometry.location;
         const searchRes = await fetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
         const searchData = await searchRes.json();
-        setVenueResults((searchData.results || []).slice(0, 8));
+        // Sort by distance from search location
+        const results = (searchData.results || []).map(p => {
+          const pLat = p.geometry?.location?.lat;
+          const pLng = p.geometry?.location?.lng;
+          const dist = pLat && pLng
+            ? Math.sqrt(Math.pow(pLat - lat, 2) + Math.pow(pLng - lng, 2))
+            : 999;
+          return { ...p, _dist: dist };
+        }).sort((a, b) => a._dist - b._dist).slice(0, 8);
+        setVenueResults(results);
       }
     } catch (e) {
       console.error("Venue search error:", e);
