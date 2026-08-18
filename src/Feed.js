@@ -212,11 +212,11 @@ export default function Feed({ user }) {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
                   {flames && (
                     <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 28, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames.toFixed(1)}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames.toFixed(1)}</div>
                       <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
                         {[1, 2, 3, 4, 5].map(i => {
                           const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
-                          return <FlameIcon key={i} fill={fill} size={13} />;
+                          return <FlameIcon key={i} fill={fill} size={18} />;
                         })}
                       </div>
                     </div>
