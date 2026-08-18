@@ -1012,7 +1012,7 @@ export default function App() {
           )}
         </div>
 
-        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); refreshCheckins(); }} />}
+        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
         {showPairings && pairingsCigar && (
           <Pairings
             cigar={pairingsCigar}
@@ -1664,7 +1664,7 @@ export default function App() {
         </div>
       )}
 
-      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); refreshCheckins(); }} />}
+      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
       {showBandScanner && (
         <BandScanner
           user={user}
