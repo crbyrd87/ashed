@@ -221,19 +221,21 @@ export default function Feed({ user }) {
                       </div>
                     </div>
                   )}
-                  <button
-                    onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
-                    disabled={isOwn}
-                    style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "3px 10px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
-                  >
-                    👍 {fireCount}
-                  </button>
-                  <button
-                    onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
-                    style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "3px 10px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
-                  >
-                    💬
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "row", gap: 6 }}>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
+                      disabled={isOwn}
+                      style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "3px 10px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
+                    >
+                      👍 {fireCount}
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
+                      style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "3px 10px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                    >
+                      💬
+                    </button>
+                  </div>
                 </div>
 
               </div>
