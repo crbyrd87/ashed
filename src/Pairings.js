@@ -255,8 +255,8 @@ Return ONLY a raw JSON object, no markdown:
 
         {/* Close button */}
         <div style={{ padding: "0 20px 24px" }}>
-          <button onClick={onClose} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-            OK
+          <button onClick={onClose} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 12, color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            Cancel
           </button>
         </div>
       </div>
