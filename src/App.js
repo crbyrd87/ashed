@@ -1370,24 +1370,24 @@ export default function App() {
                             <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
                               {checkinRating.would_smoke_again && (
                                 <div style={{
-                                  flex: 1, padding: "10px 8px", borderRadius: 10, textAlign: "center",
+                                  flex: 1, padding: "7px 6px", borderRadius: 8,
                                   background: checkinRating.would_smoke_again === "Yes" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.would_smoke_again === "Maybe" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
                                   border: `1px solid ${checkinRating.would_smoke_again === "Yes" ? "#4a7a4a" : checkinRating.would_smoke_again === "Maybe" ? "#8a7a4a" : "#7a3a2a"}`,
+                                  display: "flex", alignItems: "center", gap: 6, justifyContent: "center",
                                 }}>
-                                  <div style={{ fontSize: 18 }}>{checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"}</div>
-                                  <div style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700, marginTop: 4 }}>Smoke Again</div>
-                                  <div style={{ fontSize: 11, color: "#f5ead8aa" }}>{checkinRating.would_smoke_again}</div>
+                                  <span style={{ fontSize: 14 }}>{checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"}</span>
+                                  <span style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700 }}>{checkinRating.would_smoke_again}</span>
                                 </div>
                               )}
                               {checkinRating.value_for_price && (
                                 <div style={{
-                                  flex: 1, padding: "10px 8px", borderRadius: 10, textAlign: "center",
+                                  flex: 1, padding: "7px 6px", borderRadius: 8,
                                   background: checkinRating.value_for_price === "Good value" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.value_for_price === "OK value" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
                                   border: `1px solid ${checkinRating.value_for_price === "Good value" ? "#4a7a4a" : checkinRating.value_for_price === "OK value" ? "#8a7a4a" : "#7a3a2a"}`,
+                                  display: "flex", alignItems: "center", gap: 6, justifyContent: "center",
                                 }}>
-                                  <div style={{ fontSize: 18 }}>{checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"}</div>
-                                  <div style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700, marginTop: 4 }}>Value</div>
-                                  <div style={{ fontSize: 11, color: "#f5ead8aa" }}>{checkinRating.value_for_price}</div>
+                                  <span style={{ fontSize: 14 }}>{checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"}</span>
+                                  <span style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700 }}>{checkinRating.value_for_price}</span>
                                 </div>
                               )}
                             </div>
@@ -1418,9 +1418,9 @@ export default function App() {
                             <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>VISIBILITY</div>
                             <div style={{ display: "flex", gap: 8 }}>
                               {[
-                                { value: "public", label: "Public", icon: "🌍" },
-                                { value: "friends_only", label: "Friends", icon: "👥" },
-                                { value: "private", label: "Private", icon: "🔒" },
+                                { value: "public", label: "Public", icon: "🌍", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
+                                { value: "friends_only", label: "Friends", icon: "👥", activeColor: "#4a6a8a", activeBg: "linear-gradient(135deg, #4a6a8a, #2a4a6a)" },
+                                { value: "private", label: "Private", icon: "🔒", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
                               ].map(opt => {
                                 const isActive = c.visibility === opt.value;
                                 return (
@@ -1437,11 +1437,11 @@ export default function App() {
                                     }}
                                     style={{
                                       flex: 1, padding: "10px 4px", borderRadius: 10, cursor: "pointer", fontFamily: SANS,
-                                      border: `1px solid ${isActive ? "#c9a84c" : "#4a3520"}`,
-                                      background: isActive ? "#c9a84c22" : "#221508",
-                                      color: isActive ? "#c9a84c" : "#7a6048",
+                                      border: `1px solid ${isActive ? opt.activeColor : "#4a3520"}`,
+                                      background: isActive ? opt.activeBg : "#221508",
+                                      color: isActive ? "#f5ead8" : "#5a4535",
                                       fontSize: 11, fontWeight: isActive ? 700 : 400,
-                                      display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                                     }}
                                   >
                                     <span style={{ fontSize: 16 }}>{opt.icon}</span>
@@ -1455,9 +1455,9 @@ export default function App() {
                           {/* Delete */}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
-                            style={{ width: "100%", background: "none", border: "1px solid #a0522d33", borderRadius: 10, padding: 12, color: "#7a3a2a", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+                            style={{ width: "100%", background: "linear-gradient(135deg, #8a2a1a, #6a1a0a)", border: "1px solid #a0522d", borderRadius: 10, padding: 13, color: "#f5ead8", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
                           >
-                            Delete this check-in
+                            🗑️ Delete this check-in
                           </button>
                         </div>
                       )}
