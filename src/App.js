@@ -1433,7 +1433,7 @@ export default function App() {
                       )}
 
                       {/* Tasting notes text fallback */}
-                      {isSelected && c.tasting_notes && !checkinRating?.flavor_tags && (
+                      {isSelected && checkinRating !== null && c.tasting_notes && !checkinRating?.flavor_tags && (
                         <div style={{ padding: "10px 14px", borderBottom: "1px solid #4a352033" }}>
                           <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
                           <div style={{ fontSize: 13, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
