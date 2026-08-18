@@ -88,39 +88,30 @@ function FlameIcon({ fill = "full", size = 38 }) {
 function FlameRating({ value, onChange }) {
   const trackRef = React.useRef(null);
 
-  const getValueFromX = (clientX) => {
+  const getValueFromClientX = (clientX) => {
+    if (!trackRef.current) return null;
     const rect = trackRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
     const raw = (x / rect.width) * 5;
-    if (raw < 0.25) return null; // left edge = unset
+    if (raw < 0.25) return null;
     return Math.min(5, Math.max(0.5, Math.round(raw * 2) / 2));
   };
 
-  const handleTrackClick = (e) => {
-    onChange(getValueFromX(e.clientX));
+  const handleTouch = (e) => {
+    e.preventDefault();
+    onChange(getValueFromClientX(e.touches[0].clientX));
   };
 
-  const handleThumbTouch = (e) => {
+  const handleTouchMove = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    const move = (ev) => {
-      const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
-      onChange(getValueFromX(clientX));
-    };
-    const up = () => {
-      document.removeEventListener("touchmove", move);
-      document.removeEventListener("touchend", up);
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mouseup", up);
-    };
-    document.addEventListener("touchmove", move, { passive: false });
-    document.addEventListener("touchend", up);
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", up);
+    onChange(getValueFromClientX(e.touches[0].clientX));
+  };
+
+  const handleClick = (e) => {
+    onChange(getValueFromClientX(e.clientX));
   };
 
   const fillPct = value ? (value / 5) * 100 : 0;
-  const thumbLeft = `calc(${fillPct}% - 12px)`;
 
   return (
     <div style={{ padding: "4px 0" }}>
@@ -132,24 +123,29 @@ function FlameRating({ value, onChange }) {
         })}
       </div>
 
-      {/* Custom slider track */}
+      {/* Slider track */}
       <div style={{ padding: "0 12px" }}>
         <div
           ref={trackRef}
-          onClick={handleTrackClick}
-          style={{ position: "relative", height: 6, borderRadius: 3, background: "#3a2510", cursor: "pointer", userSelect: "none" }}
+          onClick={handleClick}
+          onTouchStart={handleTouch}
+          onTouchMove={handleTouchMove}
+          style={{ position: "relative", height: 28, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "none", userSelect: "none" }}
         >
-          {/* Filled portion */}
-          <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${fillPct}%`, borderRadius: 3, background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)", transition: "width 0.05s" }} />
-
+          {/* Track background */}
+          <div style={{ position: "absolute", left: 0, right: 0, height: 6, borderRadius: 3, background: "#3a2510" }} />
+          {/* Filled track */}
+          {value && <div style={{ position: "absolute", left: 0, height: 6, width: `${fillPct}%`, borderRadius: 3, background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)" }} />}
           {/* Thumb */}
-          {value !== null && (
-            <div
-              onMouseDown={handleThumbTouch}
-              onTouchStart={handleThumbTouch}
-              style={{ position: "absolute", top: "50%", left: thumbLeft, transform: "translateY(-50%)", width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #ff6600, #ffcc00)", border: "2px solid #1a0f08", boxShadow: "0 2px 6px rgba(0,0,0,0.5)", cursor: "grab", touchAction: "none" }}
-            />
-          )}
+          <div style={{
+            position: "absolute",
+            left: value ? `calc(${fillPct}% - 12px)` : "-12px",
+            width: 24, height: 24, borderRadius: "50%",
+            background: value ? "linear-gradient(135deg, #ff6600, #ffcc00)" : "#3a2510",
+            border: `2px solid ${value ? "#1a0f08" : "#5a4535"}`,
+            boxShadow: value ? "0 2px 6px rgba(0,0,0,0.5)" : "none",
+            transition: "left 0.05s",
+          }} />
         </div>
       </div>
     </div>
