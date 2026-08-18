@@ -124,7 +124,7 @@ function FlameRating({ value, onChange }) {
       style={{ display: "flex", gap: 6, justifyContent: "center", alignItems: "center", cursor: "pointer", userSelect: "none", padding: "12px 0", touchAction: "none" }}
     >
       {[1, 2, 3, 4, 5].map(i => {
-        const fill = flames === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
+        const fill = value === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
         return <FlameIcon key={i} fill={fill} size={38} />;
       })}
     </div>
