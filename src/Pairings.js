@@ -115,22 +115,24 @@ Return ONLY a raw JSON object, no markdown:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
-          max_tokens: 150,
+          max_tokens: 200,
           user_id: user?.id,
           feature: "pairings",
           messages: [{
             role: "user",
-            content: `In 1-2 plain sentences (no markdown, no headers, no bullet points), how does ${season} weather affect smoking a ${cigar.brand} ${cigar.line} (${cigar.strength || "medium"} strength)? What seasonal drink pairs well this time of year?`,
+            content: `For smoking a ${cigar.brand} ${cigar.line} in ${season}, suggest 2 drink pairings. Return ONLY this JSON, no markdown:
+{"context":"One sentence on how ${season} affects this smoke.","pairings":[{"drink":"Drink name","reason":"Brief reason why it works"},{"drink":"Drink name","reason":"Brief reason why it works"}]}`,
           }],
         }),
       });
       const data = await response.json();
-      const raw = data.content?.[0]?.text || "";
-      // Strip any markdown headers or formatting
-      const clean = raw.replace(/^#+\s+/gm, "").replace(/\*\*/g, "").replace(/\*/g, "").trim();
-      setSeasonalNote(clean);
+      const raw = data.content?.[0]?.text || "{}";
+      const match = raw.match(/\{[\s\S]*\}/);
+      const result = match ? JSON.parse(match[0]) : null;
+      setSeasonalNote(result || raw);
     } catch (err) {
       console.error("Seasonal note error:", err);
+      setSeasonalNote("Could not load seasonal pairing.");
     }
     setLoadingSeasonalNote(false);
   };
@@ -246,7 +248,23 @@ Return ONLY a raw JSON object, no markdown:
                     {loadingSeasonalNote ? "Loading..." : `✨ Get ${season} pairing suggestion`}
                   </button>
                 ) : (
-                  <div style={{ background: "#2a1a0e", borderRadius: 8, padding: "10px 12px", fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{seasonalNote}</div>
+                  <div style={{ background: "#2a1a0e", borderRadius: 8, padding: "10px 12px" }}>
+                    {typeof seasonalNote === "object" && seasonalNote.pairings ? (
+                      <>
+                        {seasonalNote.context && (
+                          <div style={{ fontSize: 12, color: "#7a6048", fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>{seasonalNote.context}</div>
+                        )}
+                        {seasonalNote.pairings.map((p, i) => (
+                          <div key={i} style={{ marginBottom: i < seasonalNote.pairings.length - 1 ? 8 : 0 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c" }}>{p.drink}</span>
+                            <span style={{ fontSize: 13, color: "#c8b89a" }}> — {p.reason}</span>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{seasonalNote}</div>
+                    )}
+                  </div>
                 )}
               </div>
             </>
