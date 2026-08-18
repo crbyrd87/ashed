@@ -48,7 +48,7 @@ export default function Feed({ user }) {
     if (friendIds.length > 0) {
       const { data } = await supabase
         .from("checkins")
-        .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
+        .select("*, cigars(brand, line, vitola, strength), users(username, display_name), ratings(flavor_tags, would_smoke_again)")
         .in("user_id", friendIds)
         .or("visibility.eq.public,visibility.is.null")
         .order("created_at", { ascending: false })
@@ -59,7 +59,7 @@ export default function Feed({ user }) {
     const excludeIds = [user.id, ...friendIds];
     const { data: globalData } = await supabase
       .from("checkins")
-      .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
+      .select("*, cigars(brand, line, vitola, strength), users(username, display_name), ratings(flavor_tags, would_smoke_again)")
       .not("user_id", "in", `(${excludeIds.join(",")})`)
       .or("visibility.eq.public,visibility.is.null")
       .order("created_at", { ascending: false })
@@ -69,7 +69,7 @@ export default function Feed({ user }) {
     // Also fetch own recent check-ins
     const { data: ownData } = await supabase
       .from("checkins")
-      .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
+      .select("*, cigars(brand, line, vitola, strength), users(username, display_name), ratings(flavor_tags, would_smoke_again)")
       .eq("user_id", user.id)
       .or("visibility.eq.public,visibility.is.null")
       .order("created_at", { ascending: false })
@@ -145,6 +145,7 @@ export default function Feed({ user }) {
         const fireCount = fireCounts[item.id] || 0;
         const timeAgo = getTimeAgo(item.created_at);
         const flames = item.rating ? item.rating / 2 : null;
+        const flavorTags = item.ratings?.[0]?.flavor_tags ? item.ratings[0].flavor_tags.split(", ") : [];
 
         return (
           <div
@@ -189,6 +190,16 @@ export default function Feed({ user }) {
                 {cigarName}
                 {(vitola || strength) && <span style={{ fontSize: 11, color: "#7a6048", fontWeight: 400 }}> · {[vitola, strength].filter(Boolean).join(" · ")}</span>}
               </div>
+
+              {/* Flavor tags */}
+              {flavorTags.length > 0 && (
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
+                  {flavorTags.slice(0, 4).map(tag => (
+                    <span key={tag} style={{ fontSize: 10, background: "#c9a84c15", color: "#8a6a20", border: "0.5px solid #c9a84c44", borderRadius: 20, padding: "2px 8px" }}>{tag}</span>
+                  ))}
+                  {flavorTags.length > 4 && <span style={{ fontSize: 10, color: "#5a4535" }}>+{flavorTags.length - 4}</span>}
+                </div>
+              )}
 
               {/* Footer — like button */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
