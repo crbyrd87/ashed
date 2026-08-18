@@ -314,7 +314,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       construction: null,
       flavor: null,
       finish: null,
-      overall_notes: notes || null,
+      overall_notes: null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       would_smoke_again: wouldSmokeAgain || null,
       value_for_price: valueForPrice || null,
