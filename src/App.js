@@ -1332,131 +1332,119 @@ export default function App() {
                   const strength = c.cigars?.strength || null;
                   const isSelected = selectedCheckin?.id === c.id;
                   return (
-                    <div key={c.id} style={{ ...s.card, borderColor: isSelected ? "#d4b45a55" : "#4a3520" }} onClick={() => isSelected ? setSelectedCheckin(null) : handleSelectCheckin(c)}>
-                      <div style={{ padding: "12px 14px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", margin: "2px 0 6px" }}>{line}</div>
-                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                              {vitola && <Badge label={vitola} />}
-                              {strength && <Badge label={strength} color={strengthColor(strength)} />}
-                              {c.cigars && !c.cigars.verified && !c.cigars.rejection_reason && (
-                                <span style={{ fontSize: 10, background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 6, padding: "1px 6px", color: "#c9a84c" }}>⏳ Pending verification</span>
-                              )}
-                              {c.cigars?.rejection_reason && (
-                                <span style={{ fontSize: 10, background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 6, padding: "1px 6px", color: "#e8a07a" }}>⚠️ Not verified</span>
-                              )}
-                            </div>
-                            {c.cigars?.rejection_reason && (
-                              <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, lineHeight: 1.5 }}>
-                                {c.cigars.rejection_reason}
-                              </div>
-                            )}
-                          </div>
-                          <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a" }}>{c.rating?.toFixed(1)}</div>
-                            <div style={{ fontSize: 11, color: "#7a6048" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
-                            {c.visibility === "private" && <div style={{ fontSize: 10, color: "#7a6048", marginTop: 2 }}>🔒 Private</div>}
-                            {c.visibility === "friends_only" && <div style={{ fontSize: 10, color: "#7a9a7a", marginTop: 2 }}>👥 Friends</div>}
-                          </div>
-                        </div>
-                      </div>
-                      {isSelected && (
-                        <div style={{ borderTop: "1px solid #4a3520", padding: "14px 14px" }}>
+                    <div key={c.id} style={{ ...s.card, borderColor: isSelected ? "#c9a84c44" : "#4a3520", overflow: "hidden" }} onClick={() => isSelected ? setSelectedCheckin(null) : handleSelectCheckin(c)}>
 
-                          {/* Would Smoke Again + Value for Price */}
-                          {checkinRating && (checkinRating.would_smoke_again || checkinRating.value_for_price) && (
-                            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                              {checkinRating.would_smoke_again && (
-                                <div style={{
-                                  flex: 1, padding: "7px 6px", borderRadius: 8,
-                                  background: checkinRating.would_smoke_again === "Yes" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.would_smoke_again === "Maybe" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
-                                  border: `1px solid ${checkinRating.would_smoke_again === "Yes" ? "#4a7a4a" : checkinRating.would_smoke_again === "Maybe" ? "#8a7a4a" : "#7a3a2a"}`,
-                                  display: "flex", alignItems: "center", gap: 6, justifyContent: "center",
-                                }}>
-                                  <span style={{ fontSize: 14 }}>{checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"}</span>
-                                  <span style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700 }}>{checkinRating.would_smoke_again}</span>
-                                </div>
-                              )}
-                              {checkinRating.value_for_price && (
-                                <div style={{
-                                  flex: 1, padding: "7px 6px", borderRadius: 8,
-                                  background: checkinRating.value_for_price === "Good value" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.value_for_price === "OK value" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)",
-                                  border: `1px solid ${checkinRating.value_for_price === "Good value" ? "#4a7a4a" : checkinRating.value_for_price === "OK value" ? "#8a7a4a" : "#7a3a2a"}`,
-                                  display: "flex", alignItems: "center", gap: 6, justifyContent: "center",
-                                }}>
-                                  <span style={{ fontSize: 14 }}>{checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"}</span>
-                                  <span style={{ fontSize: 11, color: "#f5ead8", fontWeight: 700 }}>{checkinRating.value_for_price}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                      {/* Dark header */}
+                      <div style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #1a0f08 100%)", padding: "14px 14px" }}>
 
-                          {/* Flavor Tags */}
-                          {checkinRating?.flavor_tags && (
-                            <div style={{ marginBottom: 14 }}>
-                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                                {checkinRating.flavor_tags.split(", ").map(tag => (
-                                  <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600 }}>{tag}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Tasting notes text if no flavor tags */}
-                          {c.tasting_notes && !checkinRating?.flavor_tags && (
-                            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 14 }}>
-                              <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
-                              <div style={{ fontSize: 13, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
-                            </div>
-                          )}
-
-                          {/* Visibility */}
-                          <div style={{ marginBottom: 12 }}>
-                            <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 8 }}>VISIBILITY</div>
-                            <div style={{ display: "flex", gap: 8 }}>
+                        {/* Brand + date + visibility */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
+                            <span style={{ fontSize: 12, color: "#7a6048" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            <div style={{ display: "flex", gap: 4 }} onClick={e => e.stopPropagation()}>
                               {[
-                                { value: "public", label: "Public", icon: "🌍", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
-                                { value: "friends_only", label: "Friends", icon: "👥", activeColor: "#4a6a8a", activeBg: "linear-gradient(135deg, #4a6a8a, #2a4a6a)" },
-                                { value: "private", label: "Private", icon: "🔒", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
+                                { value: "public", icon: "🌍", label: "Public" },
+                                { value: "friends_only", icon: "👥", label: "Friends" },
+                                { value: "private", icon: "🔒", label: "Private" },
                               ].map(opt => {
                                 const isActive = c.visibility === opt.value;
                                 return (
-                                  <button
-                                    key={opt.value}
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
-                                      if (isActive) return;
-                                      const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
-                                      if (data) {
-                                        setSelectedCheckin(data);
-                                        setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x));
-                                      }
-                                    }}
-                                    style={{
-                                      flex: 1, padding: "10px 4px", borderRadius: 10, cursor: "pointer", fontFamily: SANS,
-                                      border: `1px solid ${isActive ? opt.activeColor : "#4a3520"}`,
-                                      background: isActive ? opt.activeBg : "#221508",
-                                      color: isActive ? "#f5ead8" : "#5a4535",
-                                      fontSize: 11, fontWeight: isActive ? 700 : 400,
-                                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                                    }}
-                                  >
-                                    <span style={{ fontSize: 16 }}>{opt.icon}</span>
-                                    <span>{opt.label}</span>
+                                  <button key={opt.value} onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (isActive) return;
+                                    const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
+                                    if (data) { setSelectedCheckin(data); setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x)); }
+                                  }} style={{ fontSize: 10, color: isActive ? "#c9a84c" : "#5a4535", background: isActive ? "#c9a84c22" : "#3a2510", border: `0.5px solid ${isActive ? "#c9a84c55" : "transparent"}`, borderRadius: 20, padding: "2px 7px", cursor: "pointer", fontFamily: SANS, fontWeight: isActive ? 700 : 400 }}>
+                                    {opt.icon} {opt.label}
                                   </button>
                                 );
                               })}
                             </div>
                           </div>
+                        </div>
 
-                          {/* Delete */}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
-                            style={{ width: "100%", background: "linear-gradient(135deg, #8a2a1a, #6a1a0a)", border: "1px solid #a0522d", borderRadius: 10, padding: 13, color: "#f5ead8", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
-                          >
+                        {/* Cigar name + vitola/strength */}
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "#f5ead8", marginBottom: 10 }}>
+                          {line}
+                          {(vitola || strength) && <span style={{ fontSize: 12, color: "#7a6048", fontWeight: 400 }}> · {[vitola, strength].filter(Boolean).join(" · ")}</span>}
+                        </div>
+
+                        {/* Flames + rating */}
+                        {c.rating && (() => {
+                          const flames = c.rating / 2;
+                          return (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ display: "flex", gap: 3 }}>
+                                {[1, 2, 3, 4, 5].map(i => {
+                                  const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
+                                  const id = `fc-${c.id}-${i}`;
+                                  return (
+                                    <svg key={i} width="18" height="18" viewBox="0 0 24 24">
+                                      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor="#cc2200"/><stop offset="40%" stopColor="#ff6600"/><stop offset="100%" stopColor="#ffcc00"/></linearGradient></defs>}
+                                      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor="#ff6600"/><stop offset="50%" stopColor="#3a2510"/></linearGradient></defs>}
+                                      <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z" fill={fill === "empty" ? "#3a2510" : `url(#${id})`} />
+                                    </svg>
+                                  );
+                                })}
+                              </div>
+                              <span style={{ fontSize: 15, fontWeight: 700, color: "#c9a84c" }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</span>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Verification badges */}
+                        {c.cigars && !c.cigars.verified && !c.cigars.rejection_reason && (
+                          <span style={{ fontSize: 10, background: "#c9a84c22", border: "1px solid #c9a84c55", borderRadius: 6, padding: "1px 6px", color: "#c9a84c", marginTop: 8, display: "inline-block" }}>⏳ Pending verification</span>
+                        )}
+                        {c.cigars?.rejection_reason && (
+                          <div style={{ marginTop: 6 }}>
+                            <span style={{ fontSize: 10, background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 6, padding: "1px 6px", color: "#e8a07a" }}>⚠️ Not verified</span>
+                            <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 4, lineHeight: 1.5 }}>{c.cigars.rejection_reason}</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Smoke again + value badges */}
+                      {isSelected && checkinRating && (checkinRating.would_smoke_again || checkinRating.value_for_price) && (
+                        <div style={{ padding: "10px 14px", display: "flex", gap: 7, flexWrap: "wrap", borderBottom: "1px solid #4a352033" }}>
+                          {checkinRating.would_smoke_again && (
+                            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: "#f5ead8",
+                              background: checkinRating.would_smoke_again === "Yes" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.would_smoke_again === "Maybe" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)" }}>
+                              {checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"} {checkinRating.would_smoke_again}
+                            </span>
+                          )}
+                          {checkinRating.value_for_price && (
+                            <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: "#f5ead8",
+                              background: checkinRating.value_for_price === "Good value" ? "linear-gradient(135deg, #4a7a4a, #2a5a2a)" : checkinRating.value_for_price === "OK value" ? "linear-gradient(135deg, #8a7a4a, #6a5a2a)" : "linear-gradient(135deg, #8a3a2a, #6a2a1a)" }}>
+                              {checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"} {checkinRating.value_for_price}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Tasting tags */}
+                      {isSelected && checkinRating?.flavor_tags && (
+                        <div style={{ padding: "10px 14px", display: "flex", gap: 6, flexWrap: "wrap", borderBottom: "1px solid #4a352033" }}>
+                          {checkinRating.flavor_tags.split(", ").map(tag => (
+                            <span key={tag} style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "3px 10px", fontSize: 11, fontWeight: 600 }}>{tag}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Tasting notes text fallback */}
+                      {isSelected && c.tasting_notes && !checkinRating?.flavor_tags && (
+                        <div style={{ padding: "10px 14px", borderBottom: "1px solid #4a352033" }}>
+                          <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
+                          <div style={{ fontSize: 13, color: "#ddc9a8", fontStyle: "italic", lineHeight: 1.6 }}>"{c.tasting_notes}"</div>
+                        </div>
+                      )}
+
+                      {/* Delete */}
+                      {isSelected && (
+                        <div style={{ padding: "12px 14px" }}>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
+                            style={{ width: "100%", background: "linear-gradient(135deg, #8a2a1a, #6a1a0a)", border: "1px solid #a0522d", borderRadius: 10, padding: 12, color: "#f5ead8", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                             🗑️ Delete this check-in
                           </button>
                         </div>
