@@ -42,8 +42,6 @@ const FLAVOR_TAGS = [
   "🪵 Wood", "🌾 Hay", "🍬 Sweetness", "🍂 Tobacco", "🌿 Grass", "🪨 Mineral"
 ];
 
-const VALUE_OPTIONS = ["Good value", "OK value", "Poor value"];
-
 // Convert 1–5 (0.5 increments) to 0–10 score
 const flamesToScore = (flames) => parseFloat((flames * 2).toFixed(1));
 
