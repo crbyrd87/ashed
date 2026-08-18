@@ -228,6 +228,12 @@ export default function Feed({ user }) {
                   >
                     👍 {fireCount}
                   </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
+                    style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "3px 10px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                  >
+                    💬
+                  </button>
                 </div>
 
               </div>
