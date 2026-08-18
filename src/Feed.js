@@ -50,7 +50,7 @@ export default function Feed({ user }) {
         .from("checkins")
         .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
         .in("user_id", friendIds)
-        .eq("visibility", "public")
+        .or("visibility.eq.public,visibility.is.null")
         .order("created_at", { ascending: false })
         .limit(FRIEND_LIMIT);
       friendCheckins = (data || []).map(c => ({ ...c, _feedType: "friend" }));
@@ -61,13 +61,23 @@ export default function Feed({ user }) {
       .from("checkins")
       .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
       .not("user_id", "in", `(${excludeIds.join(",")})`)
-      .eq("visibility", "public")
+      .or("visibility.eq.public,visibility.is.null")
       .order("created_at", { ascending: false })
       .limit(COMMUNITY_LIMIT);
     const communityCheckins = (globalData || []).map(c => ({ ...c, _feedType: "community" }));
 
+    // Also fetch own recent check-ins
+    const { data: ownData } = await supabase
+      .from("checkins")
+      .select("*, cigars(brand, line, vitola, strength), users(username, display_name)")
+      .eq("user_id", user.id)
+      .or("visibility.eq.public,visibility.is.null")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    const ownCheckins = (ownData || []).map(c => ({ ...c, _feedType: "own" }));
+
     const allIds = new Set();
-    const merged = [...friendCheckins, ...communityCheckins].filter(c => {
+    const merged = [...ownCheckins, ...friendCheckins, ...communityCheckins].filter(c => {
       if (allIds.has(c.id)) return false;
       allIds.add(c.id);
       return true;
