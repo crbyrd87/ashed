@@ -50,17 +50,8 @@ export default function Auth({ onLogin }) {
     setLoading(true);
     setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (error.message.toLowerCase().includes("invalid login credentials") || error.message.toLowerCase().includes("invalid credentials")) {
-        setError("Incorrect email or password. If you just signed up, please check your email inbox to verify your account first.");
-      } else if (error.message.toLowerCase().includes("email not confirmed")) {
-        setError("Please check your email inbox and click the verification link before logging in.");
-      } else {
-        setError(error.message);
-      }
-    } else {
-      onLogin();
-    }
+    if (error) setError(error.message);
+    else onLogin();
     setLoading(false);
   };
 
@@ -119,7 +110,10 @@ export default function Auth({ onLogin }) {
 
   return (
     <div style={s.wrap}>
-      <div style={s.logo}>🚬 Ashed</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, justifyContent: "center" }}>
+        <span style={{ fontSize: 28 }}>🔥</span>
+        <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
+      </div>
       <div style={s.tagline}>CIGAR JOURNAL & COMMUNITY</div>
       <div style={s.card}>
         <div style={s.title}>
