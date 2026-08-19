@@ -121,11 +121,11 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", maxWidth: 420, margin: "0 auto" }}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}
       onClick={onClose}
     >
       <div
-        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxHeight: "80dvh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxWidth: 420, maxHeight: "80vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
@@ -206,11 +206,8 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         </div>
       </div>
 
-      {/* Comment input — outside modal, truly fixed to bottom */}
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 420, margin: "0 auto", padding: "10px 18px 32px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, background: "#1a0f08", zIndex: 500 }}
-      >
+        {/* Comment input */}
+        <div style={{ padding: "10px 18px 24px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
           <input
             ref={inputRef}
             value={commentInput}
@@ -226,6 +223,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           >
             {posting ? "..." : "Post"}
           </button>
+        </div>
       </div>
     </div>
   );
