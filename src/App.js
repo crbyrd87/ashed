@@ -175,6 +175,7 @@ export default function App() {
   const [filterScoreMax, setFilterScoreMax] = useState(10);
   const [filterValue, setFilterValue] = useState([]);
   const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
 
   const activeFilterCount = [
     filterName, filterBrand,
