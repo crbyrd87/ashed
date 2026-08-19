@@ -9,48 +9,43 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
-  const [stage, setStage] = useState("capture"); // capture | analyzing | result | error | flagged
+export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
+  const [stage, setStage] = useState("capture");
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [confidence, setConfidence] = useState(null);
-  const [dbMatch, setDbMatch] = useState(false);
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
-  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const libraryInputRef = useRef(null);
 
   const cacheCigarToDB = async (result) => {
     try {
       const { data: existing } = await supabase
         .from("cigars")
-        .select("id, brand, line, vitola, strength, origin, wrapper, tasting_notes")
+        .select("id")
         .eq("brand", result.brand)
         .eq("line", result.line)
         .eq("vitola", result.vitola)
         .maybeSingle();
-
-      if (existing) return existing;
-
-      // Not in DB — report as missing for admin review, do NOT auto-insert
-      const { data: alreadyReported } = await supabase
-        .from("missing_cigars")
-        .select("id")
-        .eq("brand", result.brand)
-        .eq("line", result.line)
-        .maybeSingle();
-
-      if (!alreadyReported) {
-        await supabase.from("missing_cigars").insert({
+      if (!existing) {
+        const { data: inserted } = await supabase.from("cigars").insert({
           brand: result.brand,
           line: result.line,
-          vitola: result.vitola !== "Unknown" ? result.vitola : null,
-          reported_by: user?.id || null,
-        });
+          vitola: result.vitola,
+          wrapper: result.wrapper || null,
+          origin: result.origin || null,
+          strength: result.strength || null,
+          tasting_notes: result.tasting_notes || null,
+          description: result.description || null,
+          ai_generated: true,
+          verified: false,
+          total_checkins: 0,
+        }).select().single();
+        return inserted;
       }
-
-      // Return AI result as display-only (no DB id)
-      return { ...result, id: null };
+      return existing;
     } catch (e) {
       console.error("Cache to DB failed:", e);
       return null;
@@ -88,8 +83,6 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
         body: JSON.stringify({
           model: "claude-opus-4-6",
           max_tokens: 1024,
-          user_id: user?.id,
-          feature: "band_scanner",
           messages: [
             {
               role: "user",
@@ -128,13 +121,6 @@ Be as specific as possible. If you can read text on the band, use it.`
       });
 
       const data = await response.json();
-
-      if (response.status === 429) {
-        setErrorMsg(data.error || "You've reached the scan limit for this hour. Please try again later.");
-        setStage("error");
-        return;
-      }
-
       const raw = data.content?.[0]?.text || "{}";
       const match = raw.match(/\{[\s\S]*\}/);
       const result = match ? JSON.parse(match[0]) : {};
@@ -145,17 +131,14 @@ Be as specific as possible. If you can read text on the band, use it.`
         return;
       }
 
-      // Low confidence — go straight to error with manual search prompt
       if (result.confidence === "low") {
         setErrorMsg(`Best guess: ${result.brand} ${result.line} — but confidence is too low to be reliable. Try a clearer photo or search manually.`);
         setStage("error");
         return;
       }
 
-      // Cache to DB for medium/high confidence
       const cached = await cacheCigarToDB(result);
-      const isDbMatch = !!(cached?.id);
-      setDbMatch(isDbMatch);
+
       setConfidence(result.confidence);
       setCigar({
         id: cached?.id || null,
@@ -178,52 +161,56 @@ Be as specific as possible. If you can read text on the band, use it.`
     }
   };
 
-  const s = {
-    overlay: { position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 420, margin: "0 auto" },
-    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
-  };
-
   return (
-    <div style={s.overlay}>
-      <div style={s.header}>
+    <div style={{ background: "#1a0f08", minHeight: "100%", fontFamily: SANS }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: "1px solid #3a2510" }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>
-            {stage === "capture" && "Scan a Cigar Band"}
-            {stage === "analyzing" && "Analyzing..."}
-            {stage === "result" && "Cigar Identified"}
-            {stage === "error" && "Scan Failed"}
-          </div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>AI BAND IDENTIFICATION</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>Band Scanner</div>
+          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginTop: 2 }}>PREMIUM FEATURE</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
       </div>
 
       {/* CAPTURE STAGE */}
       {stage === "capture" && (
-        <div style={{ padding: 24 }}>
-          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 12, padding: 24, textAlign: "center", marginBottom: 20 }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>📷</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Photo the cigar band</div>
-            <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>
-              Get as close as possible and make sure the band label is clearly visible and in focus.
+        <div style={{ padding: 20 }}>
+
+          {/* Viewfinder graphic */}
+          <div style={{ background: "#0f0804", border: "1px solid #3a2510", borderRadius: 14, height: 200, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 16, left: 16, width: 28, height: 28, borderTop: "2px solid #c9a84c", borderLeft: "2px solid #c9a84c", borderRadius: "4px 0 0 0" }} />
+            <div style={{ position: "absolute", top: 16, right: 16, width: 28, height: 28, borderTop: "2px solid #c9a84c", borderRight: "2px solid #c9a84c", borderRadius: "0 4px 0 0" }} />
+            <div style={{ position: "absolute", bottom: 16, left: 16, width: 28, height: 28, borderBottom: "2px solid #c9a84c", borderLeft: "2px solid #c9a84c", borderRadius: "0 0 0 4px" }} />
+            <div style={{ position: "absolute", bottom: 16, right: 16, width: 28, height: 28, borderBottom: "2px solid #c9a84c", borderRight: "2px solid #c9a84c", borderRadius: "0 0 4px 0" }} />
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🔥</div>
+              <div style={{ fontSize: 13, color: "#5a4535" }}>Point at the cigar band</div>
             </div>
           </div>
 
-          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
-            {["Hold the cigar steady in good lighting", "Fill the frame with the band label", "Avoid blurry or dark photos", "Both ends of the band help if visible"].map((tip, i) => (
-              <div key={i} style={{ fontSize: 13, color: "#c8b89a", marginBottom: 6, display: "flex", gap: 8 }}>
-                <span style={{ color: "#c9a84c" }}>→</span>{tip}
+          {/* Tips */}
+          <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
+            {[
+              "Hold steady in good lighting",
+              "Fill the frame with the band",
+              "Keep the label sharp and in focus",
+              "Both ends of the band help",
+            ].map((tip, i) => (
+              <div key={i} style={{ fontSize: 13, color: "#c8b89a", marginBottom: i < 3 ? 8 : 0, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ color: "#c9a84c", flexShrink: 0 }}>→</span>{tip}
               </div>
             ))}
           </div>
 
-          <label style={{ display: "block", cursor: "pointer" }}>
-            <div style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, letterSpacing: 1, fontFamily: SANS, textAlign: "center" }}>
+          {/* Camera button */}
+          <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
+            <div style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
             <input
-              ref={fileInputRef}
+              ref={cameraInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic"
               capture="environment"
@@ -232,11 +219,13 @@ Be as specific as possible. If you can read text on the band, use it.`
             />
           </label>
 
-          <label style={{ display: "block", cursor: "pointer", marginTop: 12 }}>
-            <div style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+          {/* Library button */}
+          <label style={{ display: "block", cursor: "pointer" }}>
+            <div style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
             <input
+              ref={libraryInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic"
               onChange={handlePhotoChange}
@@ -250,12 +239,12 @@ Be as specific as possible. If you can read text on the band, use it.`
       {stage === "analyzing" && (
         <div style={{ padding: 24, textAlign: "center" }}>
           {photoPreview && (
-            <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 260, objectFit: "cover", marginBottom: 24 }} />
+            <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 240, objectFit: "cover", marginBottom: 24 }} />
           )}
           <div style={{ fontSize: 32, marginBottom: 16 }}>🔍</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Analyzing your cigar band...</div>
-          <div style={{ fontSize: 13, color: "#8a7055" }}>Ashed is reading the band label</div>
-          <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden", marginTop: 24 }}>
+          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 24 }}>Ashed is reading the band label</div>
+          <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden" }}>
             <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
@@ -266,27 +255,19 @@ Be as specific as possible. If you can read text on the band, use it.`
       {stage === "result" && cigar && (
         <div style={{ padding: 20 }}>
           {photoPreview && (
-            <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 200, objectFit: "cover", marginBottom: 16 }} />
+            <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 180, objectFit: "cover", marginBottom: 16 }} />
           )}
 
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? "#7a9a7a22" : confidence === "medium" ? "#c9a84c22" : "#a0522d22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : confidence === "medium" ? "#c9a84c55" : "#a0522d55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : confidence === "medium" ? "~" : "?"}</span>
-            <span style={{ fontSize: 12, color: confidence === "high" ? "#7a9a7a" : confidence === "medium" ? "#c9a84c" : "#a0522d" }}>
-              {confidence === "high" ? "High confidence identification" : confidence === "medium" ? "Medium confidence — please verify" : "Low confidence — please verify carefully"}
+          <div style={{ background: confidence === "high" ? "#7a9a7a22" : "#c9a84c22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : "#c9a84c55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
+            <span style={{ fontSize: 12, color: confidence === "high" ? "#7a9a7a" : "#c9a84c" }}>
+              {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
           </div>
 
-          {/* DB match indicator */}
-          <div style={{ background: dbMatch ? "#7a9a7a11" : "#a0522d11", border: `1px solid ${dbMatch ? "#7a9a7a44" : "#a0522d44"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 13 }}>{dbMatch ? "✅" : "⚠️"}</span>
-            <span style={{ fontSize: 12, color: dbMatch ? "#7a9a7a" : "#e8a07a" }}>
-              {dbMatch ? "Database match found — verified cigar data" : "Not in our database yet — sent for admin review to add"}
-            </span>
-          </div>
-
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 10px" }}>{cigar.line}</div>
+          <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 10px" }}>{cigar.line}</div>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
             {cigar.vitola && <Badge label={cigar.vitola} />}
@@ -296,7 +277,7 @@ Be as specific as possible. If you can read text on the band, use it.`
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
             {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Vitola", cigar.vitola], ["Origin", cigar.origin]].map(([k, v]) => v && (
-              <div key={k} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
+              <div key={k} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
                 <div style={{ fontSize: 14, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
               </div>
@@ -304,8 +285,8 @@ Be as specific as possible. If you can read text on the band, use it.`
           </div>
 
           {cigar.tasting_notes && (
-            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
+            <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
               <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{cigar.tasting_notes}</div>
             </div>
           )}
@@ -314,44 +295,25 @@ Be as specific as possible. If you can read text on the band, use it.`
             <div style={{ fontSize: 13, color: "#8a7055", fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
           )}
 
-          <button
-            onClick={() => onCheckIn(cigar)}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10 }}
-          >
+          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + LOG THIS SMOKE
           </button>
-          <button
-            onClick={() => { onAddToWishlist(cigar); onClose(); }}
-            style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
-          >
-            + Add to Wishlist
+          <button onClick={() => { onAddToWishlist(cigar); onClose(); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+            ♡ Add to Wishlist
           </button>
-          <button
-            onClick={() => { onAddToHumidor(cigar); onClose(); }}
-            style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
-          >
+          <button onClick={() => { onAddToHumidor(cigar); onClose(); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
           </button>
-          <button
-            onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
-          >
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Scan Again
           </button>
 
-          {/* Flag incorrect info */}
           {!flagged ? (
-            <button
-              onClick={handleFlag}
-              disabled={flagging}
-              style={{ width: "100%", background: "none", border: "1px solid #3a251044", borderRadius: 10, padding: 10, color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
-            >
+            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: "1px solid #3a251044", borderRadius: 10, padding: 10, color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
               {flagging ? "Flagging..." : "⚑ Flag incorrect info"}
             </button>
           ) : (
-            <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>
-              ✓ Thanks — this has been flagged for review
-            </div>
+            <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>✓ Thanks — flagged for review</div>
           )}
         </div>
       )}
@@ -365,20 +327,15 @@ Be as specific as possible. If you can read text on the band, use it.`
           <div style={{ fontSize: 32, marginBottom: 12 }}>🚫</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Couldn't identify this band</div>
           <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 24, lineHeight: 1.6 }}>{errorMsg}</div>
-          <button
-            onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}
-          >
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Try Again
           </button>
-          <button
-            onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS }}
-          >
+          <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
             Search Manually Instead
           </button>
         </div>
       )}
+
     </div>
   );
 }
