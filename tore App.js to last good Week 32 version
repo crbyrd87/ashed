@@ -1,0 +1,237 @@
+[33m10b33cb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Fix: add showSettings useState to App.js
+[33m7387845[m Fix: App.js - flame gradient logo, gold subtitle, gear icon, BandScanner overlay
+[33meb1e90d[m Fix: BandScanner wrapped in full-screen fixed overlay so it actually appears
+[33mc69ea27[m UI: BandScanner full redesign - new UI, proxy fix, boxSizing on all buttons, viewfinder graphic
+[33m44fc5de[m Fix: remove extra closing div in FeedModal
+[33mbab077a[m Revert: comment input back inside modal, defer keyboard fix to native app (Week 33)
+[33ma01e437[m UI: CIGAR JOURNAL & COMMUNITY subtitle gold, bolder, more visible on both login and main app
+[33m3364b67[m UI: login page logo matches main app flame gradient
+[33m2ebad78[m Fix: comment input moved outside modal div, truly position fixed at bottom
+[33m4353736[m Fix: comment input position fixed at bottom, always visible above keyboard
+[33m5bf4357[m Fix: FeedModal comment input visible on iOS - dvh, safe-area-inset-bottom, interactive-widget viewport
+[33m7bdec41[m Fix: FeedModal keyboard-aware height, wishlist button, tracker updated to Week 32
+[33md97eedf[m UI: settings gear icon larger (20px)
+[33md745906[m Fix: Ashed logo gradient spans text only, red left to yellow right
+[33m6c19ded[m Fix: like and comment buttons side by side in feed card
+[33m871ac8d[m UI: flame gradient logo, 💬 comment button on feed card, pinned comment input in FeedModal, 16px input font
+[33m5f9d26b[m UI: Feed card - shrink rating number to 18px, grow flames to 18px
+[33m48a05cd[m UI: remove box from feed card rating badge
+[33m4eb3bf9[m UI: brighter green on AI buttons (Scan a Band, Recommendation, Humidor scan)
+[33m9453709[m Fix: remove unused flavorTags and wouldSmokeAgain variables in Feed.js
+[33mc2b7836[m Fix: Feed/FeedModal 👍 replace 🔥, one decimal ratings, brand—name layout, larger vitola/strength, like under rating
+[33ma8b0bd6[m Redesign: Feed cards - rating bar, unique avatars, dark header, strength color, smoke again badge
+[33m604a19b[m Fix: Feed tags match check-in style, show all tags no cap
+[33mf141b8d[m Fix: Feed joins ratings table, shows flavor tags on cards, capped at 4 with overflow count
+[33m5374b34[m Fix: Feed shows own check-ins, handles null visibility for legacy check-ins
+[33m2fb207a[m Redesign: Feed cards - flame accent bar, rating badge, flames, 👍 like button, fix visibility column
+[33m0ad6ade[m Fix: don't show tasting notes fallback until checkinRating has loaded
+[33me78d632[m Redesign: journal card - dark header, flames + rating, inline visibility toggle, compact badges
+[33m07586f5[m UI: check-in detail - compact smoke/value badges, distinct visibility colors, bold red delete
+[33m20c317a[m Redesign: check-in detail - remove Detailed Ratings/Comments, styled Would Smoke Again/Value badges, better visibility buttons
+[33m5b19253[m Fix: clear search query and selected line after check-in saved
+[33m1f05a6a[m Fix: checkin visibility column name is_private -> visibility
+[33med0b16d[m Fix: sort venue search results by distance in CheckIn
+[33m279f821[m Fix: remove unused aiSuggestedTags state
+[33m9b1a201[m Fix: prompt text lighter color, remove pre-highlighting of suggested tags
+[33m288f873[m Fix: remove notes reference from overall_notes field
+[33ma0f8f22[m Redesign: tasting notes - remove textarea/voice, AI description + tag selection flow
+[33mfd89d7e[m Fix: suggest notes routes through /api/anthropic proxy, remove direct browser call
+[33m92cd462[m Fix: date input maxWidth 100% and 16px font to prevent iOS overflow and zoom
+[33m973af64[m Fix: remove unused VALUE_OPTIONS constant
+[33m9e6a400[m UI: CheckIn details - emoji flavor tags, colored value for price, enhanced add details toggle
+[33m0cc3165[m UI: Would Smoke Again buttons bold with color - green/amber/red when selected
+[33m7977ed5[m Fix: simplified custom slider with onTouchStart/onTouchMove on track div
+[33m13e8932[m Fix: remove stray closing brace in CheckIn.js
+[33m7ae12ba[m Fix: custom slider replaces native range input, precise touch/drag control
+[33mf2823ab[m Fix: slider min 0 allows unset, fix track alignment
+[33m5d62d8f[m Fix: update rating prompt to say slide the scale
+[33mc036c4c[m Fix: flame rating replaced with slider + flames display, gradient track, orange/yellow thumb
+[33mcd6e931[m Fix: use value instead of flames inside FlameRating component
+[33m96984ef[m Fix: flame rating defaults null, required before save, flame gradient colors red/orange/yellow
+[33m0f92396[m Fix: flame rating touch handling for iOS Safari - use changedTouches, touchAction none
+[33m2c7a219[m Fix: Pairings bullets split on semicolons, prompt enforces semicolon format
+[33mddb6f10[m Fix: Pairings section headers larger and gold colored
+[33m5720b56[m Fix: Pairings - remove I don't drink, add Cocktails section, bullet format results
+[33m665fdf4[m Fix: seasonal pairings structured format with bold drink names
+[33m7cf6e50[m Fix: Pairings close button changed to smaller Cancel style
+[33mc105732[m Fix: Pairings route through /api/anthropic proxy, strip markdown from seasonal note, pass user prop
+[33m631b8e2[m Fix: move search label above search bar
+[33mfd52067[m Fix: remove Log a Smoke button, add label above search, cleaner Feed tab
+[33m4e28bbd[m Fix: Log a Smoke scrolls to search bar with gold highlight, rename Search tab to Feed
+[33me715f1f[m Update ToS and Privacy Policy - Ember Forge LLC DBA Ashed
+[33m7df6755[m Fix: Humidor scan tip - 'up to 3 cigars at a time'
+[33mc7c9e04[m Fix: humidor add sheet - header and search fixed, only results scroll
+[33mfb28757[m Fix: Humidor add sheet - sticky search input, 60vh max height, results stay visible
+[33m07f4bc2[m Fix: search bar sticky at top, 16px font to prevent iOS zoom
+[33m39d6b87[m Fix: prevent iOS zoom on input tap - set font-size to 16px
+[33m44f498e[m Fix: remove autoFocus from humidor add search - prevents keyboard shift on mobile browser
+[33m520f904[m Humidor: gold buttons, inline search, Add a Cigar flow
+[33me40d58b[m Humidor: inline search in add sheet, restore Smoke One to gold, fix search flow
+[33mdb0fd9f[m Humidor: Add a Cigar flow with search/scan sheet, green filled Smoke One button, remove dash from Remove One
+[33mee90cce[m UI: Humidor scan button changed to green to match AI feature color language
+[33m96d1c09[m UI: Scan a Band button color changed to green to match Recommendation - AI features consistent
+[33md14a850[m Rename For Me button to Recommendation
+[33m4a7e7d5[m Add Log a Smoke button to search tab, focuses search input
+[33m994e16b[m Upgrade Node.js to 24.x
+[33mbfa3581[m Fix: upgrade prompt maxHeight 90vh with scroll, prevents content overflow
+[33mea74426[m Update: 7-day free trial messaging, founding member cancellation policy in ToS
+[33me048c69[m Update upgrade screen: founding member monthly $4.99, annual $39.99, regular $7.99/$59.99
+[33m51cefb9[m Fix: tour completion goes to profile tab (not non-existent journal tab)
+[33m12b24bf[m Fix: reorder tour - PRO features near top, tour completion goes to journal tab
+[33mf18aeb8[m Fix: better login error message for unverified email accounts
+[33m074b5fc[m Fix: Settings screen constrained to 420px to match app width
+[33m3ac038e[m Fix: ToS and Privacy as static pages, constrain width to 480px
+[33m4384264[m Fix: serve terms and privacy as static HTML pages
+[33md636eca[m Update ToS and Privacy Policy - Ember Ventures LLC DBA Ashed
+[33mb374f23[m Fix: Humidor scanner use /api/anthropic proxy instead of direct browser call
+[33m17aec3d[m Force redeploy new anthropic kay
+[33md003112[m Add MAU (Monthly Active Users) stat to Admin Console dashboard
+[33m6333366[m Add Terms of Service and Privacy Policy pages
+[33m87b1f7f[m Add social icons to public folder
+[33m2d11933[m Fix: fetch admin display name from public users table for feedback reply notification
+[33m1bfe004[m Fix: feedback_reply notification shows admin name from message, subtitle directs to Settings
+[33m4eea0fb[m Fix: reduce notification poll to 30s, remove feedback debug logs
+[33m198b719[m Debug: add notification insert logging for feedback reply
+[33ma22b7b8[m Fix: feedback shows in admin console, notification sent on reply
+[33m86c7e98[m Debug: add feedback query logging
+[33m561a871[m Fix: feedback query remove failing users join, missing cigars dismiss RLS
+[33mdbd3d5a[m Week 29: admin feedback replies, user sees replies in Settings Help tab
+[33ma106510[m Fix: remove dedup debug logs, cigars RLS policies added
+[33m3158104[m Debug: add merge step error logging to dedup
+[33me908eec[m Week 29: audit log table, logging for approve/reject/merge/dismiss/grant/revoke/delete, audit tab in admin console
+[33mf05bbd3[m Fix: dedup fetch all cigars in batches to bypass 1000 row limit
+[33m8825ce8[m Fix: dedup fetch all cigars with limit 10000
+[33m02e676c[m Fix: dedup integer ID handling, add scan logging
+[33mc398f45[m Week 29: auto-dedup tool in admin console with dr-run preview
+[33mcae6b1f[m Fix: AdminConsole tab nav scrolls horizontally on mobile
+[33m6ae9670[m Fix: Admin conesole z-index bump to 650
+[33m4dfc9ee[m Week 29: admin QA queue for user-submitted cigars
+[33mc3a24db[m Fix: handleCigarSubmitted use setCheckingIn
+[33mbe2c946[m Week 29: user-submitted cigars, can't find your cigar button, verification status in journal
+[33mad1dea3[m Fix: db-refresh fetch halfwheel directly then use Haiku to filter - much faster
+[33m91542a5[m Debug: log full anthropic API response in db-refresh
+[33m928055a[m Fix: db-refresh search PCA 2026 releases broadly, not just prior month
+[33md080fc9[m Fix: add debug output to db-refresh response
+[33m24248af[m Fix: db-refresh better content extraction, and full response logging
+[33mfb3e80f[m Fix: remove run now button from db refresh tab, add curl instructions
+[33m2888fd1[m Fix: improve db-refresh prompt, fuzzy brand matching, prioritizing known brands
+[33m8a8e6c7[m Fix: db-refresh use GET for manual trigger
+[33m6401109[m Fix: update web search tool to web_search_20260209
+[33ma8c4827[m Fix - switch db-refresh to Sonnet for better web search
+[33m3996995[m  Fix: move db-refresh.js to api folder
+[33mcfd42f7[m Fix: db-refresh allows POST from admin without CRON_SECRET
+[33mf0ed0f5[m Week 29: monthly DB refresh cron, Halfwheel search, admin Refresh tab
+[33m16bf548[m Fix: userprofilemodal query - remove display_name not in public.users
+[33m2a2e2f1[m Fix: userprofilemodal friends query syntax
+[33m1b6b8ac[m Fix: UserProfileModal query - maybeSingle, fix friends query syntax
+[33m0969c88[m Week 29: public profile modal, tappable usernames in feded
+[33m7b78446[m Fix: center settings tab labels
+[33ma009658[m Week 29: what's new modal v0.9.2, last_seen_version tracking
+[33mdd16be4[m Week 29: added version
+[33me682c7d[m Week 29: cigar guide in settings
+[33m9f1931c[m Week 29: bug report/feedback form in Settings, feedback tab in Admin console with PostHog session replay link
+[33m7458240[m Week 29: settings - remove option to change username
+[33m1fd6bee[m Week 29: Settings screen, gear icon, signed out moved, replay tour
+[33mba02311[m Fix: welcome modal icons, tour persistence, tour screen order
+[33m588268b[m Week 29: improved onboarding tour icons
+[33m749cadf[m Fix: onboarding tour shows immediately after welcome modal
+[33mf49cdc3[m Fix: correct onboarding tour file name
+[33m3847405[m Week 29: onboarding tour, tour_completed on user record
+[33m916e3a2[m Week 29: SMTP, index.html, welcome modal
+[33m3937b34[m Fix: add PostHog API key
+[33m210669b[m Week 29: PostHog analytics
+[33mc78f3cf[m Week 29: Legend Maker threshold 25 to 15
+[33m9ada89a[m Week 29: Fix feed code
+[33m8b6f218[m Week 29: comment count on feed cards
+[33m8bb52c1[m Week 28: moderator role, restricted console access, Grant/Revoke Mod for super admin
+[33mb3caed6[m Week 28: super admin protection, Grant/Remoke admin, block actions on admin accounts
+[33m1255440[m Week 28: input sanitization - strip HTML, enforce max lengths on all user text fields
+[33m635cb67[m Week 28: rate limit error messages shown to user, updated limits
+[33m2c17502[m Week 28: rate limiting on AI features, fix CheckIn to use serverless proxy
+[33mdd51899[m Fix: dismiss confirm on Missing Cigars tab
+[33ma66c38e[m Week 28: backfill cigar_id on humidor and chekins when admin approves missing cigar
+[33me4e6483[m Fix: remove unused STRENGTHS variable in AdminConsole
+[33m00bc0d3[m Fix: Bandscanner reports missing cigars instead of auto-inserting dirty data
+[33m2cc949e[m Fix: missing cigars form isolated component (no keyboard bug), tasting notes as bubbles
+[33m3f3ba89[m Fix: brighten app.js colors for low brightness screens
+[33ma83a686[m Week 28: origin and wrapper dropdowns in Missing Cigars add form
+[33m14b6597[m Week 28: add to DB directly from Missing Cigars tab in admin console
+[33m6c7de63[m Week 28: missing cigars alert system, stop auto-inserting unknown scans, admin Missing tab
+[33m3b20b5a[m Fix: vitola dropdown in band scanner confirm, edit vitola on humidor items
+[33mae5bccd[m Week 28: DB tab delete requires typing DELETE to confirm
+[33m332f003[m Fix: ESLint errors in AdminConsole and cigarAI
+[33mdc52fd8[m Week 28: source column on cigars, DB admin tab, disable AI vitola lookup
+[33mba628b8[m Fix: disable AI vitola lookup, DB-only results until Week 29 re-enable
+[33ma67d05d[m Fix: move drink pairings above vitola list as slim strip
+[33m2375a88[m Fix: remove vitola dimensions display
+[33m16c680e[m Fix: LoungeScene SVG fills header area with slice scaling
+[33mbf14f34[m Fix: cigar detail header - brand/line overlaps image, reduced header height
+[33md77e607[m Week 28: remove pairings alterantive, fix wishlist stale state and isRealCigar check
+[33m5e40039[m Week 28: move Anthropic API key server-side, fix BandScanner user prop
+[33m1a1bb13[m Week 26: gate Humidor scan button, add wishlist search bar
+[33me09dd71[m Week 26: upgrade prompt - explicit feature copy, full premium list
+[33mf1da01d[m Fix: rename UpgradePrompt to UpgradePrompt.js
+[33m41ae7bd[m Week 26: premium features gate, upgrade prompts
+[33ma497f4d[m Week 24: partner dashboard Google prefill, expanded places API details
+[33me72c575[m Week 24: partner dashboard, partner management in admin
+[33mbc2d563[m Week 23: badge management, social badges redesigned, feed card badges, bug fixes
+[33m4fe5d56[m Week 23: badge management, bug fixes - badge awarding, visibility colun:
+[33m619553b[m Week 23: moderation queue, checkin fix, own check-ins in feed
+[33mf60c82a[m Week 23: admin stats + user management
+[33mcd5f460[m Week 23: admin console and stats dashboard
+[33ma27cda6[m Week 22: notifications bell, unread badge, cancel sent requests
+[33m12a9c59[m disable AI line seraching during dev
+[33m4b19531[m Checkin v1.8 - flame rating 1-5 half increments, sub-scores removed
+[33ma418353[m Week 23 community features, db seed batches 1-5 (164 lines/31 brands), CheckIn v1.7 quick check-in redesign, cigarAI v1.1 disable AI database write temporarily
+[33mddff12d[m Cleaner AI search to remove shorthands or duplicates
+[33m7bb38a2[m Week 23: cigar detail redesign, visibility tiers, CSV export, flavor tags, venue GPS, community ratings
+[33m6c6b893[m Fix community rating, move above vitola
+[33mf95a2cf[m Week 23: community average rating on cigar detail (3+ checkin threshold)
+[33m2aca2a5[m CSV export
+[33mfca7ed6[m Checkin venue search: distance in miles/feet
+[33m4b44b19[m Checkin venue search: sort GPS results by distance, show distance on cards
+[33mae8b188[m CheckIn - GPS use my location for venue search, enableHighAccuracy
+[33m99f8842[m Fix: rename FLAVOR_TAGS to ALL_FLAVOR_TAGS to resolve unused-vars ESLint error
+[33me14fc22[m Week 23: grouped flabor tags by category
+[33m8136a78[m Week 23: AI suggestions select flavor tags, expanded tag list to 39 tags
+[33m64bd75d[m Week 23: 3-day check-in visibility (public/friends/private)
+[33m70ba70d[m Week 22: in-app notifications
+[33me73b012[m Venues: prefetch place details for smart hours on list
+[33ma9d22c7[m Updating information on venue search
+[33md189334[m Venues: smart hours display, closing soon warning, place details on tap
+[33m948c5ea[m Week 21: map view, user location pin, venue search in check-in
+[33mfd4dac7[m Venues: broaden search to include tobacco and smoke shops
+[33m8de1ab9[m Fix venues: vercel.json routing, iOS location
+[33mc16e59f[m Week 20: Venues serverless proxy
+[33m29894ac[m Adjusting badge brightness again
+[33m936df34[m Fix: increase locked badge visibility
+[33mb0dcaa3[m Profile sub-tabs: Journal, Stats, Badges + nav renamed to Me
+[33m82d5ebb[m Week 18: Badges and Achievements
+[33mcfe1a6a[m Week 17: Feed, fire button, comments, humidor search
+[33mf06a5b1[m Updates
+[33md71dd2d[m Drink pairings
+[33m5e62550[m Fix to menu bar after humidor addition
+[33mb75d2f6[m Weeks 12-13 - AI tasting notes, my humidor feature complete
+[33m0519965[m Nav bar - Search, Journal, Wishlist labels
+[33m05d4252[m recommendations
+[33mbe59afa[m AI band identification - low confidence results, cache identified cigars, add flag for incorrect button info, full identification flow
+[33m2472bac[m Wishlist feature complete - filters, band scanner integration, tab
+[33m2dbff34[m Phase 2 Week 8 - AI band identification via Claude vision
+[33mc7d896e[m UI polish - search fix
+[33mefdfa53[m UI polish - filters, comments, search strength filter, cigar icons
+[33m391ea71[m UI polish - fix duplicates, seed premium cigars for featured
+[33m93ac82f[m UI polish - lounge scene, rotating cigar icons, centered nav
+[33m1ae9fd0[m week 6 complete - real profile data, filters, stats
+[33mdf56661[m add average score calculation to check-in
+[33m596e4b3[m complete week 5 check-in flow
+[33mc8395ea[m complete week 4 AI search
+[33m63c55f0[m complete week 3 authentication
+[33mfd7f00c[m add authentication
+[33m1efe84d[m update to sans-serif font
+[33mf468a67[m trigger deploy
+[33mfe906bb[m remove vercel.json
+[33mbb706eb[m add node engine
+[33m7af5f8e[m fix gitignore
+[33m9e301de[m add vercel config
+[33m0c58715[m add built
+[33mdc55901[m Initialize project using Create React App
