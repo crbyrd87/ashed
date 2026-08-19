@@ -204,9 +204,13 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           })}
           <div style={{ height: 8 }} />
         </div>
+      </div>
 
-        {/* Comment input — fixed to bottom of screen, always above keyboard */}
-        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 420, margin: "0 auto", padding: "10px 18px 32px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, background: "#1a0f08", zIndex: 500 }}>
+      {/* Comment input — outside modal, truly fixed to bottom */}
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 420, margin: "0 auto", padding: "10px 18px 32px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, background: "#1a0f08", zIndex: 500 }}
+      >
           <input
             ref={inputRef}
             value={commentInput}
@@ -222,7 +226,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           >
             {posting ? "..." : "Post"}
           </button>
-        </div>
       </div>
     </div>
   );
