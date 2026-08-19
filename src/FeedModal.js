@@ -12,6 +12,9 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const [fired, setFired] = useState(false);
   const [fireCount, setFireCount] = useState(0);
   const [firingInProgress, setFiringInProgress] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [modalHeight, setModalHeight] = useState("80vh");
   const inputRef = useRef(null);
 
   const isOwnCheckin = checkin.user_id === user.id;
@@ -20,8 +23,27 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
     if (!checkin) return;
     loadComments();
     loadFireState();
+    loadWishlistState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkin.id]);
+
+  // Shrink modal when iOS keyboard appears
+  useEffect(() => {
+    const onResize = () => {
+      if (window.visualViewport) {
+        const vh = window.visualViewport.height;
+        const total = window.innerHeight;
+        const keyboardHeight = total - vh;
+        if (keyboardHeight > 100) {
+          setModalHeight(`${vh * 0.95}px`);
+        } else {
+          setModalHeight("80vh");
+        }
+      }
+    };
+    window.visualViewport?.addEventListener("resize", onResize);
+    return () => window.visualViewport?.removeEventListener("resize", onResize);
+  }, []);
 
   const loadComments = async () => {
     setCommentsLoading(true);
@@ -40,7 +62,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       .select("*", { count: "exact", head: true })
       .eq("checkin_id", checkin.id);
     setFireCount(count || 0);
-
     if (!isOwnCheckin) {
       const { data } = await supabase
         .from("fires")
@@ -50,6 +71,17 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         .maybeSingle();
       setFired(!!data);
     }
+  };
+
+  const loadWishlistState = async () => {
+    if (!checkin.cigar_id) return;
+    const { data } = await supabase
+      .from("wishlist")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("cigar_id", checkin.cigar_id)
+      .maybeSingle();
+    setWishlisted(!!data);
   };
 
   const handleFireToggle = async () => {
@@ -66,6 +98,19 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
     }
     setFiringInProgress(false);
     if (onFireToggle) onFireToggle(checkin.id);
+  };
+
+  const handleWishlist = async () => {
+    if (!checkin.cigar_id || wishlistLoading) return;
+    setWishlistLoading(true);
+    if (wishlisted) {
+      await supabase.from("wishlist").delete().eq("user_id", user.id).eq("cigar_id", checkin.cigar_id);
+      setWishlisted(false);
+    } else {
+      await supabase.from("wishlist").insert({ user_id: user.id, cigar_id: checkin.cigar_id });
+      setWishlisted(true);
+    }
+    setWishlistLoading(false);
   };
 
   const handlePostComment = async () => {
@@ -99,16 +144,16 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       onClick={onClose}
     >
       <div
-        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxHeight: "80vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxHeight: modalHeight, display: "flex", flexDirection: "column", fontFamily: SANS }}
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
-        <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center" }}>
+        <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
           <div style={{ width: 36, height: 4, background: "#3a2510", borderRadius: 2 }} />
         </div>
 
         {/* Check-in header */}
-        <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #3a2510" }}>
+        <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #3a2510", flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div style={{ flex: 1, marginRight: 12 }}>
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
@@ -116,43 +161,37 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
               <div style={{ fontSize: 11, color: "#8a7055" }}>
                 {smokerHandle && <span style={{ color: "#c9a84c" }}>{smokerHandle}</span>}
                 {smokerHandle && " · "}
-                {checkin.rating && <span style={{ color: "#c9a84c", fontWeight: 700 }}>{checkin.rating}</span>}
+                {checkin.rating && <span style={{ color: "#c9a84c", fontWeight: 700 }}>{(checkin.rating / 2).toFixed(1)}</span>}
                 {checkin.rating && " · "}
                 {smokeDate}
               </div>
               {checkin.smoke_location && (
                 <div style={{ fontSize: 11, color: "#5a4535", marginTop: 3 }}>📍 {checkin.smoke_location}</div>
               )}
-              {checkin.notes && (
-                <div style={{ fontSize: 12, color: "#c8b89a", fontStyle: "italic", marginTop: 8, lineHeight: 1.5 }}>"{checkin.notes}"</div>
-              )}
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+            {/* Like + Wishlist buttons */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
               <button
                 onClick={handleFireToggle}
                 disabled={isOwnCheckin}
-                style={{
-                  background: fired ? "#4a7a4a22" : "none",
-                  border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`,
-                  borderRadius: 20,
-                  padding: "5px 12px",
-                  color: fired ? "#7a9a7a" : isOwnCheckin ? "#3a2510" : "#8a7055",
-                  fontSize: 13,
-                  cursor: isOwnCheckin ? "default" : "pointer",
-                  fontFamily: SANS,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  whiteSpace: "nowrap",
-                }}
+                style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "5px 12px", color: fired ? "#7a9a7a" : isOwnCheckin ? "#3a2510" : "#8a7055", fontSize: 13, cursor: isOwnCheckin ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
               >
                 👍 {fireCount}
               </button>
+              {!isOwnCheckin && checkin.cigar_id && (
+                <button
+                  onClick={handleWishlist}
+                  disabled={wishlistLoading}
+                  style={{ background: wishlisted ? "#c0392b22" : "none", border: `1px solid ${wishlisted ? "#c0392b66" : "#3a2510"}`, borderRadius: 20, padding: "5px 12px", color: wishlisted ? "#e05a4a" : "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                >
+                  {wishlisted ? "❤️ Wishlisted" : "♡ Wishlist"}
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Comments list */}
+        {/* Comments list — scrollable */}
         <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 0" }}>
           <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
@@ -185,20 +224,20 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           <div style={{ height: 8 }} />
         </div>
 
-        {/* Comment input */}
-        <div style={{ padding: "10px 18px 20px", borderTop: "1px solid #3a2510", display: "flex", gap: 8 }}>
+        {/* Comment input — pinned, keyboard-aware */}
+        <div style={{ padding: "10px 18px 28px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
           <input
             ref={inputRef}
             value={commentInput}
             onChange={e => setCommentInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handlePostComment()}
             placeholder="Add a comment..."
-            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 20, padding: "8px 14px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 20, padding: "8px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none" }}
           />
           <button
             onClick={handlePostComment}
             disabled={!commentInput.trim() || posting}
-            style={{ background: commentInput.trim() ? "linear-gradient(135deg,#c9a84c,#a07830)" : "#2a1a0e", border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? "#1a0f08" : "#5a4535", fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS, transition: "all 0.15s" }}
+            style={{ background: commentInput.trim() ? "linear-gradient(135deg,#c9a84c,#a07830)" : "#2a1a0e", border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? "#1a0f08" : "#5a4535", fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS }}
           >
             {posting ? "..." : "Post"}
           </button>
