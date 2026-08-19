@@ -1032,7 +1032,7 @@ export default function App() {
             <span style={{ fontSize: 22 }}>🔥</span>
             <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
           </div>
-          <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2, marginTop: 2 }}>CIGAR JOURNAL & COMMUNITY</div>
+          <div style={{ fontSize: 12, color: "#c9a84c", letterSpacing: 3, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
         <button onClick={() => setShowSettings(true)}
           style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#a08060", fontSize: 20, cursor: "pointer", fontFamily: SANS }}>

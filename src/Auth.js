@@ -31,7 +31,7 @@ export default function Auth({ onLogin }) {
   const s = {
     wrap: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px" },
     logo: { fontSize: 28, fontWeight: 700, letterSpacing: 4, color: "#c9a84c", textTransform: "uppercase", marginBottom: 6 },
-    tagline: { fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 40 },
+    tagline: { fontSize: 12, color: "#c9a84c", letterSpacing: 3, marginBottom: 40, fontWeight: 600, opacity: 0.8 },
     card: { width: "100%", background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 14, padding: 24 },
     title: { fontSize: 18, fontWeight: 700, color: "#e8d5b7", marginBottom: 20 },
     label: { fontSize: 12, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6, display: "block" },
