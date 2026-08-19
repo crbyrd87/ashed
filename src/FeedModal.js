@@ -225,6 +225,5 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           </button>
         </div>
       </div>
-    </div>
   );
 }
