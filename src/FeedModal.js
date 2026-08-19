@@ -14,7 +14,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const [firingInProgress, setFiringInProgress] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
-  const [modalHeight, setModalHeight] = useState("80vh");
   const inputRef = useRef(null);
 
   const isOwnCheckin = checkin.user_id === user.id;
@@ -26,24 +25,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
     loadWishlistState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkin.id]);
-
-  // Shrink modal when iOS keyboard appears
-  useEffect(() => {
-    const onResize = () => {
-      if (window.visualViewport) {
-        const vh = window.visualViewport.height;
-        const total = window.innerHeight;
-        const keyboardHeight = total - vh;
-        if (keyboardHeight > 100) {
-          setModalHeight(`${vh * 0.95}px`);
-        } else {
-          setModalHeight("80vh");
-        }
-      }
-    };
-    window.visualViewport?.addEventListener("resize", onResize);
-    return () => window.visualViewport?.removeEventListener("resize", onResize);
-  }, []);
 
   const loadComments = async () => {
     setCommentsLoading(true);
@@ -144,7 +125,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       onClick={onClose}
     >
       <div
-        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxHeight: modalHeight, display: "flex", flexDirection: "column", fontFamily: SANS }}
+        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxHeight: "80dvh", display: "flex", flexDirection: "column", fontFamily: SANS }}
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
@@ -225,7 +206,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         </div>
 
         {/* Comment input — pinned, keyboard-aware */}
-        <div style={{ padding: "10px 18px 28px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
+        <div style={{ padding: "10px 18px", paddingBottom: "calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
           <input
             ref={inputRef}
             value={commentInput}
