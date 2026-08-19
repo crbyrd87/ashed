@@ -173,7 +173,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         </div>
 
         {/* Comments list — scrollable */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 0" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 80px" }}>
           <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
           </div>
@@ -205,8 +205,8 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           <div style={{ height: 8 }} />
         </div>
 
-        {/* Comment input — pinned, keyboard-aware */}
-        <div style={{ padding: "10px 18px", paddingBottom: "calc(18px + env(safe-area-inset-bottom))", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
+        {/* Comment input — fixed to bottom of screen, always above keyboard */}
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 420, margin: "0 auto", padding: "10px 18px 32px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, background: "#1a0f08", zIndex: 500 }}>
           <input
             ref={inputRef}
             value={commentInput}
