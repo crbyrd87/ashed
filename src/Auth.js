@@ -102,7 +102,7 @@ export default function Auth({ onLogin }) {
     setLoading(false);
   };
 
-  const [showApp, setShowApp] = useState(false);
+  const [showApp, setShowApp] = useState(window.location.pathname === "/login");
 
   const switchMode = (newMode) => {
     setMode(newMode);
@@ -120,7 +120,6 @@ export default function Auth({ onLogin }) {
 
       {!showApp ? (
         <div style={{ textAlign: "center", padding: "0 20px" }}>
-          <div style={{ fontSize: 36, marginBottom: 16 }}>🚬</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 12 }}>Coming Soon</div>
           <div style={{ fontSize: 14, color: "#8a7055", lineHeight: 1.7, marginBottom: 32 }}>
             Ashed is a cigar journal and community app for enthusiasts. Log your smokes, track your favorites, connect with fellow aficionados, and discover your next perfect cigar.
@@ -131,21 +130,16 @@ export default function Auth({ onLogin }) {
               { icon: "📖", text: "Personal cigar journal with ratings and tasting notes" },
               { icon: "📷", text: "AI-powered band scanner to identify any cigar instantly" },
               { icon: "✨", text: "Personalized recommendations based on your palate" },
+              { icon: "🥃", text: "Drink pairing suggestions for every cigar" },
               { icon: "👥", text: "Community feed and friends to share smokes with" },
               { icon: "🏪", text: "Cigar lounge finder near you" },
             ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 4 ? 12 : 0 }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 5 ? 12 : 0 }}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
                 <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{item.text}</span>
               </div>
             ))}
           </div>
-          <button
-            onClick={() => setShowApp(true)}
-            style={{ background: "none", border: "none", color: "#4a3520", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
-          >
-            Admin login
-          </button>
         </div>
       ) : (
         <div style={s.card}>
