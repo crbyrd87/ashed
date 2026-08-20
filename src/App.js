@@ -1543,7 +1543,7 @@ export default function App() {
 
       {tab === "wishlist" && (
         <div style={{ padding: 16 }}>
-          <div style={{ fontSize: 12, color: "#a08060", letterSpacing: 2, marginBottom: 12 }}>YOUR WISHLIST</div>
+          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>MY WISHLIST</div>
 
           {/* Search to add */}
           <div style={{ position: "relative", marginBottom: 16 }}>
@@ -1563,13 +1563,13 @@ export default function App() {
                 }, 350);
               }}
               placeholder="Search cigars to add to wishlist..."
-              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #5a4030", borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             />
             {wishlistSearching && (
               <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#7a9a7a" }}>Searching...</div>
             )}
             {wishlistSearchResults.length > 0 && (
-              <div style={{ position: "absolute", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #5a4030", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, maxHeight: 200, overflowY: "auto" }}>
+              <div style={{ position: "absolute", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, maxHeight: 200, overflowY: "auto" }}>
                 {wishlistSearchResults.map((r, i) => (
                   <div key={i}
                     onClick={() => {
@@ -1583,32 +1583,31 @@ export default function App() {
                       <div style={{ fontSize: 13, color: "#f5ead8" }}>{r.line}</div>
                       <div style={{ fontSize: 11, color: "#a08060" }}>{r.brand}</div>
                     </div>
-                    <span style={{ fontSize: 11, color: "#d4b45a" }}>+ Add</span>
+                    <span style={{ fontSize: 11, color: "#c9a84c" }}>+ Add</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Brand filter */}
+          {/* Brand + strength filters */}
           {wishlist.length > 0 && (() => {
             const uniqueWishlistBrands = [...new Set(wishlist.map(w => w.cigars?.brand || w.cigar_brand).filter(Boolean))].sort();
             return (
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
                   <select
                     value={wishlistFilterBrand}
                     onChange={e => setWishlistFilterBrand(e.target.value)}
-                    style={{ flex: 1, background: "#2a1a0e", border: `1px solid ${wishlistFilterBrand ? "#d4b45a" : "#4a3520"}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? "#d4b45a" : "#a08060", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                    style={{ flex: 1, background: "#2a1a0e", border: `1px solid ${wishlistFilterBrand ? "#c9a84c" : "#4a3520"}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? "#c9a84c" : "#8a7055", fontSize: 12, fontFamily: SANS, outline: "none" }}
                   >
-                    <option value="">All Brands</option>
+                    <option value="">Filter by Brand</option>
                     {uniqueWishlistBrands.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                   {wishlistFilterBrand && (
                     <button onClick={() => setWishlistFilterBrand("")} style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 12px", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
                   )}
                 </div>
-                {/* Strength filter */}
                 <div style={{ display: "flex", gap: 6 }}>
                   {["Light", "Medium", "Medium-Full", "Full"].map(str => (
                     <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
@@ -1651,37 +1650,29 @@ export default function App() {
               const vitola = w.cigars?.vitola || w.cigar_vitola || "";
               const strength = w.cigars?.strength || "";
               return (
-                <div key={w.id} style={{ ...s.card, borderColor: "#4a3520" }}>
-                  <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div key={w.id} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
+                  <div style={{ padding: "14px 14px 12px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ flex: 1 }} onClick={() => w.cigars && setSelected(w.cigars)}>
-                      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#f5ead8", margin: "2px 0 4px" }}>{line}</div>
+                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600 }}>{brand.toUpperCase()}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 8px" }}>{line}</div>
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         {vitola && <Badge label={vitola} />}
                         {strength && <Badge label={strength} color={strengthColor(strength)} />}
                       </div>
-                      <div style={{ fontSize: 10, color: "#7a6048", marginTop: 6 }}>
+                      <div style={{ fontSize: 10, color: "#4a3020", marginTop: 8 }}>
                         Added {new Date(w.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, marginLeft: 12 }}>
-                      {w.cigars && (
-                        <button
-                          onClick={() => { setCheckingIn(w.cigars); }}
-                          style={{ background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
-                        >
-                          + Log
-                        </button>
-                      )}
                       <button
                         onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
-                        style={{ background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "6px 12px", color: "#7a9a7a", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                        style={{ background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "7px 12px", color: "#7a9a7a", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                       >
                         Purchased
                       </button>
                       <button
                         onClick={() => handleRemoveFromWishlist(w.id)}
-                        style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "6px 12px", color: "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                        style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 12px", color: "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
                       >
                         Remove
                       </button>
