@@ -23,6 +23,7 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [addSearching, setAddSearching] = useState(false);
   const [confirmRemoveAll, setConfirmRemoveAll] = useState(null);
   const [filterStrength, setFilterStrength] = useState([]);
+  const [editingVitola, setEditingVitola] = useState(null);
   const fileInputRef = useRef(null);
 
   const fetchHumidor = async () => {
@@ -211,7 +212,15 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     fetchHumidor();
   };
 
-  const handleAddSearch = async (q) => {
+  const handleUpdateVitola = async (item, vitola) => {
+    const trimmed = vitola.trim();
+    await supabase.from("humidor").update({ cigar_vitola: trimmed || null }).eq("id", item.id);
+    if (item.cigars?.id) {
+      await supabase.from("cigars").update({ vitola: trimmed || null }).eq("id", item.cigars.id);
+    }
+    setEditingVitola(null);
+    fetchHumidor();
+  };
     setAddSearchQuery(q);
     if (q.length < 2) { setAddSearchResults([]); return; }
     setAddSearching(true);
@@ -514,9 +523,29 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             {/* Badges + stepper */}
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                                {vitola && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>}
+                                {/* Vitola — tap to edit */}
+                                {editingVitola === item.id ? (
+                                  <input
+                                    autoFocus
+                                    defaultValue={vitola || ""}
+                                    placeholder="e.g. Robusto"
+                                    onBlur={e => handleUpdateVitola(item, e.target.value)}
+                                    onKeyDown={e => { if (e.key === "Enter") handleUpdateVitola(item, e.target.value); if (e.key === "Escape") setEditingVitola(null); }}
+                                    style={{ background: "#1a0f08", border: "1px solid #c9a84c", borderRadius: 20, padding: "2px 10px", color: "#c9a84c", fontSize: 11, fontWeight: 600, fontFamily: SANS, outline: "none", width: 110 }}
+                                  />
+                                ) : vitola ? (
+                                  <span onClick={() => setEditingVitola(item.id)}
+                                    style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+                                    title="Tap to edit vitola">
+                                    {vitola} ✎
+                                  </span>
+                                ) : (
+                                  <span onClick={() => setEditingVitola(item.id)}
+                                    style={{ color: "#5a4535", fontSize: 11, cursor: "pointer", fontStyle: "italic" }}>
+                                    + Add vitola
+                                  </span>
+                                )}
                                 {strength && <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>}
-                                {!vitola && !strength && <span style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic" }}>No vitola specified</span>}
                               </div>
                               {/* Qty stepper */}
                               {isEditingQty ? (
@@ -576,4 +605,3 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       })()}
     </div>
   );
-}
