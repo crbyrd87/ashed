@@ -83,8 +83,8 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             ["Badges", earnedBadges.length],
           ].map(([k, v]) => (
             <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 8px", textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c" }}>{v}</div>
-              <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, fontWeight: 600, marginTop: 2 }}>{k.toUpperCase()}</div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{v}</div>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 400, marginTop: 6 }}>{k.toUpperCase()}</div>
             </div>
           ))}
         </div>
@@ -140,18 +140,21 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           const flames = c.rating ? c.rating / 2 : null;
           return (
             <div key={c.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ flex: 1, minWidth: 0, marginRight: 12 }}>
                   <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", margin: "2px 0" }}>{line}</div>
                   {vitola && <div style={{ fontSize: 11, color: "#c9a84c" }}>{vitola}</div>}
+                  <div style={{ fontSize: 10, color: "#5a4535", marginTop: 4 }}>
+                    {new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </div>
                 </div>
                 {flames !== null && (
                   <div style={{ textAlign: "center", flexShrink: 0 }}>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c" }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
-                    <div style={{ display: "flex", gap: 1, marginTop: 2 }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
+                    <div style={{ display: "flex", gap: 2, marginTop: 4, justifyContent: "center" }}>
                       {[1,2,3,4,5].map(i => (
-                        <svg key={i} width="12" height="12" viewBox="0 0 24 24">
+                        <svg key={i} width="16" height="16" viewBox="0 0 24 24">
                           <defs><linearGradient id={`fp-${c.id}-${i}`} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor="#cc2200"/><stop offset="100%" stopColor="#ffcc00"/></linearGradient></defs>
                           <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
                             fill={flames >= i ? `url(#fp-${c.id}-${i})` : "#3a2510"} />
@@ -160,9 +163,6 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                     </div>
                   </div>
                 )}
-              </div>
-              <div style={{ fontSize: 10, color: "#5a4535", marginTop: 6 }}>
-                {new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </div>
             </div>
           );
