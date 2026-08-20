@@ -32,7 +32,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     load();
   }, [friendUser.id]);
 
-  const avgRating = checkins.length
+  const avgRating = checkins.filter(c => c.rating).length
     ? (checkins.filter(c => c.rating).reduce((a, c) => a + c.rating, 0) / checkins.filter(c => c.rating).length).toFixed(1)
     : null;
 
@@ -49,50 +49,69 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     if (s) strengthCounts[s] = (strengthCounts[s] || 0) + 1;
   }
   const favStrength = Object.entries(strengthCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const earnedBadges = badges.filter(b => b.earned);
+  const initial = (friendUser.display_name || friendUser.username || "?")[0].toUpperCase();
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 400, overflowY: "auto", fontFamily: SANS, maxWidth: 420, margin: "0 auto" }}>
-      {/* Header */}
-      <div style={{ background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #4a3520", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#c9a84c", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>← Back</button>
-        <div style={{ fontSize: 12, color: "#8a7055" }}>FRIEND PROFILE</div>
-        <div style={{ width: 48 }} />
-      </div>
 
-      <div style={{ padding: 20 }}>
-        {/* Avatar + name */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-          <div style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>
-            {(friendUser.display_name || friendUser.username || "?")[0].toUpperCase()}
+      {/* Hero header */}
+      <div style={{ background: "linear-gradient(135deg, #2d1810, #1a0f08, #0f0804)", padding: "20px 20px 24px", borderBottom: "1px solid #4a3520" }}>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#c9a84c", fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 20, fontFamily: SANS }}>← Back</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #c9a84c, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#1a0f08", flexShrink: 0, border: "2px solid #c9a84c44" }}>
+            {initial}
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>{friendUser.display_name || friendUser.username}</div>
-            <div style={{ fontSize: 12, color: "#8a7055", marginTop: 2 }}>@{friendUser.username}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7" }}>{friendUser.display_name || friendUser.username}</div>
+            <div style={{ fontSize: 13, color: "#8a7055", marginTop: 2 }}>@{friendUser.username}</div>
+            <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c44", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>🏅 Aficionado</span>
+              <span style={{ background: "#7a9a7a22", color: "#7a9a7a", border: "1px solid #7a9a7a44", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>✓ Friend</span>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div style={{ padding: "16px 16px 32px" }}>
 
         {/* Stats row */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           {[
             ["Smoked", checkins.length],
             ["Avg Rating", avgRating ?? "—"],
-            ["Badges", badges.filter(b => b.earned).length],
+            ["Badges", earnedBadges.length],
           ].map(([k, v]) => (
-            <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{v}</div>
+            <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 8px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c" }}>{v}</div>
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginTop: 2 }}>{k.toUpperCase()}</div>
             </div>
           ))}
         </div>
 
-        {/* Top brands + fav strength */}
+        {/* Badges */}
+        {earnedBadges.length > 0 && (
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>BADGES EARNED ({earnedBadges.length})</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              {earnedBadges.map(b => (
+                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: 52 }}>
+                  <span style={{ fontSize: 28 }}>{b.icon}</span>
+                  <span style={{ fontSize: 9, color: "#8a7055", textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Top brands + preferred strength */}
         {(topBrands.length > 0 || favStrength) && (
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
             {topBrands.length > 0 && (
               <div style={{ marginBottom: favStrength ? 12 : 0 }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>TOP BRANDS</div>
+                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>TOP BRANDS</div>
                 {topBrands.map(([brand, count], i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 6 : 0 }}>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 8 : 0 }}>
                     <div style={{ fontSize: 13, color: "#e8d5b7" }}>{brand}</div>
                     <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700 }}>{count} smoke{count !== 1 ? "s" : ""}</div>
                   </div>
@@ -108,25 +127,8 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           </div>
         )}
 
-        {/* Earned badges */}
-        {badges.filter(b => b.earned).length > 0 && (
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>
-              BADGES EARNED ({badges.filter(b => b.earned).length})
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-              {badges.filter(b => b.earned).map(b => (
-                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: 56 }}>
-                  <span style={{ fontSize: 28 }}>{b.icon}</span>
-                  <span style={{ fontSize: 9, color: "#8a7055", textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recent check-ins */}
-        <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>RECENT SMOKES</div>
+        {/* Recent smokes */}
+        <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>RECENT SMOKES</div>
         {loading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
         {!loading && checkins.length === 0 && (
           <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 20 }}>No public smokes yet</div>
@@ -146,13 +148,13 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                 </div>
                 {flames !== null && (
                   <div style={{ textAlign: "center", flexShrink: 0 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#c9a84c" }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
-                    <div style={{ display: "flex", gap: 1 }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c" }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</div>
+                    <div style={{ display: "flex", gap: 1, marginTop: 2 }}>
                       {[1,2,3,4,5].map(i => (
                         <svg key={i} width="12" height="12" viewBox="0 0 24 24">
                           <defs><linearGradient id={`fp-${c.id}-${i}`} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor="#cc2200"/><stop offset="100%" stopColor="#ffcc00"/></linearGradient></defs>
                           <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
-                            fill={flames >= i ? `url(#fp-${c.id}-${i})` : flames >= i - 0.5 ? `url(#fp-${c.id}-${i})` : "#3a2510"} />
+                            fill={flames >= i ? `url(#fp-${c.id}-${i})` : "#3a2510"} />
                         </svg>
                       ))}
                     </div>
