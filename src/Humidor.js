@@ -23,7 +23,9 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [addSearching, setAddSearching] = useState(false);
   const [confirmRemoveAll, setConfirmRemoveAll] = useState(null);
   const [filterStrength, setFilterStrength] = useState([]);
-  const [editingVitola, setEditingVitola] = useState(null);
+  const [vitolaPickerItem, setVitolaPickerItem] = useState(null);
+  const [vitolaPickerOptions, setVitolaPickerOptions] = useState([]);
+  const [vitolaPickerLoading, setVitolaPickerLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const fetchHumidor = async () => {
@@ -210,6 +212,22 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     await supabase.from("humidor").update({ quantity: qty }).eq("id", id);
     setEditingQty(null);
     fetchHumidor();
+  };
+
+  const openVitolaPicker = async (item) => {
+    setVitolaPickerItem(item);
+    setVitolaPickerLoading(true);
+    const brand = item.cigars?.brand || item.cigar_brand;
+    const line = item.cigars?.line || item.cigar_name;
+    const { data } = await supabase
+      .from("cigars")
+      .select("id, vitola, strength")
+      .eq("brand", brand)
+      .eq("line", line)
+      .not("vitola", "is", null)
+      .order("vitola");
+    setVitolaPickerOptions(data || []);
+    setVitolaPickerLoading(false);
   };
 
   const handleUpdateVitola = async (item, vitola) => {
@@ -525,28 +543,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             {/* Badges + stepper */}
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                                {/* Vitola — tap to edit */}
-                                {editingVitola === item.id ? (
-                                  <input
-                                    autoFocus
-                                    defaultValue={vitola || ""}
-                                    placeholder="e.g. Robusto"
-                                    onBlur={e => handleUpdateVitola(item, e.target.value)}
-                                    onKeyDown={e => { if (e.key === "Enter") handleUpdateVitola(item, e.target.value); if (e.key === "Escape") setEditingVitola(null); }}
-                                    style={{ background: "#1a0f08", border: "1px solid #c9a84c", borderRadius: 20, padding: "2px 10px", color: "#c9a84c", fontSize: 11, fontWeight: 600, fontFamily: SANS, outline: "none", width: 110 }}
-                                  />
-                                ) : vitola ? (
-                                  <span onClick={() => setEditingVitola(item.id)}
-                                    style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
-                                    title="Tap to edit vitola">
-                                    {vitola} ✎
-                                  </span>
-                                ) : (
-                                  <span onClick={() => setEditingVitola(item.id)}
-                                    style={{ color: "#5a4535", fontSize: 11, cursor: "pointer", fontStyle: "italic" }}>
-                                    + Add vitola
-                                  </span>
-                                )}
+                                {vitola
+                                  ? <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>
+                                  : <span style={{ color: "#5a4535", fontSize: 11, fontStyle: "italic" }}>No vitola</span>
+                                }
                                 {strength && <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>}
                               </div>
                               {/* Qty stepper */}
@@ -575,6 +575,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                               <button onClick={() => handleSmokeOne(item)}
                                 style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                                 🔥 Smoke One
+                              </button>
+                              <button onClick={() => openVitolaPicker(item)}
+                                style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                ✎ Vitola
                               </button>
                               {isConfirmingRemove ? (
                                 <>
@@ -605,6 +609,44 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           );
         });
       })()}
+      {/* Vitola picker bottom sheet */}
+      {vitolaPickerItem && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={() => setVitolaPickerItem(null)}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, maxHeight: "70vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 36, height: 4, background: "#4a3520", borderRadius: 2 }} />
+            </div>
+            <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #4a3520", flexShrink: 0 }}>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 2px" }}>{vitolaPickerItem.cigars?.line || vitolaPickerItem.cigar_name}</div>
+              <div style={{ fontSize: 12, color: "#8a7055" }}>Select a vitola</div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 32px" }}>
+              {vitolaPickerLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>Loading sizes...</div>}
+              {!vitolaPickerLoading && vitolaPickerOptions.length === 0 && (
+                <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>No vitolas found for this cigar.</div>
+              )}
+              {vitolaPickerOptions.map((v, i) => (
+                <div key={i} onClick={async () => {
+                  await handleUpdateVitola(vitolaPickerItem, v.vitola);
+                  setVitolaPickerItem(null);
+                }}
+                  style={{ background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c22" : "#221508", border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c55" : "#4a3520"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.strength}</div>}
+                  </div>
+                  {(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola && (
+                    <span style={{ color: "#c9a84c", fontSize: 16 }}>✓</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
