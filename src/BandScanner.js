@@ -176,10 +176,10 @@ Be as specific as possible. If you can read text on the band, use it.`
     <div style={{ background: "#1a0f08", minHeight: "100%", fontFamily: SANS }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: "1px solid #3a2510" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: "1px solid #4a3520" }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>Band Scanner</div>
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginTop: 2 }}>PREMIUM FEATURE</div>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
+          <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
       </div>
@@ -189,7 +189,7 @@ Be as specific as possible. If you can read text on the band, use it.`
         <div style={{ padding: 20 }}>
 
           {/* Feature explanation */}
-          <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 20, marginBottom: 16 }}>
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, marginBottom: 16 }}>
             <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
             {[
               { icon: "📷", text: "Take a photo of any cigar band" },
@@ -205,7 +205,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           </div>
 
           {/* Tips */}
-          <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 20 }}>
             <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
             {[
               "Hold steady in good lighting",
@@ -221,7 +221,7 @@ Be as specific as possible. If you can read text on the band, use it.`
 
           {/* Camera button */}
           <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
-            <div style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "linear-gradient(135deg, #4caf6e, #2e8b4a)", borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
             <input
@@ -236,7 +236,7 @@ Be as specific as possible. If you can read text on the band, use it.`
 
           {/* Library button */}
           <label style={{ display: "block", cursor: "pointer" }}>
-            <div style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#c8b89a", fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
             <input
@@ -300,7 +300,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           </div>
 
           {cigar.tasting_notes && (
-            <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 16 }}>
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
               <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{cigar.tasting_notes}</div>
             </div>
@@ -319,7 +319,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           <button onClick={() => { onAddToHumidor(cigar); onClose(); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
           </button>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Scan Again
           </button>
 
@@ -345,7 +345,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Try Again
           </button>
-          <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
+          <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
             Search Manually Instead
           </button>
         </div>
