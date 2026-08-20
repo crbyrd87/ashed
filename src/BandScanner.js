@@ -18,6 +18,9 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
   const [toast, setToast] = useState(null);
+  const [vitolas, setVitolas] = useState([]);
+  const [violasLoading, setViolasLoading] = useState(false);
+  const [vitolaPicker, setVitolaPicker] = useState(null); // "log" | "humidor" | "wishlist"
   const cameraInputRef = useRef(null);
   const libraryInputRef = useRef(null);
 
@@ -63,6 +66,19 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
+  };
+
+  const loadVitolas = async (brand, line) => {
+    setViolasLoading(true);
+    const { data } = await supabase
+      .from("cigars")
+      .select("id, vitola, strength, wrapper, origin, tasting_notes")
+      .eq("brand", brand)
+      .eq("line", line)
+      .not("vitola", "is", null)
+      .order("vitola");
+    setVitolas(data || []);
+    setViolasLoading(false);
   };
 
   const handlePhotoChange = async (e) => {
@@ -318,14 +334,14 @@ Be as specific as possible with brand and line. If you can read text on the band
             <div style={{ fontSize: 13, color: "#8a7055", fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
           )}
 
-          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { setVitolaPicker("log"); loadVitolas(cigar.brand, cigar.line); }} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             🚬 Select Vitola &amp; Log
           </button>
           <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             ♡ Add to Wishlist
           </button>
-          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            + Add to Humidor
+          <button onClick={() => { setVitolaPicker("humidor"); loadVitolas(cigar.brand, cigar.line); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+            + Select Vitola &amp; Add to Humidor
           </button>
           <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Scan Again
@@ -363,6 +379,56 @@ Be as specific as possible with brand and line. If you can read text on the band
           <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
             Search Manually Instead
           </button>
+        </div>
+      )}
+
+      {/* Vitola picker sheet */}
+      {vitolaPicker && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", maxWidth: 420, margin: "0 auto" }}
+          onClick={() => setVitolaPicker(null)}>
+          <div style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #4a3520", borderBottom: "none", width: "100%", maxHeight: "70vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+            onClick={e => e.stopPropagation()}>
+            {/* Handle */}
+            <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 36, height: 4, background: "#4a3520", borderRadius: 2 }} />
+            </div>
+            {/* Header */}
+            <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #4a3520", flexShrink: 0 }}>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2 }}>{cigar?.brand?.toUpperCase()}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 2px" }}>{cigar?.line}</div>
+              <div style={{ fontSize: 12, color: "#8a7055" }}>Select a vitola to continue</div>
+            </div>
+            {/* Vitola list */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 24px" }}>
+              {violasLoading && (
+                <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>Loading sizes...</div>
+              )}
+              {!violasLoading && vitolas.length === 0 && (
+                <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>
+                  No vitolas found — try searching manually.
+                </div>
+              )}
+              {vitolas.map((v, i) => (
+                <div key={i}
+                  onClick={() => {
+                    if (vitolaPicker === "log") {
+                      onCheckIn(v);
+                    } else if (vitolaPicker === "humidor") {
+                      onAddToHumidor(v);
+                      showToast("Added to Humidor ✓");
+                    }
+                    setVitolaPicker(null);
+                  }}
+                  style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>{v.strength}</div>}
+                  </div>
+                  <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
