@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
+import { fetchUserBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -9,18 +10,23 @@ const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-F
 function FriendProfile({ friendUser, currentUserId, onClose }) {
   const [checkins, setCheckins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [badges, setBadges] = useState([]);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("checkins")
-        .select("*, cigars(brand, line, vitola, strength)")
-        .eq("user_id", friendUser.id)
-        .in("visibility", ["public", "friends_only"])
-        .order("smoke_date", { ascending: false })
-        .limit(20);
+      const [{ data }, badgeData] = await Promise.all([
+        supabase
+          .from("checkins")
+          .select("*, cigars(brand, line, vitola, strength)")
+          .eq("user_id", friendUser.id)
+          .in("visibility", ["public", "friends_only"])
+          .order("smoke_date", { ascending: false })
+          .limit(20),
+        fetchUserBadges(friendUser.id),
+      ]);
       setCheckins(data || []);
+      setBadges(badgeData || []);
       setLoading(false);
     };
     load();
@@ -72,7 +78,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           {[
             ["Smoked", checkins.length],
             ["Avg Rating", avgRating ?? "—"],
-            ["This Year", thisYear],
+            ["Badges", badges.filter(b => b.earned).length],
           ].map(([k, v]) => (
             <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c" }}>{v}</div>
@@ -101,6 +107,23 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                 <div style={{ fontSize: 13, fontWeight: 700, color: strengthColor(favStrength) }}>{favStrength}</div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Earned badges */}
+        {badges.filter(b => b.earned).length > 0 && (
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>
+              BADGES EARNED ({badges.filter(b => b.earned).length})
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              {badges.filter(b => b.earned).map(b => (
+                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: 56 }}>
+                  <span style={{ fontSize: 28 }}>{b.icon}</span>
+                  <span style={{ fontSize: 9, color: "#8a7055", textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
