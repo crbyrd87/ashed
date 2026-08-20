@@ -230,14 +230,13 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     setVitolaPickerLoading(false);
   };
 
-  const handleUpdateVitola = async (item, vitola, strength) => {
+  const handleUpdateVitola = async (item, vitola, strength, cigarId) => {
     const trimmed = vitola.trim();
-    await supabase.from("humidor").update({ cigar_vitola: trimmed || null }).eq("id", item.id);
-    if (item.cigars?.id) {
-      const updates = { vitola: trimmed || null };
-      if (strength) updates.strength = strength;
-      await supabase.from("cigars").update(updates).eq("id", item.cigars.id);
-    }
+    // Update the humidor row to point to the correct cigar_id and vitola
+    await supabase.from("humidor").update({
+      cigar_vitola: trimmed || null,
+      cigar_id: cigarId || item.cigar_id || null,
+    }).eq("id", item.id);
     setVitolaPickerItem(null);
     fetchHumidor();
   };
@@ -632,7 +631,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               )}
               {vitolaPickerOptions.map((v, i) => (
                 <div key={i} onClick={async () => {
-                  await handleUpdateVitola(vitolaPickerItem, v.vitola, v.strength);
+                  await handleUpdateVitola(vitolaPickerItem, v.vitola, v.strength, v.id);
                   setVitolaPickerItem(null);
                 }}
                   style={{ background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c22" : "#221508", border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c55" : "#4a3520"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
