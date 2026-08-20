@@ -409,7 +409,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1 }}>MY HUMIDOR</div>
+          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1 }}>WHAT'S IN MY HUMIDOR?</div>
           {items.length > 0 && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
         </div>
         <button onClick={() => setShowAddOptions(true)}
