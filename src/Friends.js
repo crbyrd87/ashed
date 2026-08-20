@@ -5,8 +5,6 @@ import { fetchUserBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
-
 function FriendProfile({ friendUser, currentUserId, onClose }) {
   const [checkins, setCheckins] = useState([]);
   const [loading, setLoading] = useState(true);
