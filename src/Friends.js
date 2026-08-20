@@ -48,7 +48,6 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     const s = c.cigars?.strength;
     if (s) strengthCounts[s] = (strengthCounts[s] || 0) + 1;
   }
-  const favStrength = Object.entries(strengthCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
   const earnedBadges = badges.filter(b => b.earned);
   const initial = (friendUser.display_name || friendUser.username || "?")[0].toUpperCase();
 
@@ -75,18 +74,36 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
 
       <div style={{ padding: "16px 16px 32px" }}>
 
-        {/* Stats row */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {[
-            ["Smoked", checkins.length],
-            ["Avg Rating", avgRating ?? "—"],
-            ["Badges", earnedBadges.length],
-          ].map(([k, v]) => (
-            <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 8px", textAlign: "center" }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{v}</div>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 400, marginTop: 6 }}>{k.toUpperCase()}</div>
+        {/* Smoking profile card */}
+        <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>SMOKING PROFILE</div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+            {[["Smoked", checkins.length], ["Avg Rating", avgRating ?? "—"], ["This Year", checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length]].map(([k, v], i, arr) => (
+              <div key={k} style={{ flex: 1, textAlign: "center", borderRight: i < arr.length - 1 ? "1px solid #4a3520" : "none" }}>
+                <div style={{ fontSize: 26, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{v}</div>
+                <div style={{ fontSize: 10, color: "#8a7055", marginTop: 5 }}>{k.toUpperCase()}</div>
+              </div>
+            ))}
+          </div>
+          {Object.keys(strengthCounts).length > 0 && (
+            <div style={{ borderTop: "1px solid #4a352044", paddingTop: 12 }}>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>STRENGTH DISTRIBUTION</div>
+              {[["Light", "#a8c5a0"], ["Medium", "#d4b483"], ["Medium-Full", "#c4894a"], ["Full", "#a0522d"]].map(([s, color]) => {
+                const count = strengthCounts[s] || 0;
+                const total = Object.values(strengthCounts).reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                return (
+                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <div style={{ width: 70, fontSize: 11, color, flexShrink: 0 }}>{s === "Medium-Full" ? "Med-Full" : s}</div>
+                    <div style={{ flex: 1, height: 8, background: "#2a1a0e", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 4 }} />
+                    </div>
+                    <div style={{ width: 24, fontSize: 11, color: "#8a7055", textAlign: "right" }}>{count}</div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Badges */}
@@ -104,26 +121,16 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           </div>
         )}
 
-        {/* Top brands + preferred strength */}
-        {(topBrands.length > 0 || favStrength) && (
+        {/* Top brands */}
+        {topBrands.length > 0 && (
           <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-            {topBrands.length > 0 && (
-              <div style={{ marginBottom: favStrength ? 12 : 0 }}>
-                <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>TOP BRANDS</div>
-                {topBrands.map(([brand, count], i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 8 : 0 }}>
-                    <div style={{ fontSize: 13, color: "#e8d5b7" }}>{brand}</div>
-                    <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700 }}>{count} smoke{count !== 1 ? "s" : ""}</div>
-                  </div>
-                ))}
+            <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>TOP BRANDS</div>
+            {topBrands.map(([brand, count], i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 8 : 0 }}>
+                <div style={{ fontSize: 13, color: "#e8d5b7" }}>{brand}</div>
+                <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700 }}>{count} smoke{count !== 1 ? "s" : ""}</div>
               </div>
-            )}
-            {favStrength && (
-              <div style={{ borderTop: topBrands.length > 0 ? "1px solid #4a352033" : "none", paddingTop: topBrands.length > 0 ? 12 : 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 600, letterSpacing: 1 }}>PREFERRED STRENGTH</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: strengthColor(favStrength) }}>{favStrength}</div>
-              </div>
-            )}
+            ))}
           </div>
         )}
 
