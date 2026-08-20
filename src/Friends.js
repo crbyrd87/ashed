@@ -36,8 +36,6 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     ? (checkins.filter(c => c.rating).reduce((a, c) => a + c.rating, 0) / checkins.filter(c => c.rating).length).toFixed(1)
     : null;
 
-  const thisYear = checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length;
-
   const brandCounts = {};
   for (const c of checkins) {
     const b = c.cigars?.brand || c.cigar_brand;
