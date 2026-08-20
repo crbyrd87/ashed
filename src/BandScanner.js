@@ -411,10 +411,11 @@ Be as specific as possible with brand and line. If you can read text on the band
               {vitolas.map((v, i) => (
                 <div key={i}
                   onClick={() => {
+                    const selected = { ...cigar, ...v, brand: cigar.brand, line: cigar.line };
                     if (vitolaPicker === "log") {
-                      onCheckIn(v);
+                      onCheckIn(selected);
                     } else if (vitolaPicker === "humidor") {
-                      onAddToHumidor(v);
+                      onAddToHumidor(selected);
                       showToast("Added to Humidor ✓");
                     }
                     setVitolaPicker(null);
