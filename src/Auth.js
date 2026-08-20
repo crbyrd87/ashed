@@ -102,7 +102,7 @@ export default function Auth({ onLogin }) {
     setLoading(false);
   };
 
-  const [showApp, setShowApp] = useState(window.location.pathname === "/login");
+  const showApp = window.location.pathname === "/login";
 
   const switchMode = (newMode) => {
     setMode(newMode);
