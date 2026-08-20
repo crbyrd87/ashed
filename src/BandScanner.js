@@ -97,7 +97,10 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
                   type: "text",
                   text: `You are a cigar expert. Analyze this cigar band image and identify the cigar.
 
-Return ONLY a raw JSON object, no markdown, no explanation:
+First, check if there are multiple distinct cigar bands visible in the image. If there are, return:
+{"confidence": "multiple", "confidence_reason": "Multiple cigar bands detected"}
+
+Otherwise return ONLY a raw JSON object, no markdown, no explanation:
 {
   "brand": "Brand name",
   "line": "Cigar line name",
@@ -126,6 +129,12 @@ Be as specific as possible. If you can read text on the band, use it.`
       const raw = data.content?.[0]?.text || "{}";
       const match = raw.match(/\{[\s\S]*\}/);
       const result = match ? JSON.parse(match[0]) : {};
+
+      if (result.confidence === "multiple") {
+        setErrorMsg("Multiple cigar bands detected — please scan one at a time for best results.");
+        setStage("error");
+        return;
+      }
 
       if (result.confidence === "none") {
         setErrorMsg(result.confidence_reason || "Could not identify this cigar band. Please try a clearer photo.");
