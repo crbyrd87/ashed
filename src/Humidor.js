@@ -12,7 +12,7 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
-  const [scanStage, setScanStage] = useState("idle"); // idle | analyzing | confirm | error
+  const [scanStage, setScanStage] = useState("idle");
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState("");
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -21,6 +21,7 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   const [addSearchQuery, setAddSearchQuery] = useState("");
   const [addSearchResults, setAddSearchResults] = useState([]);
   const [addSearching, setAddSearching] = useState(false);
+  const [confirmRemoveAll, setConfirmRemoveAll] = useState(null);
   const fileInputRef = useRef(null);
 
   const fetchHumidor = async () => {
@@ -35,17 +36,8 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
   };
 
   useEffect(() => {
-    const loadHumidor = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("humidor")
-        .select("*, cigars(brand, line, vitola, strength, origin, wrapper, tasting_notes)")
-        .eq("user_id", user.id)
-        .order("added_at", { ascending: false });
-      setItems(data || []);
-      setLoading(false);
-    };
-    loadHumidor();
+    fetchHumidor();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
 
   const handleScanPhoto = async (e) => {
@@ -117,12 +109,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         return;
       }
 
-      // Normalize to array for both single and multi
-      const cigars = Array.isArray(result)
-        ? result
-        : result.type === "single"
-          ? [result]
-          : [result];
+      const cigars = Array.isArray(result) ? result : result.type === "single" ? [result] : [result];
 
       if (cigars.length === 0 || cigars.every(c => !c.brand)) {
         setScanError("Could not identify any cigars in this photo.");
@@ -142,7 +129,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
   const handleConfirmScan = async () => {
     for (const cigar of scanResult) {
-      // Try to find matching cigar in cigars table
       const { data: match } = await supabase
         .from("cigars")
         .select("id")
@@ -150,7 +136,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         .eq("line", cigar.line)
         .maybeSingle();
 
-      // Cache to cigars table if not found
       let cigarId = match?.id || null;
       if (!cigarId) {
         const { data: inserted } = await supabase.from("cigars").insert({
@@ -167,7 +152,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         cigarId = inserted?.id || null;
       }
 
-      // Check if this cigar already exists in humidor
       const { data: existingHumidor } = await supabase
         .from("humidor")
         .select("id, quantity")
@@ -177,10 +161,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         .maybeSingle();
 
       if (existingHumidor) {
-        // Increment quantity instead of creating duplicate
-        await supabase.from("humidor")
-          .update({ quantity: existingHumidor.quantity + (cigar.qty || 1) })
-          .eq("id", existingHumidor.id);
+        await supabase.from("humidor").update({ quantity: existingHumidor.quantity + (cigar.qty || 1) }).eq("id", existingHumidor.id);
       } else {
         await supabase.from("humidor").insert({
           user_id: user.id,
@@ -208,13 +189,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     } else {
       await supabase.from("humidor").update({ quantity: newQty }).eq("id", item.id);
     }
-    // Pass cigar data up to App.js to open CheckIn
-    const cigar = item.cigars || {
-      id: item.cigar_id,
-      brand: item.cigar_brand,
-      line: item.cigar_name,
-      vitola: item.cigar_vitola,
-    };
+    const cigar = item.cigars || { id: item.cigar_id, brand: item.cigar_brand, line: item.cigar_name, vitola: item.cigar_vitola };
     onSmokeOne(cigar);
     fetchHumidor();
   };
@@ -231,6 +206,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
   const handleRemoveAll = async (id) => {
     await supabase.from("humidor").delete().eq("id", id);
+    setConfirmRemoveAll(null);
     fetchHumidor();
   };
 
@@ -263,7 +239,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     fetchHumidor();
   };
 
-  const resetScan = () => {    setScanStage("idle");
+  const resetScan = () => {
+    setScanStage("idle");
     setScanResult(null);
     setScanError("");
     setPhotoPreview(null);
@@ -278,28 +255,28 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
       {scanStage === "idle" && (
         <>
-          <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 16 }}>ADD TO HUMIDOR</div>
-          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>ADD TO HUMIDOR</div>
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>📷</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 6 }}>Scan cigar band(s)</div>
-            <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once. Ashed will identify each cigar.</div>
+            <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once.</div>
           </div>
-          <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c33", borderRadius: 10, padding: 12, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 1, marginBottom: 6 }}>TIPS FOR BEST RESULTS</div>
-            {["Photograph up to 3 cigars at a time for best accuracy", "Bands should face the camera directly, not at an angle", "Good lighting and a steady hand make a big difference", "You can always edit brand and line on the confirm screen"].map((tip, i) => (
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
+            {["Photograph up to 3 cigars at a time", "Bands should face the camera directly", "Good lighting makes a big difference", "You can edit brand and line on the confirm screen"].map((tip, i) => (
               <div key={i} style={{ fontSize: 12, color: "#8a7055", marginBottom: 4, display: "flex", gap: 6 }}>
                 <span style={{ color: "#c9a84c" }}>→</span>{tip}
               </div>
             ))}
           </div>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
-            <div style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "linear-gradient(135deg, #4caf6e, #2e8b4a)", border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ display: "none" }} />
           </label>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
-            <div style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#c8b89a", fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
             <input type="file" accept="image/*" onChange={handleScanPhoto} style={{ display: "none" }} />
@@ -323,48 +300,33 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
       {scanStage === "confirm" && scanResult && (
         <>
-          <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>
             {scanResult.length === 1 ? "CONFIRM CIGAR" : `CONFIRM ${scanResult.length} CIGARS`}
           </div>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 14 }} />}
-
-          {/* Warning banner if any low confidence */}
           {scanResult.some(c => c.confidence === "low") && (
             <div style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: "#e8a07a", lineHeight: 1.5 }}>
-                ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review and correct the highlighted {scanResult.filter(c => c.confidence === "low").length > 1 ? "entries" : "entry"} before saving.
+                ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review before saving.
               </div>
             </div>
           )}
           {scanResult.map((cigar, i) => (
-            <div key={i} style={{ background: "#2a1a0e", border: `1px solid ${cigar.confidence === "high" ? "#7a9a7a44" : cigar.confidence === "medium" ? "#c9a84c44" : "#a0522d88"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-
-              {/* Confidence indicator */}
+            <div key={i} style={{ background: "#221508", border: `1px solid ${cigar.confidence === "high" ? "#7a9a7a44" : cigar.confidence === "medium" ? "#c9a84c44" : "#a0522d88"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#a0522d" }} />
                 <span style={{ fontSize: 10, color: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#e8a07a", letterSpacing: 1 }}>
-                  {cigar.confidence === "high" && "CONFIDENCE LEVEL: HIGH"}
-                  {cigar.confidence === "medium" && "CONFIDENCE LEVEL: MEDIUM -- PLEASE VERIFY"}
-                  {cigar.confidence === "low" && "CONFIDENCE LEVEL: LOW -- AI COULD NOT IDENTIFY. PLEASE CORRECT BELOW."}
+                  {cigar.confidence === "high" && "HIGH CONFIDENCE"}
+                  {cigar.confidence === "medium" && "MEDIUM — PLEASE VERIFY"}
+                  {cigar.confidence === "low" && "LOW — PLEASE CORRECT BELOW"}
                 </span>
               </div>
-
-              {/* Editable brand */}
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
-              <input
-                value={cigar.brand || ""}
-                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
-              />
-
-              {/* Editable line */}
+              <input value={cigar.brand || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>LINE</div>
-              <input
-                value={cigar.line || ""}
-                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }}
-              />
-
+              <input value={cigar.line || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
@@ -373,23 +335,17 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                 <span style={{ fontSize: 12, color: "#8a7055" }}>Quantity:</span>
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: Math.max(1, c.qty - 1) } : c))}
-                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #3a2510", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>-</button>
+                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>-</button>
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#c9a84c", minWidth: 24, textAlign: "center" }}>{cigar.qty}</span>
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: c.qty + 1 } : c))}
-                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #3a2510", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>+</button>
+                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>+</button>
               </div>
               {cigar.vitola === "Unknown" && (
-                <input
-                  placeholder="Size/vitola (optional, e.g. Robusto)"
-                  style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }}
-                  onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
-                />
+                <input placeholder="Size/vitola (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
+                  style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
               )}
-              <input
-                placeholder="Notes (optional, e.g. aging until Christmas)"
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
-                onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, notes: e.target.value } : c))}
-              />
+              <input placeholder="Notes (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, notes: e.target.value } : c))}
+                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
             </div>
           ))}
           <button onClick={handleConfirmScan}
@@ -397,7 +353,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             Add {scanResult.length === 1 ? "to Humidor" : `${scanResult.length} Cigars to Humidor`}
           </button>
           <button onClick={resetScan}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Cancel
           </button>
         </>
@@ -414,7 +370,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             Try Again
           </button>
           <button onClick={resetScan}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Cancel
           </button>
         </div>
@@ -425,10 +381,15 @@ Return ONLY raw JSON, no markdown, no explanation.` }
   // MAIN HUMIDOR VIEW
   return (
     <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>MY HUMIDOR</div>
+
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1 }}>MY HUMIDOR</div>
+          {items.length > 0 && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
+        </div>
         <button onClick={() => setShowAddOptions(true)}
-          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 20, padding: "6px 14px", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: "8px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           + Add a Cigar
         </button>
       </div>
@@ -439,20 +400,14 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setAddSearchResults([]); }}>
           <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "20px 20px 36px", display: "flex", flexDirection: "column" }}
             onClick={e => e.stopPropagation()}>
-
-            {/* Fixed header */}
             <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 16px", flexShrink: 0 }} />
             <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 12, textAlign: "center", flexShrink: 0 }}>Add a Cigar to Your Humidor</div>
-
-            {/* Fixed search input */}
             <input
               value={addSearchQuery}
               onChange={e => handleAddSearch(e.target.value)}
               placeholder="Search by cigar name or brand..."
               style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
             />
-
-            {/* Scrollable results only */}
             <div style={{ overflowY: "auto", maxHeight: "30vh", flexShrink: 1 }}>
               {addSearching && <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: 8 }}>Searching...</div>}
               {addSearchResults.map(c => (
@@ -464,7 +419,6 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 </div>
               ))}
             </div>
-
             {addSearchQuery.length < 2 && (
               <button onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setScanning(true); }}
                 style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4caf6e55", borderRadius: 12, padding: 14, color: "#4caf6e", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
@@ -475,76 +429,93 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         </div>
       )}
 
-      {items.length === 0 && (
+      {/* Empty state */}
+      {items.length === 0 && !loading && (
         <div style={{ textAlign: "center", padding: 40 }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>🚬</div>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>📦</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Your humidor is empty</div>
-          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Search for a cigar or scan a band to add it to your humidor.</div>
+          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Search for a cigar or scan a band to add it.</div>
         </div>
       )}
 
+      {/* Humidor items */}
       {items.map(item => {
         const brand = item.cigars?.brand || item.cigar_brand || "Unknown";
         const line = item.cigars?.line || item.cigar_name || "Unknown";
         const vitola = item.cigars?.vitola || item.cigar_vitola || null;
         const strength = item.cigars?.strength || null;
         const isEditingQty = editingQty === item.id;
+        const isConfirmingRemove = confirmRemoveAll === item.id;
 
         return (
-          <div key={item.id} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-            <div style={{ padding: "12px 14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{line}</div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-                    {vitola && <Badge label={vitola} />}
-                    {strength && <Badge label={strength} color={strengthColor(strength)} />}
-                  </div>
-                  {item.notes && (
-                    <div style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic", marginBottom: 4 }}>{item.notes}</div>
-                  )}
-                  <div style={{ fontSize: 10, color: "#4a3020", marginTop: 4 }}>
-                    Added {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </div>
-                </div>
+          <div key={item.id} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+            <div style={{ padding: "14px 14px 12px" }}>
 
-                {/* Quantity */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginLeft: 12 }}>
+              {/* Top row: brand + qty */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600 }}>{brand.toUpperCase()}</div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                   <div style={{ fontSize: 10, color: "#8a7055" }}>QTY</div>
                   {isEditingQty ? (
                     <input
-                      type="number"
-                      min="1"
-                      defaultValue={item.quantity}
-                      autoFocus
+                      type="number" min="1" defaultValue={item.quantity} autoFocus
                       onBlur={e => handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
                       onKeyDown={e => e.key === "Enter" && handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
-                      style={{ width: 44, textAlign: "center", background: "#2a1a0e", border: "1px solid #c9a84c", borderRadius: 6, padding: "4px 0", color: "#c9a84c", fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
+                      style={{ width: 48, textAlign: "center", background: "#2a1a0e", border: "1px solid #c9a84c", borderRadius: 6, padding: "4px 0", color: "#c9a84c", fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
                     />
                   ) : (
-                    <div onClick={() => setEditingQty(item.id)}
-                      style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", cursor: "pointer", minWidth: 30, textAlign: "center" }}>
-                      {item.quantity}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <button onClick={() => handleRemoveOne(item)}
+                        style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>−</button>
+                      <div onClick={() => setEditingQty(item.id)}
+                        style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", cursor: "pointer", minWidth: 28, textAlign: "center" }}>
+                        {item.quantity}
+                      </div>
+                      <button onClick={async () => { await supabase.from("humidor").update({ quantity: item.quantity + 1 }).eq("id", item.id); fetchHumidor(); }}
+                        style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
                     </div>
                   )}
-                  <div style={{ fontSize: 9, color: "#4a3020" }}>tap to edit</div>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              {/* Line name */}
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>{line}</div>
+
+              {/* Badges */}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                {vitola && <Badge label={vitola} />}
+                {strength && <Badge label={strength} color={strengthColor(strength)} />}
+              </div>
+
+              {item.notes && <div style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic", marginBottom: 6 }}>{item.notes}</div>}
+
+              <div style={{ fontSize: 10, color: "#4a3020", marginBottom: 12 }}>
+                Added {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleSmokeOne(item)}
-                  style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "8px 0", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                  🚬 Smoke One
+                  style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  🔥 Smoke One
                 </button>
-                <button onClick={() => handleRemoveOne(item)}
-                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, padding: "8px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  Remove One
-                </button>
-                <button onClick={() => handleRemoveAll(item.id)}
-                  style={{ flex: 1, background: "#2a1a0e", border: "1px solid #a0522d44", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                  Remove All
-                </button>
+                {isConfirmingRemove ? (
+                  <>
+                    <button onClick={() => handleRemoveAll(item.id)}
+                      style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "10px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                      Confirm
+                    </button>
+                    <button onClick={() => setConfirmRemoveAll(null)}
+                      style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => setConfirmRemoveAll(item.id)}
+                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                    Remove All
+                  </button>
+                )}
               </div>
             </div>
           </div>
