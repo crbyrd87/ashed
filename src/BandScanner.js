@@ -316,21 +316,44 @@ Be as specific as possible with brand and line. If you can read text on the band
               </button>
             </div>
           )}
-          {vitolas.map((v, i) => (
-            <div key={i}
-              onClick={() => {
-                const selected = { ...cigar, ...v, brand: cigar.brand, line: cigar.line };
-                setCigar(selected);
-                setStage("result");
-              }}
-              style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
-                {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>{v.strength}</div>}
+          {!violasLoading && vitolas.length > 0 && (
+            <>
+              {/* Not Sure option — first */}
+              <div
+                onClick={() => {
+                  // Compute strength range across all vitolas
+                  const STRENGTH_ORDER = ["Light", "Medium", "Medium-Full", "Full"];
+                  const strengths = [...new Set(vitolas.map(v => v.strength).filter(Boolean))].sort((a, b) => STRENGTH_ORDER.indexOf(a) - STRENGTH_ORDER.indexOf(b));
+                  const strengthRange = strengths.length > 1 ? `${strengths[0]} – ${strengths[strengths.length - 1]}` : strengths[0] || null;
+                  setCigar({ ...cigar, vitola: null, strength: strengthRange });
+                  setStage("result");
+                }}
+                style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: "12px 14px", marginBottom: 12, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#c9a84c" }}>Not Sure</div>
+                  <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>Show general info for this line</div>
+                </div>
+                <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
               </div>
-              <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
-            </div>
-          ))}
+              {/* Divider */}
+              <div style={{ fontSize: 10, color: "#5a4535", letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
+              {vitolas.map((v, i) => (
+                <div key={i}
+                  onClick={() => {
+                    const selected = { ...cigar, ...v, brand: cigar.brand, line: cigar.line };
+                    setCigar(selected);
+                    setStage("result");
+                  }}
+                  style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>{v.strength}</div>}
+                  </div>
+                  <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                </div>
+              ))}
+            </>
+          )}
 
           <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 8, boxSizing: "border-box" }}>
             Scan Again
@@ -355,12 +378,9 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 10px" }}>{cigar.line}</div>
+          {cigar.vitola && <div style={{ fontSize: 14, color: "#c9a84c", marginBottom: 12, fontWeight: 600 }}>{cigar.vitola}</div>}
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-            {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
-            {cigar.origin && <Badge label={cigar.origin} color="#7a9a7a" />}
-          </div>
-
+          {/* Info boxes — text style, no colored badges */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
             {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Origin", cigar.origin]].map(([k, v]) => v && (
               <div key={k} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px" }}>
@@ -368,12 +388,6 @@ Be as specific as possible with brand and line. If you can read text on the band
                 <div style={{ fontSize: 14, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
               </div>
             ))}
-          </div>
-
-          {/* Vitola note */}
-          <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c33", borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>ℹ️</span>
-            <span style={{ fontSize: 12, color: "#c9a84c" }}>Tap "Select Vitola" to pick your size before logging or adding to your humidor</span>
           </div>
 
           {cigar.tasting_notes && (
@@ -408,7 +422,6 @@ Be as specific as possible with brand and line. If you can read text on the band
             <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>✓ Thanks — flagged for review</div>
           )}
 
-          {/* Toast confirmation */}
           {toast && (
             <div style={{ position: "fixed", bottom: 100, left: "50%", transform: "translateX(-50%)", background: "#4caf6e", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 30, zIndex: 500, fontFamily: SANS, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
               {toast}
