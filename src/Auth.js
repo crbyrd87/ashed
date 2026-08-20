@@ -120,7 +120,11 @@ export default function Auth({ onLogin }) {
 
       {!showApp ? (
         <div style={{ textAlign: "center", padding: "0 20px" }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 12 }}>Coming Soon</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Coming Soon</div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 16 }}>
+            <span style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", fontSize: 12, color: "#8a7055" }}>🍎 iOS</span>
+            <span style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", fontSize: 12, color: "#8a7055" }}>🤖 Android</span>
+          </div>
           <div style={{ fontSize: 14, color: "#8a7055", lineHeight: 1.7, marginBottom: 32 }}>
             Ashed is a cigar journal and community app for enthusiasts. Log your smokes, track your favorites, connect with fellow aficionados, and discover your next perfect cigar.
           </div>
