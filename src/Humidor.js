@@ -221,6 +221,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     setEditingVitola(null);
     fetchHumidor();
   };
+
+  const handleAddSearch = async (q) => {
     setAddSearchQuery(q);
     if (q.length < 2) { setAddSearchResults([]); return; }
     setAddSearching(true);
@@ -605,3 +607,4 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       })()}
     </div>
   );
+}
