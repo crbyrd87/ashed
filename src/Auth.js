@@ -102,6 +102,8 @@ export default function Auth({ onLogin }) {
     setLoading(false);
   };
 
+  const [showApp, setShowApp] = useState(false);
+
   const switchMode = (newMode) => {
     setMode(newMode);
     setError(null);
@@ -115,12 +117,43 @@ export default function Auth({ onLogin }) {
         <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
       </div>
       <div style={s.tagline}>CIGAR JOURNAL & COMMUNITY</div>
-      <div style={s.card}>
-        <div style={s.title}>
-          {mode === "login" && "Welcome back"}
-          {mode === "signup" && "Create your account"}
-          {mode === "forgot" && "Reset your password"}
+
+      {!showApp ? (
+        <div style={{ textAlign: "center", padding: "0 20px" }}>
+          <div style={{ fontSize: 36, marginBottom: 16 }}>🚬</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 12 }}>Coming Soon</div>
+          <div style={{ fontSize: 14, color: "#8a7055", lineHeight: 1.7, marginBottom: 32 }}>
+            Ashed is a cigar journal and community app for enthusiasts. Log your smokes, track your favorites, connect with fellow aficionados, and discover your next perfect cigar.
+          </div>
+          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, marginBottom: 32, textAlign: "left" }}>
+            <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2, marginBottom: 14 }}>WHAT'S COMING</div>
+            {[
+              { icon: "📖", text: "Personal cigar journal with ratings and tasting notes" },
+              { icon: "📷", text: "AI-powered band scanner to identify any cigar instantly" },
+              { icon: "✨", text: "Personalized recommendations based on your palate" },
+              { icon: "👥", text: "Community feed and friends to share smokes with" },
+              { icon: "🏪", text: "Cigar lounge finder near you" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 4 ? 12 : 0 }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowApp(true)}
+            style={{ background: "none", border: "none", color: "#4a3520", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+          >
+            Admin login
+          </button>
         </div>
+      ) : (
+        <div style={s.card}>
+          <div style={s.title}>
+            {mode === "login" && "Welcome back"}
+            {mode === "signup" && "Create your account"}
+            {mode === "forgot" && "Reset your password"}
+          </div>
 
         {mode === "signup" && referredBy && (
           <div style={s.referralBanner}>
@@ -188,6 +221,7 @@ export default function Auth({ onLogin }) {
           {mode === "forgot" && <><span style={s.toggleLink} onClick={() => switchMode("login")}>← Back to login</span></>}
         </div>
       </div>
+      )}
     </div>
   );
 }
