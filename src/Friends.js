@@ -84,7 +84,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           ].map(([k, v]) => (
             <div key={k} style={{ flex: 1, background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 8px", textAlign: "center" }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c" }}>{v}</div>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginTop: 2 }}>{k.toUpperCase()}</div>
+              <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, fontWeight: 600, marginTop: 2 }}>{k.toUpperCase()}</div>
             </div>
           ))}
         </div>
@@ -92,12 +92,12 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
         {/* Badges */}
         {earnedBadges.length > 0 && (
           <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>BADGES EARNED ({earnedBadges.length})</div>
+            <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>BADGES EARNED ({earnedBadges.length})</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
               {earnedBadges.map(b => (
                 <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: 52 }}>
                   <span style={{ fontSize: 28 }}>{b.icon}</span>
-                  <span style={{ fontSize: 9, color: "#8a7055", textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
+                  <span style={{ fontSize: 10, color: "#c9a84c", textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
                 </div>
               ))}
             </div>
@@ -109,7 +109,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
             {topBrands.length > 0 && (
               <div style={{ marginBottom: favStrength ? 12 : 0 }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>TOP BRANDS</div>
+                <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>TOP BRANDS</div>
                 {topBrands.map(([brand, count], i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 8 : 0 }}>
                     <div style={{ fontSize: 13, color: "#e8d5b7" }}>{brand}</div>
@@ -120,7 +120,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             )}
             {favStrength && (
               <div style={{ borderTop: topBrands.length > 0 ? "1px solid #4a352033" : "none", paddingTop: topBrands.length > 0 ? 12 : 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>PREFERRED STRENGTH</div>
+                <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 600, letterSpacing: 1 }}>PREFERRED STRENGTH</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: strengthColor(favStrength) }}>{favStrength}</div>
               </div>
             )}
@@ -128,7 +128,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
         )}
 
         {/* Recent smokes */}
-        <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 10 }}>RECENT SMOKES</div>
+        <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
         {loading && <div style={{ fontSize: 12, color: "#7a9a7a", textAlign: "center", padding: 20 }}>Loading...</div>}
         {!loading && checkins.length === 0 && (
           <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: 20 }}>No public smokes yet</div>
