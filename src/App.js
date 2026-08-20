@@ -1685,14 +1685,16 @@ export default function App() {
 
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
       {showBandScanner && (
-        <BandScanner
-          user={user}
-          onClose={() => setShowBandScanner(false)}
-          onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
-          onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
-          onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
-          onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
-        />
+        <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "#1a0f08", overflowY: "auto", maxWidth: 420, margin: "0 auto" }}>
+          <BandScanner
+            user={user}
+            onClose={() => setShowBandScanner(false)}
+            onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
+            onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
+            onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
+            onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
+          />
+        </div>
       )}
       {showRecommendations && (
         <Recommendations
