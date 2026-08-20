@@ -438,89 +438,108 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         </div>
       )}
 
-      {/* Humidor items */}
-      {items.map(item => {
-        const brand = item.cigars?.brand || item.cigar_brand || "Unknown";
-        const line = item.cigars?.line || item.cigar_name || "Unknown";
-        const vitola = item.cigars?.vitola || item.cigar_vitola || null;
-        const strength = item.cigars?.strength || null;
-        const isEditingQty = editingQty === item.id;
-        const isConfirmingRemove = confirmRemoveAll === item.id;
+      {/* Humidor items — grouped by brand + line */}
+      {(() => {
+        // Group items by brand + line
+        const groups = {};
+        for (const item of items) {
+          const brand = item.cigars?.brand || item.cigar_brand || "Unknown";
+          const line = item.cigars?.line || item.cigar_name || "Unknown";
+          const key = `${brand}|||${line}`;
+          if (!groups[key]) groups[key] = { brand, line, items: [] };
+          groups[key].items.push(item);
+        }
 
-        return (
-          <div key={item.id} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-            <div style={{ padding: "14px 14px 12px" }}>
+        return Object.values(groups).map(group => {
+          const totalQty = group.items.reduce((a, i) => a + i.quantity, 0);
+          const strength = group.items[0]?.cigars?.strength || null;
 
-              {/* Top row: brand + qty */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600 }}>{brand.toUpperCase()}</div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                  <div style={{ fontSize: 10, color: "#8a7055" }}>QTY</div>
-                  {isEditingQty ? (
-                    <input
-                      type="number" min="1" defaultValue={item.quantity} autoFocus
-                      onBlur={e => handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
-                      onKeyDown={e => e.key === "Enter" && handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
-                      style={{ width: 48, textAlign: "center", background: "#2a1a0e", border: "1px solid #c9a84c", borderRadius: 6, padding: "4px 0", color: "#c9a84c", fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
-                    />
-                  ) : (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <button onClick={() => handleRemoveOne(item)}
-                        style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>−</button>
-                      <div onClick={() => setEditingQty(item.id)}
-                        style={{ fontSize: 22, fontWeight: 700, color: "#c9a84c", cursor: "pointer", minWidth: 28, textAlign: "center" }}>
-                        {item.quantity}
+          return (
+            <div key={`${group.brand}|||${group.line}`} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+              <div style={{ padding: "14px 14px 12px" }}>
+
+                {/* Brand + total qty */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                  <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600 }}>{group.brand.toUpperCase()}</div>
+                  <div style={{ fontSize: 10, color: "#8a7055" }}>{totalQty} TOTAL</div>
+                </div>
+
+                {/* Line name */}
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 10 }}>{group.line}</div>
+
+                {/* Vitola rows */}
+                {group.items.map(item => {
+                  const vitola = item.cigars?.vitola || item.cigar_vitola || null;
+                  const itemStrength = item.cigars?.strength || strength || null;
+                  const isEditingQty = editingQty === item.id;
+                  const isConfirmingRemove = confirmRemoveAll === item.id;
+
+                  return (
+                    <div key={item.id} style={{ borderTop: "1px solid #4a352044", paddingTop: 10, marginTop: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                          {vitola && <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>}
+                          {itemStrength && <span style={{ background: strengthColor(itemStrength) + "22", color: strengthColor(itemStrength), border: `1px solid ${strengthColor(itemStrength)}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{itemStrength}</span>}
+                          {!vitola && !itemStrength && <span style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic" }}>No vitola specified</span>}
+                        </div>
+                        {/* Qty stepper */}
+                        {isEditingQty ? (
+                          <input type="number" min="1" defaultValue={item.quantity} autoFocus
+                            onBlur={e => handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
+                            onKeyDown={e => e.key === "Enter" && handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
+                            style={{ width: 48, textAlign: "center", background: "#2a1a0e", border: "1px solid #c9a84c", borderRadius: 6, padding: "4px 0", color: "#c9a84c", fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
+                          />
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <button onClick={() => handleRemoveOne(item)}
+                              style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                            <div onClick={() => setEditingQty(item.id)}
+                              style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c", cursor: "pointer", minWidth: 28, textAlign: "center" }}>
+                              {item.quantity}
+                            </div>
+                            <button onClick={async () => { await supabase.from("humidor").update({ quantity: item.quantity + 1 }).eq("id", item.id); fetchHumidor(); }}
+                              style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                          </div>
+                        )}
                       </div>
-                      <button onClick={async () => { await supabase.from("humidor").update({ quantity: item.quantity + 1 }).eq("id", item.id); fetchHumidor(); }}
-                        style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
+
+                      {/* Action buttons per vitola */}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={() => handleSmokeOne(item)}
+                          style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                          🔥 Smoke One
+                        </button>
+                        {isConfirmingRemove ? (
+                          <>
+                            <button onClick={() => handleRemoveAll(item.id)}
+                              style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                              Confirm
+                            </button>
+                            <button onClick={() => setConfirmRemoveAll(null)}
+                              style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={() => setConfirmRemoveAll(item.id)}
+                            style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                            Remove All
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  );
+                })}
+
+                {/* Added date — from earliest item */}
+                <div style={{ fontSize: 10, color: "#4a3020", marginTop: 10 }}>
+                  Added {new Date(Math.min(...group.items.map(i => new Date(i.added_at)))).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </div>
               </div>
-
-              {/* Line name */}
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>{line}</div>
-
-              {/* Badges */}
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                {vitola && <Badge label={vitola} />}
-                {strength && <Badge label={strength} color={strengthColor(strength)} />}
-              </div>
-
-              {item.notes && <div style={{ fontSize: 12, color: "#5a4535", fontStyle: "italic", marginBottom: 6 }}>{item.notes}</div>}
-
-              <div style={{ fontSize: 10, color: "#4a3020", marginBottom: 12 }}>
-                Added {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-              </div>
-
-              {/* Action buttons */}
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => handleSmokeOne(item)}
-                  style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                  🔥 Smoke One
-                </button>
-                {isConfirmingRemove ? (
-                  <>
-                    <button onClick={() => handleRemoveAll(item.id)}
-                      style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "10px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                      Confirm
-                    </button>
-                    <button onClick={() => setConfirmRemoveAll(null)}
-                      style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button onClick={() => setConfirmRemoveAll(item.id)}
-                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
-                    Remove All
-                  </button>
-                )}
-              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        });
+      })()}
     </div>
   );
 }
