@@ -181,7 +181,7 @@ Be as specific as possible. If you can read text on the band, use it.`
 
           {/* Feature explanation */}
           <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>HOW IT WORKS</div>
+            <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
             {[
               { icon: "📷", text: "Take a photo of any cigar band" },
               { icon: "🤖", text: "AI reads the label and identifies the cigar" },
@@ -197,7 +197,7 @@ Be as specific as possible. If you can read text on the band, use it.`
 
           {/* Tips */}
           <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
+            <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
             {[
               "Hold steady in good lighting",
               "Fill the frame with the band",
