@@ -312,6 +312,7 @@ export default function App() {
   const [vitolas, setVitolas] = useState([]);
   const [violasLoading, setViolasLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(null);
+  const [humidorItemId, setHumidorItemId] = useState(null);
   const [showBandScanner, setShowBandScanner] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showPairings, setShowPairings] = useState(false);
@@ -1012,7 +1013,17 @@ export default function App() {
           )}
         </div>
 
-        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setSelected(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
+        {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => { setCheckingIn(null); setHumidorItemId(null); }} onSaved={async () => {
+          if (humidorItemId) {
+            const { data: hItem } = await supabase.from("humidor").select("id, quantity").eq("id", humidorItemId).single();
+            if (hItem) {
+              if (hItem.quantity <= 1) await supabase.from("humidor").delete().eq("id", humidorItemId);
+              else await supabase.from("humidor").update({ quantity: hItem.quantity - 1 }).eq("id", humidorItemId);
+            }
+            setHumidorItemId(null);
+          }
+          setCheckingIn(null); setSelected(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins();
+        }} />}
         {showPairings && pairingsCigar && (
           <Pairings
             cigar={pairingsCigar}
@@ -1683,7 +1694,17 @@ export default function App() {
         </div>
       )}
 
-      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
+      {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => { setCheckingIn(null); setHumidorItemId(null); }} onSaved={async () => {
+        if (humidorItemId) {
+          const { data: hItem } = await supabase.from("humidor").select("id, quantity").eq("id", humidorItemId).single();
+          if (hItem) {
+            if (hItem.quantity <= 1) await supabase.from("humidor").delete().eq("id", humidorItemId);
+            else await supabase.from("humidor").update({ quantity: hItem.quantity - 1 }).eq("id", humidorItemId);
+          }
+          setHumidorItemId(null);
+        }
+        setCheckingIn(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins();
+      }} />}
       {showBandScanner && (
         <BandScanner
           user={user}
@@ -1866,7 +1887,7 @@ export default function App() {
       {tab === "humidor" && (
         <Humidor
           user={user}
-          onSmokeOne={(cigar) => { setCheckingIn(cigar); }}
+          onSmokeOne={(cigar, itemId) => { setCheckingIn(cigar); setHumidorItemId(itemId); }}
           onSearchToAdd={() => { setTab("search"); }}
           isPremium={isPremium}
           onUpgrade={() => setUpgradeFeature("band_scanner")}
