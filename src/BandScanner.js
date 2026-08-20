@@ -28,13 +28,11 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
         .select("id")
         .eq("brand", result.brand)
         .eq("line", result.line)
-        .eq("vitola", result.vitola)
         .maybeSingle();
       if (!existing) {
         const { data: inserted } = await supabase.from("cigars").insert({
           brand: result.brand,
           line: result.line,
-          vitola: result.vitola,
           wrapper: result.wrapper || null,
           origin: result.origin || null,
           strength: result.strength || null,
@@ -110,7 +108,6 @@ Otherwise return ONLY a raw JSON object, no markdown, no explanation:
 {
   "brand": "Brand name",
   "line": "Cigar line name",
-  "vitola": "Size/shape name",
   "strength": "Light|Medium|Medium-Full|Full",
   "origin": "Country of origin",
   "wrapper": "Wrapper country/type",
@@ -123,7 +120,8 @@ Otherwise return ONLY a raw JSON object, no markdown, no explanation:
 If you cannot identify the cigar with any confidence, return:
 {"confidence": "none", "confidence_reason": "Reason why"}
 
-Be as specific as possible. If you can read text on the band, use it.`
+Do not guess the vitola — it cannot be determined from the band alone.
+Be as specific as possible with brand and line. If you can read text on the band, use it.`
                 },
               ],
             },
@@ -161,7 +159,6 @@ Be as specific as possible. If you can read text on the band, use it.`
         id: cached?.id || null,
         brand: result.brand || "Unknown",
         line: result.line || "Unknown",
-        vitola: result.vitola || "Unknown",
         strength: result.strength || "Medium",
         origin: result.origin || "Unknown",
         wrapper: result.wrapper || null,
@@ -291,18 +288,23 @@ Be as specific as possible. If you can read text on the band, use it.`
           <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 10px" }}>{cigar.line}</div>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-            {cigar.vitola && <Badge label={cigar.vitola} />}
             {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
             {cigar.origin && <Badge label={cigar.origin} color="#7a9a7a" />}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-            {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Vitola", cigar.vitola], ["Origin", cigar.origin]].map(([k, v]) => v && (
-              <div key={k} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px" }}>
+            {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Origin", cigar.origin]].map(([k, v]) => v && (
+              <div key={k} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
                 <div style={{ fontSize: 14, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
               </div>
             ))}
+          </div>
+
+          {/* Vitola note */}
+          <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c33", borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 14 }}>ℹ️</span>
+            <span style={{ fontSize: 12, color: "#c9a84c" }}>Tap "Select Vitola" to pick your size before logging or adding to your humidor</span>
           </div>
 
           {cigar.tasting_notes && (
@@ -317,7 +319,7 @@ Be as specific as possible. If you can read text on the band, use it.`
           )}
 
           <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            + LOG THIS SMOKE
+            🚬 Select Vitola &amp; Log
           </button>
           <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             ♡ Add to Wishlist
