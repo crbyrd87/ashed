@@ -9,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
+export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
   const [stage, setStage] = useState("capture");
   const [photoPreview, setPhotoPreview] = useState(null);
   const [cigar, setCigar] = useState(null);
@@ -83,6 +83,8 @@ export default function BandScanner({ onClose, onCheckIn, onAddToWishlist, onAdd
         body: JSON.stringify({
           model: "claude-opus-4-6",
           max_tokens: 1024,
+          user_id: user?.id,
+          feature: "band_scanner",
           messages: [
             {
               role: "user",
