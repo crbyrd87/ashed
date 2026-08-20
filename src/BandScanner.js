@@ -179,16 +179,20 @@ Be as specific as possible. If you can read text on the band, use it.`
       {stage === "capture" && (
         <div style={{ padding: 20 }}>
 
-          {/* Viewfinder graphic */}
-          <div style={{ background: "#0f0804", border: "1px solid #3a2510", borderRadius: 14, height: 200, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 16, left: 16, width: 28, height: 28, borderTop: "2px solid #c9a84c", borderLeft: "2px solid #c9a84c", borderRadius: "4px 0 0 0" }} />
-            <div style={{ position: "absolute", top: 16, right: 16, width: 28, height: 28, borderTop: "2px solid #c9a84c", borderRight: "2px solid #c9a84c", borderRadius: "0 4px 0 0" }} />
-            <div style={{ position: "absolute", bottom: 16, left: 16, width: 28, height: 28, borderBottom: "2px solid #c9a84c", borderLeft: "2px solid #c9a84c", borderRadius: "0 0 0 4px" }} />
-            <div style={{ position: "absolute", bottom: 16, right: 16, width: 28, height: 28, borderBottom: "2px solid #c9a84c", borderRight: "2px solid #c9a84c", borderRadius: "0 0 4px 0" }} />
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>🔥</div>
-              <div style={{ fontSize: 13, color: "#5a4535" }}>Point at the cigar band</div>
-            </div>
+          {/* Feature explanation */}
+          <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 20, marginBottom: 16 }}>
+            <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>HOW IT WORKS</div>
+            {[
+              { icon: "📷", text: "Take a photo of any cigar band" },
+              { icon: "🤖", text: "AI reads the label and identifies the cigar" },
+              { icon: "📖", text: "Get the brand, vitola, strength, tasting notes and more" },
+              { icon: "🚬", text: "Log it, add to your humidor, or save to your wishlist" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{item.text}</span>
+              </div>
+            ))}
           </div>
 
           {/* Tips */}
