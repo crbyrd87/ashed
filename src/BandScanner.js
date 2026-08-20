@@ -17,6 +17,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const [confidence, setConfidence] = useState(null);
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
+  const [toast, setToast] = useState(null);
   const cameraInputRef = useRef(null);
   const libraryInputRef = useRef(null);
 
@@ -59,6 +60,11 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
     } catch (e) { console.error(e); }
     setFlagged(true);
     setFlagging(false);
+  };
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
   };
 
   const handlePhotoChange = async (e) => {
@@ -313,13 +319,13 @@ Be as specific as possible. If you can read text on the band, use it.`
           <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + LOG THIS SMOKE
           </button>
-          <button onClick={() => { onAddToWishlist(cigar); onClose(); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             ♡ Add to Wishlist
           </button>
-          <button onClick={() => { onAddToHumidor(cigar); onClose(); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
           </button>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Scan Again
           </button>
 
@@ -329,6 +335,13 @@ Be as specific as possible. If you can read text on the band, use it.`
             </button>
           ) : (
             <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>✓ Thanks — flagged for review</div>
+          )}
+
+          {/* Toast confirmation */}
+          {toast && (
+            <div style={{ position: "fixed", bottom: 100, left: "50%", transform: "translateX(-50%)", background: "#4caf6e", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 30, zIndex: 500, fontFamily: SANS, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+              {toast}
+            </div>
           )}
         </div>
       )}
