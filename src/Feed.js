@@ -151,7 +151,7 @@ export default function Feed({ user }) {
 
   return (
     <>
-      <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1, margin: "16px 0 10px", fontFamily: SANS }}>RECENT ACTIVITY</div>
+      <div style={{ fontSize: 14, color: "#c9a84c", letterSpacing: 2, fontWeight: 700, margin: "16px 0 10px", fontFamily: SANS }}>RECENT ACTIVITY</div>
 
       {feedItems.map(item => {
         const cigarName = item.cigars?.line || item.cigar_name || "Unknown Cigar";
