@@ -184,15 +184,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
   };
 
   const handleSmokeOne = async (item) => {
-    const newQty = item.quantity - 1;
-    if (newQty <= 0) {
-      await supabase.from("humidor").delete().eq("id", item.id);
-    } else {
-      await supabase.from("humidor").update({ quantity: newQty }).eq("id", item.id);
-    }
     const cigar = item.cigars || { id: item.cigar_id, brand: item.cigar_brand, line: item.cigar_name, vitola: item.cigar_vitola };
-    onSmokeOne(cigar);
-    fetchHumidor();
+    onSmokeOne(cigar, item.id);
   };
 
   const handleRemoveOne = async (item) => {
