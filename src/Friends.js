@@ -145,10 +145,13 @@ export default function Friends({ user, onClose, onRequestHandled }) {
     <div style={s.overlay}>
       <div style={s.header}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>Friends</div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 20 }}>👥</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: "#e8d5b7" }}>Friends</span>
+          </div>
+          <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 600, marginTop: 2, opacity: 0.8 }}>
             {friends.length} friend{friends.length !== 1 ? "s" : ""}
-            {pendingRequests.length > 0 && <span style={{ color: "#c9a84c", marginLeft: 8 }}>· {pendingRequests.length} pending</span>}
+            {pendingRequests.length > 0 && <span style={{ color: "#e8632a", marginLeft: 8 }}>· {pendingRequests.length} pending</span>}
           </div>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
@@ -210,10 +213,10 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             })}
 
             {/* Referral / Share section */}
-            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
+            <div style={{ background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
               <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>INVITE A FRIEND</div>
               <div style={{ fontSize: 13, color: "#c9a84c", marginBottom: 4, wordBreak: "break-all" }}>
-                ashed.vercel.app?ref={user.user_metadata?.username || user.id}
+                ashed.app?ref={user.user_metadata?.username || user.id}
               </div>
               <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 14 }}>
                 Share your link — friends who sign up get credited to you
@@ -239,6 +242,21 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               >
                 📲 Share Invite Link
               </button>
+            </div>
+
+            {/* Why add friends */}
+            <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 16, marginTop: 12 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>WHY ADD FRIENDS?</div>
+              {[
+                { icon: "🔥", text: "See their check-ins in your feed" },
+                { icon: "👍", text: "Like and comment on their smokes" },
+                { icon: "🚬", text: "Discover new cigars through their reviews" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 2 ? 10 : 0 }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: 13, color: "#c8b89a" }}>{item.text}</span>
+                </div>
+              ))}
             </div>
           </>
         )}
