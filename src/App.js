@@ -1685,16 +1685,14 @@ export default function App() {
 
       {checkingIn && <CheckIn cigar={checkingIn} user={user} onClose={() => setCheckingIn(null)} onSaved={() => { setCheckingIn(null); setQuery(""); setSelectedLine(null); setVitolas([]); refreshCheckins(); }} />}
       {showBandScanner && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "#1a0f08", overflowY: "auto", maxWidth: 420, margin: "0 auto" }}>
-          <BandScanner
-            user={user}
-            onClose={() => setShowBandScanner(false)}
-            onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
-            onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
-            onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
-            onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
-          />
-        </div>
+        <BandScanner
+          user={user}
+          onClose={() => setShowBandScanner(false)}
+          onCheckIn={(cigar) => { setShowBandScanner(false); setCheckingIn(cigar); }}
+          onAddToWishlist={(cigar) => { handleAddToWishlist(cigar); }}
+          onAddToHumidor={(cigar) => { handleAddToHumidor(cigar); }}
+          onSearchManually={() => { setShowBandScanner(false); setTab("search"); }}
+        />
       )}
       {showRecommendations && (
         <Recommendations
@@ -1876,12 +1874,25 @@ export default function App() {
       )}
       {tab === "venues" && <Venues />}
       <nav style={s.nav}>
-        {[["search", "🔍", "Feed"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"], ["humidor", "🚬", "Humidor"]].map(([id, icon, label]) => (
+        {[["search", "🔍", "Feed"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
           <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
             <span style={{ fontSize: 18 }}>{icon}</span>
             <span>{label}</span>
           </button>
         ))}
+        <button style={s.navBtn(tab === "humidor")} onClick={() => setTab("humidor")}>
+          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="10" width="20" height="11" rx="1.5" stroke={tab === "humidor" ? "#d4844a" : "#6a5040"} strokeWidth="1.5"/>
+              <path d="M2 10 L4 6 L20 6 L22 10 Z" stroke={tab === "humidor" ? "#d4844a" : "#6a5040"} strokeWidth="1.5" fill={tab === "humidor" ? "#d4844a22" : "#6a504011"} strokeLinejoin="round"/>
+              <line x1="7" y1="6" x2="7" y2="10" stroke={tab === "humidor" ? "#c9a84c" : "#6a5040"} strokeWidth="1.5"/>
+              <line x1="12" y1="6" x2="12" y2="10" stroke={tab === "humidor" ? "#c9a84c" : "#6a5040"} strokeWidth="1.5"/>
+              <line x1="17" y1="6" x2="17" y2="10" stroke={tab === "humidor" ? "#c9a84c" : "#6a5040"} strokeWidth="1.5"/>
+              <rect x="10" y="14" width="4" height="2" rx="1" fill={tab === "humidor" ? "#c9a84c" : "#6a5040"}/>
+            </svg>
+          </span>
+          <span>Humidor</span>
+        </button>
         <button style={s.navBtn(tab === "venues")} onClick={() => setTab("venues")}>
           <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
