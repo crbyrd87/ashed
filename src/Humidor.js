@@ -236,7 +236,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     if (item.cigars?.id) {
       await supabase.from("cigars").update({ vitola: trimmed || null }).eq("id", item.cigars.id);
     }
-    setEditingVitola(null);
+    setVitolaPickerItem(null);
     fetchHumidor();
   };
 
