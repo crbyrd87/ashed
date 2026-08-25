@@ -276,7 +276,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setSaving(true);
     setError(null);
 
-    const isRealCigar = cigar.id && !([1,2,3,4,5,6,7,8].includes(cigar.id));
+    const isRealCigar = !!cigar.id;
     const checkinData = {
       user_id: user.id,
       cigar_id: isRealCigar ? cigar.id : null,
@@ -610,9 +610,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* Save Button */}
       <div style={{ padding: 20 }}>
         {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
-        <button 
-          style={{ ...s.saveBtn, opacity: flames === null ? 0.5 : 1 }} 
-          onClick={handleSave} 
+        <button
+          style={{ ...s.saveBtn, opacity: flames === null ? 0.5 : 1 }}
+          onClick={handleSave}
           disabled={saving || flames === null}
         >
           {saving ? "Saving..." : "Log This Smoke 🔥"}

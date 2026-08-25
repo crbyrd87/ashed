@@ -173,7 +173,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         </div>
 
         {/* Comments list — scrollable */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 80px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 12px" }}>
           <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
           </div>
@@ -204,7 +204,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           })}
           <div style={{ height: 8 }} />
         </div>
-      </div>
 
         {/* Comment input */}
         <div style={{ padding: "10px 18px 24px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
@@ -225,5 +224,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           </button>
         </div>
       </div>
+    </div>
   );
 }
