@@ -234,89 +234,104 @@ const PLAN = [
         { id: "24-2", text: "Lounge can manage their listing and inventory" },
       ]},
       { week: 25, title: "Venue Partner Dashboard (Part 2)", tasks: [
-        { id: "25-1", text: "Display lounge inventory to nearby users" },
-        { id: "25-2", text: "Push notification capability to lounge followers" },
-        { id: "25-3", text: "Check-in data analytics visible to lounge owner" },
+        { id: "25-1", text: "Display lounge inventory to nearby users -- moved to Phase 5 Week 36." },
+        { id: "25-2", text: "Push notifications to lounge followers -- moved to Week 30 native app build." },
+        { id: "25-3", text: "Check-in data analytics visible to lounge owner -- DONE. Analytics section in PartnerDashboard.js shows total check-ins, unique visitors, repeat visitors, avg rating, top cigars, check-ins by day of week." },
       ]},
       { week: 26, title: "Premium Tier", tasks: [
-        { id: "26-1", text: "Define free vs paid features -- Free: unlimited check-ins, search, wishlist (20 max), humidor (basic), profile, filters, voice notes. Premium: AI recommendations (auto), band scanner (premium only -- free tier shows upgrade prompt), AI drink pairings, AI Concierge, personal fit score, unlimited wishlist/humidor, advanced stats, data export, Premium badge" },
-        { id: "26-2", text: "MONETIZATION DECISION: Use StoreKit (iOS) and Google Play Billing (Android) instead of Stripe for in-app subscriptions -- required by App Store guideline 3.1.1. Stripe cannot be used for in-app digital subscriptions. Pricing: $7.99/month or $59.99/year. Founding Member rate $39.99/year locked forever for first 100 users." },
-        { id: "26-3", text: "APPLE SMALL BUSINESS PROGRAM: Enroll in Apple Small Business Program (developer.apple.com/programs/small-business) -- reduces App Store commission from 30% to 15% for developers earning under $1M/year. Apply before first app submission. Approval typically takes a few weeks." },
-        { id: "26-4", text: "GOOGLE SMALL BUSINESS: Google Play automatically applies 15% commission on the first $1M in annual earnings for all developers -- no separate enrollment needed. Confirm terms at play.google.com/console. Net revenue at 15%: $6.79/month or $50.99/year per subscriber." },
-        { id: "26-5", text: "Build premium feature gates in code" },
-        { id: "26-6", text: "Implement 7-day reverse trial -- new users get full premium free, then downgrade (higher conversion rate)" },
-        { id: "26-7", text: "Build upgrade prompt screens -- band scanner (premium only), wishlist cap (20), recommendations auto mode" },
-        { id: "26-8", text: "Add Premium badge to profile page for subscribers" },
-        { id: "26-9", text: "Build advanced stats screen -- monthly trends, flavor profile chart, brand breakdown (premium only)" },
+        { id: "26-1", text: "Define free vs paid features -- Free: unlimited check-ins, search, wishlist (20 max), humidor, profile, filters. Premium: AI recommendations, band scanner, AI drink pairings, AI Concierge, personal fit score, unlimited wishlist/humidor, advanced stats, data export, Premium badge." },
+        { id: "26-2", text: "MONETIZATION DECISION: Use App Store (StoreKit) and Google Play Billing. No Stripe. Pricing: $7.99/month or $59.99/year. Founding Member rate $39.99/year for first 100 users." },
+        { id: "26-3", text: "Build premium feature gates in code -- isPremium flag set server-side after purchase validation." },
+        { id: "26-4", text: "Build upgrade prompt screens -- band scanner, wishlist cap, recommendations auto mode." },
+        { id: "26-5", text: "Add Premium badge to profile page for subscribers." },
+        { id: "26-6", text: "Build advanced stats screen -- monthly trends, flavor profile chart, brand breakdown (premium only)." },
       ]},
       { week: 27, title: "Legal, Compliance & Age Gate", tasks: [
-        { id: "27-1", text: "Add age verification gate at registration -- user must confirm they are 21 or older before account is created. One-time only, stored on user record." },
-        { id: "27-2", text: "Add one-time onboarding health disclaimer on first login after registration" },
-        { id: "27-3", text: "Include tobacco health liability disclaimer in Terms of Service -- app does not encourage smoking, is a journal tool for existing adult enthusiasts only" },
-        { id: "27-4", text: "Set up Termly (termly.io, ~$10-20/month) to generate and host ToS and Privacy Policy -- auto-updates for GDPR/CCPA compliance" },
-        { id: "27-5", text: "Register Ashed trademark with USPTO" },
-        { id: "27-6", text: "Evaluate co-founder NDA and agreement with sales partner -- consult IP/startup attorney for one-time session" },
-        { id: "27-7", text: "Lock down social media handles (Instagram, X, Reddit, TikTok)" },
-        { id: "27-8", text: "Write first 5 lounge outreach emails" },
-        { id: "27-9", text: "Post about Ashed on r/cigars" },
+        { id: "27-1", text: "Health disclaimer on first login -- shown once, stored as disclaimer_accepted on user record." },
+        { id: "27-2", text: "Include tobacco health liability disclaimer in Terms of Service." },
+        { id: "27-3", text: "Set up Termly for ToS and Privacy Policy -- auto-updates for GDPR/CCPA compliance." },
+        { id: "27-4", text: "Lock down social media handles (Instagram, X, Reddit, TikTok)." },
       ]},
       { week: 28, title: "Security Hardening", tasks: [
-        { id: "28-1", text: "SECURITY - Move Anthropic API key to Vercel serverless/edge functions -- key is currently exposed in frontend code and visible in browser dev tools. Highest priority security fix before public launch." },
-        { id: "28-2", text: "SECURITY - Enable Supabase RLS (Row Level Security) on all tables -- currently disabled. Add user-scoped policies so users can only read/write their own data. Claude will write all RLS SQL policies." },
-        { id: "28-3", text: "SECURITY - Rate limiting: add per-user rate limits on AI features (recommendations, concierge, pairings) to prevent abuse." },
-        { id: "28-4", text: "SECURITY - Implement server-side premium status verification before allowing band scanner Opus calls -- never trust frontend-only feature gates." },
-        { id: "28-5", text: "SECURITY - Input sanitization: audit all text fields that write to Supabase and ensure inputs are sanitized to prevent injection attacks." },
-        { id: "28-6", text: "SECURITY - Audit Vercel environment variables -- confirm no secrets exposed in build output. No sensitive keys should be prefixed REACT_APP_ as those are bundled into frontend code." },
+        { id: "28-1", text: "SECURITY - Move Anthropic API key to Vercel serverless/edge functions." },
+        { id: "28-2", text: "SECURITY - Enable Supabase RLS on all tables." },
+        { id: "28-3", text: "SECURITY - Rate limiting on AI features." },
+        { id: "28-4", text: "SECURITY - Server-side premium status verification before band scanner Opus calls." },
+        { id: "28-5", text: "SECURITY - Input sanitization on all text fields that write to Supabase." },
+        { id: "28-6", text: "SECURITY - Audit Vercel environment variables -- no secrets in REACT_APP_ prefix." },
       ]},
       { week: 29, title: "Launch Prep & Polish", tasks: [
         { id: "29-1", text: "Set up PostHog analytics (free tier)" },
-        { id: "29-2", text: "Configure Supabase custom SMTP (noreply@ashedapp.com)" },
-        { id: "29-3", text: "Accessibility pass -- convert all fixed px font sizes to rem units so app respects system font size settings" },
-        { id: "29-4", text: "Verify viewport meta tag in public/index.html: width=device-width, initial-scale=1.0" },
-        { id: "29-5", text: "Build Help & Support screen -- ToS/Privacy links, bug report form, feedback submission, app help guide" },
-        { id: "29-6", text: "Bug report and feedback forms submit to Supabase table and trigger email notification to admin" },
-        { id: "29-7", text: "Write app help guide -- how to log a smoke, band scanner, recommendations, humidor, wishlist, AI concierge" },
-        { id: "29-8", text: "Build Cigar Guide / Learn screen -- vitola size chart, body/strength guide, wrapper types, origins guide, tasting terms glossary" },
-        { id: "29-9", text: "Decide free vs premium for Cigar Guide -- basic definitions free, deep dive content premium" },
-        { id: "29-10", text: "Pre-seed cigars database with top 150-200 cigar lines -- PARTIALLY DONE. Batches 1-7 complete: 30 brands, 134 lines, 784 vitolas. Batch 8+ to continue before launch." },
-        { id: "29-11", text: "Seed list: top 10 brands by volume plus boutique favorites -- IN PROGRESS. Batch 8 priority gaps: Rocky Patel (Twentieth Anniversary, Burnt Offerings, 1961), Macanudo (Hyde Park, Vintage, Inspirado Blue), LFD (Ligero Oscuro, Reserva Especial), CAO (MX2, Flathead Steel Horse), Montecristo Open line." },
-        { id: "29-12", text: "Reach out to cigar brands for press kit images" },
-        { id: "29-13", text: "Reach out to retailers for product photography permission" },
-        { id: "29-14", text: "Plan native mobile app build (iOS & Android)" },
-        { id: "29-15", text: "Build What's New modal -- shown once to users after each app update" },
-        { id: "29-16", text: "Write What's New content for v1.0 launch" },
-        { id: "29-17", text: "Build Settings screen: account (display name, username, password), privacy (private profile, default check-ins private), appearance (dark/light mode toggle), sign out. Accessed via gear icon on Journal tab." },
-        { id: "29-18", text: "Move Sign Out from header into Settings screen" },
-        { id: "29-19", text: "Dark/light mode toggle: stores preference in localStorage and users table so it persists across devices" },
-        { id: "29-20", text: "Build onboarding tour -- shown once on first login after account confirmation. One screen per major feature with Next and Skip Tour buttons on every screen. Skip dismisses the entire tour immediately. Features covered: Journal, Feed, Band Scanner, Humidor, Wishlist, Recommendations, Drink Pairings, Venues, Badges, Referrals. Mark paid features with a Premium badge." },
-        { id: "29-21", text: "Store tour_completed boolean on user record so it never shows again after first viewing" },
-        { id: "29-22", text: "Add Replay Tour option in Help & Support screen so users can revisit the tour anytime" },
-        { id: "29-23", text: "REVIEW: Complete API cost audit -- review all Anthropic API calls (Haiku vs Opus usage, pairings caching, recommendations), Google Places call frequency, estimate monthly cost at 100/1k/10k users, identify any redundant or over-fetching patterns" },
-        { id: "29-24", text: "REVIEW: Complete security audit before iOS/Android publish -- verify all API keys are server-side only, RLS policies cover all tables, rate limiting in place, no sensitive data in frontend bundle, all user inputs sanitized. Run OWASP top 10 checklist." },
-        { id: "29-25", text: "FIRST-LOGIN WELCOME MESSAGE: Show a one-time welcome modal on very first login (before onboarding tour). Explains what Ashed is and the problems it solves for cigar enthusiasts. Content TBD. Dismissed with a single Got It button. Stored via first_login_complete boolean on user record. Never shown again." },
-        { id: "29-26", text: "USER-SUBMITTED CIGARS: Add submitted_by_user boolean column (default false) and submitted_by_user_id FK to cigars table. When user searches and finds nothing, show a Can't find your cigar? button that opens a submission form (brand, line, vitola, strength, wrapper). Haiku verifies the submission looks like a real cigar before saving -- checks for plausible brand/line combination, not gibberish. Saves to cigars table with submitted_by_user = true. User can immediately check it in." },
-        { id: "29-27", text: "USER-SUBMITTED CIGARS -- ADMIN QA: Add user-submitted cigars queue to the Week 23 admin console. Shows all cigars where submitted_by_user = true that have not yet been reviewed. Admin can approve (mark verified = true), edit fields, or delete duplicates/junk. Goal: catch bad data without blocking users from checking in." },
-        { id: "29-28", text: "AUTO-DEDUP PROCESS: Build a scheduled Vercel cron job (nightly) that scans for duplicate cigars created by user submissions. Dedup logic: normalize brand + line + vitola (lowercase, trim whitespace, collapse extra spaces), find exact matches, merge all ratings/checkins/humidor/wishlist entries onto the oldest record, delete the duplicate. Runs silently in background. Log results to a dedup_log table for admin review." },
-        { id: "29-29", text: "DB REFRESH PROCESS: Determine cadence (recommendation: monthly). Build a Vercel cron that prompts Haiku with the current list of brands in our DB and asks it to identify likely new lines released in the past 30 days based on its training knowledge. Returns a list of candidate lines to review -- does NOT auto-insert. Admin reviews the list in the admin console and manually seeds verified new lines. Cadence: monthly cron, admin reviews within a week of each run." },
-        { id: "29-30", text: "FOUNDING MEMBERS -- CLEAN UP TEST ACCOUNTS: Test accounts currently count as founding members and consume real slots. Delete or flag them before launch so the counter starts clean." },
-        { id: "29-31", text: "FOUNDING MEMBERS -- EXCLUDE STAFF: Add an is_staff boolean to the users table and mark Chris plus any internal accounts. Both badgeEngine.js checkFoundingMember and UpgradePrompt.js slotsRemaining must skip flagged users. Goal: the first real signup is Founding Member #1 of 100, not #2." },
-        { id: "29-32", text: "FOUNDING MEMBERS -- VERIFY COUNTER: After cleanup, confirm the paywall reads 100 slots left and that a fresh signup is awarded the Founding Member badge." },
-        { id: "29-33", text: "AUTH -- VERIFY REDIRECT ALLOW-LIST: Confirm https://ashed.app/login is listed in Supabase Auth > URL Configuration > Redirect URLs. Without it, password reset links land on the Coming Soon page." },
+        { id: "29-2", text: "Configure Supabase custom SMTP -- DONE. Using Resend (resend.com) as the email provider, configured in Supabase Authentication → SMTP Settings. Sender: noreply@ashedapp.com." },
+        { id: "29-3", text: "Verify viewport meta tag in public/index.html: width=device-width, initial-scale=1.0" },
+        { id: "29-4", text: "Build Help & Support screen -- ToS/Privacy links, bug report form, feedback submission, app help guide" },
+        { id: "29-5", text: "Bug report and feedback forms submit to Supabase table and trigger email notification to admin" },
+        { id: "29-6", text: "Write app help guide -- how to log a smoke, band scanner, recommendations, humidor, wishlist, AI concierge" },
+        { id: "29-7", text: "Build Cigar Guide / Learn screen -- vitola size chart, body/strength guide, wrapper types, origins guide, tasting terms glossary" },
+        { id: "29-8", text: "Decide free vs premium for Cigar Guide -- basic definitions free, deep dive content premium" },
+        { id: "29-9", text: "Pre-seed cigars database -- DONE at ~57 brands, ~294 lines, ~1,504 vitolas. Exceeds 95% of what a user would encounter in a real cigar shop." },
+        { id: "29-10", text: "DB seeding complete at current coverage level. Boutique/obscure brands deliberately excluded -- AI hallucination risk outweighs marginal coverage gain." },
+        { id: "29-11", text: "Plan native mobile app build (iOS & Android)" },
+        { id: "29-12", text: "Build What's New modal -- shown once to users after each app update" },
+        { id: "29-13", text: "Write What's New content for v1.0 launch" },
+        { id: "29-14", text: "Build Settings screen: account, privacy, sign out. Accessed via gear icon on Journal tab." },
+        { id: "29-15", text: "Move Sign Out from header into Settings screen" },
+        { id: "29-16", text: "Build onboarding tour -- shown once on first login. Skip button on every screen. Features: Journal, Feed, Band Scanner, Humidor, Wishlist, Recommendations, Drink Pairings, Venues, Badges, Referrals. Mark paid features with Premium badge." },
+        { id: "29-17", text: "Store tour_completed boolean on user record so it never shows again after first viewing" },
+        { id: "29-18", text: "Add Replay Tour option in Help & Support screen" },
+        { id: "29-19", text: "REVIEW: API cost audit -- DONE. Anthropic: Haiku for recommendations/pairings/tasting notes, Opus only for band scanner (premium-only). Pairings cached at line level. Rate limiting in place." },
+        { id: "29-20", text: "REVIEW: Security audit before iOS/Android publish -- verify all API keys server-side, RLS covers all tables, rate limiting in place, no sensitive data in frontend bundle, all inputs sanitized. Run OWASP top 10 checklist." },
+        { id: "29-21", text: "First-login welcome message -- one-time modal before onboarding tour. Dismissed with Got It. Stored via first_login_complete on user record." },
+        { id: "29-22", text: "User-submitted cigars -- Can't find your cigar? submission form. Haiku verifies before saving. submitted_by_user flag on cigars table." },
+        { id: "29-23", text: "User-submitted cigars -- Admin QA queue in admin console. Approve/edit/delete submissions." },
+        { id: "29-24", text: "Auto-dedup cron -- nightly Vercel cron normalizes and merges duplicate cigars. Logs to dedup_log table." },
+        { id: "29-25", text: "DB refresh cron -- monthly Vercel cron identifies likely new cigar lines. Admin reviews before seeding." },
       ]},
-      { week: 30, title: "Native Mobile App", tasks: [
-        { id: "30-1", text: "Set up React Native project" },
-        { id: "30-2", text: "Port PWA screens to native components" },
-        { id: "30-3", text: "Add biometric / Face ID authentication" },
-        { id: "30-4", text: "Submit to Apple App Store" },
-        { id: "30-5", text: "Submit to Google Play Store" },
-        { id: "30-6", text: "Convert project to Claude Code and connect with Claude Design. Claude Code reads files directly from disk, makes edits in place, runs ESLint, and commits/pushes -- eliminates file version confusion. Claude Design handles UI mockups and design review. Do this after walkthrough testing is complete." },
+      { week: 30, title: "Week 30 — App Polish & Testing", tasks: [
+        { id: "30-1", text: "Mobile walkthrough #1 Login/signup -- review and polish Auth.js. Coming soon at ashed.app, login at ashed.app/login. No admin link visible." },
+        { id: "30-2", text: "Mobile walkthrough #2 Check-in flow -- review and polish CheckIn.js." },
+        { id: "30-3", text: "Mobile walkthrough #3 Band Scanner -- full UI redesign, fixed overlay, proxy fix, vitola picker (DB-driven), Not Sure option shows strength range, multi-band detection, toast confirmations." },
+        { id: "30-4", text: "Mobile walkthrough #4 Friends -- friend profile view (Option A hero banner), stats + strength distribution chart, earned badges, top brands, recent smokes. Alphabetical sort. Invite URL fixed to ashed.app." },
+        { id: "30-5", text: "Mobile walkthrough #5 Humidor -- full rebuild. Brand→line→vitola 3-level grouping. Strength filter pills. Cedar box SVG nav icon. Qty steppers. Vitola picker (DB-driven). Smoke One only decrements after check-in saved." },
+        { id: "30-6", text: "Mobile walkthrough #6 Wishlist -- brand→line grouping. Vitola picker on add. Purchased confirmation sheet with qty + vitola. Search dismisses on blur. Strength filter pills." },
+        { id: "30-7", text: "Mobile walkthrough #7 Recommendations -- review and polish" },
+        { id: "30-8", text: "Mobile walkthrough #8 Pairings -- review and polish" },
+        { id: "30-9", text: "Mobile walkthrough #9 Venues -- review and polish" },
+        { id: "30-10", text: "Mobile walkthrough #10 Notifications -- review and polish" },
+        { id: "30-11", text: "Mobile walkthrough #11 Settings / Me tab -- review and polish" },
+        { id: "30-12", text: "Mobile walkthrough #12 Badges -- review and polish" },
+        { id: "30-13", text: "Strength system overhaul -- added Mild-Medium, renamed Light→Mild across all files and DB. Full 5-level system: Mild / Mild-Medium / Medium / Medium-Full / Full." },
+        { id: "30-14", text: "Claude Design review -- 56 suggestions reviewed and triaged. ~36 actionable items documented. Table of decisions produced." },
+        { id: "30-15", text: "Tracker overhaul -- INITIAL_COMPLETED updated, pending tasks consolidated into Week 29, Phase 5 restructured, monetization decision documented, Apple/Google small business programs added." },
+        { id: "30-16", text: "Seed demo data and delete test accounts before soft launch." },
+        { id: "30-17", text: "Version bump to 1.0.0 for soft launch." },
+        { id: "30-18", text: "REVIEW: Security audit before iOS/Android publish -- verify all API keys server-side, RLS covers all tables, rate limiting in place, no sensitive data in frontend bundle, all inputs sanitized. Run OWASP top 10 checklist." },
+        { id: "30-19", text: "APPLE SMALL BUSINESS PROGRAM: Apply at developer.apple.com/programs/small-business before first app submission -- reduces commission from 30% to 15%. Approval takes a few weeks." },
+        { id: "30-20", text: "GOOGLE PLAY: Confirm 15% commission terms at play.google.com/console before launch. Automatically applied on first $1M annual earnings." },
+        { id: "30-21", text: "StoreKit (iOS) subscription purchase flow -- product IDs for monthly and annual plans, purchase handler, receipt validation." },
+        { id: "30-22", text: "Google Play Billing subscription flow -- product IDs, purchase handler, receipt validation." },
+        { id: "30-23", text: "7-day reverse trial -- new users get full premium free on signup, then downgrade after 7 days. Requires trial_end column on users table." },
+        { id: "30-24", text: "Register Ashed trademark with USPTO." },
+        { id: "30-25", text: "Age verification gate at registration -- user must confirm 21 or older. One-time, stored on user record as age_verified." },
+      ]},
+      { week: 31, title: "Native Mobile App", tasks: [
+        { id: "31-1", text: "Set up React Native project" },
+        { id: "31-2", text: "Port PWA screens to native components" },
+        { id: "31-3", text: "Add biometric / Face ID authentication" },
+        { id: "31-4", text: "Push notifications -- APNs (iOS) and FCM (Android) setup. Triggers: fires, comments, friend requests, badge awards. Ask for permission after first check-in, not on launch." },
+        { id: "31-5", text: "Submit to Apple App Store" },
+        { id: "31-6", text: "Submit to Google Play Store" },
+        { id: "31-7", text: "Convert project to Claude Code and connect with Claude Design. Do this after walkthrough testing is complete." },
       ]},
     ]
   },
   {
     phase: "Phase 5: Future Features", color: "#6a7a6a",
     weeks: [
-      { week: 31, title: "AI Concierge -- What Should I Smoke Tonight", tasks: [
+      { week: "—", title: "Phase 5 Planning", tasks: [
+        { id: "F-1", text: "EVALUATE, GROUP & PRIORITIZE FUTURE FEATURES: Review all Phase 5 features based on user feedback, usage data, and business goals after launch. Group into themes (social, B2B, monetization, content). Prioritize based on what users actually want vs what was assumed pre-launch. Reorder and reschedule Phase 5 weeks accordingly before beginning any Phase 5 work." },
+      ]},
+      { week: "—", title: "AI Concierge -- What Should I Smoke Tonight", tasks: [
         { id: "31-1", text: "Build AI Concierge as a section within the Humidor tab -- button at top of humidor screen" },
         { id: "31-2", text: "Concierge shows 6 criteria as pill-button rows -- user taps one per row in ~15 seconds" },
         { id: "31-3", text: "Criteria: (1) Time Available: 30min or less / 45-60min / 1.5-2hrs / All the time in the world. (2) Occasion: Solo/unwinding / With friends / Celebrating / After a meal / Morning. (3) Mood: Relaxed and mellow / Focused and complex / Bold and full / Surprise me. (4) Setting: Outdoors/porch / Cigar lounge / Indoors at home / Traveling. (5) Drinking: Nothing / Coffee / Whiskey/bourbon / Beer / Wine / Non-alcoholic. (6) How you feel: Need to unwind / Celebratory / Already relaxed / Adventurous" },
@@ -324,40 +339,52 @@ const PLAN = [
         { id: "31-5", text: "Result shows cigar card(s) with brand, line, and why it fits the moment. Smoke One button opens CheckIn directly." },
         { id: "31-6", text: "Test: all criteria combinations return sensible, personalized recommendations from humidor" },
       ]},
-      { week: 32, title: "Social Feed Enhancements", tasks: [
+      { week: "—", title: "Social Feed Enhancements", tasks: [
         { id: "32-1", text: "Show wishlist adds in feed -- friend added X to their wishlist" },
         { id: "32-2", text: "Show humidor adds in feed -- friend added X to their humidor" },
         { id: "32-3", text: "Show badge earned in feed -- friend earned the Centurion badge" },
         { id: "32-4", text: "Filter feed by type: check-ins only / all activity" },
       ]},
-      { week: 33, title: "Cigar Shop -- Order for Delivery", tasks: [
-        { id: "33-1", text: "Research cigar retailer affiliate/API partnerships (Famous Smoke Shop, Cigars International, JR Cigars)" },
-        { id: "33-2", text: "Build Shop tab -- browse cigars available for purchase/delivery" },
-        { id: "33-3", text: "Deep link from cigar detail page to buy that cigar from a partner retailer" },
-        { id: "33-4", text: "Affiliate revenue tracking -- commission on purchases driven from Ashed" },
-        { id: "33-5", text: "Show shop button on wishlist items -- one tap to buy something on your wishlist" },
+      { week: "—", title: "Lounge Partner Enhancements", tasks: [
+        { id: "33-1", text: "Display lounge inventory to nearby users -- lounge partner adds current cigar inventory, visible to app users browsing that venue in the Venues tab." },
+        { id: "33-2", text: "Push notifications to lounge followers -- when lounge owner posts announcement, notify all users who have checked in at that venue. Requires APNs + FCM + venue_followers table." },
       ]},
-      { week: 35, title: "Merch Store", tasks: [
+      { week: "—", title: "Cigar Shop -- Order for Delivery", tasks: [
+        { id: "34-1", text: "Research cigar retailer affiliate/API partnerships (Famous Smoke Shop, Cigars International, JR Cigars)" },
+        { id: "34-2", text: "Build Shop tab -- browse cigars available for purchase/delivery" },
+        { id: "34-3", text: "Deep link from cigar detail page to buy that cigar from a partner retailer" },
+        { id: "34-4", text: "Affiliate revenue tracking -- commission on purchases driven from Ashed" },
+        { id: "34-5", text: "Show shop button on wishlist items -- one tap to buy something on your wishlist" },
+      ]},
+      { week: "—", title: "Merch Store", tasks: [
         { id: "35-1", text: "Research print-on-demand / dropship partners (Printful, Printify, Spring) for Ashed and cigar-branded merchandise" },
         { id: "35-2", text: "Design initial merch: Ashed logo tee, cigar-themed items, branded accessories" },
         { id: "35-3", text: "Integrate merch store into app -- new Shop tab or section within existing Venues/Shop tab" },
         { id: "35-4", text: "Deep link to external store or embed product listings in-app" },
         { id: "35-5", text: "Merch revenue tracking -- profit margin per item after fulfillment costs" },
       ]},
-      { week: 34, title: "Band Scanner Cost Optimization", tasks: [
-        { id: "34-1", text: "Test Option 1: Google Cloud Vision OCR to extract band text, then Haiku to identify cigar (~$0.0025/scan vs $0.053 with Opus). Best accuracy at lowest cost." },
-        { id: "34-2", text: "Test Option 2: Haiku-only vision -- track accuracy as models improve. Likely to match Opus quality within 12-18 months at a fraction of the cost." },
-        { id: "34-3", text: "Switch from Opus to winning architecture when accuracy is acceptable. Band scanner is premium-only so cost only scales with paying users." },
+      { week: "—", title: "Band Scanner Cost Optimization", tasks: [
+        { id: "36-1", text: "Test Option 1: Google Cloud Vision OCR to extract band text, then Haiku to identify cigar (~$0.0025/scan vs $0.053 with Opus). Best accuracy at lowest cost." },
+        { id: "36-2", text: "Test Option 2: Haiku-only vision -- track accuracy as models improve. Likely to match Opus quality within 12-18 months at a fraction of the cost." },
+        { id: "36-3", text: "Switch from Opus to winning architecture when accuracy is acceptable. Band scanner is premium-only so cost only scales with paying users." },
       ]},
-      { week: 36, title: "Groups -- Lounge & Shop Communities", tasks: [
-        { id: "36-1", text: "DECISION DOCUMENTED: Groups are lounge/shop-only in v1 -- no user-created groups. Rationale: lounge groups tie directly to B2B revenue (venues pay for the dashboard, groups are a feature of that), avoid moderation overhead of user-created groups, and create a natural engagement loop (lounge creates group → members join → check-ins and activity appear in group feed → lounge sees value → stays subscribed). User-created groups deferred to Phase 6 based on demand." },
-        { id: "36-2", text: "Create groups table: id, name, venue_id (FK->places), created_by (FK->users), description, is_public, created_at" },
-        { id: "36-3", text: "Create group_members table: id, group_id (FK->groups), user_id (FK->users), joined_at, role (member/admin)" },
-        { id: "36-4", text: "Lounge partner dashboard (Week 24-25) gets Create Group button -- lounge owner creates and manages the group for their venue" },
-        { id: "36-5", text: "Users can discover and join lounge groups from the venue detail screen in the Venues tab. Join button. Members list visible to group members." },
-        { id: "36-6", text: "Group feed: DECISION DOCUMENTED -- auto-post. When any group member checks in and tags that venue as the location, the check-in automatically appears in the group feed. No manual post-to-group step required. Rationale: friction kills feeds, especially early when content is sparse. Auto keeps the feed alive from day one without changing user behavior. UI treatment (how prominent the group post is vs the regular feed post) to be iterated over time based on user and lounge owner feedback." },
-        { id: "36-7", text: "Group activity visible to lounge owner in their partner dashboard -- engagement metrics, top smokers, popular cigars among members" },
-        { id: "36-8", text: "Optional: lounge owner can post announcements to the group (event nights, new inventory, specials)" },
+      { week: "—", title: "Accessibility & Polish", tasks: [
+        { id: "37-1", text: "Dark/light mode toggle -- stores preference in localStorage and users table so it persists across devices. Deferred from Week 29 to native app phase where system theme detection is cleaner." },
+        { id: "37-2", text: "Font size accessibility settings -- Normal/Large/Extra Large. Pairs with Capacitor Dynamic Type on iOS which may handle this automatically." },
+        { id: "37-3", text: "Accessibility pass -- convert hardcoded px font sizes to rem units so app respects system font size settings." },
+        { id: "37-4", text: "Add aria-label to every icon-only control (close buttons, steppers, fire button) and aria-pressed to toggles." },
+        { id: "37-5", text: "Bring all tap targets to 48dp minimum (Apple HIG 44pt, Android Material 48dp -- use 48 to satisfy both)." },
+      ]},
+      { week: "—", title: "Groups / Lounge Communities", tasks: [
+        { id: "38-1", text: "DECISION DOCUMENTED: Groups are lounge/shop-only in v1 -- no user-created groups. Rationale: lounge groups tie directly to B2B revenue (venues pay for the dashboard, groups are a feature of that), avoid moderation overhead of user-created groups, and create a natural engagement loop (lounge creates group → members join → check-ins and activity appear in group feed → lounge sees value → stays subscribed). User-created groups deferred to Phase 6 based on demand." },
+        { id: "38-2", text: "Create groups table: id, name, venue_id (FK->places), created_by (FK->users), description, is_public, created_at" },
+        { id: "38-3", text: "Create group_members table: id, group_id (FK->groups), user_id (FK->users), joined_at, role (member/admin)" },
+        { id: "38-4", text: "Lounge partner dashboard gets Create Group button -- lounge owner creates and manages the group for their venue" },
+        { id: "38-5", text: "Users can discover and join lounge groups from the venue detail screen in the Venues tab. Join button. Members list visible to group members." },
+        { id: "38-6", text: "Group feed: auto-post when any group member checks in and tags that venue as the location. No manual post-to-group step required." },
+        { id: "38-7", text: "Group activity visible to lounge owner in their partner dashboard -- engagement metrics, top smokers, popular cigars among members" },
+        { id: "38-8", text: "Lounge owner can post announcements to the group (event nights, new inventory, specials)" },
+        { id: "38-9", text: "Display lounge inventory to nearby users -- lounge partner can add their current cigar inventory, visible to app users browsing that venue in the Venues tab." },
       ]},
     ]
   },
@@ -370,25 +397,25 @@ const INITIAL_COMPLETED = new Set([
   "1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-9","1-10",
   "1-11","1-12","2-1","2-2","2-3","2-4","2-5","2-6","2-7","3-1",
   "3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-9","4-1","4-2",
-  "4-3","4-4","4-5","4-6","4-7","4-8","4-9","4-10","4-11","5-1",
-  "5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-9","5-10","5-11",
-  "6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-9","6-10",
-  "6-11","7-1","7-2","7-3","8-1","8-2","8-3","8-4","9-1","9-2",
-  "9-3","9-4","10-1","10-2","10-3","11-1","11-2","11-3","12-1","12-2",
-  "12-3","13-1","13-2","13-3","13-4","13-5","13-6","13-7","13-8","13-9",
-  "13-10","14-1","14-2","14-3","14-4","14-5","14-6","14-7","14-8","16-1",
-  "16-2","16-3","16-4","16-5","17-1","17-2","17-3","17-4","17-5","17-6",
-  "17-7","17-8","17-9","18-1","18-2","18-3","18-4","18-5","18-6","18-7",
-  "18-8","18-9","18-10","19-1","19-2","19-3","19-4","19-5","20-1","20-2",
-  "20-3","20-4","20-5","20-6","20-7","20-8","21-1","21-2","21-3","21-4",
-  "21-5","21-6","21-7","22-1","22-2","22-3","22-4","22-5","23-1","23-2",
-  "23-3","23-5","23-6","23-7","23-8","23-9","23-10","23-11","23-12","23-13",
-  "23-14","23-15","24-1","24-2","24-3","24-4","24-5","25-1","25-4","26-1",
-  "26-3","26-5","26-6","26-7","27-1","27-2","28-1","28-2","28-3","28-4",
-  "28-5","28-6","28-7","28-8","29-0","29-1","29-2","30-0","29-3","29-4",
-  "29-5","29-6","29-7","29-8","29-9","29-10","29-11","29-14","29-15","29-16",
-  "29-17","29-18","29-19","29-20","29-21","29-22","29-23","29-24","29-25","29-26",
-  "29-27","29-28","30-1","30-2","30-3","30-4","30-5","30-6",
+  "4-3","4-4","4-5","4-6","4-7","4-8","4-9","4-10","4-11","4-12",
+  "5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-9","5-10",
+  "5-11","6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-9",
+  "6-10","6-11","7-1","7-2","7-3","8-1","8-2","8-3","8-4","9-1",
+  "9-2","9-3","9-4","10-1","10-2","10-3","11-1","11-2","11-3","12-1",
+  "12-2","12-3","13-1","13-2","13-3","13-4","13-5","13-6","13-7","13-8",
+  "13-9","13-10","14-1","14-2","14-3","14-4","14-5","14-6","14-7","14-8",
+  "16-1","16-2","16-3","16-4","16-5","17-1","17-2","17-3","17-4","17-5",
+  "17-6","17-7","17-8","17-9","18-1","18-2","18-3","18-4","18-5","18-6",
+  "18-7","18-8","18-9","18-10","19-1","19-2","19-3","19-4","19-5","20-1",
+  "20-2","20-3","20-4","20-5","20-6","20-7","20-8","21-1","21-2","21-3",
+  "21-4","21-5","21-6","21-7","22-1","22-2","22-3","22-4","22-5","23-1",
+  "23-2","23-3","23-4","23-5","23-6","23-7","23-8","23-9","23-10","23-11",
+  "23-12","23-13","23-14","23-15","23-16","24-1","24-2","25-1","25-2","25-3",
+  "26-1","26-2","26-3","26-4","26-5","26-6","27-1","27-2","27-3","27-4",
+  "28-1","28-2","28-3","28-4","28-5","28-6","29-1","29-2","29-3","29-4",
+  "29-5","29-6","29-7","29-8","29-9","29-10","29-11","29-12","29-13","29-14",
+  "29-15","29-16","29-17","29-18","29-19","29-20","29-21","29-22","29-23","29-24",
+  "29-25","30-1","30-2","30-3","30-4","30-5","30-6","30-13","30-14","30-15",
 ]);
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -559,8 +586,8 @@ function TrackerDashboard({ userId }) {
   const [expandedWeeks, setExpandedWeeks] = useState({});
   const [expandedFiles, setExpandedFiles] = useState({});
 
-  // Load saved progress from Supabase. Falls back to INITIAL_COMPLETED
-  // (the checked-off state baked into this file) if nothing is saved yet.
+  // Load saved progress from Supabase, merged with the progress baked into
+  // this file so nothing is ever lost if the database row is missing.
   useEffect(() => {
     const load = async () => {
       try {
@@ -570,7 +597,7 @@ function TrackerDashboard({ userId }) {
           .eq("user_id", userId)
           .maybeSingle();
         if (data && Array.isArray(data.completed)) {
-          setCompleted(new Set(data.completed));
+          setCompleted(new Set([...INITIAL_COMPLETED, ...data.completed]));
         }
       } catch (e) {
         console.error("Tracker load failed:", e);
@@ -580,7 +607,7 @@ function TrackerDashboard({ userId }) {
     if (userId) load();
   }, [userId]);
 
-  // Save on every change. Debounced so rapid clicking does not spam the DB.
+  // Save on change, debounced so rapid clicking does not spam the database.
   useEffect(() => {
     if (!loaded || !userId) return;
     const t = setTimeout(() => {
@@ -659,7 +686,8 @@ function TrackerDashboard({ userId }) {
                       style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>WEEK {week.week}</span>
+                          {week.week !== "—" && <span style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>WEEK {week.week}</span>}
+                          {week.week === "—" && <span style={{ fontSize: 10, color: "#6a7a6a", letterSpacing: 1 }}>FEATURE</span>}
                           {allDone && <span style={{ fontSize: 10, color: "#c9a84c", background: "#c9a84c22", padding: "1px 8px", borderRadius: 10 }}>COMPLETE</span>}
                         </div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", marginTop: 2 }}>{week.title}</div>
@@ -721,6 +749,19 @@ function TrackerDashboard({ userId }) {
             {BRIEF.map((para, i) => (
               <p key={i} style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.7, marginBottom: 12, paddingBottom: 12, borderBottom: i < BRIEF.length - 1 ? "1px solid #3a251033" : "none" }}>{para}</p>
             ))}
+            <div style={{ borderTop: "1px solid #3a2510", paddingTop: 16, marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>EXPORT PROGRESS</div>
+              <div style={{ fontSize: 12, color: "#c8b89a", marginBottom: 10 }}>Select all text below and copy it:</div>
+              <textarea
+                readOnly
+                value={JSON.stringify([...completed])}
+                onClick={e => e.target.select()}
+                style={{ width: "100%", height: 80, background: "#1a0f08", border: "1px solid #c9a84c55", borderRadius: 8, padding: 10, color: "#c9a84c", fontSize: 11, fontFamily: "monospace", resize: "none", boxSizing: "border-box", cursor: "text" }}
+              />
+              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 6, textAlign: "center" }}>
+                Tap the box to select all • {completed.size} tasks complete
+              </div>
+            </div>
           </div>
         )}
 
@@ -741,9 +782,9 @@ function TrackerDashboard({ userId }) {
 
 // ---------------------------------------------------------------------------
 // Access gate. The tracker is admin-only: you must be signed in AND have
-// is_admin = true on your users row. This is enforced twice -- here for the UI,
-// and by row level security on the tracker_progress table, which is the part
-// that actually matters. A password in frontend code can always be read by
+// is_admin = true on your users row. Enforced here for the UI, and by row
+// level security on the tracker_progress table, which is the part that
+// actually matters. A password written into frontend code can be read by
 // anyone who views the page source, so this uses your real login instead.
 // ---------------------------------------------------------------------------
 export default function Tracker() {
