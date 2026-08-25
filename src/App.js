@@ -372,6 +372,8 @@ export default function App() {
   const [filterScoreMax, setFilterScoreMax] = useState(10);
   const [filterValue, setFilterValue] = useState([]);
   const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [purchasedItem, setPurchasedItem] = useState(null);
 
   const activeFilterCount = [
     filterName, filterBrand,
@@ -635,6 +637,11 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+  };
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
   };
 
   const handleAcceptDisclaimer = async () => {
@@ -1685,7 +1692,7 @@ export default function App() {
                             </div>
                             <div style={{ display: "flex", gap: 8 }}>
                               <button
-                                onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
+                                onClick={() => setPurchasedItem(w)}
                                 style={{ flex: 1, background: "#7a9a7a22", border: "1px solid #7a9a7a88", borderRadius: 8, padding: "9px 0", color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
                                 ✓ Purchased
                               </button>
@@ -1944,6 +1951,96 @@ export default function App() {
           <span>Venues</span>
         </button>
       </nav>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{ position: "fixed", bottom: 90, left: "50%", transform: "translateX(-50%)", background: "#4caf6e", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 30, zIndex: 500, fontFamily: SANS, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+          {toast}
+        </div>
+      )}
+
+      {/* Purchased confirmation sheet */}
+      {purchasedItem && (() => {
+        const w = purchasedItem;
+        const brand = w.cigars?.brand || w.cigar_brand || "";
+        const line = w.cigars?.line || w.cigar_name || "";
+        const vitola = w.cigars?.vitola || w.cigar_vitola || "";
+        const strength = w.cigars?.strength || "";
+        const [qty, setQty] = React.useState(1);
+        const [editVitola, setEditVitola] = React.useState(vitola);
+        return (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+            onClick={() => setPurchasedItem(null)}>
+            <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "20px 20px 40px", fontFamily: SANS }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 16px" }} />
+              <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ADD TO HUMIDOR</div>
+              <div style={{ fontSize: 10, color: "#8a7055", marginBottom: 16 }}>{brand.toUpperCase()}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7", marginBottom: 16 }}>{line}</div>
+
+              {/* Vitola */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>VITOLA</div>
+                <input
+                  value={editVitola}
+                  onChange={e => setEditVitola(e.target.value)}
+                  placeholder="e.g. Robusto, Toro, Churchill..."
+                  style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+
+              {/* Strength display */}
+              {strength && (
+                <div style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1 }}>STRENGTH</div>
+                  <span style={{ background: strengthColor(strength) + "22", color: strengthColor(strength), border: `1px solid ${strengthColor(strength)}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>
+                </div>
+              )}
+
+              {/* Quantity */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>HOW MANY DID YOU BUY?</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center" }}>
+                  <button onClick={() => setQty(q => Math.max(1, q - 1))}
+                    style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid #4a3520", background: "#221508", color: "#c9a84c", fontSize: 24, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                  <div style={{ fontSize: 36, fontWeight: 700, color: "#c9a84c", minWidth: 48, textAlign: "center" }}>{qty}</div>
+                  <button onClick={() => setQty(q => q + 1)}
+                    style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid #4a3520", background: "#221508", color: "#c9a84c", fontSize: 24, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                </div>
+              </div>
+
+              <button onClick={async () => {
+                const cigar = w.cigars ? { ...w.cigars, vitola: editVitola || w.cigars.vitola } : { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: editVitola || w.cigar_vitola };
+                // Add qty times (or use direct insert with qty)
+                const { data: existing } = await supabase.from("humidor").select("id, quantity").eq("user_id", user.id)
+                  .eq("cigar_brand", brand).eq("cigar_name", line).maybeSingle();
+                if (existing) {
+                  await supabase.from("humidor").update({ quantity: existing.quantity + qty }).eq("id", existing.id);
+                } else {
+                  await supabase.from("humidor").insert({
+                    user_id: user.id,
+                    cigar_id: cigar.id || null,
+                    cigar_brand: brand,
+                    cigar_name: line,
+                    cigar_vitola: editVitola || null,
+                    quantity: qty,
+                  });
+                }
+                handleRemoveFromWishlist(w.id);
+                setPurchasedItem(null);
+                showToast(`${qty} × ${line} added to Humidor ✓`);
+              }}
+                style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+                Add {qty} to Humidor
+              </button>
+              <button onClick={() => setPurchasedItem(null)}
+                style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
