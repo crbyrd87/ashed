@@ -1043,7 +1043,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
       <TextField label="BRAND" field="brand" placeholder="Brand name" />
       <TextField label="LINE" field="line" placeholder="Line name" />
       <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
-      <SelectField label="STRENGTH" field="strength" options={["Light", "Medium", "Medium-Full", "Full"]} />
+      <SelectField label="STRENGTH" field="strength" options={["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"]} />
       <SelectField label="ORIGIN" field="origin" options={originOptions} />
       <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} />
 
@@ -1524,7 +1524,7 @@ function QASection({ currentUserId }) {
   const [rejectReason, setRejectReason] = useState("");
   const [msg, setMsg] = useState(null);
 
-  const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
+  const STRENGTHS = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
 
   useEffect(() => { loadItems(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
