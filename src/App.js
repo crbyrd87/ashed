@@ -374,6 +374,9 @@ export default function App() {
   const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
   const [toast, setToast] = useState(null);
   const [purchasedItem, setPurchasedItem] = useState(null);
+  const [wishlistVitolaPicker, setWishlistVitolaPicker] = useState(null);
+  const [wishlistVitolaOptions, setWishlistVitolaOptions] = useState([]);
+  const [wishlistVitolaLoading, setWishlistVitolaLoading] = useState(false);
 
   const activeFilterCount = [
     filterName, filterBrand,
@@ -1580,10 +1583,15 @@ export default function App() {
               <div style={{ position: "absolute", left: 0, right: 0, background: "#221508", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, maxHeight: 220, overflowY: "auto" }}>
                 {wishlistSearchResults.map((r, i) => (
                   <div key={i}
-                    onMouseDown={() => {
-                      handleAddToWishlist({ id: r.id, brand: r.brand, line: r.line });
+                    onMouseDown={async () => {
                       setWishlistSearchQuery("");
                       setWishlistSearchResults([]);
+                      // Load vitolas for this line
+                      setWishlistVitolaLoading(true);
+                      setWishlistVitolaPicker({ id: r.id, brand: r.brand, line: r.line });
+                      const { data } = await supabase.from("cigars").select("id, vitola, strength").eq("brand", r.brand).eq("line", r.line).not("vitola", "is", null).order("vitola");
+                      setWishlistVitolaOptions(data || []);
+                      setWishlistVitolaLoading(false);
                     }}
                     style={{ padding: "12px 14px", cursor: "pointer", borderBottom: "1px solid #4a352033", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                   >
@@ -1692,7 +1700,13 @@ export default function App() {
                             </div>
                             <div style={{ display: "flex", gap: 8 }}>
                               <button
-                                onClick={() => setPurchasedItem(w)}
+                                onClick={async () => {
+                                  setPurchasedItem(w);
+                                  setWishlistVitolaLoading(true);
+                                  const { data } = await supabase.from("cigars").select("id, vitola, strength").eq("brand", w.cigars?.brand || w.cigar_brand || "").eq("line", w.cigars?.line || w.cigar_name || "").not("vitola", "is", null).order("vitola");
+                                  setWishlistVitolaOptions(data || []);
+                                  setWishlistVitolaLoading(false);
+                                }}
                                 style={{ flex: 1, background: "#7a9a7a22", border: "1px solid #7a9a7a88", borderRadius: 8, padding: "9px 0", color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
                                 ✓ Purchased
                               </button>
@@ -1959,6 +1973,57 @@ export default function App() {
         </div>
       )}
 
+      {/* Wishlist vitola picker — shown after adding from search */}
+      {wishlistVitolaPicker && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={() => { handleAddToWishlist(wishlistVitolaPicker); setWishlistVitolaPicker(null); }}>
+          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, maxHeight: "70vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 36, height: 4, background: "#4a3520", borderRadius: 2 }} />
+            </div>
+            <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #4a3520", flexShrink: 0 }}>
+              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2 }}>{wishlistVitolaPicker.brand.toUpperCase()}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 2px" }}>{wishlistVitolaPicker.line}</div>
+              <div style={{ fontSize: 12, color: "#8a7055" }}>Select a vitola to add to your wishlist — or skip to add the line</div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 32px" }}>
+              {wishlistVitolaLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>Loading sizes...</div>}
+
+              {/* Skip option — add without vitola */}
+              {!wishlistVitolaLoading && (
+                <div onClick={() => { handleAddToWishlist(wishlistVitolaPicker); setWishlistVitolaPicker(null); }}
+                  style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: "12px 14px", marginBottom: 12, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#c9a84c" }}>Not Sure Yet</div>
+                    <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>Add the line without a specific vitola</div>
+                  </div>
+                  <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                </div>
+              )}
+
+              {!wishlistVitolaLoading && wishlistVitolaOptions.length > 0 && (
+                <div style={{ fontSize: 10, color: "#5a4535", letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
+              )}
+
+              {wishlistVitolaOptions.map((v, i) => (
+                <div key={i} onClick={() => {
+                  handleAddToWishlist({ ...wishlistVitolaPicker, id: v.id, vitola: v.vitola });
+                  setWishlistVitolaPicker(null);
+                }}
+                  style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.strength}</div>}
+                  </div>
+                  <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Purchased confirmation sheet */}
       {purchasedItem && (() => {
         const w = purchasedItem;
@@ -1981,12 +2046,22 @@ export default function App() {
               {/* Vitola */}
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>VITOLA</div>
-                <input
-                  value={editVitola}
-                  onChange={e => setEditVitola(e.target.value)}
-                  placeholder="e.g. Robusto, Toro, Churchill..."
-                  style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
-                />
+                {wishlistVitolaOptions.length > 0 ? (
+                  <select
+                    value={editVitola}
+                    onChange={e => setEditVitola(e.target.value)}
+                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: editVitola ? "#e8d5b7" : "#8a7055", fontSize: 16, fontFamily: SANS, outline: "none" }}>
+                    <option value="">Select a vitola...</option>
+                    {wishlistVitolaOptions.map((v, i) => <option key={i} value={v.vitola}>{v.vitola}{v.strength ? ` — ${v.strength}` : ""}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    value={editVitola}
+                    onChange={e => setEditVitola(e.target.value)}
+                    placeholder="e.g. Robusto, Toro, Churchill..."
+                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                  />
+                )}
               </div>
 
               {/* Strength display */}
