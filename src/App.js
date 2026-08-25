@@ -1562,6 +1562,7 @@ export default function App() {
                   setWishlistSearching(false);
                 }, 350);
               }}
+              onBlur={() => setTimeout(() => { setWishlistSearchResults([]); setWishlistSearchQuery(""); }, 150)}
               placeholder="Search cigars to add to wishlist..."
               style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             />
@@ -1569,21 +1570,21 @@ export default function App() {
               <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: "#7a9a7a" }}>Searching...</div>
             )}
             {wishlistSearchResults.length > 0 && (
-              <div style={{ position: "absolute", left: 0, right: 0, background: "#2a1a0e", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, maxHeight: 200, overflowY: "auto" }}>
+              <div style={{ position: "absolute", left: 0, right: 0, background: "#221508", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, maxHeight: 220, overflowY: "auto" }}>
                 {wishlistSearchResults.map((r, i) => (
                   <div key={i}
-                    onClick={() => {
+                    onMouseDown={() => {
                       handleAddToWishlist({ id: r.id, brand: r.brand, line: r.line });
                       setWishlistSearchQuery("");
                       setWishlistSearchResults([]);
                     }}
-                    style={{ padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #4a352033", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                    style={{ padding: "12px 14px", cursor: "pointer", borderBottom: "1px solid #4a352033", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                   >
                     <div>
-                      <div style={{ fontSize: 13, color: "#f5ead8" }}>{r.line}</div>
-                      <div style={{ fontSize: 11, color: "#a08060" }}>{r.brand}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#e8d5b7" }}>{r.line}</div>
+                      <div style={{ fontSize: 11, color: "#c9a84c", marginTop: 2 }}>{r.brand}</div>
                     </div>
-                    <span style={{ fontSize: 11, color: "#c9a84c" }}>+ Add</span>
+                    <span style={{ fontSize: 12, color: "#4caf6e", fontWeight: 600 }}>+ Add</span>
                   </div>
                 ))}
               </div>
@@ -1651,29 +1652,29 @@ export default function App() {
               const strength = w.cigars?.strength || "";
               return (
                 <div key={w.id} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
-                  <div style={{ padding: "14px 14px 12px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div style={{ flex: 1 }} onClick={() => w.cigars && setSelected(w.cigars)}>
-                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600 }}>{brand.toUpperCase()}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 8px" }}>{line}</div>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {vitola && <Badge label={vitola} />}
-                        {strength && <Badge label={strength} color={strengthColor(strength)} />}
-                      </div>
-                      <div style={{ fontSize: 10, color: "#4a3020", marginTop: 8 }}>
-                        Added {new Date(w.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      </div>
+                  <div style={{ padding: "14px 14px 12px" }}>
+                    {/* Brand */}
+                    <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600, marginBottom: 3 }}>{brand.toUpperCase()}</div>
+                    {/* Line name — tappable to view detail */}
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8, cursor: w.cigars ? "pointer" : "default" }}
+                      onClick={() => w.cigars && setSelected(w.cigars)}>
+                      {line}
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginLeft: 12 }}>
+                    {/* Badges */}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                      {vitola && <Badge label={vitola} />}
+                      {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                    </div>
+                    {/* Action buttons */}
+                    <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
-                        style={{ background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "7px 12px", color: "#7a9a7a", fontSize: 11, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
-                      >
-                        Purchased
+                        style={{ flex: 1, background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "9px 0", color: "#7a9a7a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                        ✓ Purchased
                       </button>
                       <button
                         onClick={() => handleRemoveFromWishlist(w.id)}
-                        style={{ background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 12px", color: "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
-                      >
+                        style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                         Remove
                       </button>
                     </div>
