@@ -391,7 +391,6 @@ const INITIAL_COMPLETED = new Set([
   "29-27","29-28","30-1","30-2","30-3","30-4","30-5","30-6",
 ]);
 
-const STORAGE_KEY = "ashed_dashboard_v3";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const FILE_VERSIONS = [
