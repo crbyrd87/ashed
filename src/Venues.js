@@ -99,7 +99,6 @@ const placesApi = async (params) => {
 // Geocode an address to lat/lng
 const geocodeAddress = async (address) => {
   const data = await placesApi({ action: "geocode", address });
-  console.log("[Venues] Geocode status:", data.status, "results:", data.results?.length);
   if (data.status === "OK" && data.results?.[0]) {
     const loc = data.results[0].geometry.location;
     return { lat: loc.lat, lng: loc.lng };
@@ -110,7 +109,6 @@ const geocodeAddress = async (address) => {
 // Search nearby cigar shops
 const searchNearbyPlaces = async (loc) => {
   const data = await placesApi({ action: "search", lat: loc.lat, lng: loc.lng });
-  console.log("[Venues] Places status:", data.status, "results:", data.results?.length);
   if (data.status === "OK" || data.status === "ZERO_RESULTS") {
     return (data.results || []).map(p => ({
       ...p,
@@ -216,16 +214,6 @@ export default function Venues() {
     }, 350);
   };
 
-  const prefetchDetails = async (results) => {
-    for (const venue of results) {
-      if (!venue.place_id) continue;
-      try {
-        const details = await getPlaceDetails(venue.place_id);
-        if (details) setVenueDetails(prev => ({ ...prev, [venue.place_id]: details }));
-      } catch (e) { /* silent */ }
-    }
-  };
-
   const doSearch = async (query) => {
     setLoading(true);
     setHasSearched(true);
@@ -238,7 +226,6 @@ export default function Venues() {
       const loc = await geocodeAddress(query);
       const results = await searchNearbyPlaces(loc);
       setVenues(results);
-      prefetchDetails(results); // background, don't await
     } catch (e) {
       console.error("[Venues] Search error:", e);
       setError(`Couldn't find results for "${query}". Try a different city or zip.`);
@@ -254,6 +241,7 @@ export default function Venues() {
     }
     setLoading(true);
     setHasSearched(true);
+    setVenueDetails({});
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -261,7 +249,6 @@ export default function Venues() {
         try {
           const results = await searchNearbyPlaces(loc);
           setVenues(results);
-          prefetchDetails(results);
         } catch (e) {
           setError("Couldn't load nearby shops. Please try searching by city or zip.");
         }

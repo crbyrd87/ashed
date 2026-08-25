@@ -87,6 +87,7 @@ Return ONLY a raw JSON object, no markdown:
             cigar_id: cigar.id,
             spirits: result.spirits,
             beer: result.beer,
+            cocktails: result.cocktails,
             coffee: result.coffee,
             non_alcoholic: result.non_alcoholic,
             notes: result.notes,
@@ -155,8 +156,8 @@ Return ONLY a raw JSON object, no markdown:
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", fontFamily: SANS }}>
-      <div style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: "#1a0f08", borderRadius: "16px 16px 0 0", maxHeight: "85vh", overflowY: "auto", border: "1px solid #3a2510" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", fontFamily: SANS }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: "#1a0f08", borderRadius: "16px 16px 0 0", maxHeight: "85vh", overflowY: "auto", border: "1px solid #3a2510" }}>
 
         {/* Header */}
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: "#1a0f08", zIndex: 1 }}>
@@ -242,7 +243,7 @@ Return ONLY a raw JSON object, no markdown:
         {/* Close button */}
         <div style={{ padding: "0 20px 24px" }}>
           <button onClick={onClose} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 12, color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
-            Cancel
+            Done
           </button>
         </div>
       </div>

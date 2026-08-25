@@ -36,6 +36,14 @@ export default function Badges({ userId }) {
 
   const earned = badges.filter(b => b.earned).length;
   const total = badges.length;
+  const percent = total > 0 ? Math.round((earned / total) * 100) : 0;
+
+  if (total === 0) return (
+    <div style={{ background: "#1a0f08", border: "1px solid #2a1a0e", borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
+      <div style={{ fontSize: 24, marginBottom: 8, filter: "grayscale(1)" }}>🏅</div>
+      <div style={{ fontSize: 12, color: "#8a7055", lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
+    </div>
+  );
 
   // Group by category
   const grouped = {};
@@ -58,7 +66,7 @@ export default function Badges({ userId }) {
 
       {/* Progress bar */}
       <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
-        <div style={{ width: `${Math.round((earned / total) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, transition: "width 0.3s" }} />
+        <div style={{ width: `${percent}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, transition: "width 0.3s" }} />
       </div>
 
       {CATEGORY_ORDER.map(cat => {

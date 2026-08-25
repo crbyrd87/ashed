@@ -3,6 +3,59 @@ import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
+function Toggle({ label, sublabel, value, onChange, disabled }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
+      <div>
+        <div style={{ fontSize: 14, color: "#f5ead8" }}>{label}</div>
+        {sublabel && <div style={{ fontSize: 12, color: "#7a6048", marginTop: 2 }}>{sublabel}</div>}
+      </div>
+      <button onClick={() => onChange(!value)} disabled={disabled}
+        style={{ width: 44, height: 24, borderRadius: 12, background: value ? "#d4b45a" : "#3a2510", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+        <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#f5ead8", position: "absolute", top: 3, left: value ? 23 : 3, transition: "left 0.2s" }} />
+      </button>
+    </div>
+  );
+}
+
+function Section({ id, title, openSection, onToggle, children }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <button onClick={() => onToggle(id)}
+        style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: "#f5ead8", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+        {title}
+        <span style={{ color: "#d4b45a", fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
+      </button>
+      {openSection === id && (
+        <div style={{ background: "#1e1208", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Row({ label, value, sub }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
+      <div>
+        <div style={{ fontSize: 13, color: "#f5ead8", fontWeight: 600 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{sub}</div>}
+      </div>
+      <div style={{ fontSize: 13, color: "#a08060", textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
+    </div>
+  );
+}
+
+function Term({ word, def }) {
+  return (
+    <div style={{ padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
+      <div style={{ fontSize: 13, color: "#d4b45a", fontWeight: 600, marginBottom: 2 }}>{word}</div>
+      <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{def}</div>
+    </div>
+  );
+}
+
 export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
   const [section, setSection] = useState("account");
 
@@ -205,16 +258,22 @@ function PrivacySection({ user }) {
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  if (!loaded) {
+  useEffect(() => {
+    let cancelled = false;
     supabase.from("users").select("private_profile, default_private_checkins").eq("id", user.id).single()
       .then(({ data }) => {
+        if (cancelled) return;
         if (data) {
           setPrivateProfile(data.private_profile || false);
           setPrivateCheckins(data.default_private_checkins || false);
         }
         setLoaded(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLoaded(true);
       });
-  }
+    return () => { cancelled = true; };
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = async (field, val, setter) => {
     setSaving(true);
@@ -222,19 +281,6 @@ function PrivacySection({ user }) {
     await supabase.from("users").update({ [field]: val }).eq("id", user.id);
     setSaving(false);
   };
-
-  const Toggle = ({ label, sublabel, value, onChange }) => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
-      <div>
-        <div style={{ fontSize: 14, color: "#f5ead8" }}>{label}</div>
-        {sublabel && <div style={{ fontSize: 12, color: "#7a6048", marginTop: 2 }}>{sublabel}</div>}
-      </div>
-      <button onClick={() => onChange(!value)} disabled={saving}
-        style={{ width: 44, height: 24, borderRadius: 12, background: value ? "#d4b45a" : "#3a2510", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
-        <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#f5ead8", position: "absolute", top: 3, left: value ? 23 : 3, transition: "left 0.2s" }} />
-      </button>
-    </div>
-  );
 
   return (
     <div>
@@ -248,12 +294,14 @@ function PrivacySection({ user }) {
             sublabel="Only friends can see your journal and stats"
             value={privateProfile}
             onChange={val => toggle("private_profile", val, setPrivateProfile)}
+            disabled={saving}
           />
           <Toggle
             label="Private Check-ins by Default"
             sublabel="New check-ins will be private unless you change them"
             value={privateCheckins}
             onChange={val => toggle("default_private_checkins", val, setPrivateCheckins)}
+            disabled={saving}
           />
         </>
       )}
@@ -269,43 +317,11 @@ function GuideSection() {
 
   const toggle = (id) => setOpenSection(prev => prev === id ? null : id);
 
-  const Section = ({ id, title, children }) => (
-    <div style={{ marginBottom: 10 }}>
-      <button onClick={() => toggle(id)}
-        style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: "#f5ead8", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
-        {title}
-        <span style={{ color: "#d4b45a", fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
-      </button>
-      {openSection === id && (
-        <div style={{ background: "#1e1208", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-
-  const Row = ({ label, value, sub }) => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
-      <div>
-        <div style={{ fontSize: 13, color: "#f5ead8", fontWeight: 600 }}>{label}</div>
-        {sub && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{sub}</div>}
-      </div>
-      <div style={{ fontSize: 13, color: "#a08060", textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
-    </div>
-  );
-
-  const Term = ({ word, def }) => (
-    <div style={{ padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
-      <div style={{ fontSize: 13, color: "#d4b45a", fontWeight: 600, marginBottom: 2 }}>{word}</div>
-      <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{def}</div>
-    </div>
-  );
-
   return (
     <div>
       <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
 
-      <Section id="vitolas" title="🎋 Vitola Size Chart">
+      <Section id="vitolas" title="🎋 Vitola Size Chart" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
         <Row label="Petit Corona" value='4–4.5" × 40–42 ring' sub="~20–30 min" />
         <Row label="Corona" value='5.5" × 42 ring' sub="~30–45 min" />
@@ -320,7 +336,7 @@ function GuideSection() {
         <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
       </Section>
 
-      <Section id="strength" title="💪 Body & Strength Guide">
+      <Section id="strength" title="💪 Body & Strength Guide" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
         <Row label="Mild" value="Smooth, low nicotine" sub="Good for beginners" />
         <Row label="Mild-Medium" value="Easy draw with a bit more body" sub="Great step up from mild" />
@@ -332,7 +348,7 @@ function GuideSection() {
         </div>
       </Section>
 
-      <Section id="wrappers" title="🍂 Wrapper Types">
+      <Section id="wrappers" title="🍂 Wrapper Types" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
         <Row label="Claro" value="Light tan, mild and creamy" />
         <Row label="Colorado Claro" value="Medium brown, balanced" />
@@ -345,7 +361,7 @@ function GuideSection() {
         <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
       </Section>
 
-      <Section id="origins" title="🌍 Origins Guide">
+      <Section id="origins" title="🌍 Origins Guide" openSection={openSection} onToggle={toggle}>
         <Row label="Nicaragua" value="Spicy, complex, full-bodied. Jalapa and Estelí valleys." />
         <Row label="Dominican Republic" value="Smooth, creamy, medium body. Long tradition of quality." />
         <Row label="Honduras" value="Earthy, woody, medium-full. Often blended." />
@@ -357,7 +373,7 @@ function GuideSection() {
         <Row label="Cameroon" value="African wrapper leaf. Unique spice and wood notes." />
       </Section>
 
-      <Section id="tasting" title="👅 Tasting Terms Glossary">
+      <Section id="tasting" title="👅 Tasting Terms Glossary" openSection={openSection} onToggle={toggle}>
         <Term word="Retrohale" def="Exhaling smoke through your nose to intensify flavor. Practice slowly — it's an acquired technique." />
         <Term word="Draw" def="The resistance when pulling air through the cigar. Should feel like sipping through a slightly restricted straw." />
         <Term word="Burn" def="How evenly the cigar burns. A good cigar burns evenly without needing constant touch-ups." />
@@ -372,7 +388,7 @@ function GuideSection() {
         <Term word="Plug" def="A blockage in the cigar that restricts draw. Sometimes resolved by gently squeezing the cigar." />
       </Section>
 
-      <Section id="etiquette" title="🎩 Lounge & Smoking Etiquette">
+      <Section id="etiquette" title="🎩 Lounge & Smoking Etiquette" openSection={openSection} onToggle={toggle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {[
             "Never cut someone else's cigar without asking.",

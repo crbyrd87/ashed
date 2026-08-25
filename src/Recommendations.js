@@ -13,6 +13,7 @@ const MIN_CHECKINS_FOR_AUTO = 5;
 
 export default function Recommendations({ user, checkins, onAddToWishlist, onClose }) {
   const [mode, setMode] = useState(null); // null | "survey" | "auto" | "loading" | "results"
+  const [lastMode, setLastMode] = useState(null); // the mode the user is actually in: "survey" | "auto"
   const [prefStrength, setPrefStrength] = useState([]);
   const [prefFlavors, setPrefFlavors] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -22,8 +23,8 @@ export default function Recommendations({ user, checkins, onAddToWishlist, onClo
   const hasEnoughData = checkins.length >= MIN_CHECKINS_FOR_AUTO;
 
   useEffect(() => {
-    if (hasEnoughData) setMode("auto");
-    else setMode("survey");
+    setMode(prev => prev === null ? (hasEnoughData ? "auto" : "survey") : prev);
+    setLastMode(prev => prev === null ? (hasEnoughData ? "auto" : "survey") : prev);
   }, [hasEnoughData]);
 
   const buildAutoPrompt = () => {
@@ -105,7 +106,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
       const data = await response.json();
       if (response.status === 429) {
         setError(data.error || "You've reached the recommendations limit for this hour. Please try again later.");
-        setMode(hasEnoughData ? "auto" : "survey");
+        setMode(lastMode);
         return;
       }
       const raw = data.content?.[0]?.text || "[]";
@@ -117,7 +118,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
     } catch (err) {
       console.error("Recommendations error:", err);
       setError("Something went wrong. Please try again.");
-      setMode(hasEnoughData ? "auto" : "survey");
+      setMode(lastMode);
     }
   };
 
@@ -203,7 +204,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
             ✨ Recommend for Me
           </button>
           <button
-            onClick={() => { setMode("survey"); setError(null); }}
+            onClick={() => { setMode("survey"); setLastMode("survey"); setError(null); }}
             style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
           >
             Set preferences manually instead
@@ -225,7 +226,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>PREFERRED BODY</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {["Light", "Medium", "Medium-Full", "Full"].map(str => (
+              {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(str => (
                 <button key={str} style={s.strengthPill(str, prefStrength.includes(str))}
                   onClick={() => setPrefStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}>
                   {str}
@@ -256,7 +257,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
           </button>
           {hasEnoughData && (
             <button
-              onClick={() => { setMode("auto"); setError(null); }}
+              onClick={() => { setMode("auto"); setLastMode("auto"); setError(null); }}
               style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
             >
               ← Back to personalized recommendations
@@ -329,13 +330,13 @@ Recommend a variety of well-known, widely available cigars that match their pref
           })}
 
           <button
-            onClick={() => fetchRecommendations(hasEnoughData ? buildAutoPrompt() : buildSurveyPrompt())}
+            onClick={() => fetchRecommendations(lastMode === "survey" ? buildSurveyPrompt() : buildAutoPrompt())}
             style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, marginBottom: 10 }}
           >
             ↻ Refresh Recommendations
           </button>
           <button
-            onClick={() => setMode(hasEnoughData ? "auto" : "survey")}
+            onClick={() => setMode(lastMode)}
             style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
           >
             ← Back
