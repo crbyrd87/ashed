@@ -109,7 +109,7 @@ const checkVarietyBadges = async (userId, earned) => {
     if (origins.size >= 5) await awardBadge(userId, "world_tour");
   }
 
-  // Strength Seeker — all 4 strength levels
+  // Strength Seeker — all 5 strength levels
   if (!earned.has("strength_seeker")) {
     const strengths = new Set(
       checkins.map(c => c.cigars?.strength).filter(Boolean)
@@ -192,16 +192,16 @@ const checkFoundingMember = async (userId, earned) => {
 
   const { data: thisUser } = await supabase
     .from("users")
-    .select("created_at")
+    .select("member_since")
     .eq("id", userId)
     .single();
 
-  if (!thisUser) return;
+  if (!thisUser || !thisUser.member_since) return;
 
   const { count } = await supabase
     .from("users")
     .select("*", { count: "exact", head: true })
-    .lte("created_at", thisUser.created_at);
+    .lte("member_since", thisUser.member_since);
 
   if (count <= 100) await awardBadge(userId, "founding_member");
 };
