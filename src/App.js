@@ -1645,43 +1645,64 @@ export default function App() {
             if (filtered.length === 0 && wishlist.length > 0) return (
               <div style={{ textAlign: "center", padding: 30, fontSize: 13, color: "#7a6048" }}>No wishlist items match your filters.</div>
             );
-            return filtered.map(w => {
+
+            // Group by brand then line
+            const brands = {};
+            for (const w of filtered) {
               const brand = w.cigars?.brand || w.cigar_brand || "Unknown";
               const line = w.cigars?.line || w.cigar_name || "Unknown Cigar";
-              const vitola = w.cigars?.vitola || w.cigar_vitola || "";
-              const strength = w.cigars?.strength || "";
-              return (
-                <div key={w.id} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
-                  <div style={{ padding: "14px 14px 12px" }}>
-                    {/* Brand */}
-                    <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, fontWeight: 600, marginBottom: 3 }}>{brand.toUpperCase()}</div>
-                    {/* Line name — tappable to view detail */}
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8, cursor: w.cigars ? "pointer" : "default" }}
-                      onClick={() => w.cigars && setSelected(w.cigars)}>
-                      {line}
-                    </div>
-                    {/* Badges */}
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-                      {vitola && <Badge label={vitola} />}
-                      {strength && <Badge label={strength} color={strengthColor(strength)} />}
-                    </div>
-                    {/* Action buttons */}
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
-                        style={{ flex: 1, background: "#7a9a7a22", border: "1px solid #7a9a7a88", borderRadius: 8, padding: "10px 0", color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
-                        ✓ Purchased
-                      </button>
-                      <button
-                        onClick={() => handleRemoveFromWishlist(w.id)}
-                        style={{ flex: 1, background: "#2a1a0e", border: "1px solid #6a5040", borderRadius: 8, padding: "10px 0", color: "#a08060", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
-                        Remove
-                      </button>
+              if (!brands[brand]) brands[brand] = {};
+              if (!brands[brand][line]) brands[brand][line] = [];
+              brands[brand][line].push(w);
+            }
+
+            return Object.entries(brands).sort(([a], [b]) => a.localeCompare(b)).map(([brand, lines]) => (
+              <div key={brand} style={{ marginBottom: 16 }}>
+                {/* Brand header */}
+                <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2, marginBottom: 8, paddingLeft: 2 }}>
+                  {brand.toUpperCase()}
+                </div>
+
+                {/* Lines under brand */}
+                {Object.entries(lines).sort(([a], [b]) => a.localeCompare(b)).map(([line, items]) => (
+                  <div key={line} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
+                    <div style={{ padding: "14px 14px 12px" }}>
+                      {/* Line name */}
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8, cursor: items[0].cigars ? "pointer" : "default" }}
+                        onClick={() => items[0].cigars && setSelected(items[0].cigars)}>
+                        {line}
+                      </div>
+
+                      {/* Each vitola as a row */}
+                      {items.map((w, idx) => {
+                        const vitola = w.cigars?.vitola || w.cigar_vitola || "";
+                        const strength = w.cigars?.strength || "";
+                        return (
+                          <div key={w.id} style={{ borderTop: idx === 0 ? "none" : "1px solid #4a352044", paddingTop: idx === 0 ? 0 : 10, marginTop: idx === 0 ? 0 : 10 }}>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                              {vitola && <Badge label={vitola} />}
+                              {strength && <Badge label={strength} color={strengthColor(strength)} />}
+                            </div>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button
+                                onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
+                                style={{ flex: 1, background: "#7a9a7a22", border: "1px solid #7a9a7a88", borderRadius: 8, padding: "9px 0", color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
+                                ✓ Purchased
+                              </button>
+                              <button
+                                onClick={() => handleRemoveFromWishlist(w.id)}
+                                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #6a5040", borderRadius: 8, padding: "9px 0", color: "#a08060", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                </div>
-              );
-            });
+                ))}
+              </div>
+            ));
           })()}
         </div>
       )}
