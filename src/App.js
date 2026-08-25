@@ -1612,7 +1612,7 @@ export default function App() {
                 <div style={{ display: "flex", gap: 6 }}>
                   {["Light", "Medium", "Medium-Full", "Full"].map(str => (
                     <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
-                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : "#4a3520"}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "22" : "transparent", color: wishlistFilterStrength.includes(str) ? strengthColor(str) : "#7a6048", fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 400 }}>
+                      style={{ flex: 1, padding: "7px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : "#6a5040"}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "33" : "#2a1a0e", color: wishlistFilterStrength.includes(str) ? strengthColor(str) : "#a08060", fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 500 }}>
                       {str}
                     </button>
                   ))}
@@ -1669,12 +1669,12 @@ export default function App() {
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => { handleAddToHumidor(w.cigars || { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: w.cigar_vitola }); handleRemoveFromWishlist(w.id); }}
-                        style={{ flex: 1, background: "none", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "9px 0", color: "#7a9a7a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                        style={{ flex: 1, background: "#7a9a7a22", border: "1px solid #7a9a7a88", borderRadius: 8, padding: "10px 0", color: "#7a9a7a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
                         ✓ Purchased
                       </button>
                       <button
                         onClick={() => handleRemoveFromWishlist(w.id)}
-                        style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                        style={{ flex: 1, background: "#2a1a0e", border: "1px solid #6a5040", borderRadius: 8, padding: "10px 0", color: "#a08060", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
                         Remove
                       </button>
                     </div>
