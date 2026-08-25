@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 import { sanitizeShort } from "./sanitize";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const STRENGTHS = ["Light", "Medium", "Medium-Full", "Full"];
+const STRENGTHS = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
 
 export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
   const [form, setForm] = useState({ brand: "", line: "", vitola: "", strength: "" });

@@ -22,7 +22,7 @@ import Settings from "./Settings";
 import CigarSubmitModal from "./CigarSubmitModal";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
+const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
 const Badge = ({ label, color = "#d4b45a" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
@@ -165,12 +165,12 @@ function AdvancedStats({ checkins }) {
   const maxBrand = topBrands[0]?.[1] || 1;
 
   // Strength breakdown
-  const strengthCounts = { Light: 0, Medium: 0, "Medium-Full": 0, Full: 0 };
+  const strengthCounts = { Mild: 0, "Mild-Medium": 0, Medium: 0, "Medium-Full": 0, Full: 0 };
   for (const c of checkins) {
     const s = c.cigars?.strength;
     if (s && strengthCounts[s] !== undefined) strengthCounts[s]++;
   }
-  const strengthColors = { Light: "#a8c5a0", Medium: "#d4b483", "Medium-Full": "#c4894a", Full: "#a0522d" };
+  const strengthColors = { Mild: "#a8c5a0", "Mild-Medium": "#b8d4a0", Medium: "#d4b483", "Medium-Full": "#c4894a", Full: "#a0522d" };
   const totalStrength = Object.values(strengthCounts).reduce((a, b) => a + b, 0) || 1;
 
   // Origin breakdown — top 6
@@ -820,7 +820,7 @@ export default function App() {
     const isLine = !!c._isLine;
 
     // Compute strength display for line mode
-    const STRENGTH_ORDER = ["Light", "Medium", "Medium-Full", "Full"];
+    const STRENGTH_ORDER = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
     const strengthValues = isLine
       ? [...new Set((vitolas || []).map(v => v.strength).filter(Boolean))]
           .sort((a, b) => STRENGTH_ORDER.indexOf(a) - STRENGTH_ORDER.indexOf(b))
@@ -1627,7 +1627,7 @@ export default function App() {
                   )}
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
-                  {["Light", "Medium", "Medium-Full", "Full"].map(str => (
+                  {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(str => (
                     <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
                       style={{ flex: 1, padding: "7px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : "#6a5040"}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "33" : "#2a1a0e", color: wishlistFilterStrength.includes(str) ? strengthColor(str) : "#a08060", fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 500 }}>
                       {str}

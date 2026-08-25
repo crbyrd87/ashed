@@ -117,7 +117,7 @@ Otherwise return ONLY a raw JSON object, no markdown, no explanation:
 {
   "brand": "Brand name",
   "line": "Cigar line name",
-  "strength": "Light|Medium|Medium-Full|Full",
+  "strength": "Mild|Mild-Medium|Medium|Medium-Full|Full",
   "origin": "Country of origin",
   "wrapper": "Wrapper country/type",
   "tasting_notes": "Brief expected tasting notes",
@@ -316,7 +316,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               <div
                 onClick={() => {
                   // Compute strength range across all vitolas
-                  const STRENGTH_ORDER = ["Light", "Medium", "Medium-Full", "Full"];
+                  const STRENGTH_ORDER = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
                   const strengths = [...new Set(vitolas.map(v => v.strength).filter(Boolean))].sort((a, b) => STRENGTH_ORDER.indexOf(a) - STRENGTH_ORDER.indexOf(b));
                   const strengthRange = strengths.length > 1 ? `${strengths[0]} – ${strengths[strengths.length - 1]}` : strengths[0] || null;
                   setCigar({ ...cigar, vitola: null, strength: strengthRange });

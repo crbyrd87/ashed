@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
+const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
 const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
@@ -55,7 +55,7 @@ Return ONLY a raw JSON array, no markdown:
   "brand": "Brand",
   "line": "Line name",
   "vitola": "Vitola",
-  "strength": "Light|Medium|Medium-Full|Full",
+  "strength": "Mild|Mild-Medium|Medium|Medium-Full|Full",
   "origin": "Country",
   "wrapper": "Wrapper type",
   "tasting_notes": "Expected flavor notes",
@@ -77,7 +77,7 @@ Return ONLY a raw JSON array, no markdown:
   "brand": "Brand",
   "line": "Line name",
   "vitola": "Vitola",
-  "strength": "Light|Medium|Medium-Full|Full",
+  "strength": "Mild|Mild-Medium|Medium|Medium-Full|Full",
   "origin": "Country",
   "wrapper": "Wrapper type",
   "tasting_notes": "Expected flavor notes",

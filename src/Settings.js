@@ -322,7 +322,8 @@ function GuideSection() {
 
       <Section id="strength" title="💪 Body & Strength Guide">
         <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
-        <Row label="Light" value="Mild, smooth, little nicotine" sub="Good for beginners" />
+        <Row label="Mild" value="Smooth, low nicotine" sub="Good for beginners" />
+        <Row label="Mild-Medium" value="Easy draw with a bit more body" sub="Great step up from mild" />
         <Row label="Medium" value="Balanced flavor and nicotine" sub="Most popular range" />
         <Row label="Medium-Full" value="More complexity, noticeable nicotine" sub="For experienced smokers" />
         <Row label="Full" value="Bold, rich, strong nicotine hit" sub="Smoke after a meal" />

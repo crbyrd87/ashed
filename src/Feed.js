@@ -7,7 +7,7 @@ const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const COMMUNITY_LIMIT = 10;
 const FRIEND_LIMIT = 20;
 
-const strengthColor = s => ({ "Light": "#7a9a7a", "Medium": "#c9a84c", "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || "#8a7055");
+const strengthColor = s => ({ "Mild": "#7a9a7a", "Mild-Medium": "#8ab88a", "Medium": "#c9a84c", "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || "#8a7055");
 
 const avatarColor = (str) => {
   const colors = [

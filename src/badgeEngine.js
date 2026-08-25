@@ -114,7 +114,7 @@ const checkVarietyBadges = async (userId, earned) => {
     const strengths = new Set(
       checkins.map(c => c.cigars?.strength).filter(Boolean)
     );
-    const required = ["Light", "Medium", "Medium-Full", "Full"];
+    const required = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
     if (required.every(s => strengths.has(s))) {
       await awardBadge(userId, "strength_seeker");
     }

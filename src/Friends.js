@@ -86,7 +86,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           {Object.keys(strengthCounts).length > 0 && (
             <div style={{ borderTop: "1px solid #4a352044", paddingTop: 12 }}>
               <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>STRENGTH DISTRIBUTION</div>
-              {[["Light", "#a8c5a0"], ["Medium", "#d4b483"], ["Medium-Full", "#c4894a"], ["Full", "#a0522d"]].map(([s, color]) => {
+              {[["Mild", "#a8c5a0"], ["Mild-Medium", "#b8d4a0"], ["Medium", "#d4b483"], ["Medium-Full", "#c4894a"], ["Full", "#a0522d"]].map(([s, color]) => {
                 const count = strengthCounts[s] || 0;
                 const total = Object.values(strengthCounts).reduce((a, b) => a + b, 0);
                 const pct = total > 0 ? Math.round((count / total) * 100) : 0;
@@ -217,7 +217,11 @@ export default function Friends({ user, onClose, onRequestHandled }) {
       const allFriends = [
         ...(accepted1 || []).map(f => ({ ...f, friendUser: f.friend })),
         ...(accepted2 || []).map(f => ({ ...f, friendUser: f.friend })),
-      ];
+      ].sort((a, b) => {
+        const nameA = (a.friendUser?.display_name || a.friendUser?.username || "").toLowerCase();
+        const nameB = (b.friendUser?.display_name || b.friendUser?.username || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
       setFriends(allFriends);
 
       const { data: sent } = await supabase

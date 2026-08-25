@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const strengthColor = s => ({ "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
+const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
 const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
@@ -74,10 +74,10 @@ export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
               { type: "text", text: `You are a cigar expert. Analyze this image. It may contain one cigar band or multiple cigar bands.
 
 If it contains ONE cigar, return a single JSON object:
-{"type":"single","brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"}
+{"type":"single","brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength": "Mild|Mild-Medium|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"}
 
 If it contains MULTIPLE cigars or bands, return a JSON array — one entry per cigar you can see:
-[{"brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength":"Light|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"},...]
+[{"brand":"Brand","line":"Line","vitola":"Vitola or Unknown","strength": "Mild|Mild-Medium|Medium|Medium-Full|Full","origin":"Country","wrapper":"Wrapper type","confidence":"high|medium|low","confidence_reason":"Brief reason"},...]
 
 If you cannot identify anything, return:
 {"type":"none","reason":"Why"}
@@ -456,9 +456,9 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {/* Strength filter */}
       {items.length > 0 && (
         <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
-          {["Light", "Medium", "Medium-Full", "Full"].map(s => {
+          {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(s => {
             const active = filterStrength.includes(s);
-            const color = { "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s];
+            const color = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s];
             return (
               <button key={s} onClick={() => setFilterStrength(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
                 style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? color : "#4a3520"}`, background: active ? color + "22" : "transparent", color: active ? color : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }}>
@@ -535,7 +535,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                       {lineItems.map((item, idx) => {
                         const vitola = item.cigars?.vitola || item.cigar_vitola || null;
                         const strength = item.cigars?.strength || null;
-                        const color = { "Light": "#a8c5a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[strength] || "#888";
+                        const color = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[strength] || "#888";
                         const isEditingQty = editingQty === item.id;
                         const isConfirmingRemove = confirmRemoveAll === item.id;
 
