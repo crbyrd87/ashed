@@ -374,6 +374,8 @@ export default function App() {
   const [filterWouldSmoke, setFilterWouldSmoke] = useState([]);
   const [toast, setToast] = useState(null);
   const [purchasedItem, setPurchasedItem] = useState(null);
+  const [purchasedQty, setPurchasedQty] = useState(1);
+  const [purchasedVitola, setPurchasedVitola] = useState("");
   const [wishlistVitolaPicker, setWishlistVitolaPicker] = useState(null);
   const [wishlistVitolaOptions, setWishlistVitolaOptions] = useState([]);
   const [wishlistVitolaLoading, setWishlistVitolaLoading] = useState(false);
@@ -1702,6 +1704,8 @@ export default function App() {
                               <button
                                 onClick={async () => {
                                   setPurchasedItem(w);
+                                  setPurchasedQty(1);
+                                  setPurchasedVitola(w.cigars?.vitola || w.cigar_vitola || "");
                                   setWishlistVitolaLoading(true);
                                   const { data } = await supabase.from("cigars").select("id, vitola, strength").eq("brand", w.cigars?.brand || w.cigar_brand || "").eq("line", w.cigars?.line || w.cigar_name || "").not("vitola", "is", null).order("vitola");
                                   setWishlistVitolaOptions(data || []);
@@ -2029,10 +2033,9 @@ export default function App() {
         const w = purchasedItem;
         const brand = w.cigars?.brand || w.cigar_brand || "";
         const line = w.cigars?.line || w.cigar_name || "";
-        const vitola = w.cigars?.vitola || w.cigar_vitola || "";
-        const strength = w.cigars?.strength || "";
-        const [qty, setQty] = React.useState(1);
-        const [editVitola, setEditVitola] = React.useState(vitola);
+        const strength = purchasedVitola && wishlistVitolaOptions.length > 0
+          ? wishlistVitolaOptions.find(v => v.vitola === purchasedVitola)?.strength || w.cigars?.strength || ""
+          : w.cigars?.strength || "";
         return (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
             onClick={() => setPurchasedItem(null)}>
@@ -2040,27 +2043,22 @@ export default function App() {
               onClick={e => e.stopPropagation()}>
               <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 16px" }} />
               <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ADD TO HUMIDOR</div>
-              <div style={{ fontSize: 10, color: "#8a7055", marginBottom: 16 }}>{brand.toUpperCase()}</div>
+              <div style={{ fontSize: 10, color: "#8a7055", marginBottom: 4 }}>{brand.toUpperCase()}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7", marginBottom: 16 }}>{line}</div>
 
               {/* Vitola */}
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>VITOLA</div>
                 {wishlistVitolaOptions.length > 0 ? (
-                  <select
-                    value={editVitola}
-                    onChange={e => setEditVitola(e.target.value)}
-                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: editVitola ? "#e8d5b7" : "#8a7055", fontSize: 16, fontFamily: SANS, outline: "none" }}>
+                  <select value={purchasedVitola} onChange={e => setPurchasedVitola(e.target.value)}
+                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: purchasedVitola ? "#e8d5b7" : "#8a7055", fontSize: 16, fontFamily: SANS, outline: "none" }}>
                     <option value="">Select a vitola...</option>
                     {wishlistVitolaOptions.map((v, i) => <option key={i} value={v.vitola}>{v.vitola}{v.strength ? ` — ${v.strength}` : ""}</option>)}
                   </select>
                 ) : (
-                  <input
-                    value={editVitola}
-                    onChange={e => setEditVitola(e.target.value)}
+                  <input value={purchasedVitola} onChange={e => setPurchasedVitola(e.target.value)}
                     placeholder="e.g. Robusto, Toro, Churchill..."
-                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
-                  />
+                    style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
                 )}
               </div>
 
@@ -2076,37 +2074,27 @@ export default function App() {
               <div style={{ marginBottom: 24 }}>
                 <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>HOW MANY DID YOU BUY?</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center" }}>
-                  <button onClick={() => setQty(q => Math.max(1, q - 1))}
+                  <button onClick={() => setPurchasedQty(q => Math.max(1, q - 1))}
                     style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid #4a3520", background: "#221508", color: "#c9a84c", fontSize: 24, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
-                  <div style={{ fontSize: 36, fontWeight: 700, color: "#c9a84c", minWidth: 48, textAlign: "center" }}>{qty}</div>
-                  <button onClick={() => setQty(q => q + 1)}
+                  <div style={{ fontSize: 36, fontWeight: 700, color: "#c9a84c", minWidth: 48, textAlign: "center" }}>{purchasedQty}</div>
+                  <button onClick={() => setPurchasedQty(q => q + 1)}
                     style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid #4a3520", background: "#221508", color: "#c9a84c", fontSize: 24, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                 </div>
               </div>
 
               <button onClick={async () => {
-                const cigar = w.cigars ? { ...w.cigars, vitola: editVitola || w.cigars.vitola } : { id: w.cigar_id, brand: w.cigar_brand, line: w.cigar_name, vitola: editVitola || w.cigar_vitola };
-                // Add qty times (or use direct insert with qty)
-                const { data: existing } = await supabase.from("humidor").select("id, quantity").eq("user_id", user.id)
-                  .eq("cigar_brand", brand).eq("cigar_name", line).maybeSingle();
+                const { data: existing } = await supabase.from("humidor").select("id, quantity").eq("user_id", user.id).eq("cigar_brand", brand).eq("cigar_name", line).maybeSingle();
                 if (existing) {
-                  await supabase.from("humidor").update({ quantity: existing.quantity + qty }).eq("id", existing.id);
+                  await supabase.from("humidor").update({ quantity: existing.quantity + purchasedQty }).eq("id", existing.id);
                 } else {
-                  await supabase.from("humidor").insert({
-                    user_id: user.id,
-                    cigar_id: cigar.id || null,
-                    cigar_brand: brand,
-                    cigar_name: line,
-                    cigar_vitola: editVitola || null,
-                    quantity: qty,
-                  });
+                  await supabase.from("humidor").insert({ user_id: user.id, cigar_id: w.cigars?.id || w.cigar_id || null, cigar_brand: brand, cigar_name: line, cigar_vitola: purchasedVitola || null, quantity: purchasedQty });
                 }
                 handleRemoveFromWishlist(w.id);
                 setPurchasedItem(null);
-                showToast(`${qty} × ${line} added to Humidor ✓`);
+                showToast(`${purchasedQty} × ${line} added to Humidor ✓`);
               }}
                 style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
-                Add {qty} to Humidor
+                Add {purchasedQty} to Humidor
               </button>
               <button onClick={() => setPurchasedItem(null)}
                 style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
