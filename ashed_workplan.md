@@ -79,7 +79,7 @@ after 8pm Eastern if possible, or temporarily set the device clock.
 
 ---
 
-### ☐ Session 3 — Privacy setting is ignored
+### ☑ Session 3 — Privacy setting is ignored — DONE 27 Aug 2026
 
 - Finding: `11-C`
 - Settings writes `users.default_private_checkins` and promises "New check-ins

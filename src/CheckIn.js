@@ -177,6 +177,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [venueResults, setVenueResults] = useState([]);
   const [venueSearching, setVenueSearching] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
+  // The default below is loaded from the user's settings. This ref records
+  // whether they have since touched the toggle, so a slow fetch can never
+  // overwrite a deliberate per-check-in choice.
+  const privateTouched = React.useRef(false);
 
   // AI state
   const [aiDescription, setAiDescription] = useState("");
@@ -200,6 +204,22 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       setSavedPlaces(data || []);
     };
     fetchPlaces();
+
+    // 11-C: Settings writes users.default_private_checkins and promises
+    // "New check-ins will be private". Nothing ever read it back, so the
+    // promise was not kept. Seed the toggle from it; the user can still
+    // override it for this check-in.
+    const fetchPrivacyDefault = async () => {
+      const { data } = await supabase
+        .from("users")
+        .select("default_private_checkins")
+        .eq("id", user.id)
+        .single();
+      if (data && !privateTouched.current) {
+        setIsPrivate(!!data.default_private_checkins);
+      }
+    };
+    fetchPrivacyDefault();
   }, [user.id]);
 
   const handleAddPlace = async () => {
@@ -605,7 +625,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 <div style={{ fontSize: 12, color: "#5a4535", marginTop: 2 }}>Only visible to you</div>
               </div>
               <div
-                onClick={() => setIsPrivate(!isPrivate)}
+                onClick={() => { privateTouched.current = true; setIsPrivate(!isPrivate); }}
                 style={{ width: 44, height: 24, borderRadius: 12, background: isPrivate ? "#c9a84c" : "#3a2510", cursor: "pointer", position: "relative", transition: "background 0.2s" }}
               >
                 <div style={{ position: "absolute", top: 2, left: isPrivate ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#e8d5b7", transition: "left 0.2s" }} />
