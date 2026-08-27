@@ -24,6 +24,15 @@ import CigarSubmitModal from "./CigarSubmitModal";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
 
+// checkins.rating stores a 0-10 score; the UI is a 5-flame scale, so halve it.
+// Returns a 2-decimal string, or null when nothing has been rated yet.
+// Check-ins with no rating are excluded rather than counted as zero.
+const avgFlames = (checkins) => {
+  const rated = (checkins || []).filter(c => c.rating != null);
+  if (!rated.length) return null;
+  return (rated.reduce((a, c) => a + c.rating, 0) / rated.length / 2).toFixed(2);
+};
+
 const Badge = ({ label, color = "#d4b45a" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
@@ -188,9 +197,7 @@ function AdvancedStats({ checkins }) {
       const d = new Date(c.smoke_date || c.created_at);
       return d.getMonth() === m.month && d.getFullYear() === m.year && c.rating != null;
     });
-    return monthCheckins.length > 0
-      ? parseFloat((monthCheckins.reduce((a, c) => a + c.rating, 0) / monthCheckins.length).toFixed(1))
-      : null;
+    return avgFlames(monthCheckins);
   });
 
   const cardStyle = { background: "#261a0a", border: "1px solid #4a3520", borderRadius: 12, padding: 16, marginBottom: 16 };
@@ -1215,7 +1222,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
             {[
               ["Smoked", checkins.length],
-              ["AVG RATING", checkins.length ? (checkins.reduce((a, c) => a + c.rating, 0) / checkins.length).toFixed(1) : "—"],
+              ["AVG RATING", avgFlames(checkins) ?? "—"],
               ["This Year", checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length]
             ].map(([k, v]) => (
               <div key={k} style={{ ...s.statBox, padding: "10px 8px" }}>

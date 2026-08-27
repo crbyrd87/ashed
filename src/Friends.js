@@ -30,8 +30,11 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     load();
   }, [friendUser.id]);
 
-  const avgRating = checkins.filter(c => c.rating).length
-    ? (checkins.filter(c => c.rating).reduce((a, c) => a + c.rating, 0) / checkins.filter(c => c.rating).length).toFixed(1)
+  // Ratings are stored 0-10; the UI shows a 5-flame scale, so halve it.
+  // Must match avgFlames in App.js — the same person's average is shown in both.
+  const rated = checkins.filter(c => c.rating != null);
+  const avgRating = rated.length
+    ? (rated.reduce((a, c) => a + c.rating, 0) / rated.length / 2).toFixed(2)
     : null;
 
   const brandCounts = {};
