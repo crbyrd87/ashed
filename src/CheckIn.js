@@ -2,14 +2,9 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { todayLocalISO } from "./dateUtils";
+import { FLAVOR_TAG_NAMES, FLAVOR_TAGS } from "./flavors";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-
-const FLAVOR_TAG_NAMES = [
-  "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
-  "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice",
-  "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"
-];
 
 const fetchAISuggestions = async (cigar, userId) => {
   const prompt = `You are a cigar expert. Based on this cigar's profile, describe the tasting experience in one natural sentence, then list which of our flavor tags apply.
@@ -43,12 +38,6 @@ Only include tags from our list that genuinely apply. Typically 3-6 tags.`;
   const match = raw.match(/\{[\s\S]*\}/);
   return match ? JSON.parse(match[0]) : { description: "", tags: [] };
 };
-
-const FLAVOR_TAGS = [
-  "🌲 Cedar", "🤎 Leather", "🌍 Earth", "☕ Coffee", "🍫 Chocolate", "🌶️ Pepper",
-  "🥛 Cream", "🥜 Nuts", "🍯 Caramel", "🍋 Citrus", "🌸 Floral", "✨ Spice",
-  "🪵 Wood", "🌾 Hay", "🍬 Sweetness", "🍂 Tobacco", "🌿 Grass", "🪨 Mineral"
-];
 
 // Convert 1–5 (0.5 increments) to 0–10 score
 const flamesToScore = (flames) => parseFloat((flames * 2).toFixed(1));

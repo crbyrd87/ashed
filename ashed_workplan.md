@@ -95,7 +95,7 @@ after 8pm Eastern if possible, or temporarily set the device clock.
 
 ---
 
-### ☐ Session 4 — Recommendations copy and content
+### ☑ Session 4 — Recommendations copy and content — DONE 27 Aug 2026
 
 Three small edits to one file.
 

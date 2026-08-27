@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FLAVOR_TAG_NAMES } from "./flavors";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -8,7 +9,7 @@ const Badge = ({ label, color = "#c9a84c" }) => (
   <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
-const FLAVOR_OPTIONS = ["Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper", "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice", "Sweetness", "Tobacco"];
+// Flavour vocabulary is shared with the check-in screen — see src/flavors.js.
 const MIN_CHECKINS_FOR_AUTO = 5;
 
 export default function Recommendations({ user, checkins, onAddToWishlist, onClose }) {
@@ -26,6 +27,20 @@ export default function Recommendations({ user, checkins, onAddToWishlist, onClo
     setMode(prev => prev === null ? (hasEnoughData ? "auto" : "survey") : prev);
     setLastMode(prev => prev === null ? (hasEnoughData ? "auto" : "survey") : prev);
   }, [hasEnoughData]);
+
+  // 7-D: this header used to key off hasEnoughData, so survey results were
+  // labelled "BASED ON YOUR N LOGGED CIGARS" even though no history was used.
+  // The recommendations were right and the label was lying about where they
+  // came from, which is what made Refresh feel untrustworthy. Key it off the
+  // mode actually used, and name the preferences the survey was given.
+  const surveyBasis = [prefStrength.join(", "), prefFlavors.join(", ")]
+    .filter(Boolean)
+    .join(" · ");
+  const resultsBasis = lastMode === "survey"
+    ? (surveyBasis
+        ? `BASED ON YOUR PREFERENCES: ${surveyBasis.toUpperCase()}`
+        : "BASED ON YOUR STATED PREFERENCES")
+    : `BASED ON YOUR ${checkins.length} LOGGED CIGARS`;
 
   const buildAutoPrompt = () => {
     const top = [...checkins].sort((a, b) => b.rating - a.rating).slice(0, 5);
@@ -60,18 +75,18 @@ Return ONLY a raw JSON array, no markdown:
   "origin": "Country",
   "wrapper": "Wrapper type",
   "tasting_notes": "Expected flavor notes",
-  "why": "One sentence explaining why this matches their taste profile specifically"
+  "why": "One sentence written in the second person, addressed to the smoker as you and your — never they or their. Name the specific flavours or strengths from the history above."
 }]
 
-Recommendations should be similar in style to their top-rated cigars but offer new experiences. Do NOT recommend anything from the already smoked list.`;
+Recommendations should be similar in style to the top-rated cigars above but offer new experiences. Do NOT recommend anything from the already smoked list.`;
   };
 
   const buildSurveyPrompt = () => {
-    return `You are a cigar expert recommendation engine. Based on a new user's stated preferences, recommend 5 cigars they should try.
+    return `You are a cigar expert recommendation engine. Based on the smoker's stated preferences, recommend 5 cigars they should try.
 
 STATED PREFERENCES:
 Body/Strength: ${prefStrength.join(", ") || "no preference"}
-Flavor notes they enjoy: ${prefFlavors.join(", ") || "no preference"}
+Flavor notes enjoyed: ${prefFlavors.join(", ") || "no preference"}
 
 Return ONLY a raw JSON array, no markdown:
 [{
@@ -82,10 +97,10 @@ Return ONLY a raw JSON array, no markdown:
   "origin": "Country",
   "wrapper": "Wrapper type",
   "tasting_notes": "Expected flavor notes",
-  "why": "One sentence explaining why this matches their stated preferences"
+  "why": "One sentence written in the second person, addressed to the smoker as you and your — never they or their. Name the specific preferences stated above."
 }]
 
-Recommend a variety of well-known, widely available cigars that match their preferences. Include options at different price points.`;
+Recommend a variety of well-known, widely available cigars that match the preferences above. Include options at different price points.`;
   };
 
   const fetchRecommendations = async (prompt) => {
@@ -238,7 +253,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>FLAVORS YOU ENJOY</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {FLAVOR_OPTIONS.map(f => (
+              {FLAVOR_TAG_NAMES.map(f => (
                 <button key={f} style={s.pill(prefFlavors.includes(f))}
                   onClick={() => setPrefFlavors(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}>
                   {f}
@@ -283,7 +298,7 @@ Recommend a variety of well-known, widely available cigars that match their pref
       {mode === "results" && (
         <div style={{ padding: 16 }}>
           <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 14 }}>
-            {hasEnoughData ? `BASED ON YOUR ${checkins.length} LOGGED CIGARS` : "BASED ON YOUR PREFERENCES"}
+            {resultsBasis}
           </div>
 
           {recommendations.map((rec, i) => {
