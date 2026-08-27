@@ -36,8 +36,10 @@ close overlays. That is a known gap for the native build.
 
 ## Styling
 
-Every component uses **inline style objects**. There is no stylesheet in use —
-`App.css` is unmodified Create React App boilerplate and is imported by nothing.
+Every component uses **inline style objects**. There are no component
+stylesheets. The only CSS file is `src/index.css`, imported once by
+`src/index.js`; it sets the page background (`#1a0f08`) and zeroes the body
+margin, nothing more.
 
 Each file redeclares:
 ```js
@@ -134,8 +136,11 @@ signed in with `is_admin = true`. Progress saves to `tracker_progress`.
 - Functional components with hooks. No class components.
 - `refreshCount` state as a `useEffect` re-trigger is an established pattern here.
 - Fix all ESLint warnings before every deploy (see build rule above).
-- `AshendVersionTracker.jsx` at the repo root is the source for `src/Tracker.js`.
-  Task definitions live there; completion state lives in the database.
+- `src/Tracker.js` is the tracker, source and all. Task definitions are the
+  `PLAN` array inside it; completion state lives in the `tracker_progress`
+  table, which overrides the `INITIAL_COMPLETED` set baked into the file.
+  There is no separate `.jsx` source — older copies named
+  `AshendVersionTracker.jsx` are a superseded generation.
 
 ## Working style
 
