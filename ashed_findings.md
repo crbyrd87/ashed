@@ -177,7 +177,7 @@ Kotzebue, AK.
 | ID | Finding | Type | Where | Status |
 |----|---------|------|-------|--------|
 | 10-A | **No way to clear notifications.** They accumulate forever — no delete, no "clear all", no auto-expiry. The empty state exists in code but is unreachable once you have any history. An active user's list becomes unusable. | Bug | `Notifications.js` | FIXED 27 Aug — DECIDED: manual clearing, not auto-expiry. A Clear all control with an inline confirm sits in the header |
-| 10-B | Badge notifications are not tappable and do nothing when tapped, but look identical to rows that are. Confirms the code review finding: every row gets `cursor: pointer`, only rows with a `checkin_id` act on it. Badge rows should open the Badges tab; friend_accepted should open that friend's profile. | Bug | `Notifications.js` `handleTap` / `TYPE_META` | FIXED 27 Aug — badge rows open the Badges tab, friend_accepted opens Friends, and the pointer cursor now appears only on rows that actually navigate. **Correction:** check-in rows were dead too — `onOpenCheckin` was never passed by `App.js` |
+| 10-B | Badge notifications are not tappable and do nothing when tapped, but look identical to rows that are. Confirms the code review finding: every row gets `cursor: pointer`, only rows with a `checkin_id` act on it. Badge rows should open the Badges tab; friend_accepted should open that friend's profile. | Bug | `Notifications.js` `handleTap` / `TYPE_META` | FIXED 27 Aug — badge rows open the Badges tab, friend_accepted opens Friends, and the pointer cursor now appears only on rows that actually navigate. **Correction:** check-in rows were dead too — `onOpenCheckin` was never passed by `App.js`. **NOT YET OBSERVED WORKING:** the owner cleared their notifications before tapping one, so neither destination has been confirmed on a real row. Verify on the next badge award or friend acceptance |
 | 10-C | Unread gold dots persist for the whole session and only clear when you leave and re-enter the screen. `markAllRead` runs after `setNotifications`, so the database is updated but local state is not. Self-correcting, but looks broken. | Bug | `Notifications.js` `loadNotifications` | FIXED 27 Aug — local state is updated after markAllRead, so the dots match the header count |
 | 10-D | Notifications live inside the Me tab, so they are two taps from anywhere and invisible from the main screen. Convention in social apps is a top-level bell. The unread count already exists and is doing a top-level job from a buried location. | Design | `App.js` nav / Me tab header | OPEN — product decision |
 | 10-E | Screen reads slightly dim overall — could be brightened a step. Overlaps design rec #9 (the muted brown ramp fails contrast). | Design | `Notifications.js` | OPEN |
@@ -246,6 +246,11 @@ line on mobile. Split into two rows: identity (avatar, name, handle, member
 since) on top with nothing competing for width, badges and both quick actions
 below. This is a layout fix, not the composition review; it needed no tokens,
 so it did not wait for Session 9.
+
+**Owner's verdict on the interim fix, 27 Aug:** the wrapping is resolved and the
+two rows work, but they are still not satisfied with the overall composition.
+Treat the current header as a holding position, not a solution — the brief below
+stands in full.
 
 **Still open for Claude Design:** whether Friends and Notifications belong in
 this header at all (see 10-D), the avatar treatment, and the Settings and Help
