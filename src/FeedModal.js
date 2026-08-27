@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
+import { formatSmokeDate } from "./dateUtils";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -116,7 +117,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const vitola = checkin.cigars?.vitola || checkin.cigar_vitola || "";
   const smokerHandle = checkin.users?.username ? `@${checkin.users.username}` : "";
   const smokeDate = checkin.smoke_date
-    ? new Date(checkin.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    ? formatSmokeDate(checkin.smoke_date)
     : "";
 
   return (

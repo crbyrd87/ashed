@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
+import { todayLocalISO } from "./dateUtils";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -166,7 +167,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [valueForPrice, setValueForPrice] = useState(null);
-  const [smokeDate, setSmokeDate] = useState(new Date().toISOString().split("T")[0]);
+  const [smokeDate, setSmokeDate] = useState(todayLocalISO());
   const [location, setLocation] = useState("");
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [showNewPlace, setShowNewPlace] = useState(false);

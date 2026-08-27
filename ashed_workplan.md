@@ -58,7 +58,7 @@ refactors in Phase D.
 
 ---
 
-### ☐ Session 2 — Dates are wrong
+### ☑ Session 2 — Dates are wrong — DONE 27 Aug 2026
 
 - Findings: `11-A`, `11-B`
 - Two separate bugs that must be fixed together, or one masks the other.
@@ -335,6 +335,39 @@ appear in `cigars`.
 as a friend sees it. Clear the choice and confirm the fallback returns.
 
 **Commit:** `Feat: let users choose the badge shown on their profile`
+
+**STOP.**
+
+---
+
+# Phase G · Close-out
+
+### ☐ Session 15 — Reconcile the tracker
+
+Do this **last**, once every session above is done. Decided 27 Aug 2026.
+
+- `src/Tracker.js` is the project's long-term record; this work plan is a
+  short-lived remediation queue that ends here. Anything from this plan that
+  should outlive it has to be carried across before the plan is retired.
+- Walk the remaining Step 29 tasks against what actually shipped:
+  - `30-26` … `30-30` are Session 13. Tick them if it landed.
+  - `30-18` security audit partly overlaps Session 7, which covers only the
+    three API endpoints. RLS coverage, frontend bundle secrets, input
+    sanitization and the OWASP pass are still outstanding after it.
+  - `30-25` age gate (rec `59`) is in the findings but has **no session** in
+    this plan. Either give it one or leave it as a tracker task — do not let
+    it fall between the two documents.
+  - `30-23` reverse trial and rec `22` are one decision, not two: the paywall
+    already promises a 7-day trial the app cannot deliver.
+- Add a tracker task for the design system (Sessions 9–12) if it has not been
+  added by then. Nothing in the tracker currently hints that work is coming.
+- Fix the stale status line in `Tracker.js` describing walkthroughs #7–#12 as
+  remaining; they were completed 25 and 27 Aug.
+- Decide whether Phase 4 "Monetization" should be re-cut. It currently holds
+  App Polish & Testing and Native Mobile App, which are not monetization.
+
+**Verify:** every finding marked FIXED here has either a ticked tracker task
+or a deliberate decision that it does not need one.
 
 **STOP.**
 

@@ -11,6 +11,7 @@ import Friends from "./Friends";
 import Feed from "./Feed";
 import Badges from "./Badges";
 import { checkAndAwardBadges, fetchUserBadges, sortByDisplayPriority } from "./badgeEngine";
+import { parseLocalDate, formatSmokeDate, checkinDate } from "./dateUtils";
 import Venues from "./Venues";
 import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
@@ -158,7 +159,8 @@ function AdvancedStats({ checkins }) {
     return { label: d.toLocaleString("en-US", { month: "short" }), year: d.getFullYear(), month: d.getMonth(), count: 0 };
   });
   for (const c of checkins) {
-    const d = new Date(c.smoke_date || c.created_at);
+    const d = checkinDate(c);
+    if (!d) continue;
     const m = months.find(m => m.month === d.getMonth() && m.year === d.getFullYear());
     if (m) m.count++;
   }
@@ -194,8 +196,8 @@ function AdvancedStats({ checkins }) {
   // Average rating by month
   const monthlyRatings = months.map(m => {
     const monthCheckins = checkins.filter(c => {
-      const d = new Date(c.smoke_date || c.created_at);
-      return d.getMonth() === m.month && d.getFullYear() === m.year && c.rating != null;
+      const d = checkinDate(c);
+      return d && d.getMonth() === m.month && d.getFullYear() === m.year && c.rating != null;
     });
     return avgFlames(monthCheckins);
   });
@@ -1223,7 +1225,7 @@ export default function App() {
             {[
               ["Smoked", checkins.length],
               ["AVG RATING", avgFlames(checkins) ?? "—"],
-              ["This Year", checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length]
+              ["This Year", checkins.filter(c => parseLocalDate(c.smoke_date)?.getFullYear() === new Date().getFullYear()).length]
             ].map(([k, v]) => (
               <div key={k} style={{ ...s.statBox, padding: "10px 8px" }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: "#d4b45a" }}>{v}</div>
@@ -1366,7 +1368,7 @@ export default function App() {
                   let val = 0;
                   if (historySortBy === "score") val = b.rating - a.rating;
                   else if (historySortBy === "name") val = (a.cigars?.line || a.cigar_name || "").localeCompare(b.cigars?.line || b.cigar_name || "");
-                  else val = new Date(b.smoke_date) - new Date(a.smoke_date);
+                  else val = (parseLocalDate(b.smoke_date)?.getTime() || 0) - (parseLocalDate(a.smoke_date)?.getTime() || 0);
                   return historySortDir === "asc" ? -val : val;
                 });
                 if (sorted.length === 0 && checkins.length > 0) return (
@@ -1388,7 +1390,7 @@ export default function App() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: "#a08060", letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
-                            <span style={{ fontSize: 12, color: "#7a6048" }}>{new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            <span style={{ fontSize: 12, color: "#7a6048" }}>{formatSmokeDate(c.smoke_date)}</span>
                             <div style={{ display: "flex", gap: 4 }} onClick={e => e.stopPropagation()}>
                               {[
                                 { value: "public", icon: "🌍", label: "Public" },

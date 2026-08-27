@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
+import { parseLocalDate, formatSmokeDate } from "./dateUtils";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -79,7 +80,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
         <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
           <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 12 }}>SMOKING PROFILE</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-            {[["Smoked", checkins.length], ["Avg Rating", avgRating ?? "—"], ["This Year", checkins.filter(c => new Date(c.smoke_date).getFullYear() === new Date().getFullYear()).length]].map(([k, v], i, arr) => (
+            {[["Smoked", checkins.length], ["Avg Rating", avgRating ?? "—"], ["This Year", checkins.filter(c => parseLocalDate(c.smoke_date)?.getFullYear() === new Date().getFullYear()).length]].map(([k, v], i, arr) => (
               <div key={k} style={{ flex: 1, textAlign: "center", borderRight: i < arr.length - 1 ? "1px solid #4a3520" : "none" }}>
                 <div style={{ fontSize: 26, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{v}</div>
                 <div style={{ fontSize: 10, color: "#8a7055", marginTop: 5 }}>{k.toUpperCase()}</div>
@@ -154,7 +155,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", margin: "2px 0" }}>{line}</div>
                   {vitola && <div style={{ fontSize: 11, color: "#c9a84c" }}>{vitola}</div>}
                   <div style={{ fontSize: 10, color: "#5a4535", marginTop: 4 }}>
-                    {new Date(c.smoke_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    {formatSmokeDate(c.smoke_date)}
                   </div>
                 </div>
                 {flames !== null && (
