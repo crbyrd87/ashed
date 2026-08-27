@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
+// The plan is a sequence of numbered steps, not a calendar. Steps run 1..30
+// across phases 1-4; Phase 5 features are unordered and show as FEATURE.
+//
+// Task ids are stable keys, NOT step numbers. Completion state lives in the
+// tracker_progress table keyed by these exact strings, so renumbering an id
+// silently unticks that task for everyone. Ids still carry the old week
+// numbering they were created under — that mismatch is deliberate. Ids are
+// never shown in the UI. When adding a task, continue its block's numbering.
 const PLAN = [
   {
     phase: "Phase 1: Foundation", color: "#c9a84c",
-    weeks: [
-      { week: 1, title: "Dev Environment Setup", tasks: [
+    steps: [
+      { step: 1, title: "Dev Environment Setup", tasks: [
         { id: "1-1", text: "Download and install Node.js" },
         { id: "1-2", text: "Verify Node.js: run node --version" },
         { id: "1-3", text: "Download and install VS Code" },
@@ -19,7 +27,7 @@ const PLAN = [
         { id: "1-11", text: "Create Supabase account" },
         { id: "1-12", text: "Deploy prototype to Vercel" },
       ]},
-      { week: 2, title: "Database Design", tasks: [
+      { step: 2, title: "Database Design", tasks: [
         { id: "2-1", text: "Create Supabase project" },
         { id: "2-2", text: "Build users table" },
         { id: "2-3", text: "Build cigars table" },
@@ -28,7 +36,7 @@ const PLAN = [
         { id: "2-6", text: "Set foreign keys linking all tables" },
         { id: "2-7", text: "Add updated_at column to all four tables" },
       ]},
-      { week: 3, title: "Authentication", tasks: [
+      { step: 3, title: "Authentication", tasks: [
         { id: "3-1", text: "Install Supabase JS library" },
         { id: "3-2", text: "Create src/supabase.js" },
         { id: "3-3", text: "Build Auth.js -- sign up and login screens" },
@@ -39,7 +47,7 @@ const PLAN = [
         { id: "3-8", text: "Add username vs. real name display preference" },
         { id: "3-9", text: "Test: both users can create accounts" },
       ]},
-      { week: 4, title: "Cigar Search + AI Data Layer", tasks: [
+      { step: 4, title: "Cigar Search + AI Data Layer", tasks: [
         { id: "4-1", text: "Set up Anthropic API key" },
         { id: "4-2", text: "Create .env file with REACT_APP_ANTHROPIC_KEY" },
         { id: "4-3", text: "Create cigarAI.js with searchCigarLines and getVitolas" },
@@ -51,9 +59,9 @@ const PLAN = [
         { id: "4-9", text: "Autocomplete dropdown in search bar" },
         { id: "4-10", text: "Featured cigars shown on home screen" },
         { id: "4-11", text: "Test: search a cigar, select a line, view vitolas" },
-        { id: "4-12", text: "NOTE: Search is DB-first then AI-fill. Pre-seeding the DB with top cigars eliminates AI costs on common searches. Full seed script planned for Week 29 pre-launch." },
+        { id: "4-12", text: "NOTE: Search is DB-first then AI-fill. Pre-seeding the DB with top cigars eliminates AI costs on common searches. Full seed script planned for Step 28, launch prep." },
       ]},
-      { week: 5, title: "Check-In Flow", tasks: [
+      { step: 5, title: "Check-In Flow", tasks: [
         { id: "5-1", text: "Build Log a Smoke screen" },
         { id: "5-2", text: "Add rating slider (0-10 scale)" },
         { id: "5-3", text: "Add tasting notes with sub-scores" },
@@ -66,7 +74,7 @@ const PLAN = [
         { id: "5-10", text: "Add personal saved places" },
         { id: "5-11", text: "Test: log a real cigar and see it in profile history" },
       ]},
-      { week: 6, title: "Polish & Deploy v1", tasks: [
+      { step: 6, title: "Polish & Deploy v1", tasks: [
         { id: "6-1", text: "Connect all screens to real data" },
         { id: "6-2", text: "Build profile page with history and stats" },
         { id: "6-3", text: "General UI polish pass" },
@@ -83,40 +91,40 @@ const PLAN = [
   },
   {
     phase: "Phase 2: AI Features", color: "#7a9a7a",
-    weeks: [
-      { week: 7, title: "Camera Integration", tasks: [
+    steps: [
+      { step: 7, title: "Camera Integration", tasks: [
         { id: "7-1", text: "Camera reserved for AI band identification only" },
         { id: "7-2", text: "No user-submitted photos -- moderation risk" },
         { id: "7-3", text: "Cigar imagery: SVG placeholders now, brand photos at launch" },
       ]},
-      { week: 8, title: "AI Band Identification (Part 1)", tasks: [
+      { step: 8, title: "AI Band Identification (Part 1)", tasks: [
         { id: "8-1", text: "Send captured band photo to vision AI" },
         { id: "8-2", text: "Write structured identification prompt" },
         { id: "8-3", text: "Parse and display returned cigar data" },
         { id: "8-4", text: "Test: photo a band, get back brand/line/vitola/strength/origin" },
       ]},
-      { week: 9, title: "AI Band Identification (Part 2)", tasks: [
+      { step: 9, title: "AI Band Identification (Part 2)", tasks: [
         { id: "9-1", text: "Handle low-confidence results -- fallback to manual search" },
         { id: "9-2", text: "Cache identified cigars into database automatically" },
         { id: "9-3", text: "Add Flag incorrect info button" },
         { id: "9-4", text: "Full identification flow working end to end" },
       ]},
-      { week: 10, title: "AI Recommendation Engine (Part 1)", tasks: [
+      { step: 10, title: "AI Recommendation Engine (Part 1)", tasks: [
         { id: "10-1", text: "Pull user check-in history and ratings from Supabase" },
         { id: "10-2", text: "Design recommendation prompt based on taste profile" },
         { id: "10-3", text: "Test prompt returns quality recommendations" },
       ]},
-      { week: 11, title: "AI Recommendation Engine (Part 2)", tasks: [
+      { step: 11, title: "AI Recommendation Engine (Part 2)", tasks: [
         { id: "11-1", text: "Build Recommended for You screen" },
         { id: "11-2", text: "Refresh recommendations when new check-ins added" },
         { id: "11-3", text: "Test: personalized recommendations reflect actual ratings" },
       ]},
-      { week: 12, title: "AI Tasting Notes Assistant", tasks: [
+      { step: 12, title: "AI Tasting Notes Assistant", tasks: [
         { id: "12-1", text: "AI suggests tasting note descriptors during check-in" },
         { id: "12-2", text: "User can tap suggested notes instead of typing" },
         { id: "12-3", text: "Test: faster, smarter check-in experience" },
       ]},
-      { week: 13, title: "My Humidor", tasks: [
+      { step: 13, title: "My Humidor", tasks: [
         { id: "13-1", text: "Create humidor table in Supabase: id, user_id, cigar_id(nullable), cigar_name, cigar_brand, cigar_vitola, quantity, added_at, notes" },
         { id: "13-2", text: "Add Humidor tab to nav alongside Wishlist" },
         { id: "13-3", text: "Add to Humidor button on cigar detail page and BandScanner result screen" },
@@ -128,7 +136,7 @@ const PLAN = [
         { id: "13-9", text: "Scan multiple cigars at once -- one photo of several bands, AI returns array of identified cigars, user confirms each with quantity before saving" },
         { id: "13-10", text: "Test: add cigars via search, band scan, and wishlist. Smoke one and verify quantity decrements." },
       ]},
-      { week: 14, title: "AI Drink Pairing Suggestions", tasks: [
+      { step: 14, title: "AI Drink Pairing Suggestions", tasks: [
         { id: "14-1", text: "Create pairings table in Supabase: id, cigar_id(FK->cigars), spirits(text), beer(text), coffee(text), non_alcoholic(text), notes(text), created_at. Pairings stored at line level (not per vitola)." },
         { id: "14-2", text: "Add 'Drink Pairings' button on cigar detail page -- tapping opens a modal/popup overlay" },
         { id: "14-3", text: "Pairings modal shows four categories: Spirits, Beer, Coffee, Non-Alcoholic. Each has 2-3 AI suggestions. Close button dismisses modal." },
@@ -142,15 +150,15 @@ const PLAN = [
   },
   {
     phase: "Phase 3: Social & Growth", color: "#7a8a9a",
-    weeks: [
-      { week: 16, title: "Friend System (Part 1)", tasks: [
+    steps: [
+      { step: 15, title: "Friend System (Part 1)", tasks: [
         { id: "16-1", text: "Create friends table in Supabase: id, requester_id(FK->users), recipient_id(FK->users), status(pending/accepted), created_at" },
         { id: "16-2", text: "Send friend request by username, email, or QR code" },
         { id: "16-3", text: "Accept/decline friend requests -- pending requests shown on profile page" },
         { id: "16-4", text: "Friend list visible on profile page" },
         { id: "16-5", text: "Search tab: show Find Friends prompt when user has no friends yet. Once friends added, show Feed instead of featured cigars." },
       ]},
-      { week: 17, title: "Friend System (Part 2) -- Feed & Fire", tasks: [
+      { step: 16, title: "Friend System (Part 2) -- Feed & Fire", tasks: [
         { id: "17-1", text: "Build Feed on Search screen -- hybrid: friends check-ins first, then recent global public check-ins tagged as Community" },
         { id: "17-2", text: "Feed card shows: username, cigar brand/line/vitola, rating, time ago, strength badge" },
         { id: "17-3", text: "Add Fire button on each feed card -- Ashed equivalent of Untappd Toast. Cannot fire your own check-ins." },
@@ -161,7 +169,7 @@ const PLAN = [
         { id: "17-8", text: "Humidor: added Search to Add button alongside Scan to Add -- tapping switches to Search tab" },
         { id: "17-9", text: "Friend request notification badge on Friends button -- red dot with count appears when pending requests exist, clears on open, refreshes after accept/decline" },
       ]},
-      { week: 18, title: "Badges & Achievements (Part 1)", tasks: [
+      { step: 17, title: "Badges & Achievements (Part 1)", tasks: [
         { id: "18-1", text: "Design badge definitions: 17 badges across 4 categories (milestone, variety, social, referral)" },
         { id: "18-2", text: "Create badges table in Supabase: id, key, name, description, icon, category, created_at" },
         { id: "18-3", text: "Create user_badges table in Supabase: id, user_id(FK), badge_key(FK), awarded_at. Unique constraint on user_id+badge_key." },
@@ -171,16 +179,16 @@ const PLAN = [
         { id: "18-7", text: "Wire badge checks: CheckIn.js fires on save, Feed.js fires on fire toggle (both giver and receiver), FeedModal.js fires on comment post" },
         { id: "18-8", text: "Add Badges section to profile tab in App.js above Smoking History" },
         { id: "18-9", text: "Founding Member badge: awarded to first 100 users by created_at order" },
-        { id: "18-10", text: "Referral badges (Ambassador, Recruiter, Legend Maker) stubbed -- will activate when referral tracking built in Week 19" },
+        { id: "18-10", text: "Referral badges (Ambassador, Recruiter, Legend Maker) stubbed -- will activate when referral tracking is built in Step 18" },
       ]},
-      { week: 19, title: "Badges & Achievements (Part 2) + Referral Tracking", tasks: [
+      { step: 18, title: "Badges & Achievements (Part 2) + Referral Tracking", tasks: [
         { id: "19-1", text: "Build referral tracking: unique referral links per user (ashed.vercel.app?ref=username)" },
         { id: "19-2", text: "Create referrals table: id, referrer_id, referred_id, created_at" },
         { id: "19-3", text: "Award Ambassador/Recruiter/Legend Maker badges automatically when referral milestones hit" },
         { id: "19-4", text: "Test: badges award correctly at right thresholds for all categories" },
         { id: "19-5", text: "Test: referral link flow works end to end" },
       ]},
-      { week: 20, title: "Venue & Shop Finder (Part 1)", tasks: [
+      { step: 19, title: "Venue & Shop Finder (Part 1)", tasks: [
         { id: "20-1", text: "Set up Google Places API key + Maps JavaScript API + Geocoding API + Places API (New). Added GOOGLE_PLACES_KEY to Vercel environment variables (server-side only, not REACT_APP_ prefix)." },
         { id: "20-2", text: "Build Vercel serverless proxy at api/places.js -- handles geocode, search, and autocomplete actions server-side to avoid CORS and keep API key off frontend" },
         { id: "20-3", text: "Build Venues.js: city/zip search with autocomplete dropdown, GPS location detection, nearby cigar shop results via Google Places textSearch" },
@@ -190,23 +198,23 @@ const PLAN = [
         { id: "20-7", text: "iOS-specific location denied message directs to Settings → Privacy & Security → Location Services → Safari" },
         { id: "20-8", text: "vercel.json added to project root for proper API route + SPA routing configuration" },
       ]},
-      { week: 21, title: "Venue & Shop Finder (Part 2)", tasks: [
+      { step: 20, title: "Venue & Shop Finder (Part 2)", tasks: [
         { id: "21-1", text: "Add List/Map toggle on Venues tab -- toggle only shows when results are loaded" },
         { id: "21-2", text: "Map view using Leaflet + OpenStreetMap tiles -- no additional API key needed" },
         { id: "21-3", text: "Map shows venue pins for current search results, auto-fits bounds to show all results" },
         { id: "21-4", text: "Blue pulsing dot shows user current location on map when GPS was granted" },
         { id: "21-5", text: "Tap a pin to see venue name, address, rating and View Details button that switches to list view" },
         { id: "21-6", text: "Add venue location lookup to CheckIn.js -- Find venue button opens search panel, results tap to set location field" },
-        { id: "21-7", text: "Verified partner badge on map pins -- skipped, will build in Week 24 with partner dashboard" },
+        { id: "21-7", text: "Verified partner badge on map pins -- skipped, will build in Step 23 with the partner dashboard" },
       ]},
-      { week: 22, title: "Notifications", tasks: [
+      { step: 21, title: "Notifications", tasks: [
         { id: "22-1", text: "Push notification when friend logs highly rated cigar" },
         { id: "22-2", text: "Notification when your pairing gets upvoted" },
         { id: "22-3", text: "Notification when you earn a badge" },
         { id: "22-4", text: "Birthday notification" },
         { id: "22-5", text: "FRIENDS: Show outgoing (sent) friend requests in the Requests tab of Friends.js alongside incoming requests. Add Cancel button to withdraw a pending sent request. Query: friends table where requester_id = current user AND status = pending." },
       ]},
-      { week: 23, title: "Polish, Community & Admin", tasks: [
+      { step: 22, title: "Polish, Community & Admin", tasks: [
         { id: "23-1", text: "General UI polish based on real usage feedback" },
         { id: "23-2", text: "Add private mode -- profile visible to friends only" },
         { id: "23-3", text: "Add data export for users (GDPR-friendly)" },
@@ -228,17 +236,17 @@ const PLAN = [
   },
   {
     phase: "Phase 4: Monetization", color: "#9a7a9a",
-    weeks: [
-      { week: 24, title: "Venue Partner Dashboard (Part 1)", tasks: [
+    steps: [
+      { step: 23, title: "Venue Partner Dashboard (Part 1)", tasks: [
         { id: "24-1", text: "Build web dashboard for lounge owners" },
         { id: "24-2", text: "Lounge can manage their listing and inventory" },
       ]},
-      { week: 25, title: "Venue Partner Dashboard (Part 2)", tasks: [
-        { id: "25-1", text: "Display lounge inventory to nearby users -- moved to Phase 5 Week 36." },
-        { id: "25-2", text: "Push notifications to lounge followers -- moved to Week 30 native app build." },
+      { step: 24, title: "Venue Partner Dashboard (Part 2)", tasks: [
+        { id: "25-1", text: "Display lounge inventory to nearby users -- moved to Phase 5." },
+        { id: "25-2", text: "Push notifications to lounge followers -- moved to the native app build, Step 30." },
         { id: "25-3", text: "Check-in data analytics visible to lounge owner -- DONE. Analytics section in PartnerDashboard.js shows total check-ins, unique visitors, repeat visitors, avg rating, top cigars, check-ins by day of week." },
       ]},
-      { week: 26, title: "Premium Tier", tasks: [
+      { step: 25, title: "Premium Tier", tasks: [
         { id: "26-1", text: "Define free vs paid features -- Free: unlimited check-ins, search, wishlist (20 max), humidor, profile, filters. Premium: AI recommendations, band scanner, AI drink pairings, AI Concierge, personal fit score, unlimited wishlist/humidor, advanced stats, data export, Premium badge." },
         { id: "26-2", text: "MONETIZATION DECISION: Use App Store (StoreKit) and Google Play Billing. No Stripe. Pricing: $7.99/month or $59.99/year. Founding Member rate $39.99/year for first 100 users." },
         { id: "26-3", text: "Build premium feature gates in code -- isPremium flag set server-side after purchase validation." },
@@ -246,13 +254,13 @@ const PLAN = [
         { id: "26-5", text: "Add Premium badge to profile page for subscribers." },
         { id: "26-6", text: "Build advanced stats screen -- monthly trends, flavor profile chart, brand breakdown (premium only)." },
       ]},
-      { week: 27, title: "Legal, Compliance & Age Gate", tasks: [
+      { step: 26, title: "Legal, Compliance & Age Gate", tasks: [
         { id: "27-1", text: "Health disclaimer on first login -- shown once, stored as disclaimer_accepted on user record." },
         { id: "27-2", text: "Include tobacco health liability disclaimer in Terms of Service." },
         { id: "27-3", text: "Set up Termly for ToS and Privacy Policy -- auto-updates for GDPR/CCPA compliance." },
         { id: "27-4", text: "Lock down social media handles (Instagram, X, Reddit, TikTok)." },
       ]},
-      { week: 28, title: "Security Hardening", tasks: [
+      { step: 27, title: "Security Hardening", tasks: [
         { id: "28-1", text: "SECURITY - Move Anthropic API key to Vercel serverless/edge functions." },
         { id: "28-2", text: "SECURITY - Enable Supabase RLS on all tables." },
         { id: "28-3", text: "SECURITY - Rate limiting on AI features." },
@@ -260,7 +268,7 @@ const PLAN = [
         { id: "28-5", text: "SECURITY - Input sanitization on all text fields that write to Supabase." },
         { id: "28-6", text: "SECURITY - Audit Vercel environment variables -- no secrets in REACT_APP_ prefix." },
       ]},
-      { week: 29, title: "Launch Prep & Polish", tasks: [
+      { step: 28, title: "Launch Prep & Polish", tasks: [
         { id: "29-1", text: "Set up PostHog analytics (free tier)" },
         { id: "29-2", text: "Configure Supabase custom SMTP -- DONE. Using Resend (resend.com) as the email provider, configured in Supabase Authentication → SMTP Settings. Sender: noreply@ashedapp.com." },
         { id: "29-3", text: "Verify viewport meta tag in public/index.html: width=device-width, initial-scale=1.0" },
@@ -287,7 +295,7 @@ const PLAN = [
         { id: "29-24", text: "Auto-dedup cron -- nightly Vercel cron normalizes and merges duplicate cigars. Logs to dedup_log table." },
         { id: "29-25", text: "DB refresh cron -- monthly Vercel cron identifies likely new cigar lines. Admin reviews before seeding." },
       ]},
-      { week: 30, title: "Week 30 — App Polish & Testing", tasks: [
+      { step: 29, title: "App Polish & Testing", tasks: [
         { id: "30-1", text: "Mobile walkthrough #1 Login/signup -- review and polish Auth.js. Coming soon at ashed.app, login at ashed.app/login. No admin link visible." },
         { id: "30-2", text: "Mobile walkthrough #2 Check-in flow -- review and polish CheckIn.js." },
         { id: "30-3", text: "Mobile walkthrough #3 Band Scanner -- full UI redesign, fixed overlay, proxy fix, vitola picker (DB-driven), Not Sure option shows strength range, multi-band detection, toast confirmations." },
@@ -302,7 +310,7 @@ const PLAN = [
         { id: "30-12", text: "Mobile walkthrough #12 Badges -- review and polish" },
         { id: "30-13", text: "Strength system overhaul -- added Mild-Medium, renamed Light→Mild across all files and DB. Full 5-level system: Mild / Mild-Medium / Medium / Medium-Full / Full." },
         { id: "30-14", text: "Claude Design review -- 56 suggestions reviewed and triaged. ~36 actionable items documented. Table of decisions produced." },
-        { id: "30-15", text: "Tracker overhaul -- INITIAL_COMPLETED updated, pending tasks consolidated into Week 29, Phase 5 restructured, monetization decision documented, Apple/Google small business programs added." },
+        { id: "30-15", text: "Tracker overhaul -- INITIAL_COMPLETED updated, pending tasks consolidated into Step 28, Phase 5 restructured, monetization decision documented, Apple/Google small business programs added." },
         { id: "30-16", text: "Seed demo data and delete test accounts before soft launch." },
         { id: "30-17", text: "Version bump to 1.0.0 for soft launch." },
         { id: "30-18", text: "REVIEW: Security audit before iOS/Android publish -- verify all API keys server-side, RLS covers all tables, rate limiting in place, no sensitive data in frontend bundle, all inputs sanitized. Run OWASP top 10 checklist." },
@@ -317,9 +325,10 @@ const PLAN = [
         { id: "30-27", text: "BANDSCANNER + HUMIDOR DUPLICATE FIX: Switch both scanners to the shared helper from 30-26. Current behavior silently creates a fresh ai_generated, verified=false cigar row on most scans because maybeSingle() fails on multi-vitola lines. Audit the cigars table for duplicates already created this way and merge them." },
         { id: "30-28", text: "RECOMMENDATIONS -- CROSS-CHECK CATALOG: Recommendations.js currently has no database access at all. Wire it to the 30-26 helper so each AI result is checked against the catalog. Exact match: link the real cigar_id so wishlist adds and check-ins attach to the catalog and feed avg_rating. Line match, different vitola: link the line and offer the existing vitola picker. No match: see 30-29. Today every recommendation saved to a wishlist stores loose text with cigar_id null and is invisible to community ratings." },
         { id: "30-29", text: "RECOMMENDATIONS -- LOG MISSING CIGARS: DECISION DOCUMENTED -- do NOT auto-insert AI recommendations into the cigars table. AI mistakes would become catalog records other users can rate and check into. Instead write unmatched recommendations to the existing missing_cigars table (brand, line, vitola, reported_by) for admin review, and let the user wishlist it as text in the meantime." },
+        { id: "30-31", text: "PROFILE DISPLAY BADGE: Let the user choose which earned badge appears on their profile header, picked from the Badges tab. Locked badges are not selectable and clearing back to none must be possible. Needs a users.display_badge_key column (text, nullable), added by hand in the Supabase editor. When no choice is set, or the chosen badge is no longer earned, the header falls back to BADGE_DISPLAY_ORDER in badgeEngine.js. Fix the hardcoded Aficionado pip on friend profiles (Friends.js) in the same change so friends see the chosen badge too." },
         { id: "30-30", text: "ADMIN -- MISSING CIGARS QUEUE: Add a missing_cigars review section to AdminConsole. Shows unresolved rows with source, lets admin approve into the cigars table (verified) or dismiss as resolved. This is the approval path for both 30-29 and any user-reported gaps." },
       ]},
-      { week: 31, title: "Native Mobile App", tasks: [
+      { step: 30, title: "Native Mobile App", tasks: [
         { id: "31-1", text: "Set up React Native project" },
         { id: "31-2", text: "Port PWA screens to native components" },
         { id: "31-3", text: "Add biometric / Face ID authentication" },
@@ -332,55 +341,55 @@ const PLAN = [
   },
   {
     phase: "Phase 5: Future Features", color: "#6a7a6a",
-    weeks: [
-      { week: "—", title: "Phase 5 Planning", tasks: [
-        { id: "F-1", text: "EVALUATE, GROUP & PRIORITIZE FUTURE FEATURES: Review all Phase 5 features based on user feedback, usage data, and business goals after launch. Group into themes (social, B2B, monetization, content). Prioritize based on what users actually want vs what was assumed pre-launch. Reorder and reschedule Phase 5 weeks accordingly before beginning any Phase 5 work." },
+    steps: [
+      { step: "—", title: "Phase 5 Planning", tasks: [
+        { id: "F-1", text: "EVALUATE, GROUP & PRIORITIZE FUTURE FEATURES: Review all Phase 5 features based on user feedback, usage data, and business goals after launch. Group into themes (social, B2B, monetization, content). Prioritize based on what users actually want vs what was assumed pre-launch. Reorder and reprioritize the Phase 5 features accordingly before beginning any Phase 5 work." },
       ]},
-      { week: "—", title: "AI Concierge -- What Should I Smoke Tonight", tasks: [
-        { id: "31-1", text: "Build AI Concierge as a section within the Humidor tab -- button at top of humidor screen" },
-        { id: "31-2", text: "Concierge shows 6 criteria as pill-button rows -- user taps one per row in ~15 seconds" },
-        { id: "31-3", text: "Criteria: (1) Time Available: 30min or less / 45-60min / 1.5-2hrs / All the time in the world. (2) Occasion: Solo/unwinding / With friends / Celebrating / After a meal / Morning. (3) Mood: Relaxed and mellow / Focused and complex / Bold and full / Surprise me. (4) Setting: Outdoors/porch / Cigar lounge / Indoors at home / Traveling. (5) Drinking: Nothing / Coffee / Whiskey/bourbon / Beer / Wine / Non-alcoholic. (6) How you feel: Need to unwind / Celebratory / Already relaxed / Adventurous" },
-        { id: "31-4", text: "User taps Find My Cigar -- AI receives all 6 criteria plus full humidor inventory and recommends best 1-2 matches with a reason for each" },
-        { id: "31-5", text: "Result shows cigar card(s) with brand, line, and why it fits the moment. Smoke One button opens CheckIn directly." },
-        { id: "31-6", text: "Test: all criteria combinations return sensible, personalized recommendations from humidor" },
+      { step: "—", title: "AI Concierge -- What Should I Smoke Tonight", tasks: [
+        { id: "AIC-1", text: "Build AI Concierge as a section within the Humidor tab -- button at top of humidor screen" },
+        { id: "AIC-2", text: "Concierge shows 6 criteria as pill-button rows -- user taps one per row in ~15 seconds" },
+        { id: "AIC-3", text: "Criteria: (1) Time Available: 30min or less / 45-60min / 1.5-2hrs / All the time in the world. (2) Occasion: Solo/unwinding / With friends / Celebrating / After a meal / Morning. (3) Mood: Relaxed and mellow / Focused and complex / Bold and full / Surprise me. (4) Setting: Outdoors/porch / Cigar lounge / Indoors at home / Traveling. (5) Drinking: Nothing / Coffee / Whiskey/bourbon / Beer / Wine / Non-alcoholic. (6) How you feel: Need to unwind / Celebratory / Already relaxed / Adventurous" },
+        { id: "AIC-4", text: "User taps Find My Cigar -- AI receives all 6 criteria plus full humidor inventory and recommends best 1-2 matches with a reason for each" },
+        { id: "AIC-5", text: "Result shows cigar card(s) with brand, line, and why it fits the moment. Smoke One button opens CheckIn directly." },
+        { id: "AIC-6", text: "Test: all criteria combinations return sensible, personalized recommendations from humidor" },
       ]},
-      { week: "—", title: "Social Feed Enhancements", tasks: [
+      { step: "—", title: "Social Feed Enhancements", tasks: [
         { id: "32-1", text: "Show wishlist adds in feed -- friend added X to their wishlist" },
         { id: "32-2", text: "Show humidor adds in feed -- friend added X to their humidor" },
         { id: "32-3", text: "Show badge earned in feed -- friend earned the Centurion badge" },
         { id: "32-4", text: "Filter feed by type: check-ins only / all activity" },
       ]},
-      { week: "—", title: "Lounge Partner Enhancements", tasks: [
+      { step: "—", title: "Lounge Partner Enhancements", tasks: [
         { id: "33-1", text: "Display lounge inventory to nearby users -- lounge partner adds current cigar inventory, visible to app users browsing that venue in the Venues tab." },
         { id: "33-2", text: "Push notifications to lounge followers -- when lounge owner posts announcement, notify all users who have checked in at that venue. Requires APNs + FCM + venue_followers table." },
       ]},
-      { week: "—", title: "Cigar Shop -- Order for Delivery", tasks: [
+      { step: "—", title: "Cigar Shop -- Order for Delivery", tasks: [
         { id: "34-1", text: "Research cigar retailer affiliate/API partnerships (Famous Smoke Shop, Cigars International, JR Cigars)" },
         { id: "34-2", text: "Build Shop tab -- browse cigars available for purchase/delivery" },
         { id: "34-3", text: "Deep link from cigar detail page to buy that cigar from a partner retailer" },
         { id: "34-4", text: "Affiliate revenue tracking -- commission on purchases driven from Ashed" },
         { id: "34-5", text: "Show shop button on wishlist items -- one tap to buy something on your wishlist" },
       ]},
-      { week: "—", title: "Merch Store", tasks: [
+      { step: "—", title: "Merch Store", tasks: [
         { id: "35-1", text: "Research print-on-demand / dropship partners (Printful, Printify, Spring) for Ashed and cigar-branded merchandise" },
         { id: "35-2", text: "Design initial merch: Ashed logo tee, cigar-themed items, branded accessories" },
         { id: "35-3", text: "Integrate merch store into app -- new Shop tab or section within existing Venues/Shop tab" },
         { id: "35-4", text: "Deep link to external store or embed product listings in-app" },
         { id: "35-5", text: "Merch revenue tracking -- profit margin per item after fulfillment costs" },
       ]},
-      { week: "—", title: "Band Scanner Cost Optimization", tasks: [
+      { step: "—", title: "Band Scanner Cost Optimization", tasks: [
         { id: "36-1", text: "Test Option 1: Google Cloud Vision OCR to extract band text, then Haiku to identify cigar (~$0.0025/scan vs $0.053 with Opus). Best accuracy at lowest cost." },
         { id: "36-2", text: "Test Option 2: Haiku-only vision -- track accuracy as models improve. Likely to match Opus quality within 12-18 months at a fraction of the cost." },
         { id: "36-3", text: "Switch from Opus to winning architecture when accuracy is acceptable. Band scanner is premium-only so cost only scales with paying users." },
       ]},
-      { week: "—", title: "Accessibility & Polish", tasks: [
-        { id: "37-1", text: "Dark/light mode toggle -- stores preference in localStorage and users table so it persists across devices. Deferred from Week 29 to native app phase where system theme detection is cleaner." },
+      { step: "—", title: "Accessibility & Polish", tasks: [
+        { id: "37-1", text: "Dark/light mode toggle -- stores preference in localStorage and users table so it persists across devices. Deferred from Step 28 to the native app phase where system theme detection is cleaner." },
         { id: "37-2", text: "Font size accessibility settings -- Normal/Large/Extra Large. Pairs with Capacitor Dynamic Type on iOS which may handle this automatically." },
         { id: "37-3", text: "Accessibility pass -- convert hardcoded px font sizes to rem units so app respects system font size settings." },
         { id: "37-4", text: "Add aria-label to every icon-only control (close buttons, steppers, fire button) and aria-pressed to toggles." },
         { id: "37-5", text: "Bring all tap targets to 48dp minimum (Apple HIG 44pt, Android Material 48dp -- use 48 to satisfy both)." },
       ]},
-      { week: "—", title: "Groups / Lounge Communities", tasks: [
+      { step: "—", title: "Groups / Lounge Communities", tasks: [
         { id: "38-1", text: "DECISION DOCUMENTED: Groups are lounge/shop-only in v1 -- no user-created groups. Rationale: lounge groups tie directly to B2B revenue (venues pay for the dashboard, groups are a feature of that), avoid moderation overhead of user-created groups, and create a natural engagement loop (lounge creates group → members join → check-ins and activity appear in group feed → lounge sees value → stays subscribed). User-created groups deferred to Phase 6 based on demand." },
         { id: "38-2", text: "Create groups table: id, name, venue_id (FK->places), created_by (FK->users), description, is_public, created_at" },
         { id: "38-3", text: "Create group_members table: id, group_id (FK->groups), user_id (FK->users), joined_at, role (member/admin)" },
@@ -395,8 +404,8 @@ const PLAN = [
   },
 ];
 
-const allTasks = PLAN.filter(p => !p.phase.includes("Phase 5")).flatMap(p => p.weeks.flatMap(w => w.tasks));
-const futureTasks = PLAN.filter(p => p.phase.includes("Phase 5")).flatMap(p => p.weeks.flatMap(w => w.tasks));
+const allTasks = PLAN.filter(p => !p.phase.includes("Phase 5")).flatMap(p => p.steps.flatMap(s => s.tasks));
+const futureTasks = PLAN.filter(p => p.phase.includes("Phase 5")).flatMap(p => p.steps.flatMap(s => s.tasks));
 
 const INITIAL_COMPLETED = new Set([
   "1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-9","1-10",
@@ -588,7 +597,7 @@ function TrackerDashboard({ userId }) {
   const [completed, setCompleted] = useState(INITIAL_COMPLETED);
   const [loaded, setLoaded] = useState(false);
   const [expandedPhases, setExpandedPhases] = useState({ 0: true });
-  const [expandedWeeks, setExpandedWeeks] = useState({});
+  const [expandedSteps, setExpandedSteps] = useState({});
   const [expandedFiles, setExpandedFiles] = useState({});
 
   // Load saved progress from Supabase, merged with the progress baked into
@@ -636,13 +645,13 @@ function TrackerDashboard({ userId }) {
   const totalDone = allTasks.filter(t => completed.has(t.id)).length;
   const totalPct = Math.round((totalDone / allTasks.length) * 100);
 
-  const phasePct = (weeks) => {
-    const tasks = weeks.flatMap(w => w.tasks);
+  const phasePct = (steps) => {
+    const tasks = steps.flatMap(s => s.tasks);
     const done = tasks.filter(t => completed.has(t.id)).length;
     return { done, total: tasks.length, pct: Math.round((done / tasks.length) * 100) };
   };
 
-  const weekPct = (tasks) => {
+  const stepPct = (tasks) => {
     const done = tasks.filter(t => completed.has(t.id)).length;
     return { done, total: tasks.length };
   };
@@ -663,7 +672,7 @@ function TrackerDashboard({ userId }) {
       <div style={{ padding: 16 }}>
 
         {tab === "plan" && PLAN.map((phase, pi) => {
-          const pp = phasePct(phase.weeks);
+          const pp = phasePct(phase.steps);
           const open = expandedPhases[pi];
           return (
             <div key={pi} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
@@ -680,29 +689,29 @@ function TrackerDashboard({ userId }) {
                   <span style={{ color: "#8a7055", fontSize: 14 }}>{open ? "-" : "+"}</span>
                 </div>
               </div>
-              {open && phase.weeks.map(week => {
-                const wp = weekPct(week.tasks);
-                const wkey = pi + "-" + week.week;
-                const wopen = expandedWeeks[wkey];
+              {open && phase.steps.map(step => {
+                const wp = stepPct(step.tasks);
+                const wkey = pi + "-" + step.step;
+                const wopen = expandedSteps[wkey];
                 const allDone = wp.done === wp.total;
                 return (
-                  <div key={week.week} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, margin: "10px 12px", overflow: "hidden" }}>
-                    <div onClick={() => setExpandedWeeks(p => ({ ...p, [wkey]: !p[wkey] }))}
+                  <div key={step.step} style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 8, margin: "10px 12px", overflow: "hidden" }}>
+                    <div onClick={() => setExpandedSteps(p => ({ ...p, [wkey]: !p[wkey] }))}
                       style={{ padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          {week.week !== "—" && <span style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>WEEK {week.week}</span>}
-                          {week.week === "—" && <span style={{ fontSize: 10, color: "#6a7a6a", letterSpacing: 1 }}>FEATURE</span>}
+                          {step.step !== "—" && <span style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>STEP {step.step}</span>}
+                          {step.step === "—" && <span style={{ fontSize: 10, color: "#6a7a6a", letterSpacing: 1 }}>FEATURE</span>}
                           {allDone && <span style={{ fontSize: 10, color: "#c9a84c", background: "#c9a84c22", padding: "1px 8px", borderRadius: 10 }}>COMPLETE</span>}
                         </div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", marginTop: 2 }}>{week.title}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", marginTop: 2 }}>{step.title}</div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 11, color: "#8a7055" }}>{wp.done}/{wp.total}</span>
                         <span style={{ color: "#5a4535", fontSize: 12 }}>{wopen ? "-" : "+"}</span>
                       </div>
                     </div>
-                    {wopen && week.tasks.map(task => {
+                    {wopen && step.tasks.map(task => {
                       const done = completed.has(task.id);
                       return (
                         <div key={task.id} onClick={() => toggle(task.id)}
