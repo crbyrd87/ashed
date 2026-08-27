@@ -4,15 +4,31 @@ Cigar journal and community app. React PWA, currently pre-launch (alpha, v0.9.2)
 
 ## Commands
 
-- `npm start` — dev server at localhost:3000
+- `npm install` — install dependencies. Needed once on a fresh clone, and again
+  whenever `package.json` changes.
+- `npm start` — dev server at localhost:3000. Runs until stopped with Ctrl+C;
+  saving a file reloads the browser automatically.
 - `npm run build` — production build. **Run this before every push.**
 - `git add . && git commit -m "msg" && git push origin master` — deploys to Vercel automatically
+
+Local toolchain, installed 27 Aug 2026: Node 24.19.0, npm 11.17.0.
+`package.json` pins `engines.node` to `24.x`, so do not upgrade to Node 26.
 
 ## Critical build rule
 
 Vercel builds with `CI=true`, which turns **every ESLint warning into a build failure**.
 An unused variable or a missing hook dependency will fail the deploy.
 Always run `npm run build` locally and fix all warnings before pushing.
+
+This is now enforceable locally — before Node was installed the rule could not
+actually be followed. To reproduce Vercel's strictness exactly, set `CI` first:
+
+```powershell
+$env:CI = "true"; npm run build
+```
+
+Without `CI=true` a warning only prints; with it, the build fails the way the
+deploy would.
 
 ## Stack
 
