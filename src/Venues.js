@@ -89,10 +89,25 @@ const getDistanceMeters = (from, lat, lng) => {
 };
 
 // All Google API calls go through our serverless proxy to avoid CORS
+// 9-A: failures are tagged with a `kind` so callers can say what actually
+// went wrong. "not_found" means the place genuinely does not exist and the
+// user should change their input; "network" and "service" mean the input was
+// fine and retrying is the right advice.
 const placesApi = async (params) => {
   const query = new URLSearchParams(params).toString();
-  const res = await fetch(`/api/places?${query}`);
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  let res;
+  try {
+    res = await fetch(`/api/places?${query}`);
+  } catch (e) {
+    const err = new Error("Could not reach /api/places");
+    err.kind = "network";
+    throw err;
+  }
+  if (!res.ok) {
+    const err = new Error(`API error: ${res.status}`);
+    err.kind = "service";
+    throw err;
+  }
   return res.json();
 };
 
@@ -103,7 +118,10 @@ const geocodeAddress = async (address) => {
     const loc = data.results[0].geometry.location;
     return { lat: loc.lat, lng: loc.lng };
   }
-  throw new Error(`Geocode failed: ${data.status} - ${data.error_message || ""}`);
+  // ZERO_RESULTS is the only status that means "change what you typed".
+  const err = new Error(`Geocode failed: ${data.status} - ${data.error_message || ""}`);
+  err.kind = data.status === "ZERO_RESULTS" ? "not_found" : "service";
+  throw err;
 };
 
 // Search nearby cigar shops
@@ -115,7 +133,9 @@ const searchNearbyPlaces = async (loc) => {
       _distance: p.geometry?.location ? getDistanceMeters(loc, p.geometry.location.lat, p.geometry.location.lng) : null,
     })).sort((a, b) => (a._distance || 0) - (b._distance || 0));
   }
-  throw new Error(`Places search failed: ${data.status} - ${data.error_message || ""}`);
+  const err = new Error(`Places search failed: ${data.status} - ${data.error_message || ""}`);
+  err.kind = "service";
+  throw err;
 };
 
 // Autocomplete suggestions
@@ -197,6 +217,12 @@ export default function Venues() {
   const [userLocation, setUserLocation] = useState(null);
   const [venueDetails, setVenueDetails] = useState({});
   const suggestTimeout = useRef(null);
+  // 9-A: holds the action to repeat when a failure was transient.
+  const retryRef = useRef(null);
+  const [canRetry, setCanRetry] = useState(false);
+  // 9-C: one DOM node per venue row, so a venue chosen on the map can be
+  // scrolled to once the list is showing.
+  const venueRefs = useRef({});
 
   const handleQueryChange = (val) => {
     setSearchQuery(val);
@@ -214,12 +240,25 @@ export default function Venues() {
     }, 350);
   };
 
+  // 9-C: "View details" on a map pin selects the venue and switches to the
+  // list, but the list did not move — a venue far down was highlighted
+  // off-screen and looked like nothing had happened. Runs after the list has
+  // rendered, so the row exists by the time we look for it.
+  useEffect(() => {
+    if (viewMode !== "list" || !selectedVenue) return;
+    const el = venueRefs.current[selectedVenue.place_id];
+    if (el && el.scrollIntoView) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selectedVenue, viewMode]);
+
   const doSearch = async (query) => {
     setLoading(true);
     setHasSearched(true);
     setVenues([]);
     setVenueDetails({});
     setError(null);
+    setCanRetry(false);
     setShowSuggestions(false);
     setSuggestions([]);
     try {
@@ -228,7 +267,20 @@ export default function Venues() {
       setVenues(results);
     } catch (e) {
       console.error("[Venues] Search error:", e);
-      setError(`Couldn't find results for "${query}". Try a different city or zip.`);
+      // Every failure used to produce the same "try a different city" advice,
+      // which is wrong for a network drop or a cold start — the most likely
+      // causes of the first search of a session failing.
+      if (e.kind === "not_found") {
+        setError(`We couldn't find "${query}". Check the spelling, or try a nearby city or zip code.`);
+      } else if (e.kind === "network") {
+        setError("Couldn't reach the shop finder. Check your connection, then try again.");
+        retryRef.current = () => doSearch(query);
+        setCanRetry(true);
+      } else {
+        setError(`Something went wrong looking for shops near "${query}". This is usually temporary.`);
+        retryRef.current = () => doSearch(query);
+        setCanRetry(true);
+      }
     }
     setLoading(false);
   };
@@ -250,7 +302,11 @@ export default function Venues() {
           const results = await searchNearbyPlaces(loc);
           setVenues(results);
         } catch (e) {
-          setError("Couldn't load nearby shops. Please try searching by city or zip.");
+          setError(e.kind === "network"
+            ? "Couldn't reach the shop finder. Check your connection, then try again."
+            : "Couldn't load nearby shops. This is usually temporary.");
+          retryRef.current = () => searchNearbyPlaces(loc).then(setVenues).catch(() => {});
+          setCanRetry(true);
         }
         setLoading(false);
       },
@@ -362,6 +418,14 @@ export default function Venues() {
       {error && (
         <div style={{ background: "#a0522d18", border: "1px solid #a0522d44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", marginBottom: 14, lineHeight: 1.6 }}>
           {error}
+          {canRetry && (
+            <button
+              onClick={() => { setCanRetry(false); if (retryRef.current) retryRef.current(); }}
+              style={{ display: "block", marginTop: 8, background: "none", border: "1px solid #e8a07a66", borderRadius: 8, padding: "8px 14px", color: "#e8a07a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
+            >
+              Try again
+            </button>
+          )}
         </div>
       )}
 
@@ -449,6 +513,7 @@ export default function Venues() {
         return (
           <div
             key={venue.place_id || i}
+            ref={el => { venueRefs.current[venue.place_id] = el; }}
             style={{ background: "linear-gradient(135deg, #2a1a0e, #221508)", border: `1px solid ${isSelected ? "#c9a84c55" : "#3a2510"}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
             onClick={() => handleVenueTap(venue)}
           >

@@ -117,7 +117,7 @@ Three small edits to one file.
 
 ---
 
-### ☐ Session 5 — Venues
+### ☑ Session 5 — Venues — DONE 27 Aug 2026
 
 - Findings: `9-C`, `9-A`
 - `9-C` — the map popup's "View details" selects the right venue and switches to
