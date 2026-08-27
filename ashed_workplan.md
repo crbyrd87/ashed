@@ -135,7 +135,7 @@ Three small edits to one file.
 
 ---
 
-### ☐ Session 6 — Notifications
+### ☑ Session 6 — Notifications — DONE 27 Aug 2026
 
 - Findings: `10-A`, `10-B`, `10-C`
 - `10-A` — notifications accumulate with no way to clear them. **Ask first**

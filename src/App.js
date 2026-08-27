@@ -1809,6 +1809,8 @@ export default function App() {
         <Notifications
           user={user}
           onClose={() => { setShowNotifications(false); setUnreadNotifCount(0); }}
+          onOpenBadges={() => { setTab("profile"); setProfileTab("badges"); }}
+          onOpenFriends={() => { setShowFriends(true); setPendingFriendCount(0); }}
         />
       )}
       {upgradeFeature && (

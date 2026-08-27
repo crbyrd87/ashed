@@ -22,9 +22,13 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default function Notifications({ user, onClose, onOpenCheckin }) {
+export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadges, onOpenFriends }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  // 10-A: clearing is destructive, so it asks first. Inline rather than
+  // window.confirm, matching the pattern Humidor already uses.
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearError, setClearError] = useState(null);
 
   useEffect(() => {
     if (!user) return;
@@ -45,15 +49,44 @@ export default function Notifications({ user, onClose, onOpenCheckin }) {
     setNotifications(data || []);
     setLoading(false);
 
-    // Mark all as read now that the user has opened the center
+    // Mark all as read now that the user has opened the center.
     await markAllRead(user.id);
+    // 10-C: this used to update only the database. Local state still said
+    // unread, so the gold dots sat there for the rest of the session while
+    // the header count had already dropped to zero — the screen contradicted
+    // itself until you left and came back.
+    setNotifications(prev => prev.map(n => (n.is_read ? n : { ...n, is_read: true })));
+  };
+
+  // 10-B: badge and friend_accepted rows looked identical to rows that
+  // navigate, but nothing happened when they were tapped.
+  const destinationFor = (n) => {
+    if (n.type === "badge" && onOpenBadges) return onOpenBadges;
+    if (n.type === "friend_accepted" && onOpenFriends) return onOpenFriends;
+    if (n.checkin_id && onOpenCheckin) return () => onOpenCheckin(n.checkin_id);
+    return null;
   };
 
   const handleTap = (n) => {
-    if (n.checkin_id && onOpenCheckin) {
-      onOpenCheckin(n.checkin_id);
-      onClose();
+    const go = destinationFor(n);
+    if (!go) return;
+    go();
+    onClose();
+  };
+
+  const handleClearAll = async () => {
+    setClearError(null);
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("user_id", user.id);
+    if (error) {
+      console.error("[Notifications] Clear failed:", error.message);
+      setClearError("Couldn't clear notifications. Please try again.");
+      return;
     }
+    setNotifications([]);
+    setConfirmClear(false);
   };
 
   const s = {
@@ -68,12 +101,12 @@ export default function Notifications({ user, onClose, onOpenCheckin }) {
       display: "flex", justifyContent: "space-between", alignItems: "center",
       position: "sticky", top: 0, zIndex: 10,
     },
-    card: (unread) => ({
+    card: (unread, tappable) => ({
       background: unread ? "#2a1a0e" : "#1e1208",
       borderBottom: "1px solid #3a251033",
       padding: "14px 20px",
       display: "flex", alignItems: "flex-start", gap: 12,
-      cursor: "pointer",
+      cursor: tappable ? "pointer" : "default",
       transition: "background 0.15s",
     }),
     avatar: (isBadge) => ({
@@ -95,13 +128,45 @@ export default function Notifications({ user, onClose, onOpenCheckin }) {
             {notifications.length === 0 ? "All caught up" : `${notifications.length} recent`}
           </div>
         </div>
-        <button
-          onClick={onClose}
-          style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}
-        >
-          ×
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {notifications.length > 0 && !confirmClear && (
+            <button
+              onClick={() => setConfirmClear(true)}
+              style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+            >
+              Clear all
+            </button>
+          )}
+          {confirmClear && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={handleClearAll}
+                style={{ background: "#a0522d22", border: "1px solid #a0522d66", borderRadius: 20, padding: "6px 12px", color: "#e8a07a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+              >
+                Clear all?
+              </button>
+              <button
+                onClick={() => { setConfirmClear(false); setClearError(null); }}
+                style={{ background: "none", border: "none", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}
+          >
+            ×
+          </button>
+        </div>
       </div>
+
+      {clearError && (
+        <div style={{ background: "#a0522d18", border: "1px solid #a0522d44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", margin: "14px 20px 0", lineHeight: 1.6 }}>
+          {clearError}
+        </div>
+      )}
 
       {loading && (
         <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>
@@ -145,12 +210,12 @@ export default function Notifications({ user, onClose, onOpenCheckin }) {
           subtitle = n.message || "";
         }
 
-        const tappable = !!n.checkin_id;
+        const tappable = !!destinationFor(n);
 
         return (
           <div
             key={n.id}
-            style={s.card(!n.is_read)}
+            style={s.card(!n.is_read, tappable)}
             onClick={() => tappable && handleTap(n)}
           >
             <div style={s.avatar(isBadge)}>
