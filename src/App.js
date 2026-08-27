@@ -1159,22 +1159,30 @@ export default function App() {
 
       {tab === "profile" && (
         <div style={{ padding: 16 }}>
-          {/* User header - always visible */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16, padding: "16px 0", borderBottom: "1px solid #4a3520" }}>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #d4b45a, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
-            <div style={{ flex: 1 }}>
+          {/* User header, two rows.
+              Row 1 is identity only. With the avatar, both buttons and three
+              gaps sharing one row, the name column was down to ~130px on a
+              420px screen — narrower than the handle line needs, so anything
+              in it wrapped. Nothing competes with the name here now.
+              Row 2 carries the badges and the two quick actions. */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 0 12px" }}>
+            <div style={{ width: 64, height: 64, flex: "0 0 64px", borderRadius: "50%", background: "linear-gradient(135deg, #d4b45a, #7a4a20)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: "#f5ead8" }}>{displayName}</div>
               <div style={{ fontSize: 12, color: "#a08060" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
-              <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {earnedBadges.slice(0, 1).map(b => (
-                  <Badge key={b.key} label={`${b.icon || "🏅"} ${b.name}`} color="#d4b45a" />
-                ))}
-                {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
-              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #4a3520" }}>
+            <div style={{ flex: 1, minWidth: 0, display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {earnedBadges.slice(0, 1).map(b => (
+                <Badge key={b.key} label={`${b.icon || "🏅"} ${b.name}`} color="#d4b45a" />
+              ))}
+              {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
             </div>
             <button
               onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
-              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative" }}
+              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? "#d4b45a" : "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative", flex: "0 0 auto" }}
             >
               👥 Friends
               {pendingFriendCount > 0 && (
@@ -1185,7 +1193,7 @@ export default function App() {
             </button>
             <button
               onClick={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
-              style={{ background: "none", border: `1px solid ${unreadNotifCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 12px", color: unreadNotifCount > 0 ? "#d4b45a" : "#a08060", fontSize: 16, cursor: "pointer", fontFamily: SANS, position: "relative", lineHeight: 1 }}
+              style={{ background: "none", border: `1px solid ${unreadNotifCount > 0 ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "6px 12px", color: unreadNotifCount > 0 ? "#d4b45a" : "#a08060", fontSize: 16, cursor: "pointer", fontFamily: SANS, position: "relative", lineHeight: 1, flex: "0 0 auto" }}
             >
               🔔
               {unreadNotifCount > 0 && (

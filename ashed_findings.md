@@ -238,6 +238,19 @@ which questions whether Notifications belongs in Me at all.
 - Settings visual treatment — currently too many transparent outline buttons
 - The Help & Support layout from 11-G
 
+**Partially addressed 27 Aug 2026.** The header was one flex row holding the
+avatar, name block, Friends button and bell. After the 64px avatar, three 16px
+gaps and both buttons, the name column was about 130px on a 420px screen —
+narrower than the handle line needs — so the badge pip wrapped onto a second
+line on mobile. Split into two rows: identity (avatar, name, handle, member
+since) on top with nothing competing for width, badges and both quick actions
+below. This is a layout fix, not the composition review; it needed no tokens,
+so it did not wait for Session 9.
+
+**Still open for Claude Design:** whether Friends and Notifications belong in
+this header at all (see 10-D), the avatar treatment, and the Settings and Help
+layouts.
+
 Do this **after** the design system (recs 1–4) exists, so alternatives are built
 from tokens rather than more hardcoded values.
 
