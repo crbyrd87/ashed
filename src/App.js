@@ -418,6 +418,9 @@ export default function App() {
   };
 
   // Badge pips in the Me header come from real awards, never a hardcoded label.
+  // Sorted newest first; the header shows only the most recent. The name column
+  // is ~130px wide because Friends and the bell share the row, so a second pip
+  // wraps onto its own line and grows the header past the avatar.
   const refreshEarnedBadges = async () => {
     if (!user) return;
     const all = await fetchUserBadges(user.id);
@@ -1158,7 +1161,7 @@ export default function App() {
               <div style={{ fontSize: 20, fontWeight: 700, color: "#f5ead8" }}>{displayName}</div>
               <div style={{ fontSize: 12, color: "#a08060" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
               <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {earnedBadges.slice(0, 3).map(b => (
+                {earnedBadges.slice(0, 1).map(b => (
                   <Badge key={b.key} label={`${b.icon || "🏅"} ${b.name}`} color="#d4b45a" />
                 ))}
                 {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
