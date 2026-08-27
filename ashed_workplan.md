@@ -315,6 +315,31 @@ appear in `cigars`.
 
 ---
 
+# Phase F · Follow-on from Session 1
+
+### ☐ Session 14 — Chosen display badge
+
+- Findings: `FR-3`, rec `42`
+- Added 27 Aug 2026 after Session 1. Not part of the original plan.
+- Needs a schema change first: `users.display_badge_key` (text, nullable),
+  run as SQL in the Supabase editor. Do not start the UI before it exists.
+- Let the user pick which earned badge their profile wears, from the Badges
+  tab. Locked badges are not selectable, and "none" must be reachable.
+- The header falls back to `BADGE_DISPLAY_ORDER` in `badgeEngine.js` whenever
+  no choice is set, or the chosen badge is somehow no longer earned.
+- **Fix rec `42` in the same session.** `Friends.js` line 66 hardcodes
+  `🏅 Aficionado` on friend profiles. The chosen badge is what friends should
+  see, so these are one change, not two.
+
+**Verify:** pick a badge, confirm it shows in the Me header and on your profile
+as a friend sees it. Clear the choice and confirm the fallback returns.
+
+**Commit:** `Feat: let users choose the badge shown on their profile`
+
+**STOP.**
+
+---
+
 # Needs a decision before it can be built
 
 Do not start these without an answer.

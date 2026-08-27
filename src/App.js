@@ -10,7 +10,7 @@ import Pairings from "./Pairings";
 import Friends from "./Friends";
 import Feed from "./Feed";
 import Badges from "./Badges";
-import { checkAndAwardBadges, fetchUserBadges } from "./badgeEngine";
+import { checkAndAwardBadges, fetchUserBadges, sortByDisplayPriority } from "./badgeEngine";
 import Venues from "./Venues";
 import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
@@ -418,17 +418,13 @@ export default function App() {
   };
 
   // Badge pips in the Me header come from real awards, never a hardcoded label.
-  // Sorted newest first; the header shows only the most recent. The name column
-  // is ~130px wide because Friends and the bell share the row, so a second pip
-  // wraps onto its own line and grows the header past the avatar.
+  // Ordered by BADGE_DISPLAY_ORDER so the hardest-won badge is worn; the header
+  // shows only the first. The name column is ~130px wide because Friends and the
+  // bell share the row, so a second pip wraps and grows the header past the avatar.
   const refreshEarnedBadges = async () => {
     if (!user) return;
     const all = await fetchUserBadges(user.id);
-    setEarnedBadges(
-      (all || [])
-        .filter(b => b.earned)
-        .sort((a, b) => (b.awarded_at || "").localeCompare(a.awarded_at || ""))
-    );
+    setEarnedBadges(sortByDisplayPriority((all || []).filter(b => b.earned)));
   };
 
   const refreshIsAdmin = async () => {

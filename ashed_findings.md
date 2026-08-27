@@ -243,6 +243,36 @@ from tokens rather than more hardcoded values.
 
 ---
 
+### FR-3 · Let the user choose which badge their profile wears
+
+Raised 27 Aug 2026, immediately after the Session 1 badge fix went in.
+
+The first check-in to fire the restored `"checkin"` trigger awarded four badges
+at once — Aficionado, Founding Member, Vitola Variety and Regular — and the Me
+header displayed **Regular**, the least impressive of the four.
+
+**Root cause of that specific symptom (fixed 27 Aug):** the header sorted earned
+badges by `awarded_at` descending. Badges awarded by a single check-in share an
+identical timestamp, so the sort tied and fell through to the `(category, name)`
+order returned by `fetchUserBadges`. "Most recent" is meaningless whenever
+several badges land together, which is the normal case. Replaced with an
+explicit `BADGE_DISPLAY_ORDER` in `badgeEngine.js`, hardest-won first.
+
+**Still wanted:** a deliberate user choice, rather than the app deciding.
+
+1. **Schema** — add `users.display_badge_key` (text, nullable). Run as SQL in
+   the Supabase editor; there is no migration tooling in this repo.
+2. **UI** — the Badges tab is the natural home, since the badges are already
+   there. Tapping an earned badge offers "Show on my profile". Locked badges are
+   not selectable, and there must be a way back to showing none.
+3. **Read path** — the header uses the chosen badge when it is set *and* still
+   earned, otherwise falls back to `BADGE_DISPLAY_ORDER`. The fallback stays
+   regardless; most users will never open the picker.
+4. **Do this with rec `42`.** `Friends.js` line 66 hardcodes the same
+   `🏅 Aficionado` on friend profiles. A badge the user has deliberately chosen
+   is what friends should see too, so building the picker and fixing rec 42
+   separately would mean touching the same surface twice.
+
 ## #12 Badges — walked 27 Aug 2026
 
 **Fix confirmed:** all 18 seeded badges render in four categories with icons,

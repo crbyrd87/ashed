@@ -22,6 +22,44 @@ const BADGE_NAMES = {
   legend_maker:     "Legend Maker",
 };
 
+// Which badge a profile header should wear, hardest-won first.
+// A single check-in can award several badges in the same instant, so their
+// awarded_at timestamps tie and cannot decide this — that is why a fresh
+// account could end up displaying "Regular" over "Founding Member".
+// This is display priority only. It never affects what is awarded, and it is
+// safe to reorder to taste.
+export const BADGE_DISPLAY_ORDER = [
+  "legend",          // 250 check-ins
+  "centurion",       // 100 check-ins
+  "connoisseur",     // 50 check-ins
+  "founding_member", // one of the first 100 members — never obtainable again
+  "legend_maker",    // 15 referrals
+  "smoker",          // 25 check-ins
+  "recruiter",       // 5 referrals
+  "fan_favorite",    // a single check-in drew 10+ reactions
+  "well_loved",      // 25 reactions received
+  "aficionado",      // 10 check-ins
+  "world_tour",      // 5 countries of origin
+  "strength_seeker", // all 5 strength levels
+  "brand_hopper",    // 10 brands
+  "smoke_circle",    // 5 mutual friends
+  "vitola_variety",  // 5 vitolas
+  "ambassador",      // 1 referral
+  "regular",         // 3 visits to one venue
+  "first_ash",       // first check-in
+];
+
+// Order earned badges so the most impressive one comes first.
+// Anything not listed above sorts last rather than disappearing, so a badge
+// added to the database later still renders.
+export const sortByDisplayPriority = (badges) => {
+  const rank = (key) => {
+    const i = BADGE_DISPLAY_ORDER.indexOf(key);
+    return i === -1 ? BADGE_DISPLAY_ORDER.length : i;
+  };
+  return [...(badges || [])].sort((a, b) => rank(a.key) - rank(b.key));
+};
+
 // Award a badge if not already earned, and notify the user
 const awardBadge = async (userId, badgeKey) => {
   const { error } = await supabase
