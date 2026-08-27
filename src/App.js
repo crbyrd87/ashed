@@ -10,7 +10,7 @@ import Pairings from "./Pairings";
 import Friends from "./Friends";
 import Feed from "./Feed";
 import Badges from "./Badges";
-import { checkAndAwardBadges } from "./badgeEngine";
+import { checkAndAwardBadges, fetchUserBadges } from "./badgeEngine";
 import Venues from "./Venues";
 import Notifications from "./Notifications";
 import { fetchUnreadCount } from "./notificationHelpers";
@@ -329,6 +329,7 @@ export default function App() {
   const [partnerPlaceId, setPartnerPlaceId] = useState(null);
   const [showPartner, setShowPartner] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [earnedBadges, setEarnedBadges] = useState([]);
   const [upgradeFeature, setUpgradeFeature] = useState(null);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -416,6 +417,17 @@ export default function App() {
     setUnreadNotifCount(count);
   };
 
+  // Badge pips in the Me header come from real awards, never a hardcoded label.
+  const refreshEarnedBadges = async () => {
+    if (!user) return;
+    const all = await fetchUserBadges(user.id);
+    setEarnedBadges(
+      (all || [])
+        .filter(b => b.earned)
+        .sort((a, b) => (b.awarded_at || "").localeCompare(a.awarded_at || ""))
+    );
+  };
+
   const refreshIsAdmin = async () => {
     if (!user) return;
     const { data } = await supabase
@@ -440,6 +452,7 @@ export default function App() {
     refreshPendingFriendCount();
     refreshUnreadNotifCount();
     refreshIsAdmin();
+    refreshEarnedBadges();
     processReferral(user);
     // Poll unread count every 60 seconds
     const interval = setInterval(refreshUnreadNotifCount, 30000);
@@ -1145,7 +1158,9 @@ export default function App() {
               <div style={{ fontSize: 20, fontWeight: 700, color: "#f5ead8" }}>{displayName}</div>
               <div style={{ fontSize: 12, color: "#a08060" }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
               <div style={{ marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <Badge label="🏅 Aficionado" color="#d4b45a" />
+                {earnedBadges.slice(0, 3).map(b => (
+                  <Badge key={b.key} label={`${b.icon || "🏅"} ${b.name}`} color="#d4b45a" />
+                ))}
                 {isPremium && <Badge label="⭐ Premium" color="#e8cc7a" />}
               </div>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { checkAndAwardBadges } from "./badgeEngine";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -336,6 +337,12 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
     setSaving(false);
     setSuccess(true);
+
+    // Both the checkin and rating inserts succeeded, so the smoke is fully
+    // recorded and the milestone/variety/venue counts are safe to evaluate.
+    // Deliberately not awaited: badge checks are several queries and must
+    // never block or delay the success screen.
+    checkAndAwardBadges(user.id, "checkin").catch(() => {});
 
     if (isRealCigar && cigar.id) {
       const { data: allRatings } = await supabase

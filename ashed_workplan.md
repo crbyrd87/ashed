@@ -34,7 +34,7 @@ Small, contained, individually verifiable. Do these first — they are real bugs
 users would hit, and they build confidence in the workflow before the large
 refactors in Phase D.
 
-### ☐ Session 1 — Badges are never awarded
+### ☑ Session 1 — Badges are never awarded — DONE 27 Aug 2026
 
 **The single highest-value fix in this document.**
 
