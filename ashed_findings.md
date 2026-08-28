@@ -383,9 +383,22 @@ bottom. They are kept here rather than deleted so the record is honest.
 | CR-3 | **Badges table was empty**, so nothing could be awarded and no badge UI had anything to show. Seeded with 18 rows matching `BADGE_NAMES` in `badgeEngine.js`. | `badges` table |
 | CR-4 | **Founding Member could never be awarded.** `checkFoundingMember` selected `created_at` from `users`, but that column does not exist — it is `member_since`. The query errored, returned null, and the function exited early every time. | `badgeEngine.js` |
 
-## Open — security
+## FIXED 28 Aug 2026 — security
 
-All three API endpoints trust the client. Fix before real users.
+All three endpoints trusted the client. Identity now comes only from a Supabase
+access token the server verifies; `user_id` in a request body is ignored.
+Verified against production after deploy: unauthenticated calls to all three
+return 401, including the CR-5 attack of passing a premium user's id in the
+body, and the wildcard CORS header is gone from both public endpoints.
+
+**Still outstanding from tracker task `30-18`**, which is broader than these
+three: RLS coverage across all 23 tables, no secrets in the frontend bundle,
+input sanitisation, and an OWASP top-10 pass.
+
+**Not yet proven:** the monthly cron's own call. `CRON_SECRET` was added to
+Vercel on 28 Aug, but the positive path has not been exercised because doing so
+runs a real scrape and AI call. If it is wrong, the job fails silently on the
+1st.
 
 | ID | Defect | Where |
 |----|--------|-------|

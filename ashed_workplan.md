@@ -160,7 +160,7 @@ notification and confirm it goes somewhere.
 Do before any real users. Independent of everything else — could be done first
 if launch timing demands it.
 
-### ☐ Session 7 — Close the API holes
+### ☑ Session 7 — Close the API holes — DONE 28 Aug 2026
 
 - Findings: `CR-5`, `CR-6`, `CR-7`
 - `CR-5` — `/api/anthropic` reads `user_id` from the request body with no JWT
