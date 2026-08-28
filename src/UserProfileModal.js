@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const BADGE_ICONS = {
   first_ash: "🔥", smoke_10: "🔟", smoke_25: "💨", smoke_50: "⭐", smoke_100: "💯",
@@ -70,44 +69,44 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 600, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: SANS }}
       onClick={onClose}>
-      <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", padding: "20px 20px 36px" }}
+      <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", padding: "20px 20px 36px" }}
         onClick={e => e.stopPropagation()}>
 
         {/* Handle bar */}
-        <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 20px" }} />
+        <div style={{ width: 40, height: 4, background: color.lineStrong, borderRadius: 2, margin: "0 auto 20px" }} />
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>
+          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading...</div>
         ) : !profile ? (
-          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Profile not found.</div>
+          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Profile not found.</div>
         ) : (
           <>
             {/* Profile header */}
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg, #d4b45a, #a07830)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: "#1a0f08", fontWeight: 700, flexShrink: 0 }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: color.bg, fontWeight: 700, flexShrink: 0 }}>
                 {displayName[0].toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#f5ead8" }}>{displayName}</div>
-                {username && <div style={{ fontSize: 13, color: "#a08060" }}>{username}</div>}
-                <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>Member since {memberSince}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: color.heading }}>{displayName}</div>
+                {username && <div style={{ fontSize: 13, color: color.tan }}>{username}</div>}
+                <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>Member since {memberSince}</div>
               </div>
             </div>
 
             {/* Friend button */}
             {friendStatus === null && (
               <button onClick={handleAddFriend} disabled={actionLoading}
-                style={{ width: "100%", background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 10, padding: 12, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 20 }}>
+                style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 20 }}>
                 {actionLoading ? "Sending..." : "+ Add Friend"}
               </button>
             )}
             {friendStatus === "pending" && (
-              <div style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#7a6048", fontSize: 14, textAlign: "center", marginBottom: 20 }}>
+              <div style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, color: color.dim, fontSize: 14, textAlign: "center", marginBottom: 20 }}>
                 Friend Request Sent
               </div>
             )}
             {friendStatus === "friends" && (
-              <div style={{ width: "100%", background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 12, color: "#7a9a7a", fontSize: 14, fontWeight: 700, textAlign: "center", marginBottom: 20 }}>
+              <div style={{ width: "100%", background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 12, color: color.green, fontSize: 14, fontWeight: 700, textAlign: "center", marginBottom: 20 }}>
                 ✓ Friends
               </div>
             )}
@@ -115,7 +114,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
             {/* Badges */}
             {badges.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 10 }}>BADGES</div>
+                <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>BADGES</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {badges.map(key => (
                     <span key={key} title={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -129,20 +128,20 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
 
             {/* Recent check-ins */}
             <div>
-              <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
+              <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
               {checkins.length === 0 ? (
-                <div style={{ fontSize: 13, color: "#5a4535" }}>No public check-ins yet.</div>
+                <div style={{ fontSize: 13, color: color.faint }}>No public check-ins yet.</div>
               ) : checkins.map(c => (
-                <div key={c.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8" }}>
+                <div key={c.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: color.heading }}>
                     {c.cigars?.line || c.cigar_name || "Unknown"}
                     {(c.cigars?.vitola || c.cigar_vitola) ? ` · ${c.cigars?.vitola || c.cigar_vitola}` : ""}
                   </div>
-                  <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>
                     {c.cigars?.brand || c.cigar_brand || ""}
                     {c.rating ? ` · ${"🔥".repeat(Math.round(c.rating / 2))}` : ""}
                   </div>
-                  <div style={{ fontSize: 10, color: "#5a4535", marginTop: 4 }}>
+                  <div style={{ fontSize: 10, color: color.faint, marginTop: 4 }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </div>
                 </div>

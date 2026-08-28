@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
 
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const COMMUNITY_LIMIT = 10;
 const FRIEND_LIMIT = 20;
 
-const strengthColor = s => ({ "Mild": "#7a9a7a", "Mild-Medium": "#8ab88a", "Medium": "#c9a84c", "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || "#8a7055");
+const strengthColor = s => ({ "Mild": color.green, "Mild-Medium": "#8ab88a", "Medium": color.gold, "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || color.muted);
 
 const avatarColor = (str) => {
   const colors = [
@@ -20,8 +20,8 @@ const avatarColor = (str) => {
 };
 
 const ratingBarColor = (flames) => {
-  if (!flames) return "#3a2510";
-  if (flames >= 4.5) return "linear-gradient(to bottom, #ffcc00, #ff6600)";
+  if (!flames) return color.line;
+  if (flames >= 4.5) return `linear-gradient(to bottom, ${color.tip}, ${color.mid})`;
   if (flames >= 3.5) return "linear-gradient(to bottom, #ffaa00, #cc4400)";
   if (flames >= 2.5) return "linear-gradient(to bottom, #cc7a2a, #8a4a1a)";
   return "linear-gradient(to bottom, #8a5a3a, #5a3a2a)";
@@ -31,10 +31,10 @@ function FlameIcon({ fill, size = 13 }) {
   const id = `ff-${Math.random().toString(36).slice(2)}`;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24">
-      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor="#cc2200"/><stop offset="40%" stopColor="#ff6600"/><stop offset="100%" stopColor="#ffcc00"/></linearGradient></defs>}
-      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor="#ff6600"/><stop offset="50%" stopColor="#3a2510"/></linearGradient></defs>}
+      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={color.base}/><stop offset="40%" stopColor={color.mid}/><stop offset="100%" stopColor={color.tip}/></linearGradient></defs>}
+      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={color.mid}/><stop offset="50%" stopColor={color.line}/></linearGradient></defs>}
       <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
-        fill={fill === "empty" ? "#3a2510" : `url(#${id})`} />
+        fill={fill === "empty" ? color.line : `url(#${id})`} />
     </svg>
   );
 }
@@ -138,20 +138,20 @@ export default function Feed({ user }) {
   };
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535", fontFamily: SANS }}>Loading feed...</div>
+    <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: color.faint, fontFamily: SANS }}>Loading feed...</div>
   );
 
   if (feedItems.length === 0) return (
     <div style={{ textAlign: "center", padding: "40px 20px", fontFamily: SANS }}>
       <div style={{ fontSize: 32, marginBottom: 12 }}>🔥</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Your feed is empty</div>
-      <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Add friends to see their smokes here. Community activity will show up too as people check in.</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>Your feed is empty</div>
+      <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>Add friends to see their smokes here. Community activity will show up too as people check in.</div>
     </div>
   );
 
   return (
     <>
-      <div style={{ fontSize: 14, color: "#c9a84c", letterSpacing: 2, fontWeight: 700, margin: "16px 0 10px", fontFamily: SANS }}>RECENT ACTIVITY</div>
+      <div style={{ fontSize: 14, color: color.gold, letterSpacing: 2, fontWeight: 700, margin: "16px 0 10px", fontFamily: SANS }}>RECENT ACTIVITY</div>
 
       {feedItems.map(item => {
         const cigarName = item.cigars?.line || item.cigar_name || "Unknown Cigar";
@@ -170,7 +170,7 @@ export default function Feed({ user }) {
         return (
           <div
             key={item.id}
-            style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
+            style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
             onClick={() => setSelectedCheckin(item)}
           >
             {/* Rating-based left accent bar */}
@@ -183,26 +183,26 @@ export default function Feed({ user }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {/* User row */}
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#f5ead8", fontWeight: 700, flexShrink: 0 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: color.heading, fontWeight: 700, flexShrink: 0 }}>
                       {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? "#7a9a7a" : "#c9a84c" }}>{handle}</span>
-                    {isCommunity && <span style={{ fontSize: 9, background: "#7a9a7a18", color: "#7a9a7a", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "1px 5px" }}>Community</span>}
-                    <span style={{ fontSize: 10, color: "#5a4535" }}>· {timeAgo}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? color.green : color.gold }}>{handle}</span>
+                    {isCommunity && <span style={{ fontSize: 9, background: `${color.green}18`, color: color.green, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "1px 5px" }}>Community</span>}
+                    <span style={{ fontSize: 10, color: color.faint }}>· {timeAgo}</span>
                   </div>
 
                   {/* Brand — Cigar Name */}
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     <span style={{ color: "#8a6040" }}>{cigarBrand}</span>
-                    {cigarBrand && cigarName && <span style={{ color: "#5a4535" }}> — </span>}
+                    {cigarBrand && cigarName && <span style={{ color: color.faint }}> — </span>}
                     {cigarName}
                   </div>
 
                   {/* Vitola + strength — larger */}
                   {(vitola || strength) && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      {vitola && <span style={{ fontSize: 14, fontWeight: 600, color: "#c9a84c" }}>{vitola}</span>}
-                      {vitola && strength && <span style={{ fontSize: 11, color: "#4a3020" }}>·</span>}
+                      {vitola && <span style={{ fontSize: 14, fontWeight: 600, color: color.gold }}>{vitola}</span>}
+                      {vitola && strength && <span style={{ fontSize: 11, color: color.lineInput }}>·</span>}
                       {strength && <span style={{ fontSize: 14, fontWeight: 700, color: strengthColor(strength) }}>{strength}</span>}
                     </div>
                   )}
@@ -212,7 +212,7 @@ export default function Feed({ user }) {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
                   {flames && (
                     <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c", lineHeight: 1 }}>{flames.toFixed(1)}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, lineHeight: 1 }}>{flames.toFixed(1)}</div>
                       <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
                         {[1, 2, 3, 4, 5].map(i => {
                           const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
@@ -225,13 +225,13 @@ export default function Feed({ user }) {
                     <button
                       onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
                       disabled={isOwn}
-                      style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "3px 10px", color: fired ? "#7a9a7a" : isOwn ? "#3a2510" : "#8a7055", fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
+                      style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "3px 10px", color: fired ? color.green : isOwn ? color.line : color.muted, fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
                     >
                       👍 {fireCount}
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
-                      style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "3px 10px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "3px 10px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}
                     >
                       💬
                     </button>
