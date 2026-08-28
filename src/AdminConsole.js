@@ -126,9 +126,15 @@ function StatsSection() {
     if (allCheckins) {
       const counts = {};
       for (const c of allCheckins) {
-        const key = c.cigar_id || c.cigar_name || "Unknown";
-        const label = c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : (c.cigar_brand ? `${c.cigar_brand} ${c.cigar_name}` : "Unknown");
-        if (!counts[key]) counts[key] = { label, count: 0 };
+        // cigars holds one row per vitola, so keying on cigar_id split a single
+        // line into one entry per size — three separate "Padron 1926 Series"
+        // rows. Key on the brand + line label instead so vitolas merge.
+        const label = c.cigars
+          ? [c.cigars.brand, c.cigars.line].filter(Boolean).join(" ")
+          : [c.cigar_brand, c.cigar_name].filter(Boolean).join(" ");
+        const name = label.trim() || "Unknown";
+        const key = name.toLowerCase();
+        if (!counts[key]) counts[key] = { label: name, count: 0 };
         counts[key].count++;
       }
       setTopCigars(Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 10));
@@ -152,7 +158,7 @@ function StatsSection() {
         {[
           ["Users",        totals.users,    color.gold, "👤"],
           ["MAU",          totals.mau,      color.goldLegacy, "📈"],
-          ["Check-ins",    totals.checkins, color.green, "🚬"],
+          ["Check-ins",    totals.checkins, color.green, "📖"],
           ["Cigars in DB", totals.cigars,   color.partner, "📋"],
           ["Fires",        totals.fires,    color.alert, "🔥"],
           ["Comments",     totals.comments, color.plum, "💬"],
@@ -211,16 +217,34 @@ function StatsSection() {
   );
 }
 
+// Pick an axis step that yields evenly spaced, round tick labels.
+// Labelling fixed fractions of the max and rounding each one produced scales
+// like 2 / 4 / 5 / 7: the gridlines were evenly spaced but their labels were
+// not, so the axis read as data rather than as a scale.
+function niceScale(max) {
+  const rough = Math.max(max, 1) / 4;
+  const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+  const norm = rough / mag;
+  const mult = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10;
+  // Check-in counts are whole numbers, so never label a fractional step.
+  const step = Math.max(1, Math.round(mult * mag));
+  const top = Math.max(step, Math.ceil(max / step) * step);
+  const ticks = [];
+  for (let v = step; v <= top; v += step) ticks.push(v);
+  return { top, ticks };
+}
+
 function MiniBarChart({ data, max, color: accent }) {
-  // Gridline values — 25%, 50%, 75%, 100% of max
-  const gridLines = [0.25, 0.5, 0.75, 1].map(f => Math.round(f * max)).filter(v => v > 0);
+  // Bars are measured against the rounded-up axis top, not the raw max, so a
+  // bar lines up with its gridline.
+  const { top: axisTop, ticks } = niceScale(max);
 
   return (
     <div style={{ position: "relative" }}>
       {/* Y-axis gridlines */}
       <div style={{ position: "absolute", inset: "0 0 24px 0", pointerEvents: "none" }}>
-        {gridLines.map(val => (
-          <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / max) * 100)}%`, borderTop: `1px solid ${color.faint}`, display: "flex", alignItems: "flex-end" }}>
+        {ticks.map(val => (
+          <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / axisTop) * 100)}%`, borderTop: `1px solid ${color.faint}`, display: "flex", alignItems: "flex-end" }}>
             <span style={{ fontSize: 10, color: "#8a7060", paddingRight: 3, lineHeight: 1, transform: "translateY(50%)" }}>{val}</span>
           </div>
         ))}
@@ -229,7 +253,7 @@ function MiniBarChart({ data, max, color: accent }) {
       {/* Bars */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 110, paddingLeft: 22 }}>
         {data.map((d, i) => {
-          const pct = Math.round((d.count / max) * 100);
+          const pct = Math.round((d.count / axisTop) * 100);
           const isZero = d.count === 0;
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
@@ -993,6 +1017,32 @@ const TASTING_NOTE_OPTIONS = [
   "Oak", "Toast", "Hay", "Floral", "Citrus", "Honey", "Molasses",
 ];
 
+// Module scope, not nested inside the form component. Declaring these inside
+// gave them a new identity on every render, so React unmounted and remounted
+// the <input> on each keystroke and focus was lost after one character.
+function SelectField({ label, field, options, form, setForm }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+        <option value="">Select {label.toLowerCase()}...</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function TextField({ label, field, placeholder, form, setForm }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+        placeholder={placeholder}
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+    </div>
+  );
+}
 function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel }) {
   const [form, setForm] = useState({
     brand: item.brand || "",
@@ -1016,35 +1066,15 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
     setSaving(false);
   };
 
-  const SelectField = ({ label, field, options }) => (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
-        <option value="">Select {label.toLowerCase()}...</option>
-        {options.map(s => <option key={s} value={s}>{s}</option>)}
-      </select>
-    </div>
-  );
-
-  const TextField = ({ label, field, placeholder }) => (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
-      <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        placeholder={placeholder}
-        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
-    </div>
-  );
-
   return (
     <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
       <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
-      <TextField label="BRAND" field="brand" placeholder="Brand name" />
-      <TextField label="LINE" field="line" placeholder="Line name" />
-      <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
-      <SelectField label="STRENGTH" field="strength" options={["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"]} />
-      <SelectField label="ORIGIN" field="origin" options={originOptions} />
-      <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} />
+      <TextField label="BRAND" field="brand" placeholder="Brand name" form={form} setForm={setForm} />
+      <TextField label="LINE" field="line" placeholder="Line name" form={form} setForm={setForm} />
+      <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" form={form} setForm={setForm} />
+      <SelectField label="STRENGTH" field="strength" options={["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"]} form={form} setForm={setForm} />
+      <SelectField label="ORIGIN" field="origin" options={originOptions} form={form} setForm={setForm} />
+      <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} form={form} setForm={setForm} />
 
       {/* Tasting notes bubbles */}
       <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>

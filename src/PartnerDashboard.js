@@ -45,7 +45,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
   const venueLabel =
     venueState === "loaded" ? (venue.name || "Unnamed venue")
     : venueState === "loading" ? "Loading venue..."
-    : venueState === "missing" ? "Venue not found"
+    : venueState === "missing" ? "Listing not saved yet"
     : venueState === "error" ? "Could not load venue"
     : "No venue linked";
 
@@ -216,6 +216,24 @@ function AnalyticsSection({ placeId, venue }) {
 
 // ─── LISTING ─────────────────────────────────────────────────────────────────
 
+// Declared at module scope deliberately. A component defined INSIDE another
+// component gets a fresh identity on every render, so React treats it as a
+// different type, unmounts the old subtree and mounts a new one. The <input>
+// DOM node is destroyed and rebuilt on each keystroke, which is why typing a
+// single character dropped focus and the field appeared to freeze.
+function Field({ label, field, form, setForm, multiline }) {
+  const box = { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" };
+  const onChange = e => setForm(p => ({ ...p, [field]: e.target.value }));
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+      {multiline
+        ? <textarea value={form[field]} onChange={onChange} rows={3} style={{ ...box, resize: "vertical" }} />
+        : <input value={form[field]} onChange={onChange} style={box} />}
+    </div>
+  );
+}
+
 function ListingSection({ placeId, venue, onVenueUpdate }) {
   const [form, setForm] = useState({ name: "", address: "", phone: "", hours: "", description: "" });
   const [saving, setSaving] = useState(false);
@@ -279,18 +297,6 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
     setTimeout(() => setMsg(null), 3000);
   };
 
-  const Field = ({ label, field, multiline }) => (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
-      {multiline
-        ? <textarea value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} rows={3}
-            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical" }} />
-        : <input value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
-      }
-    </div>
-  );
-
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
@@ -305,11 +311,11 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
           {msg.text}
         </div>
       )}
-      <Field label="VENUE NAME" field="name" />
-      <Field label="ADDRESS" field="address" />
-      <Field label="PHONE" field="phone" />
-      <Field label="HOURS" field="hours" />
-      <Field label="DESCRIPTION" field="description" multiline />
+      <Field label="VENUE NAME" field="name" form={form} setForm={setForm} />
+      <Field label="ADDRESS" field="address" form={form} setForm={setForm} />
+      <Field label="PHONE" field="phone" form={form} setForm={setForm} />
+      <Field label="HOURS" field="hours" form={form} setForm={setForm} />
+      <Field label="DESCRIPTION" field="description" form={form} setForm={setForm} multiline />
       <button onClick={handleSave} disabled={saving}
         style={{ width: "100%", background: saving ? color.line : `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 10, padding: 14, color: saving ? color.faint : color.text, fontSize: 14, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
         {saving ? "Saving..." : "Save Listing"}
