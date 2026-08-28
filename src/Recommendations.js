@@ -55,7 +55,7 @@ export default function Recommendations({ user, checkins, onAddToWishlist, onClo
 
     return `You are a cigar expert recommendation engine. Based on this user's smoking history, recommend 5 cigars they haven't tried yet.
 
-SMOKING HISTORY (${checkins.length} cigars, avg rating ${avgRating}):
+SMOKING HISTORY (${checkins.length} cigars, avg rating ${avgRating} out of 10):
 
 TOP RATED:
 ${topList}
@@ -186,7 +186,10 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
             <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>YOUR TASTE PROFILE</div>
             {(() => {
-              const avg = (checkins.reduce((a, c) => a + c.rating, 0) / checkins.length).toFixed(1);
+              const rated = checkins.filter(c => c.rating != null);
+              const avg = rated.length
+                ? (rated.reduce((a, c) => a + c.rating, 0) / rated.length / 2).toFixed(2)
+                : "—";
               const top = [...checkins].sort((a, b) => b.rating - a.rating)[0];
               const strengthCounts = checkins.reduce((acc, c) => { const s = c.cigars?.strength; if (s) acc[s] = (acc[s] || 0) + 1; return acc; }, {});
               const topStrength = Object.entries(strengthCounts).sort((a, b) => b[1] - a[1])[0];
