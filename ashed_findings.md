@@ -365,6 +365,45 @@ underlying reason: `App.js` has no profile-modal plumbing at all.
    its own `BADGE_ICONS` map, which CR-14 flags as one of three disagreeing
    sources of badge icons.
 
+### CR-20 · New signups get no profile row — **blocks launch**
+
+Found 28 Aug 2026 by signing up as rareops@gmail.com. The account appears in
+`auth.users` but there is **no matching row in `public.users`**.
+
+Supabase keeps credentials in `auth.users`; everything else lives in
+`public.users`. Nothing in the application code ever inserts into
+`public.users` — every write there is an UPDATE or DELETE from AdminConsole.
+The row can therefore only come from a database trigger on `auth.users`, and
+that trigger is missing or was dropped.
+
+**Consequences.** `App.js` reads the user's flags with `.single()`, so a
+missing row returns nothing and every flag quietly defaults to false: no
+username, no premium, no admin, no saved settings. Anything with a foreign key
+to `public.users` will refuse to insert outright. The account authenticates
+and then behaves like a broken one.
+
+This affects **every new signup**, so it has to be fixed before real users.
+
+**Fix:** `db/handle_new_user.sql` in this repo restores the trigger and
+backfills anyone already orphaned. It must be run in the Supabase SQL editor —
+there is no migration tooling in this project. Check the column names against
+the live schema first, and read the note about a UNIQUE username constraint:
+if one exists, a naive trigger can block signup entirely, which is worse than
+the bug.
+
+**Two related problems found while diagnosing this:**
+
+`Auth.js` line 85 shows "Account created! Check your email to confirm your
+account, then log in." unconditionally. It inspects only `error` and never the
+signup response, so it claims an email was sent whether or not one was. Email
+confirmation is currently disabled in the Supabase project — which is why the
+account could log in immediately and why no email arrived. Nothing is wrong
+with email delivery; none was requested.
+
+`Settings.js` line 167 changes an address with `supabase.auth.updateUser()`,
+which writes `auth.users.email` and never touches `public.users.email`. The
+two can drift apart permanently. Same root cause as 11-E.
+
 ## Decisions recorded during the walkthrough
 
 ### DEC-1 · "Fires" becomes "Likes" — reverses design rec #14
