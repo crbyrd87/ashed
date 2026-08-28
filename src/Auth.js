@@ -64,7 +64,7 @@ export default function Auth({ onLogin }) {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username, display_name: displayName } }
@@ -72,6 +72,20 @@ export default function Auth({ onLogin }) {
 
     if (error) {
       setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Supabase deliberately reports success when the address already has an
+    // account, so this form cannot be used to discover which emails are
+    // registered. That means `error` is null and nothing was created. The tell
+    // is an empty identities array.
+    //
+    // Without this check the app tells a returning user to watch for a
+    // confirmation email that was never sent, and if they later try their old
+    // password they are simply let in — which reads as the app being broken.
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      setError("An account with that email already exists. Try logging in, or use Forgot password if you don't remember it.");
       setLoading(false);
       return;
     }

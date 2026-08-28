@@ -383,10 +383,14 @@ old password — which reads as the app being broken.
 Real users will hit this. It is the single most likely thing to happen when
 someone forgets they already signed up.
 
-**The fix.** `supabase.auth.signUp` returns a user whose `identities` array is
-empty in exactly this case. `Auth.js` should check it and say so plainly —
-"An account with that email already exists. Try logging in, or use Forgot
-password" — instead of promising an email.
+**FIXED 28 Aug 2026.** `Auth.js` now captures the signUp response rather than
+only its error, and treats an empty `identities` array as "this address is
+already registered", saying so instead of promising an email.
+
+**Confirmed reproducible before fixing**, using `chris@ashed.app` — an account
+with a complete and correct profile row. It returned "Account created! Check
+your email to confirm your account, then log in." So this was never related to
+the CR-20 orphan; it happens for any address that already has an account.
 
 **Corrections to the earlier version of this finding:**
 
