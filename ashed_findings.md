@@ -395,10 +395,10 @@ body, and the wildcard CORS header is gone from both public endpoints.
 three: RLS coverage across all 23 tables, no secrets in the frontend bundle,
 input sanitisation, and an OWASP top-10 pass.
 
-**Not yet proven:** the monthly cron's own call. `CRON_SECRET` was added to
-Vercel on 28 Aug, but the positive path has not been exercised because doing so
-runs a real scrape and AI call. If it is wrong, the job fails silently on the
-1st.
+**Cron verified 28 Aug 2026.** The authenticated path was exercised once by
+hand with the real secret: HTTP 200, "DB refresh complete for July 2026. Found
+8 candidates, inserted 3 new." So the September run will authenticate rather
+than silently 401. The three inserted rows are in the admin review queue.
 
 | ID | Defect | Where |
 |----|--------|-------|
