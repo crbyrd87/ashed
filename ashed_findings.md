@@ -425,6 +425,35 @@ address with `supabase.auth.updateUser()`, which writes `auth.users.email` and
 never `public.users.email`, so the two drift apart permanently. Same root cause
 as 11-E, and the reason the admin console can show a stale address.
 
+### CR-21 · Deleting a user from the admin console orphans their login
+
+Found 28 Aug 2026, following CR-20.
+
+`AdminConsole.js` deletes a user with `supabase.from("users").delete()` and
+then reports "User deleted." Nothing in `src/` or `api/` ever calls
+`auth.admin.deleteUser`, so the credentials in `auth.users` survive. The person
+can still sign in, and lands in an account with no profile row — every flag
+false, no username, and no ability to write to any of the twenty-four tables
+that carry a foreign key to `users.id`.
+
+This is the same orphan the owner created by hand in the Supabase table editor,
+and the reason it matters is that **using the admin UI instead would not have
+avoided it.** Only Supabase's own Authentication → Users page performs a
+complete delete today.
+
+**Why it cannot be fixed purely in the client:** deleting an auth account
+requires the service-role key, which must never reach the browser. It needs a
+serverless endpoint that verifies the caller is an admin and then calls
+`auth.admin.deleteUser`. That is the same machinery rec `40` needs — account
+deletion currently only sets a flag — and the same machinery rec `58` makes
+mandatory if the app ever ships to the app stores, where in-app account
+deletion is a review requirement.
+
+Worth doing all three together rather than three times.
+
+**Interim:** delete test accounts from Supabase's Authentication → Users page,
+not from the table editor and not from the admin console.
+
 ## Decisions recorded during the walkthrough
 
 ### DEC-1 · "Fires" becomes "Likes" — reverses design rec #14
