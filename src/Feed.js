@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, flame } from "./theme";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -21,7 +21,7 @@ const avatarColor = (str) => {
 
 const ratingBarColor = (flames) => {
   if (!flames) return color.line;
-  if (flames >= 4.5) return `linear-gradient(to bottom, ${color.tip}, ${color.mid})`;
+  if (flames >= 4.5) return `linear-gradient(to bottom, ${flame.tip}, ${flame.mid})`;
   if (flames >= 3.5) return "linear-gradient(to bottom, #ffaa00, #cc4400)";
   if (flames >= 2.5) return "linear-gradient(to bottom, #cc7a2a, #8a4a1a)";
   return "linear-gradient(to bottom, #8a5a3a, #5a3a2a)";
@@ -31,8 +31,8 @@ function FlameIcon({ fill, size = 13 }) {
   const id = `ff-${Math.random().toString(36).slice(2)}`;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24">
-      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={color.base}/><stop offset="40%" stopColor={color.mid}/><stop offset="100%" stopColor={color.tip}/></linearGradient></defs>}
-      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={color.mid}/><stop offset="50%" stopColor={color.line}/></linearGradient></defs>}
+      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={flame.base}/><stop offset="40%" stopColor={flame.mid}/><stop offset="100%" stopColor={flame.tip}/></linearGradient></defs>}
+      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={flame.mid}/><stop offset="50%" stopColor={color.line}/></linearGradient></defs>}
       <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
         fill={fill === "empty" ? color.line : `url(#${id})`} />
     </svg>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, flame } from "./theme";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
@@ -163,7 +163,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                     <div style={{ display: "flex", gap: 2, marginTop: 4, justifyContent: "center" }}>
                       {[1,2,3,4,5].map(i => (
                         <svg key={i} width="16" height="16" viewBox="0 0 24 24">
-                          <defs><linearGradient id={`fp-${c.id}-${i}`} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={color.base}/><stop offset="100%" stopColor={color.tip}/></linearGradient></defs>
+                          <defs><linearGradient id={`fp-${c.id}-${i}`} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={flame.base}/><stop offset="100%" stopColor={flame.tip}/></linearGradient></defs>
                           <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
                             fill={flames >= i ? `url(#fp-${c.id}-${i})` : color.line} />
                         </svg>
