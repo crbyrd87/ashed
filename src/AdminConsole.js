@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const SECTIONS = [
   { id: "stats",      icon: "📊", label: "Stats" },
@@ -36,18 +35,18 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
     : SECTIONS;
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 650, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
+    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 650, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#c9a84c", letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
+          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
       </div>
-      <div style={{ display: "flex", borderBottom: "1px solid #3a2510", background: "#1a0f08", position: "sticky", top: 57, zIndex: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+      <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {visibleSections.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flexShrink: 0, minWidth: 60, padding: "10px 12px", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? "#c9a84c" : "transparent"}`, color: section === s.id ? "#c9a84c" : "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            style={{ flexShrink: 0, minWidth: 60, padding: "10px 12px", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.gold : "transparent"}`, color: section === s.id ? color.gold : color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 16 }}>{s.icon}</span>
             <span>{s.label.toUpperCase()}</span>
           </button>
@@ -139,7 +138,7 @@ function StatsSection() {
   };
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading stats...</div>
+    <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading stats...</div>
   );
 
   const maxSignups  = Math.max(...signupsByDay.map(d => d.count), 1);
@@ -151,59 +150,59 @@ function StatsSection() {
       {/* Stat boxes */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 28 }}>
         {[
-          ["Users",        totals.users,    "#c9a84c", "👤"],
-          ["MAU",          totals.mau,      "#d4b45a", "📈"],
-          ["Check-ins",    totals.checkins, "#7a9a7a", "🚬"],
-          ["Cigars in DB", totals.cigars,   "#7a8a9a", "📋"],
-          ["Fires",        totals.fires,    "#e8632a", "🔥"],
-          ["Comments",     totals.comments, "#9a7a9a", "💬"],
-        ].map(([label, value, color, icon]) => (
-          <div key={label} style={{ background: "#221508", border: `1px solid ${color}33`, borderRadius: 12, padding: "16px 10px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: color, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
+          ["Users",        totals.users,    color.gold, "👤"],
+          ["MAU",          totals.mau,      color.goldLegacy, "📈"],
+          ["Check-ins",    totals.checkins, color.green, "🚬"],
+          ["Cigars in DB", totals.cigars,   color.partner, "📋"],
+          ["Fires",        totals.fires,    color.alert, "🔥"],
+          ["Comments",     totals.comments, color.plum, "💬"],
+        ].map(([label, value, accent, icon]) => (
+          <div key={label} style={{ background: color.surface, border: `1px solid ${accent}33`, borderRadius: 12, padding: "16px 10px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
             <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color, letterSpacing: -0.5 }}>{value.toLocaleString()}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: accent, letterSpacing: -0.5 }}>{value.toLocaleString()}</div>
             <div style={{ fontSize: 10, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
           </div>
         ))}
       </div>
 
       {/* Signups chart */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
-          <div style={{ fontSize: 11, color: "#7a6050" }}>Last 30 days</div>
+          <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
+          <div style={{ fontSize: 11, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {signupsByDay.every(d => d.count === 0)
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No signups in this period</div>
-          : <MiniBarChart data={signupsByDay} max={maxSignups} color="#c9a84c" />}
+          ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No signups in this period</div>
+          : <MiniBarChart data={signupsByDay} max={maxSignups} color={color.gold} />}
       </div>
 
       {/* Check-ins chart */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
-          <div style={{ fontSize: 11, color: "#7a6050" }}>Last 30 days</div>
+          <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
+          <div style={{ fontSize: 11, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {checkinsByDay.every(d => d.count === 0)
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No check-ins in this period</div>
-          : <MiniBarChart data={checkinsByDay} max={maxCheckins} color="#7a9a7a" />}
+          ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No check-ins in this period</div>
+          : <MiniBarChart data={checkinsByDay} max={maxCheckins} color={color.green} />}
       </div>
 
       {/* Top cigars */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, letterSpacing: 0.5, marginBottom: 16 }}>Top Cigars by Check-ins</div>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16 }}>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5, marginBottom: 16 }}>Top Cigars by Check-ins</div>
         {topCigars.length === 0
-          ? <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No data yet</div>
+          ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No data yet</div>
           : topCigars.map((c, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "#5a4535", width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+              <div style={{ fontSize: 11, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{c.label}</div>
-                <div style={{ height: 6, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${Math.round((c.count / maxTopCount) * 100)}%`, height: "100%", background: `linear-gradient(90deg, #c9a84c, #e8cc7a)`, borderRadius: 3, transition: "width 0.3s" }} />
+                <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{c.label}</div>
+                <div style={{ height: 6, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((c.count / maxTopCount) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 3, transition: "width 0.3s" }} />
                 </div>
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c", flexShrink: 0, minWidth: 20, textAlign: "right" }}>{c.count}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: color.gold, flexShrink: 0, minWidth: 20, textAlign: "right" }}>{c.count}</div>
             </div>
           ))
         }
@@ -212,7 +211,7 @@ function StatsSection() {
   );
 }
 
-function MiniBarChart({ data, max, color }) {
+function MiniBarChart({ data, max, color: accent }) {
   // Gridline values — 25%, 50%, 75%, 100% of max
   const gridLines = [0.25, 0.5, 0.75, 1].map(f => Math.round(f * max)).filter(v => v > 0);
 
@@ -221,7 +220,7 @@ function MiniBarChart({ data, max, color }) {
       {/* Y-axis gridlines */}
       <div style={{ position: "absolute", inset: "0 0 24px 0", pointerEvents: "none" }}>
         {gridLines.map(val => (
-          <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / max) * 100)}%`, borderTop: "1px solid #5a4535", display: "flex", alignItems: "flex-end" }}>
+          <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / max) * 100)}%`, borderTop: `1px solid ${color.faint}`, display: "flex", alignItems: "flex-end" }}>
             <span style={{ fontSize: 10, color: "#8a7060", paddingRight: 3, lineHeight: 1, transform: "translateY(50%)" }}>{val}</span>
           </div>
         ))}
@@ -235,7 +234,7 @@ function MiniBarChart({ data, max, color }) {
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
               {!isZero && (
-                <div style={{ fontSize: 11, color, marginBottom: 3, fontWeight: 700, opacity: 0.95 }}>{d.count}</div>
+                <div style={{ fontSize: 11, color: accent, marginBottom: 3, fontWeight: 700, opacity: 0.95 }}>{d.count}</div>
               )}
               <div
                 title={`${d.label}: ${d.count}`}
@@ -244,8 +243,8 @@ function MiniBarChart({ data, max, color }) {
                   borderRadius: "3px 3px 0 0",
                   height: isZero ? 2 : `${Math.max(pct, 3)}%`,
                   background: isZero
-                    ? "#2a1a0e"
-                    : `linear-gradient(180deg, ${color}ff 0%, ${color}99 100%)`,
+                    ? color.surfaceRaised
+                    : `linear-gradient(180deg, ${accent}ff 0%, ${accent}99 100%)`,
                   opacity: isZero ? 0.3 : 1,
                   transition: "height 0.2s",
                 }}
@@ -257,9 +256,9 @@ function MiniBarChart({ data, max, color }) {
 
       {/* X-axis dates */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingLeft: 22 }}>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[0]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[Math.floor(data.length / 2)]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: "#a08060" }}>{data[data.length - 1]?.label?.slice(5)}</span>
+        <span style={{ fontSize: 11, color: color.tan }}>{data[0]?.label?.slice(5)}</span>
+        <span style={{ fontSize: 11, color: color.tan }}>{data[Math.floor(data.length / 2)]?.label?.slice(5)}</span>
+        <span style={{ fontSize: 11, color: color.tan }}>{data[data.length - 1]?.label?.slice(5)}</span>
       </div>
     </div>
   );
@@ -399,85 +398,85 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === "Enter" && searchUsers()}
           placeholder="Search by username, email, or name..."
-          style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none" }}
+          style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none" }}
         />
         <button onClick={searchUsers}
-          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 18px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 18px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           Search
         </button>
       </div>
 
       {/* Action message */}
       {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+        <div style={{ background: actionMsg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${actionMsg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: actionMsg.isError ? color.dangerText : color.green, textAlign: "center" }}>
           {actionMsg.msg}
         </div>
       )}
 
       {/* Delete confirmation */}
       {confirmDelete && (
-        <div style={{ background: "#2a1a0e", border: "1px solid #a0522d55", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 14, color: "#e8d5b7", marginBottom: 12 }}>
-            Delete <strong style={{ color: "#e8632a" }}>@{confirmDelete.username}</strong>? This cannot be undone. All their check-ins, ratings, and data will be removed.
+        <div style={{ background: color.surfaceRaised, border: `1px solid ${color.danger}55`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, color: color.text, marginBottom: 12 }}>
+            Delete <strong style={{ color: color.alert }}>@{confirmDelete.username}</strong>? This cannot be undone. All their check-ins, ratings, and data will be removed.
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={() => handleDelete(confirmDelete)}
-              style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "10px 0", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "10px 0", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
               Yes, Delete
             </button>
             <button onClick={() => setConfirmDelete(null)}
-              style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 0", color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "10px 0", color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      {loading && <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>}
+      {loading && <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: color.faint }}>Loading...</div>}
 
       {/* User detail panel */}
       {selectedUser && (
-        <div style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: color.surfaceRaised, border: `1px solid ${color.gold}44`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7" }}>{selectedUser.display_name || selectedUser.username}</div>
-              <div style={{ fontSize: 12, color: "#8a7055", marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
-              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>{selectedUser.display_name || selectedUser.username}</div>
+              <div style={{ fontSize: 12, color: color.muted, marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
+              <div style={{ fontSize: 11, color: color.faint, marginTop: 4 }}>
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: "#e8cc7a" }}>👑 Super Admin</span>}
-                {selectedUser.is_admin && <span style={{ marginLeft: 8, color: "#c9a84c" }}>⚙️ Admin</span>}
-                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🛡️ Mod</span>}
-                {selectedUser.is_premium && <span style={{ marginLeft: 8, color: "#7a9a7a" }}>⭐ Premium</span>}
-                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: "#7a8a9a" }}>🏪 Partner</span>}
-                {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: "#e8632a" }}>🚩 Flagged</span>}
+                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: color.goldPale }}>👑 Super Admin</span>}
+                {selectedUser.is_admin && <span style={{ marginLeft: 8, color: color.gold }}>⚙️ Admin</span>}
+                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: color.partner }}>🛡️ Mod</span>}
+                {selectedUser.is_premium && <span style={{ marginLeft: 8, color: color.green }}>⭐ Premium</span>}
+                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: color.partner }}>🏪 Partner</span>}
+                {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: color.alert }}>🚩 Flagged</span>}
               </div>
             </div>
             <button onClick={() => setSelectedUser(null)}
-              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
+              style={{ background: "none", border: "none", color: color.faint, fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
           </div>
 
           {/* Recent check-ins */}
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
+          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
           {userCheckins.length === 0
-            ? <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 12 }}>No check-ins yet</div>
+            ? <div style={{ fontSize: 12, color: color.faint, marginBottom: 12 }}>No check-ins yet</div>
             : userCheckins.slice(0, 5).map(c => (
-              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #3a251022", fontSize: 12 }}>
-                <span style={{ color: "#c8b89a" }}>{c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : `${c.cigar_brand || ""} ${c.cigar_name || ""}`}</span>
-                <span style={{ color: "#c9a84c", flexShrink: 0, marginLeft: 8 }}>{c.rating ?? "—"}</span>
+              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${color.line}22`, fontSize: 12 }}>
+                <span style={{ color: color.cream }}>{c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : `${c.cigar_brand || ""} ${c.cigar_name || ""}`}</span>
+                <span style={{ color: color.gold, flexShrink: 0, marginLeft: 8 }}>{c.rating ?? "—"}</span>
               </div>
             ))
           }
 
           {/* Partner access */}
-          <div style={{ borderTop: "1px solid #3a251033", marginTop: 14, paddingTop: 14 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
+          <div style={{ borderTop: `1px solid ${color.line}33`, marginTop: 14, paddingTop: 14 }}>
+            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
             {selectedUser.is_partner ? (
               <div>
-                <div style={{ fontSize: 12, color: "#7a8a9a", marginBottom: 8 }}>
-                  🏪 Active partner · Place ID: <span style={{ color: "#c8b89a", fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
+                <div style={{ fontSize: 12, color: color.partner, marginBottom: 8 }}>
+                  🏪 Active partner · Place ID: <span style={{ color: color.cream, fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
                 </div>
                 <button onClick={() => handleRevokePartner(selectedUser)}
-                  style={{ background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "7px 14px", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "7px 14px", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Revoke Partner Access
                 </button>
               </div>
@@ -487,10 +486,10 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                   value={partnerPlaceId}
                   onChange={e => setPartnerPlaceId(e.target.value)}
                   placeholder="Google Place ID..."
-                  style={{ flex: 1, background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "7px 12px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  style={{ flex: 1, background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "7px 12px", color: color.text, fontSize: 12, fontFamily: SANS, outline: "none" }}
                 />
                 <button onClick={() => handleGrantPartner(selectedUser)}
-                  style={{ background: "linear-gradient(135deg, #7a8a9a, #5a6a7a)", border: "none", borderRadius: 8, padding: "7px 14px", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                  style={{ background: `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
                   🏪 Grant Partner
                 </button>
               </div>
@@ -502,28 +501,28 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             {/* Flag — blocked on admin accounts unless super admin, blocked on self */}
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => handleFlag(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? "#7a9a7a55" : "#e8632a55"}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? "#7a9a7a" : "#e8632a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? `${color.green}55` : `${color.alert}55`}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? color.green : color.alert, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
               </button>
             )}
             {/* Delete — blocked on admin accounts unless super admin, blocked on self */}
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => setConfirmDelete(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #a0522d55", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 🗑 Delete Account
               </button>
             )}
             {/* Super admin only — Grant/Revoke Admin */}
             {isSuperAdmin && selectedUser.id !== currentUserId && (
               <button onClick={() => handleToggleAdmin(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #c9a84c44", borderRadius: 8, padding: "8px 0", color: "#c9a84c", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.gold}44`, borderRadius: 8, padding: "8px 0", color: color.gold, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_admin ? "Revoke Admin" : "Grant Admin"}
               </button>
             )}
             {/* Super admin only — Grant/Revoke Moderator */}
             {isSuperAdmin && selectedUser.id !== currentUserId && !selectedUser.is_admin && (
               <button onClick={() => handleToggleModerator(selectedUser)}
-                style={{ flex: 1, background: "none", border: "1px solid #7a8a9a44", borderRadius: 8, padding: "8px 0", color: "#7a8a9a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.partner}44`, borderRadius: 8, padding: "8px 0", color: color.partner, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_moderator ? "Revoke Mod" : "Grant Mod"}
               </button>
             )}
@@ -533,22 +532,22 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
 
       {/* User list */}
       {!loading && users.length === 0 && (
-        <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>No users found</div>
+        <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: color.faint }}>No users found</div>
       )}
       {users.map(u => (
         <div key={u.id}
           onClick={() => loadUserDetail(u)}
-          style={{ background: selectedUser?.id === u.id ? "#2a1a0e" : "#1e1208", border: `1px solid ${selectedUser?.id === u.id ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          style={{ background: selectedUser?.id === u.id ? color.surfaceRaised : color.surfaceSunken, border: `1px solid ${selectedUser?.id === u.id ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#e8d5b7", display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: color.text, display: "flex", alignItems: "center", gap: 6 }}>
               {u.display_name || u.username}
-              {u.is_admin && <span style={{ fontSize: 10, color: "#c9a84c" }}>⚙️</span>}
-              {u.is_partner && <span style={{ fontSize: 10, color: "#7a8a9a" }}>🏪</span>}
-              {u.is_flagged && <span style={{ fontSize: 10, color: "#e8632a" }}>🚩</span>}
+              {u.is_admin && <span style={{ fontSize: 10, color: color.gold }}>⚙️</span>}
+              {u.is_partner && <span style={{ fontSize: 10, color: color.partner }}>🏪</span>}
+              {u.is_flagged && <span style={{ fontSize: 10, color: color.alert }}>🚩</span>}
             </div>
-            <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>@{u.username} · {u.email}</div>
+            <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{u.username} · {u.email}</div>
           </div>
-          <div style={{ fontSize: 11, color: "#5a4535", flexShrink: 0, marginLeft: 8 }}>
+          <div style={{ fontSize: 11, color: color.faint, flexShrink: 0, marginLeft: 8 }}>
             {new Date(u.member_since || u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
         </div>
@@ -616,23 +615,23 @@ function ModerationSection() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Reported Comments</div>
-        {!loading && <div style={{ fontSize: 11, color: "#7a6050" }}>{reports.length} pending</div>}
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Reported Comments</div>
+        {!loading && <div style={{ fontSize: 11, color: color.dimAlt }}>{reports.length} pending</div>}
       </div>
 
       {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+        <div style={{ background: actionMsg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${actionMsg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? color.dangerText : color.green, textAlign: "center" }}>
           {actionMsg.msg}
         </div>
       )}
 
-      {loading && <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading...</div>}
+      {loading && <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading...</div>}
 
       {!loading && reports.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px" }}>
           <div style={{ fontSize: 36, marginBottom: 16 }}>✅</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>All clear</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No reported comments to review.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>All clear</div>
+          <div style={{ fontSize: 13, color: color.faint }}>No reported comments to review.</div>
         </div>
       )}
 
@@ -640,37 +639,37 @@ function ModerationSection() {
         const comment = item.comments;
         const author = comment?.users;
         return (
-          <div key={item.comment_id} style={{ background: "#221508", border: "1px solid #a0522d44", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+          <div key={item.comment_id} style={{ background: color.surface, border: `1px solid ${color.danger}44`, borderRadius: 10, padding: 14, marginBottom: 12 }}>
             {/* Report count badge */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 20, padding: "2px 10px", fontSize: 11, color: "#e8a07a", fontWeight: 700 }}>
+                <span style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, color: color.dangerText, fontWeight: 700 }}>
                   🚩 {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
                 </span>
-                <span style={{ fontSize: 11, color: "#5a4535" }}>
+                <span style={{ fontSize: 11, color: color.faint }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </span>
               </div>
             </div>
 
             {/* Comment author */}
-            <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 6 }}>
-              by <span style={{ color: "#c9a84c" }}>@{author?.username || "unknown"}</span>
+            <div style={{ fontSize: 11, color: color.muted, marginBottom: 6 }}>
+              by <span style={{ color: color.gold }}>@{author?.username || "unknown"}</span>
             </div>
 
             {/* Comment content */}
-            <div style={{ fontSize: 14, color: "#e8d5b7", lineHeight: 1.5, background: "#2a1a0e", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
-              {comment?.content || <span style={{ color: "#5a4535", fontStyle: "italic" }}>Comment not found</span>}
+            <div style={{ fontSize: 14, color: color.text, lineHeight: 1.5, background: color.surfaceRaised, borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+              {comment?.content || <span style={{ color: color.faint, fontStyle: "italic" }}>Comment not found</span>}
             </div>
 
             {/* Actions */}
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleRemoveComment(item)}
-                style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 🗑 Remove Comment
               </button>
               <button onClick={() => handleDismiss(item)}
-                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Dismiss
               </button>
             </div>
@@ -778,74 +777,74 @@ function BadgesSection() {
   return (
     <div>
       {/* User search */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+        <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <input
             value={userQuery}
             onChange={e => setUserQuery(e.target.value)}
             onKeyDown={e => e.key === "Enter" && searchUsers()}
             placeholder="Search by username or display name..."
-            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "9px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "9px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none" }}
           />
           <button onClick={searchUsers}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
             Find
           </button>
         </div>
 
         {/* Search results dropdown */}
-        {searching && <div style={{ fontSize: 12, color: "#5a4535", padding: "6px 0" }}>Searching...</div>}
+        {searching && <div style={{ fontSize: 12, color: color.faint, padding: "6px 0" }}>Searching...</div>}
         {userResults.map(u => (
           <div key={u.id} onClick={() => loadUserBadges(u)}
-            style={{ padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, marginBottom: 4, cursor: "pointer", fontSize: 13, color: "#e8d5b7" }}>
-            <span style={{ color: "#c9a84c" }}>@{u.username}</span>
-            {u.display_name && u.display_name !== u.username && <span style={{ color: "#8a7055", marginLeft: 8 }}>{u.display_name}</span>}
+            style={{ padding: "8px 10px", background: color.surfaceRaised, borderRadius: 6, marginBottom: 4, cursor: "pointer", fontSize: 13, color: color.text }}>
+            <span style={{ color: color.gold }}>@{u.username}</span>
+            {u.display_name && u.display_name !== u.username && <span style={{ color: color.muted, marginLeft: 8 }}>{u.display_name}</span>}
           </div>
         ))}
 
         {/* Selected user */}
         {selectedUser && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "#2a1a0e", borderRadius: 6, border: "1px solid #c9a84c44" }}>
-            <span style={{ fontSize: 13, color: "#c9a84c" }}>@{selectedUser.username}</span>
-            <span style={{ fontSize: 11, color: "#7a9a7a" }}>{userBadges.size} badges earned</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: color.surfaceRaised, borderRadius: 6, border: `1px solid ${color.gold}44` }}>
+            <span style={{ fontSize: 13, color: color.gold }}>@{selectedUser.username}</span>
+            <span style={{ fontSize: 11, color: color.green }}>{userBadges.size} badges earned</span>
             <button onClick={() => { setSelectedUser(null); setUserBadges(new Set()); setUserQuery(""); }}
-              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 16, cursor: "pointer" }}>×</button>
+              style={{ background: "none", border: "none", color: color.faint, fontSize: 16, cursor: "pointer" }}>×</button>
           </div>
         )}
       </div>
 
       {/* Action message */}
       {actionMsg && (
-        <div style={{ background: actionMsg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${actionMsg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+        <div style={{ background: actionMsg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${actionMsg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: actionMsg.isError ? color.dangerText : color.green, textAlign: "center" }}>
           {actionMsg.msg}
         </div>
       )}
 
       {/* Badge list by category */}
       {loading
-        ? <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: "#5a4535" }}>Loading badges...</div>
+        ? <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: color.faint }}>Loading badges...</div>
         : CATEGORY_ORDER.map(cat => {
           const catBadges = grouped[cat];
           if (!catBadges) return null;
           return (
             <div key={cat} style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
+              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
               {catBadges.map(b => {
                 const earned = userBadges.has(b.key);
                 const count = earnedCounts[b.key] || 0;
                 return (
-                  <div key={b.key} style={{ background: "#221508", border: `1px solid ${earned ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                  <div key={b.key} style={{ background: color.surface, border: `1px solid ${earned ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ fontSize: 24, flexShrink: 0, filter: earned ? "none" : "grayscale(1)", opacity: earned ? 1 : 0.5 }}>{b.icon}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: earned ? "#e8d5b7" : "#8a7055" }}>{b.name}</div>
-                      <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>{b.description}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: earned ? color.text : color.muted }}>{b.name}</div>
+                      <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>{b.description}</div>
                       <div style={{ fontSize: 10, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
                     </div>
                     {selectedUser && (
                       <button
                         onClick={() => earned ? handleRevoke(b.key) : handleAward(b.key)}
-                        style={{ background: earned ? "none" : "linear-gradient(135deg, #c9a84c, #a07830)", border: earned ? "1px solid #a0522d55" : "none", borderRadius: 8, padding: "6px 12px", color: earned ? "#a0522d" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
+                        style={{ background: earned ? "none" : `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: earned ? `1px solid ${color.danger}55` : "none", borderRadius: 8, padding: "6px 12px", color: earned ? color.danger : color.bg, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
                         {earned ? "Revoke" : "Award"}
                       </button>
                     )}
@@ -894,10 +893,10 @@ function DatabaseSection() {
   };
 
   const SOURCE_COLORS = {
-    manual: "#7a9a7a",
-    ai_generated: "#c9a84c",
-    user_submitted: "#7a8a9a",
-    admin_approved: "#9a7a9a",
+    manual: color.green,
+    ai_generated: color.gold,
+    user_submitted: color.partner,
+    admin_approved: color.plum,
   };
 
   const filtered = cigars.filter(c => {
@@ -908,15 +907,15 @@ function DatabaseSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
+      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
 
-      {msg && <div style={{ background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: "#7a9a7a" }}>{msg}</div>}
+      {msg && <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: color.green }}>{msg}</div>}
 
       {/* Source filter */}
       <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {["all", "manual", "ai_generated", "user_submitted", "admin_approved"].map(s => (
           <button key={s} onClick={() => setSourceFilter(s)}
-            style={{ background: sourceFilter === s ? "#c9a84c22" : "none", border: `1px solid ${sourceFilter === s ? "#c9a84c" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? "#c9a84c" : "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: sourceFilter === s ? `${color.gold}22` : "none", border: `1px solid ${sourceFilter === s ? color.gold : color.line}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? color.gold : color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {s === "all" ? "All" : s.replace("_", " ")}
           </button>
         ))}
@@ -927,33 +926,33 @@ function DatabaseSection() {
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
         placeholder="Search brand, line, vitola..."
-        style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
+        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
       />
 
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
+      <div style={{ fontSize: 11, color: color.faint, marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
 
       {filtered.map(c => (
-        <div key={c.id} style={{ background: "#221508", border: `1px solid ${confirmDeleteId === c.id ? "#a0522d" : "#3a2510"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
+        <div key={c.id} style={{ background: color.surface, border: `1px solid ${confirmDeleteId === c.id ? color.danger : color.line}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: 12, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {c.brand} · {c.line} · {c.vitola}
               </div>
               <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
-                <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || "#8a7055", background: (SOURCE_COLORS[c.source] || "#8a7055") + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || "#8a7055")}55`, borderRadius: 8, padding: "1px 6px" }}>
+                <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || color.muted, background: (SOURCE_COLORS[c.source] || color.muted) + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || color.muted)}55`, borderRadius: 8, padding: "1px 6px" }}>
                   {c.source || "manual"}
                 </span>
-                {c.strength && <span style={{ fontSize: 10, color: "#5a4535" }}>{c.strength}</span>}
+                {c.strength && <span style={{ fontSize: 10, color: color.faint }}>{c.strength}</span>}
               </div>
             </div>
             {confirmDeleteId === c.id ? (
               <button onClick={() => { setConfirmDeleteId(null); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: "1px solid #3a2510", borderRadius: 6, padding: "4px 10px", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 6, padding: "4px 10px", color: color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
                 Cancel
               </button>
             ) : (
               <button onClick={() => { setConfirmDeleteId(c.id); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: "1px solid #a0522d44", borderRadius: 6, padding: "4px 10px", color: "#a0522d", fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                style={{ background: "none", border: `1px solid ${color.danger}44`, borderRadius: 6, padding: "4px 10px", color: color.danger, fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
                 Delete
               </button>
             )}
@@ -961,8 +960,8 @@ function DatabaseSection() {
 
           {/* Type DELETE confirmation */}
           {confirmDeleteId === c.id && (
-            <div style={{ marginTop: 10, borderTop: "1px solid #3a2510", paddingTop: 10 }}>
-              <div style={{ fontSize: 11, color: "#a0522d", marginBottom: 6 }}>
+            <div style={{ marginTop: 10, borderTop: `1px solid ${color.line}`, paddingTop: 10 }}>
+              <div style={{ fontSize: 11, color: color.danger, marginBottom: 6 }}>
                 Type <strong>DELETE</strong> to confirm deletion of {c.brand} {c.line} {c.vitola}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
@@ -970,12 +969,12 @@ function DatabaseSection() {
                   value={deleteConfirmText}
                   onChange={e => setDeleteConfirmText(e.target.value)}
                   placeholder="Type DELETE"
-                  style={{ flex: 1, background: "#1a0f08", border: `1px solid ${deleteConfirmText === "DELETE" ? "#a0522d" : "#3a2510"}`, borderRadius: 6, padding: "6px 10px", color: "#e8d5b7", fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  style={{ flex: 1, background: color.bg, border: `1px solid ${deleteConfirmText === "DELETE" ? color.danger : color.line}`, borderRadius: 6, padding: "6px 10px", color: color.text, fontSize: 12, fontFamily: SANS, outline: "none" }}
                 />
                 <button
                   onClick={() => { if (deleteConfirmText === "DELETE") { handleDelete(c); setConfirmDeleteId(null); setDeleteConfirmText(""); } }}
                   disabled={deleteConfirmText !== "DELETE" || deleting === c.id}
-                  style={{ background: deleteConfirmText === "DELETE" ? "#a0522d" : "#2a1a0e", border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? "#e8d5b7" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
+                  style={{ background: deleteConfirmText === "DELETE" ? color.danger : color.surfaceRaised, border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? color.text : color.faint, fontSize: 12, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
                   {deleting === c.id ? "..." : "Confirm"}
                 </button>
               </div>
@@ -1019,9 +1018,9 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
 
   const SelectField = ({ label, field, options }) => (
     <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: form[field] ? "#f5ead8" : "#7a6048", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
         <option value="">Select {label.toLowerCase()}...</option>
         {options.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
@@ -1030,16 +1029,16 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
 
   const TextField = ({ label, field, placeholder }) => (
     <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
         placeholder={placeholder}
-        style={{ width: "100%", background: "#1a0f08", border: "1px solid #5a4030", borderRadius: 6, padding: "7px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
     </div>
   );
 
   return (
-    <div style={{ borderTop: "1px solid #4a3520", paddingTop: 12, marginBottom: 10 }}>
-      <div style={{ fontSize: 11, color: "#d4b45a", letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
+    <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
+      <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
       <TextField label="BRAND" field="brand" placeholder="Brand name" />
       <TextField label="LINE" field="line" placeholder="Line name" />
       <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" />
@@ -1048,11 +1047,11 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
       <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} />
 
       {/* Tasting notes bubbles */}
-      <div style={{ fontSize: 10, color: "#a08060", letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
+      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
         {TASTING_NOTE_OPTIONS.map(note => (
           <button key={note} onClick={() => toggleNote(note)}
-            style={{ background: selectedNotes.includes(note) ? "#d4b45a22" : "none", border: `1px solid ${selectedNotes.includes(note) ? "#d4b45a" : "#4a3520"}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: selectedNotes.includes(note) ? `${color.goldLegacy}22` : "none", border: `1px solid ${selectedNotes.includes(note) ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {note}
           </button>
         ))}
@@ -1060,11 +1059,11 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
 
       <div style={{ display: "flex", gap: 8 }}>
         <button onClick={handleSave} disabled={saving || !form.brand || !form.line || !form.vitola}
-          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? "#1a0f08" : "#7a6048", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? color.bg : color.dim, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           {saving ? "Saving..." : "✓ Save to DB"}
         </button>
         <button onClick={onCancel}
-          style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
           Cancel
         </button>
       </div>
@@ -1159,39 +1158,39 @@ function MissingCigarsSection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Missing Cigars</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Missing Cigars</div>
         <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
         </button>
       </div>
 
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
+      <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
         {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet."}
       </div>
 
       {msg && (
-        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: msg.isError ? color.dangerText : color.green }}>
           {msg.text}
         </div>
       )}
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "No missing cigars reported."}</div>
+          <div style={{ fontSize: 13, color: color.faint }}>{showResolved ? "No resolved items." : "No missing cigars reported."}</div>
         </div>
       )}
 
       {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: `1px solid ${addingId === item.id ? "#c9a84c55" : "#c9a84c22"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>
+        <div key={item.id} style={{ background: color.surface, border: `1px solid ${addingId === item.id ? `${color.gold}55` : `${color.gold}22`}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: color.text, marginBottom: 4 }}>
             {item.brand} · {item.line}
           </div>
-          {item.vitola && <div style={{ fontSize: 11, color: "#8a7055", marginBottom: 4 }}>Vitola: {item.vitola}</div>}
-          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 10 }}>
+          {item.vitola && <div style={{ fontSize: 11, color: color.muted, marginBottom: 4 }}>Vitola: {item.vitola}</div>}
+          <div style={{ fontSize: 11, color: color.faint, marginBottom: 10 }}>
             Reported by @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
 
@@ -1209,30 +1208,30 @@ function MissingCigarsSection({ currentUserId }) {
           {!showResolved && addingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setAddingId(item.id)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a22, #d4b45a11)", border: "1px solid #d4b45a55", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}22, ${color.goldLegacy}11)`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 + Add to DB
               </button>
               {dismissConfirmId === item.id ? (
                 <>
                   <button onClick={() => handleDismiss(item.id)}
-                    style={{ flex: 1, background: "#a0522d22", border: "1px solid #a0522d", borderRadius: 8, padding: "7px 0", color: "#e8a07a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                    style={{ flex: 1, background: `${color.danger}22`, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "7px 0", color: color.dangerText, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                     Yes
                   </button>
                   <button onClick={() => setDismissConfirmId(null)}
-                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                     Cancel
                   </button>
                 </>
               ) : (
                 <button onClick={() => setDismissConfirmId(item.id)}
-                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Dismiss
                 </button>
               )}
             </div>
           )}
           {dismissConfirmId === item.id && (
-            <div style={{ fontSize: 11, color: "#e8a07a", marginTop: 6, textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: color.dangerText, marginTop: 6, textAlign: "center" }}>
               Are you sure you want to dismiss this cigar addition?
             </div>
           )}
@@ -1310,9 +1309,9 @@ function FeedbackSection({ currentUser }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Bug Reports & Feedback</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Bug Reports & Feedback</div>
         <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
         </button>
       </div>
@@ -1321,38 +1320,38 @@ function FeedbackSection({ currentUser }) {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["all", "All"], ["bug", "🐛 Bugs"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
       </div>
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>{showResolved ? "No resolved items." : "Nothing pending."}</div>
+          <div style={{ fontSize: 13, color: color.faint }}>{showResolved ? "No resolved items." : "Nothing pending."}</div>
         </div>
       )}
 
       {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+        <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 11, background: item.type === "bug" ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${item.type === "bug" ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? "#e8a07a" : "#7a9a7a" }}>
+            <span style={{ fontSize: 11, background: item.type === "bug" ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${item.type === "bug" ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? color.dangerText : color.green }}>
               {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
             </span>
-            <span style={{ fontSize: 11, color: "#5a4535", marginLeft: "auto" }}>
+            <span style={{ fontSize: 11, color: color.faint, marginLeft: "auto" }}>
               {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
           </div>
-          <div style={{ fontSize: 13, color: "#ddc9a8", lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
+          <div style={{ fontSize: 13, color: color.soft, lineHeight: 1.6, marginBottom: 10 }}>{item.description}</div>
 
           {/* Existing reply */}
           {item.reply_text && (
-            <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
-              <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
-              <div style={{ fontSize: 12, color: "#ddc9a8", lineHeight: 1.5 }}>{item.reply_text}</div>
+            <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
+              <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
+              <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
             </div>
           )}
 
@@ -1362,14 +1361,14 @@ function FeedbackSection({ currentUser }) {
               <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
                 placeholder="Write a reply to the user..."
                 rows={3}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #d4b45a55", borderRadius: 8, padding: "8px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReply(item)} disabled={saving || !replyText.trim()}
-                  style={{ flex: 2, background: replyText.trim() ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? "#1a0f08" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  style={{ flex: 2, background: replyText.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: 12, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
                   {saving ? "Sending..." : "Send Reply"}
                 </button>
                 <button onClick={() => { setReplyingId(null); setReplyText(""); }}
-                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Cancel
                 </button>
               </div>
@@ -1379,18 +1378,18 @@ function FeedbackSection({ currentUser }) {
           <div style={{ display: "flex", gap: 8 }}>
             {item.posthog_session_id && (
               <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
-                style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3520", borderRadius: 8, padding: "7px 0", color: "#a08060", fontSize: 12, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
+                style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
                 📹 Watch Session
               </a>
             )}
             {!showResolved && replyingId !== item.id && (
               <>
                 <button onClick={() => { setReplyingId(item.id); setReplyText(""); }}
-                  style={{ flex: 1, background: "none", border: "1px solid #d4b45a44", borderRadius: 8, padding: "7px 0", color: "#d4b45a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Reply
                 </button>
                 <button onClick={() => handleResolve(item.id)}
-                  style={{ flex: 1, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   ✓ Resolve
                 </button>
               </>
@@ -1453,57 +1452,57 @@ function DbRefreshSection() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>DB Refresh Candidates</div>
-        <div style={{ fontSize: 11, color: "#5a4535" }}>Runs 1st of each month</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>DB Refresh Candidates</div>
+        <div style={{ fontSize: 11, color: color.faint }}>Runs 1st of each month</div>
       </div>
 
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        Searches Halfwheel for new releases from brands in our DB. Runs automatically via Vercel Cron. Manual triggering now requires the CRON_SECRET, which is deliberately not available in the browser — run it from a terminal: <span style={{ color: "#a08060", fontFamily: "monospace" }}>curl -H "Authorization: Bearer $CRON_SECRET" https://ashed.app/api/db-refresh</span>
+      <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
+        Searches Halfwheel for new releases from brands in our DB. Runs automatically via Vercel Cron. Manual triggering now requires the CRON_SECRET, which is deliberately not available in the browser — run it from a terminal: <span style={{ color: color.tan, fontFamily: "monospace" }}>curl -H "Authorization: Bearer $CRON_SECRET" https://ashed.app/api/db-refresh</span>
       </div>
 
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["pending", "Pending"], ["approved", "✓ Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
       </div>
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No {filter} candidates.</div>
+          <div style={{ fontSize: 13, color: color.faint }}>No {filter} candidates.</div>
         </div>
       )}
 
       {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 4 }}>
+        <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 4 }}>
             {item.brand} · {item.line}
           </div>
-          {item.vitolas && <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
-          {item.notes && <div style={{ fontSize: 12, color: "#7a6048", lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
+          {item.vitolas && <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
+          {item.notes && <div style={{ fontSize: 12, color: color.dim, lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
           {item.source_url && (
             <a href={item.source_url} target="_blank" rel="noreferrer"
-              style={{ fontSize: 11, color: "#d4b45a", textDecoration: "none", display: "block", marginBottom: 10 }}>
+              style={{ fontSize: 11, color: color.goldLegacy, textDecoration: "none", display: "block", marginBottom: 10 }}>
               📰 View on Halfwheel
             </a>
           )}
-          <div style={{ fontSize: 10, color: "#5a4535", marginBottom: item.status === "pending" ? 10 : 0 }}>
+          <div style={{ fontSize: 10, color: color.faint, marginBottom: item.status === "pending" ? 10 : 0 }}>
             Found: {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
           {filter === "pending" && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "7px 0", color: "#e8d5b7", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
-                style={{ flex: 1, background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "7px 0", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "7px 0", color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Dismiss
               </button>
             </div>
@@ -1588,11 +1587,11 @@ function QASection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>User-Submitted Cigars</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>User-Submitted Cigars</div>
       </div>
 
       {msg && (
-        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: msg.isError ? color.dangerText : color.green }}>
           {msg.text}
         </div>
       )}
@@ -1600,52 +1599,52 @@ function QASection({ currentUserId }) {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["pending", "Pending"], ["approved", "✓ Approved"], ["rejected", "Rejected"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
       </div>
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No {filter} submissions.</div>
+          <div style={{ fontSize: 13, color: color.faint }}>No {filter} submissions.</div>
         </div>
       )}
 
       {items.map(item => (
-        <div key={item.id} style={{ background: "#221508", border: `1px solid ${editingId === item.id ? "#d4b45a55" : "#4a3520"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#f5ead8", marginBottom: 2 }}>
+        <div key={item.id} style={{ background: color.surface, border: `1px solid ${editingId === item.id ? `${color.goldLegacy}55` : color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 2 }}>
             {item.brand} · {item.line}
           </div>
-          <div style={{ fontSize: 11, color: "#a08060", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>
             {item.vitola}{item.strength ? ` · ${item.strength}` : ""}
           </div>
-          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: item.rejection_reason ? 6 : 10 }}>
+          <div style={{ fontSize: 11, color: color.faint, marginBottom: item.rejection_reason ? 6 : 10 }}>
             Submitted by @{item.users?.username || "unknown"}
           </div>
           {item.rejection_reason && (
-            <div style={{ fontSize: 11, color: "#e8a07a", marginBottom: 10, background: "#a0522d11", borderRadius: 6, padding: "6px 8px" }}>
+            <div style={{ fontSize: 11, color: color.dangerText, marginBottom: 10, background: `${color.danger}11`, borderRadius: 6, padding: "6px 8px" }}>
               Rejected: {item.rejection_reason}
             </div>
           )}
 
           {/* Edit form */}
           {editingId === item.id && (
-            <div style={{ borderTop: "1px solid #4a3520", paddingTop: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#d4b45a", letterSpacing: 1, marginBottom: 8 }}>EDIT DETAILS</div>
+            <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 8 }}>EDIT DETAILS</div>
               {[["BRAND", "brand", item.brand], ["LINE", "line", item.line], ["VITOLA", "vitola", item.vitola], ["ORIGIN", "origin", item.origin || ""], ["WRAPPER", "wrapper", item.wrapper || ""]].map(([label, field, def]) => (
                 <div key={field} style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+                  <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
                   <input value={editForm[field] ?? def} onChange={e => setEditForm(p => ({ ...p, [field]: e.target.value }))}
-                    style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 6, padding: "7px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+                    style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
                 </div>
               ))}
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 3 }}>STRENGTH</div>
+                <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>STRENGTH</div>
                 <select value={editForm.strength ?? item.strength ?? ""} onChange={e => setEditForm(p => ({ ...p, strength: e.target.value }))}
-                  style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 6, padding: "7px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
                   <option value="">Select...</option>
                   {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -1655,19 +1654,19 @@ function QASection({ currentUserId }) {
 
           {/* Reject form */}
           {rejectingId === item.id && (
-            <div style={{ borderTop: "1px solid #4a3520", paddingTop: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#e8a07a", letterSpacing: 1, marginBottom: 8 }}>REJECTION REASON (shown to user)</div>
+            <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: color.dangerText, letterSpacing: 1, marginBottom: 8 }}>REJECTION REASON (shown to user)</div>
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="e.g. This cigar could not be verified. Please check the brand and line name and try again."
                 rows={3}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #a0522d55", borderRadius: 6, padding: "8px 10px", color: "#f5ead8", fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "8px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReject(item)} disabled={!rejectReason.trim()}
-                  style={{ flex: 1, background: rejectReason.trim() ? "#a0522d" : "#3a2510", border: "none", borderRadius: 8, padding: "8px 0", color: rejectReason.trim() ? "#f5ead8" : "#5a4535", fontSize: 12, fontWeight: 700, cursor: rejectReason.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  style={{ flex: 1, background: rejectReason.trim() ? color.danger : color.line, border: "none", borderRadius: 8, padding: "8px 0", color: rejectReason.trim() ? color.heading : color.faint, fontSize: 12, fontWeight: 700, cursor: rejectReason.trim() ? "pointer" : "default", fontFamily: SANS }}>
                   Confirm Reject
                 </button>
                 <button onClick={() => { setRejectingId(null); setRejectReason(""); }}
-                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                   Cancel
                 </button>
               </div>
@@ -1677,15 +1676,15 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId !== item.id && rejectingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "8px 0", color: "#f5ead8", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Approve
               </button>
               <button onClick={() => { setEditingId(item.id); setEditForm({}); }}
-                style={{ flex: 1, background: "none", border: "1px solid #d4b45a44", borderRadius: 8, padding: "8px 0", color: "#d4b45a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "8px 0", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Edit
               </button>
               <button onClick={() => { setRejectingId(item.id); setRejectReason(""); }}
-                style={{ flex: 1, background: "none", border: "1px solid #a0522d44", borderRadius: 8, padding: "8px 0", color: "#a0522d", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}44`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Reject
               </button>
             </div>
@@ -1693,11 +1692,11 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId === item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 8, padding: "8px 0", color: "#1a0f08", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Save & Approve
               </button>
               <button onClick={() => setEditingId(null)}
-                style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                 Cancel
               </button>
             </div>
@@ -1803,28 +1802,28 @@ function DedupSection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Duplicate Finder</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Duplicate Finder</div>
         <button onClick={handleScan} disabled={scanning}
-          style={{ background: scanning ? "#3a2510" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? "#7a6048" : "#1a0f08", fontSize: 11, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
+          style={{ background: scanning ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: 11, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
           {scanning ? "Scanning..." : "▶ Find Duplicates"}
         </button>
       </div>
 
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 14, lineHeight: 1.6 }}>
+      <div style={{ fontSize: 11, color: color.faint, marginBottom: 14, lineHeight: 1.6 }}>
         Finds cigars with the same brand, line, and vitola. Review each group before merging. The oldest record is kept and all check-ins, humidor, and wishlist entries are updated automatically.
       </div>
 
       {msg && (
-        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12, color: msg.isError ? "#e8a07a" : "#7a9a7a" }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12, color: msg.isError ? color.dangerText : color.green }}>
           {msg.text}
         </div>
       )}
 
       {merged.length > 0 && (
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
+          <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
           {merged.map(key => (
-            <div key={key} style={{ fontSize: 12, color: "#7a9a7a", padding: "4px 0", borderBottom: "1px solid #2a1a0e" }}>✓ {key}</div>
+            <div key={key} style={{ fontSize: 12, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>✓ {key}</div>
           ))}
         </div>
       )}
@@ -1832,24 +1831,24 @@ function DedupSection({ currentUserId }) {
       {hasScanned && pending.length === 0 && groups.length === 0 && merged.length === 0 && (
         <div style={{ textAlign: "center", padding: "30px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No duplicates found.</div>
+          <div style={{ fontSize: 13, color: color.faint }}>No duplicates found.</div>
         </div>
       )}
 
       {pending.map(group => (
-        <div key={group.key} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-          <div style={{ fontSize: 12, color: "#d4b45a", fontWeight: 700, marginBottom: 10 }}>
+        <div key={group.key} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: color.goldLegacy, fontWeight: 700, marginBottom: 10 }}>
             {group.key}
           </div>
 
           {/* Keep record */}
           <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
-            <div style={{ background: "#1a0f08", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "8px 10px" }}>
-              <div style={{ fontSize: 11, color: "#ddc9a8" }}>
-                ID: <span style={{ color: "#7a6048" }}>{String(group.keep.id).substring(0, 8)}</span>
-                {" · "}Source: <span style={{ color: "#a08060" }}>{group.keep.source}</span>
-                {" · "}Check-ins: <span style={{ color: "#a08060" }}>{group.keep.total_checkins || 0}</span>
+            <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
+            <div style={{ background: color.bg, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px" }}>
+              <div style={{ fontSize: 11, color: color.soft }}>
+                ID: <span style={{ color: color.dim }}>{String(group.keep.id).substring(0, 8)}</span>
+                {" · "}Source: <span style={{ color: color.tan }}>{group.keep.source}</span>
+                {" · "}Check-ins: <span style={{ color: color.tan }}>{group.keep.total_checkins || 0}</span>
                 {" · "}{new Date(group.keep.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </div>
             </div>
@@ -1858,12 +1857,12 @@ function DedupSection({ currentUserId }) {
           {/* Duplicate records */}
           {group.duplicates.map(dup => (
             <div key={dup.id} style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 10, color: "#a0522d", letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
-              <div style={{ background: "#1a0f08", border: "1px solid #a0522d33", borderRadius: 8, padding: "8px 10px" }}>
-                <div style={{ fontSize: 11, color: "#ddc9a8" }}>
-                  ID: <span style={{ color: "#7a6048" }}>{String(dup.id).substring(0, 8)}</span>
-                  {" · "}Source: <span style={{ color: "#a08060" }}>{dup.source}</span>
-                  {" · "}Check-ins: <span style={{ color: "#a08060" }}>{dup.total_checkins || 0}</span>
+              <div style={{ fontSize: 10, color: color.danger, letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
+              <div style={{ background: color.bg, border: `1px solid ${color.danger}33`, borderRadius: 8, padding: "8px 10px" }}>
+                <div style={{ fontSize: 11, color: color.soft }}>
+                  ID: <span style={{ color: color.dim }}>{String(dup.id).substring(0, 8)}</span>
+                  {" · "}Source: <span style={{ color: color.tan }}>{dup.source}</span>
+                  {" · "}Check-ins: <span style={{ color: color.tan }}>{dup.total_checkins || 0}</span>
                   {" · "}{new Date(dup.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </div>
               </div>
@@ -1872,11 +1871,11 @@ function DedupSection({ currentUserId }) {
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <button onClick={() => handleMerge(group)} disabled={merging === group.key}
-              style={{ flex: 2, background: merging === group.key ? "#3a2510" : "linear-gradient(135deg, #7a9a7a, #5a7a5a)", border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? "#5a4535" : "#f5ead8", fontSize: 12, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
+              style={{ flex: 2, background: merging === group.key ? color.line : `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? color.faint : color.heading, fontSize: 12, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
               {merging === group.key ? "Merging..." : "⟶ Merge into Keep"}
             </button>
             <button onClick={() => handleSkip(group.key)}
-              style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 0", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
               Skip
             </button>
           </div>
@@ -1885,7 +1884,7 @@ function DedupSection({ currentUserId }) {
 
       {skipped.size > 0 && (
         <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 11, color: "#5a4535" }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
+          <div style={{ fontSize: 11, color: color.faint }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
         </div>
       )}
     </div>
@@ -1898,16 +1897,16 @@ function AuditSection() {
   const [filter, setFilter] = useState("all");
 
   const ACTION_LABELS = {
-    approve_cigar: { label: "Cigar Approved", icon: "✅", color: "#7a9a7a" },
-    reject_cigar: { label: "Cigar Rejected", icon: "❌", color: "#a0522d" },
-    approve_missing_cigar: { label: "Missing → Added", icon: "➕", color: "#7a9a7a" },
-    dismiss_missing_cigar: { label: "Missing Dismissed", icon: "🗑", color: "#5a4535" },
-    dedup_merge: { label: "Duplicate Merged", icon: "🔁", color: "#7a8a9a" },
-    delete_user: { label: "User Deleted", icon: "🗑", color: "#a0522d" },
-    grant_admin: { label: "Admin Granted", icon: "⚙️", color: "#d4b45a" },
-    revoke_admin: { label: "Admin Revoked", icon: "⚙️", color: "#7a6048" },
-    grant_mod: { label: "Mod Granted", icon: "🛡️", color: "#7a8a9a" },
-    revoke_mod: { label: "Mod Revoked", icon: "🛡️", color: "#5a4535" },
+    approve_cigar: { label: "Cigar Approved", icon: "✅", color: color.green },
+    reject_cigar: { label: "Cigar Rejected", icon: "❌", color: color.danger },
+    approve_missing_cigar: { label: "Missing → Added", icon: "➕", color: color.green },
+    dismiss_missing_cigar: { label: "Missing Dismissed", icon: "🗑", color: color.faint },
+    dedup_merge: { label: "Duplicate Merged", icon: "🔁", color: color.partner },
+    delete_user: { label: "User Deleted", icon: "🗑", color: color.danger },
+    grant_admin: { label: "Admin Granted", icon: "⚙️", color: color.goldLegacy },
+    revoke_admin: { label: "Admin Revoked", icon: "⚙️", color: color.dim },
+    grant_mod: { label: "Mod Granted", icon: "🛡️", color: color.partner },
+    revoke_mod: { label: "Mod Revoked", icon: "🛡️", color: color.faint },
   };
 
   const FILTERS = [
@@ -1938,40 +1937,40 @@ function AuditSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 12 }}>Audit Log</div>
+      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 12 }}>Audit Log</div>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {FILTERS.map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? "#d4b45a22" : "none", border: `1px solid ${filter === val ? "#d4b45a55" : "#3a2510"}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? "#d4b45a" : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
       </div>
 
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
 
       {!loading && logs.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>No audit entries yet.</div>
+          <div style={{ fontSize: 13, color: color.faint }}>No audit entries yet.</div>
         </div>
       )}
 
       {logs.map(log => {
-        const meta = ACTION_LABELS[log.action] || { label: log.action, icon: "•", color: "#7a6048" };
+        const meta = ACTION_LABELS[log.action] || { label: log.action, icon: "•", color: color.dim };
         return (
-          <div key={log.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid #2a1a0e" }}>
+          <div key={log.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
             <span style={{ fontSize: 16, flexShrink: 0 }}>{meta.icon}</span>
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: meta.color }}>{meta.label}</span>
-                <span style={{ fontSize: 10, color: "#5a4535" }}>
+                <span style={{ fontSize: 10, color: color.faint }}>
                   {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                 </span>
               </div>
-              {log.notes && <div style={{ fontSize: 12, color: "#a08060", marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
-              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 2 }}>
+              {log.notes && <div style={{ fontSize: 12, color: color.tan, marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
+              <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>
                 by @{log.users?.username || "unknown"}
               </div>
             </div>

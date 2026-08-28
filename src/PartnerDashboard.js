@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const SECTIONS = [
   { id: "analytics", icon: "📊", label: "Analytics" },
@@ -29,24 +28,24 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
   }, [placeId]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 500, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 500, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 900, margin: "0 auto" }}>
 
       {/* Header */}
-      <div style={{ background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#7a8a9a", letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2, letterSpacing: 1 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: color.partner, letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
+          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
             {venue ? venue.name : placeId ? "Loading venue..." : "No venue linked"}
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
       </div>
 
       {/* Section nav */}
-      <div style={{ display: "flex", borderBottom: "1px solid #3a2510", background: "#1a0f08", position: "sticky", top: 57, zIndex: 9 }}>
+      <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9 }}>
         {SECTIONS.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? "#7a8a9a" : "transparent"}`, color: section === s.id ? "#7a8a9a" : "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.partner : "transparent"}`, color: section === s.id ? color.partner : color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 16 }}>{s.icon}</span>
             <span>{s.label.toUpperCase()}</span>
           </button>
@@ -124,13 +123,13 @@ function AnalyticsSection({ placeId, venue }) {
     setLoading(false);
   };
 
-  if (loading) return <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>Loading analytics...</div>;
+  if (loading) return <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading analytics...</div>;
 
   if (!stats || stats.total === 0) return (
     <div style={{ textAlign: "center", padding: "60px 20px" }}>
       <div style={{ fontSize: 36, marginBottom: 16 }}>📊</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>No check-ins yet</div>
-      <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>When Ashed users check in at your venue, their activity will appear here.</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>No check-ins yet</div>
+      <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>When Ashed users check in at your venue, their activity will appear here.</div>
     </div>
   );
 
@@ -142,31 +141,31 @@ function AnalyticsSection({ placeId, venue }) {
       {/* Stat boxes */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 24 }}>
         {[
-          ["Total Visits", stats.total, "#7a8a9a"],
-          ["Unique Visitors", stats.unique, "#c9a84c"],
-          ["Repeat Visitors", stats.repeatVisitors, "#7a9a7a"],
-          ["Avg Rating", stats.avgRating ?? "—", "#e8632a"],
-        ].map(([label, value, color]) => (
-          <div key={label} style={{ background: "#221508", border: `1px solid ${color}33`, borderRadius: 12, padding: "14px 12px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: color, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
-            <div style={{ fontSize: 24, fontWeight: 700, color }}>{value}</div>
+          ["Total Visits", stats.total, color.partner],
+          ["Unique Visitors", stats.unique, color.gold],
+          ["Repeat Visitors", stats.repeatVisitors, color.green],
+          ["Avg Rating", stats.avgRating ?? "—", color.alert],
+        ].map(([label, value, accent]) => (
+          <div key={label} style={{ background: color.surface, border: `1px solid ${accent}33`, borderRadius: 12, padding: "14px 12px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
+            <div style={{ fontSize: 24, fontWeight: 700, color: accent }}>{value}</div>
             <div style={{ fontSize: 10, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
           </div>
         ))}
       </div>
 
       {/* Busiest days */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 }}>Busiest Days</div>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Busiest Days</div>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
           {stats.byDay.map((d, i) => {
             const pct = Math.round((d.count / maxDay) * 100);
             const isZero = d.count === 0;
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
-                {!isZero && <div style={{ fontSize: 10, color: "#7a8a9a", fontWeight: 700 }}>{d.count}</div>}
-                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: isZero ? 2 : `${Math.max(pct, 4)}%`, background: isZero ? "#2a1a0e" : "linear-gradient(180deg, #7a8a9aff 0%, #7a8a9a99 100%)", opacity: isZero ? 0.3 : 1 }} />
-                <div style={{ fontSize: 10, color: "#7a6050" }}>{d.name}</div>
+                {!isZero && <div style={{ fontSize: 10, color: color.partner, fontWeight: 700 }}>{d.count}</div>}
+                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: isZero ? 2 : `${Math.max(pct, 4)}%`, background: isZero ? color.surfaceRaised : `linear-gradient(180deg, ${color.partner}ff 0%, ${color.partner}99 100%)`, opacity: isZero ? 0.3 : 1 }} />
+                <div style={{ fontSize: 10, color: color.dimAlt }}>{d.name}</div>
               </div>
             );
           })}
@@ -174,18 +173,18 @@ function AnalyticsSection({ placeId, venue }) {
       </div>
 
       {/* Top cigars */}
-      <div style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 16 }}>Top Cigars Smoked Here</div>
+      <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16 }}>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Top Cigars Smoked Here</div>
         {stats.topCigars.map((c, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-            <div style={{ fontSize: 11, color: "#5a4535", width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+            <div style={{ fontSize: 11, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, color: "#e8d5b7", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>{c.label}</div>
-              <div style={{ height: 5, background: "#2a1a0e", borderRadius: 3, overflow: "hidden" }}>
-                <div style={{ width: `${Math.round((c.count / maxCigar) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #7a8a9a, #a0b0c0)", borderRadius: 3 }} />
+              <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>{c.label}</div>
+              <div style={{ height: 5, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ width: `${Math.round((c.count / maxCigar) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.partner}, ${color.partnerPale})`, borderRadius: 3 }} />
               </div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#7a8a9a", flexShrink: 0 }}>{c.count}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: color.partner, flexShrink: 0 }}>{c.count}</div>
           </div>
         ))}
       </div>
@@ -260,12 +259,12 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
 
   const Field = ({ label, field, multiline }) => (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
       {multiline
         ? <textarea value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} rows={3}
-            style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical" }} />
+            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical" }} />
         : <input value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-            style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
       }
     </div>
   );
@@ -273,14 +272,14 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600 }}>Manage Your Listing</div>
+        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Manage Your Listing</div>
         <button onClick={fetchFromGoogle} disabled={loadingGoogle}
-          style={{ background: "none", border: "1px solid #3a2510", borderRadius: 20, padding: "4px 12px", color: "#8a7055", fontSize: 11, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
           {loadingGoogle ? "Loading..." : "↻ Refresh from Google"}
         </button>
       </div>
       {msg && (
-        <div style={{ background: msg.isError ? "#a0522d22" : "#7a9a7a22", border: `1px solid ${msg.isError ? "#a0522d55" : "#7a9a7a55"}`, borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: msg.isError ? "#e8a07a" : "#7a9a7a", textAlign: "center" }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: msg.isError ? color.dangerText : color.green, textAlign: "center" }}>
           {msg.text}
         </div>
       )}
@@ -290,7 +289,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
       <Field label="HOURS" field="hours" />
       <Field label="DESCRIPTION" field="description" multiline />
       <button onClick={handleSave} disabled={saving}
-        style={{ width: "100%", background: saving ? "#3a2510" : "linear-gradient(135deg, #7a8a9a, #5a6a7a)", border: "none", borderRadius: 10, padding: 14, color: saving ? "#5a4535" : "#e8d5b7", fontSize: 14, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
+        style={{ width: "100%", background: saving ? color.line : `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 10, padding: 14, color: saving ? color.faint : color.text, fontSize: 14, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
         {saving ? "Saving..." : "Save Listing"}
       </button>
     </div>
@@ -344,36 +343,36 @@ function AnnounceSection({ placeId, user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: "#c8b89a", fontWeight: 600, marginBottom: 6 }}>Post Announcement</div>
-      <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 16 }}>Visible to users viewing your venue. Keep it short — events, new stock, specials.</div>
+      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 6 }}>Post Announcement</div>
+      <div style={{ fontSize: 11, color: color.faint, marginBottom: 16 }}>Visible to users viewing your venue. Keep it short — events, new stock, specials.</div>
 
-      {msg && <div style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: "#e8a07a" }}>{msg}</div>}
+      {msg && <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: color.dangerText }}>{msg}</div>}
 
       <textarea
         value={text}
         onChange={e => setText(e.target.value)}
         placeholder="e.g. Herf night this Friday 7pm. New Padron 1964 shipment just arrived!"
         rows={3}
-        style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 12px", color: "#e8d5b7", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical", marginBottom: 10 }}
+        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical", marginBottom: 10 }}
       />
       <button onClick={handlePost} disabled={posting || !text.trim()}
-        style={{ width: "100%", background: text.trim() ? "linear-gradient(135deg, #7a8a9a, #5a6a7a)" : "#2a1a0e", border: "none", borderRadius: 10, padding: 12, color: text.trim() ? "#e8d5b7" : "#5a4535", fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>
+        style={{ width: "100%", background: text.trim() ? `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})` : color.surfaceRaised, border: "none", borderRadius: 10, padding: 12, color: text.trim() ? color.text : color.faint, fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>
         {posting ? "Posting..." : "📣 Post Announcement"}
       </button>
 
-      <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 12 }}>POSTED ANNOUNCEMENTS</div>
-      {loading && <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>}
+      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>POSTED ANNOUNCEMENTS</div>
+      {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
       {!loading && announcements.length === 0 && (
-        <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "30px 0" }}>No announcements posted yet.</div>
+        <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "30px 0" }}>No announcements posted yet.</div>
       )}
       {announcements.map(a => (
-        <div key={a.id} style={{ background: "#221508", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 10 }}>
+        <div key={a.id} style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
-            <div style={{ fontSize: 13, color: "#e8d5b7", lineHeight: 1.5, flex: 1 }}>{a.content}</div>
+            <div style={{ fontSize: 13, color: color.text, lineHeight: 1.5, flex: 1 }}>{a.content}</div>
             <button onClick={() => handleDelete(a.id)}
-              style={{ background: "none", border: "none", color: "#5a4535", fontSize: 16, cursor: "pointer", flexShrink: 0 }}>🗑</button>
+              style={{ background: "none", border: "none", color: color.faint, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>🗑</button>
           </div>
-          <div style={{ fontSize: 11, color: "#5a4535", marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: color.faint, marginTop: 8 }}>
             {new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
         </div>
