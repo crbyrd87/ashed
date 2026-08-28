@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort } from "./sanitize";
 
@@ -22,13 +23,12 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
 
     try {
       // Quick Haiku verification — is this a real cigar?
-      const verifyRes = await fetch("/api/anthropic", {
+      const verifyRes = await authedFetch("/api/anthropic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 100,
-          user_id: user?.id,
           feature: "tasting_notes", // reuse tasting notes rate limit bucket
           messages: [{
             role: "user",

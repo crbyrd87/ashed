@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -107,14 +108,13 @@ Recommend a variety of well-known, widely available cigars that match the prefer
     setMode("loading");
     setError(null);
     try {
-      const response = await fetch("/api/anthropic", {
+      const response = await authedFetch("/api/anthropic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 1024,
           feature: "recommendations",
-          user_id: user?.id || null,
           messages: [{ role: "user", content: prompt }],
         }),
       });

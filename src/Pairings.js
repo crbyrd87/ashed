@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -44,13 +45,12 @@ export default function Pairings({ cigar, user, onClose }) {
 
       // Not in DB -- call Haiku
       try {
-        const response = await fetch("/api/anthropic", {
+        const response = await authedFetch("/api/anthropic", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "claude-haiku-4-5-20251001",
             max_tokens: 500,
-            user_id: user?.id,
             feature: "pairings",
             messages: [{
               role: "user",
@@ -109,7 +109,7 @@ Return ONLY a raw JSON object, no markdown:
   const handleSeasonalNote = async () => {
     setLoadingSeasonalNote(true);
     try {
-      const response = await fetch("/api/anthropic", {
+      const response = await authedFetch("/api/anthropic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

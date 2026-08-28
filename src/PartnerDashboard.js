@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
 
@@ -222,7 +223,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
   const fetchFromGoogle = async () => {
     setLoadingGoogle(true);
     try {
-      const res = await fetch(`/api/places?action=details&place_id=${encodeURIComponent(placeId)}`);
+      const res = await authedFetch(`/api/places?action=details&place_id=${encodeURIComponent(placeId)}`);
       const data = await res.json();
       const r = data.result;
       if (r) {
