@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { todayLocalISO } from "./dateUtils";
 import { FLAVOR_TAG_NAMES, FLAVOR_TAGS } from "./flavors";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const fetchAISuggestions = async (cigar, userId) => {
   const prompt = `You are a cigar expert. Based on this cigar's profile, describe the tasting experience in one natural sentence, then list which of our flavor tags apply.
@@ -63,7 +62,7 @@ function FlameIcon({ fill = "full", size = 38 }) {
         {fill === "half" && (
           <linearGradient id={`${id}-h`} x1="0" x2="1" y1="0" y2="0">
             <stop offset="50%" stopColor="#ff6600" />
-            <stop offset="50%" stopColor="#3a2510" />
+            <stop offset="50%" stopColor={color.line} />
           </linearGradient>
         )}
       </defs>
@@ -72,7 +71,7 @@ function FlameIcon({ fill = "full", size = 38 }) {
         fill={
           fill === "full" ? `url(#${id})` :
           fill === "half" ? `url(#${id}-h)` :
-          "#3a2510"
+          color.line
         }
       />
     </svg>
@@ -128,7 +127,7 @@ function FlameRating({ value, onChange }) {
           style={{ position: "relative", height: 28, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "none", userSelect: "none" }}
         >
           {/* Track background */}
-          <div style={{ position: "absolute", left: 0, right: 0, height: 6, borderRadius: 3, background: "#3a2510" }} />
+          <div style={{ position: "absolute", left: 0, right: 0, height: 6, borderRadius: 3, background: color.line }} />
           {/* Filled track */}
           {value && <div style={{ position: "absolute", left: 0, height: 6, width: `${fillPct}%`, borderRadius: 3, background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)" }} />}
           {/* Thumb */}
@@ -136,8 +135,8 @@ function FlameRating({ value, onChange }) {
             position: "absolute",
             left: value ? `calc(${fillPct}% - 12px)` : "-12px",
             width: 24, height: 24, borderRadius: "50%",
-            background: value ? "linear-gradient(135deg, #ff6600, #ffcc00)" : "#3a2510",
-            border: `2px solid ${value ? "#1a0f08" : "#5a4535"}`,
+            background: value ? "linear-gradient(135deg, #ff6600, #ffcc00)" : color.line,
+            border: `2px solid ${value ? color.bg : color.faint}`,
             boxShadow: value ? "0 2px 6px rgba(0,0,0,0.5)" : "none",
             transition: "left 0.05s",
           }} />
@@ -372,22 +371,22 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   const s = {
-    overlay: { position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 420, margin: "0 auto" },
-    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
-    section: { padding: "16px 20px", borderBottom: "1px solid #3a251033" },
-    label: { fontSize: 11, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
-    input: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
-    textarea: { width: "100%", background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: 8, padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
-    tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "linear-gradient(135deg, #c9a84c22, #a0783022)" : "#221508", color: active ? "#c9a84c" : "#7a6048", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? "0 0 8px #c9a84c33" : "none" }),
-    optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
-    saveBtn: { width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
-    detailsToggle: { width: "100%", background: showDetails ? "#2a1a0e" : "none", border: `1px solid ${showDetails ? "#c9a84c44" : "#3a2510"}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? "#c9a84c" : "#8a7055", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    overlay: { position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 420, margin: "0 auto" },
+    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    section: { padding: "16px 20px", borderBottom: `1px solid ${color.line}33` },
+    label: { fontSize: 11, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
+    input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
+    textarea: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
+    tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `linear-gradient(135deg, ${color.gold}22, ${color.goldDeep}22)` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
+    optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
+    saveBtn: { width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
+    detailsToggle: { width: "100%", background: showDetails ? color.surfaceRaised : "none", border: `1px solid ${showDetails ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? color.gold : color.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
   };
 
   return (
     <div style={s.overlay}>
       {success && (
-        <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: "#7a9a7a", color: "#fff", padding: "12px 24px", borderRadius: 30, fontSize: 14, fontWeight: 600, zIndex: 999, fontFamily: SANS, whiteSpace: "nowrap" }}>
+        <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: color.green, color: "#fff", padding: "12px 24px", borderRadius: 30, fontSize: 14, fontWeight: 600, zIndex: 999, fontFamily: SANS, whiteSpace: "nowrap" }}>
           ✓ Smoke logged successfully!
         </div>
       )}
@@ -395,10 +394,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* Header */}
       <div style={s.header}>
         <div>
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 2 }}>{cigar.brand?.toUpperCase()}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>{cigar.line} — {cigar.vitola}</div>
+          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 2 }}>{cigar.brand?.toUpperCase()}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>{cigar.line} — {cigar.vitola}</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
       </div>
 
       {/* ── QUICK CHECK-IN ── */}
@@ -409,13 +408,13 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <FlameRating value={flames} onChange={setFlames} />
         <div style={{ textAlign: "center", marginTop: 10, fontSize: 13 }}>
           {flames === null ? (
-            <span style={{ color: "#a0522d" }}>👆 Slide the scale to rate</span>
+            <span style={{ color: color.danger }}>👆 Slide the scale to rate</span>
           ) : (
             <>
-              <span style={{ color: "#8a7055" }}>{FLAME_LABELS[flames] || ""}</span>
+              <span style={{ color: color.muted }}>{FLAME_LABELS[flames] || ""}</span>
               {" · "}
-              <span style={{ color: "#c9a84c", fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
-              <span style={{ color: "#5a4535", fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
+              <span style={{ color: color.gold, fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
+              <span style={{ color: color.faint, fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
             </>
           )}
         </div>
@@ -426,9 +425,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <div style={s.label}>Would you smoke this again?</div>
         <div style={{ display: "flex", gap: 10 }}>
           {[
-            { label: "Yes", icon: "👍", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
-            { label: "Maybe", icon: "🤔", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
-            { label: "No", icon: "👎", activeColor: "#7a3a2a", activeBg: "linear-gradient(135deg, #8a3a2a, #6a2a1a)" },
+            { label: "Yes", icon: "👍", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
+            { label: "Maybe", icon: "🤔", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+            { label: "No", icon: "👎", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
           ].map(({ label, icon, activeColor, activeBg }) => {
             const isActive = wouldSmokeAgain === label;
             return (
@@ -437,9 +436,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 onClick={() => setWouldSmokeAgain(wouldSmokeAgain === label ? null : label)}
                 style={{
                   flex: 1, padding: "14px 0", borderRadius: 10,
-                  border: `1px solid ${isActive ? activeColor : "#3a2510"}`,
-                  background: isActive ? activeBg : "#221508",
-                  color: isActive ? "#f5ead8" : "#5a4535",
+                  border: `1px solid ${isActive ? activeColor : color.line}`,
+                  background: isActive ? activeBg : color.surface,
+                  color: isActive ? color.heading : color.faint,
                   fontSize: 13, fontWeight: isActive ? 700 : 400,
                   cursor: "pointer", fontFamily: SANS,
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
@@ -454,7 +453,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       </div>
 
       {/* ── ADD DETAILS TOGGLE ── */}
-      <div style={{ padding: "12px 20px", borderBottom: "1px solid #3a251033" }}>
+      <div style={{ padding: "12px 20px", borderBottom: `1px solid ${color.line}33` }}>
         <button style={s.detailsToggle} onClick={() => setShowDetails(!showDetails)}>
           <span>📝 {showDetails ? "Hide details" : "Add details"}</span>
           <span style={{ fontSize: 14, transition: "transform 0.2s", display: "inline-block", transform: showDetails ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
@@ -472,7 +471,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 <button
                   onClick={handleGetSuggestions}
                   disabled={loadingSuggestions}
-                  style={{ background: loadingSuggestions ? "#2a1a0e" : "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? "#5a4535" : "#7a9a7a", fontSize: 12, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                  style={{ background: loadingSuggestions ? color.surfaceRaised : `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? color.faint : color.green, fontSize: 12, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
                   {loadingSuggestions ? "Thinking..." : "✨ Suggest"}
                 </button>
@@ -481,12 +480,12 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
             {/* AI description */}
             {aiDescription ? (
-              <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: "#7a9a7a", fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
-                <div style={{ fontSize: 11, color: "#a08060" }}>If you tasted any of these — or more — select them below.</div>
+              <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
+                <div style={{ fontSize: 12, color: color.green, fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
+                <div style={{ fontSize: 11, color: color.tan }}>If you tasted any of these — or more — select them below.</div>
               </div>
             ) : (
-              <div style={{ fontSize: 12, color: "#5a4535", marginBottom: 12, fontStyle: "italic" }}>
+              <div style={{ fontSize: 12, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
                 Tap ✨ Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
               </div>
             )}
@@ -514,9 +513,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={s.label}>Value for Price</div>
             <div style={{ display: "flex", gap: 10 }}>
               {[
-                { label: "Good value", icon: "💰", activeColor: "#4a7a4a", activeBg: "linear-gradient(135deg, #4a7a4a, #2a5a2a)" },
-                { label: "OK value", icon: "🤷", activeColor: "#8a7a4a", activeBg: "linear-gradient(135deg, #8a7a4a, #6a5a2a)" },
-                { label: "Poor value", icon: "📉", activeColor: "#7a3a2a", activeBg: "linear-gradient(135deg, #8a3a2a, #6a2a1a)" },
+                { label: "Good value", icon: "💰", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
+                { label: "OK value", icon: "🤷", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+                { label: "Poor value", icon: "📉", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
               ].map(({ label, icon, activeColor, activeBg }) => {
                 const isActive = valueForPrice === label;
                 return (
@@ -525,9 +524,9 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                     onClick={() => setValueForPrice(valueForPrice === label ? null : label)}
                     style={{
                       flex: 1, padding: "12px 4px", borderRadius: 10,
-                      border: `1px solid ${isActive ? activeColor : "#3a2510"}`,
-                      background: isActive ? activeBg : "#221508",
-                      color: isActive ? "#f5ead8" : "#5a4535",
+                      border: `1px solid ${isActive ? activeColor : color.line}`,
+                      background: isActive ? activeBg : color.surface,
+                      color: isActive ? color.heading : color.faint,
                       fontSize: 11, fontWeight: isActive ? 700 : 400,
                       cursor: "pointer", fontFamily: SANS,
                       display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
@@ -546,7 +545,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={s.label}>Date</div>
             <input type="date" style={{ ...s.input, maxWidth: "100%", fontSize: 16 }} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
             <div style={{ ...s.label, marginTop: 14 }}>
-              Location <span style={{ color: "#5a4535", fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span>
+              Location <span style={{ color: color.faint, fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
               {savedPlaces.map(p => (
@@ -556,8 +555,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               <button style={s.tag(false)} onClick={() => setShowVenueSearch(!showVenueSearch)}>🏪 Find venue</button>
             </div>
             {location !== "" && (
-              <div style={{ fontSize: 12, color: "#c9a84c", marginBottom: 8 }}>
-                📍 {location} <span onClick={() => setLocation("")} style={{ color: "#5a4535", cursor: "pointer", marginLeft: 6 }}>×</span>
+              <div style={{ fontSize: 12, color: color.gold, marginBottom: 8 }}>
+                📍 {location} <span onClick={() => setLocation("")} style={{ color: color.faint, cursor: "pointer", marginLeft: 6 }}>×</span>
               </div>
             )}
             {showNewPlace && (
@@ -569,12 +568,12 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   onChange={e => setNewPlaceName(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleAddPlace()}
                 />
-                <button onClick={handleAddPlace} style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "0 16px", color: "#1a0f08", fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
+                <button onClick={handleAddPlace} style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "0 16px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
               </div>
             )}
             {showVenueSearch && (
-              <div style={{ background: "#1a0f08", border: "1px solid #3a2510", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
+              <div style={{ background: color.bg, border: `1px solid ${color.line}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                   <input
                     style={{ ...s.input, flex: 1 }}
@@ -584,22 +583,22 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                     onKeyDown={e => e.key === "Enter" && handleVenueSearch()}
                   />
                   <button onClick={handleVenueSearch} disabled={venueSearching}
-                    style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "0 14px", color: "#1a0f08", fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                    style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "0 14px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
                     {venueSearching ? "..." : "Search"}
                   </button>
                 </div>
                 {venueResults.map((v, i) => (
                   <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
-                    style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: "#2a1a0e", cursor: "pointer", border: "1px solid #3a2510" }}>
-                    <div style={{ fontSize: 13, color: "#e8d5b7", fontWeight: 600 }}>{v.name}</div>
-                    <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
+                    style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: color.surfaceRaised, cursor: "pointer", border: `1px solid ${color.line}` }}>
+                    <div style={{ fontSize: 13, color: color.text, fontWeight: 600 }}>{v.name}</div>
+                    <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
                   </div>
                 ))}
                 {!venueSearching && venueResults.length === 0 && venueQuery && (
-                  <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
+                  <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
                 )}
                 <button onClick={() => { setShowVenueSearch(false); setVenueResults([]); setVenueQuery(""); }}
-                  style={{ width: "100%", background: "none", border: "none", color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}>
+                  style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}>
                   Cancel
                 </button>
               </div>
@@ -610,14 +609,14 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           <div style={s.section}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <div style={{ fontSize: 14, color: "#e8d5b7" }}>Private check-in</div>
-                <div style={{ fontSize: 12, color: "#5a4535", marginTop: 2 }}>Only visible to you</div>
+                <div style={{ fontSize: 14, color: color.text }}>Private check-in</div>
+                <div style={{ fontSize: 12, color: color.faint, marginTop: 2 }}>Only visible to you</div>
               </div>
               <div
                 onClick={() => { privateTouched.current = true; setIsPrivate(!isPrivate); }}
-                style={{ width: 44, height: 24, borderRadius: 12, background: isPrivate ? "#c9a84c" : "#3a2510", cursor: "pointer", position: "relative", transition: "background 0.2s" }}
+                style={{ width: 44, height: 24, borderRadius: 12, background: isPrivate ? color.gold : color.line, cursor: "pointer", position: "relative", transition: "background 0.2s" }}
               >
-                <div style={{ position: "absolute", top: 2, left: isPrivate ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#e8d5b7", transition: "left 0.2s" }} />
+                <div style={{ position: "absolute", top: 2, left: isPrivate ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: color.text, transition: "left 0.2s" }} />
               </div>
             </div>
           </div>
@@ -626,7 +625,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
       {/* Save Button */}
       <div style={{ padding: 20 }}>
-        {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
+        {error && <div style={{ color: color.dangerText, fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
         <button
           style={{ ...s.saveBtn, opacity: flames === null ? 0.5 : 1 }}
           onClick={handleSave}

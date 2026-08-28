@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
+const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s] || "#888");
 
-const Badge = ({ label, color = "#c9a84c" }) => (
-  <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
+const Badge = ({ label, tint = color.gold }) => (
+  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
 export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
@@ -271,41 +271,41 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     setScanning(false);
   };
 
-  if (loading) return <div style={{ fontFamily: SANS, color: "#8a7055", textAlign: "center", padding: 40 }}>Loading...</div>;
+  if (loading) return <div style={{ fontFamily: SANS, color: color.muted, textAlign: "center", padding: 40 }}>Loading...</div>;
 
   // SCAN FLOW
   if (scanning) return (
-    <div style={{ fontFamily: SANS, color: "#e8d5b7", padding: 20 }}>
+    <div style={{ fontFamily: SANS, color: color.text, padding: 20 }}>
 
       {scanStage === "idle" && (
         <>
-          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>ADD TO HUMIDOR</div>
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>ADD TO HUMIDOR</div>
+          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>📷</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 6 }}>Scan cigar band(s)</div>
-            <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once.</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Scan cigar band(s)</div>
+            <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once.</div>
           </div>
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
+          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
             {["Photograph up to 3 cigars at a time", "Bands should face the camera directly", "Good lighting makes a big difference", "You can edit brand and line on the confirm screen"].map((tip, i) => (
-              <div key={i} style={{ fontSize: 12, color: "#8a7055", marginBottom: 4, display: "flex", gap: 6 }}>
-                <span style={{ color: "#c9a84c" }}>→</span>{tip}
+              <div key={i} style={{ fontSize: 12, color: color.muted, marginBottom: 4, display: "flex", gap: 6 }}>
+                <span style={{ color: color.gold }}>→</span>{tip}
               </div>
             ))}
           </div>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
-            <div style={{ width: "100%", background: "linear-gradient(135deg, #4caf6e, #2e8b4a)", border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ display: "none" }} />
           </label>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
-            <div style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#c8b89a", fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.cream, fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
             <input type="file" accept="image/*" onChange={handleScanPhoto} style={{ display: "none" }} />
           </label>
-          <button onClick={resetScan} style={{ width: "100%", background: "none", border: "none", color: "#5a4535", fontSize: 13, cursor: "pointer", fontFamily: SANS, padding: 10 }}>Cancel</button>
+          <button onClick={resetScan} style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: 13, cursor: "pointer", fontFamily: SANS, padding: 10 }}>Cancel</button>
         </>
       )}
 
@@ -313,10 +313,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         <div style={{ textAlign: "center", padding: 40 }}>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 12, maxHeight: 220, objectFit: "cover", marginBottom: 20 }} />}
           <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 6 }}>Analyzing your cigars...</div>
-          <div style={{ fontSize: 12, color: "#8a7055" }}>Ashed is reading the band(s)</div>
-          <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden", marginTop: 20 }}>
-            <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Analyzing your cigars...</div>
+          <div style={{ fontSize: 12, color: color.muted }}>Ashed is reading the band(s)</div>
+          <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginTop: 20 }}>
+            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>
@@ -324,60 +324,60 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
       {scanStage === "confirm" && scanResult && (
         <>
-          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>
             {scanResult.length === 1 ? "CONFIRM CIGAR" : `CONFIRM ${scanResult.length} CIGARS`}
           </div>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 14 }} />}
           {scanResult.some(c => c.confidence === "low") && (
-            <div style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: "#e8a07a", lineHeight: 1.5 }}>
+            <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: color.dangerText, lineHeight: 1.5 }}>
                 ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review before saving.
               </div>
             </div>
           )}
           {scanResult.map((cigar, i) => (
-            <div key={i} style={{ background: "#221508", border: `1px solid ${cigar.confidence === "high" ? "#7a9a7a44" : cigar.confidence === "medium" ? "#c9a84c44" : "#a0522d88"}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+            <div key={i} style={{ background: color.surface, border: `1px solid ${cigar.confidence === "high" ? `${color.green}44` : cigar.confidence === "medium" ? `${color.gold}44` : `${color.danger}88`}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#a0522d" }} />
-                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? "#4caf6e" : cigar.confidence === "medium" ? "#c9a84c" : "#e8a07a", letterSpacing: 1 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? color.greenBright : cigar.confidence === "medium" ? color.gold : color.danger }} />
+                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? color.greenBright : cigar.confidence === "medium" ? color.gold : color.dangerText, letterSpacing: 1 }}>
                   {cigar.confidence === "high" && "HIGH CONFIDENCE"}
                   {cigar.confidence === "medium" && "MEDIUM — PLEASE VERIFY"}
                   {cigar.confidence === "low" && "LOW — PLEASE CORRECT BELOW"}
                 </span>
               </div>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
+              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
               <input value={cigar.brand || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 4 }}>LINE</div>
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>LINE</div>
               <input value={cigar.line || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
-                {cigar.origin && <Badge label={cigar.origin} color="#4caf6e" />}
+                {cigar.origin && <Badge label={cigar.origin} color={color.greenBright} />}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: "#8a7055" }}>Quantity:</span>
+                <span style={{ fontSize: 12, color: color.muted }}>Quantity:</span>
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: Math.max(1, c.qty - 1) } : c))}
-                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>-</button>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#c9a84c", minWidth: 24, textAlign: "center" }}>{cigar.qty}</span>
+                  style={{ width: 28, height: 28, borderRadius: "50%", border: `1px solid ${color.lineStrong}`, background: "none", color: color.gold, fontSize: 16, cursor: "pointer", fontFamily: SANS }}>-</button>
+                <span style={{ fontSize: 15, fontWeight: 700, color: color.gold, minWidth: 24, textAlign: "center" }}>{cigar.qty}</span>
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: c.qty + 1 } : c))}
-                  style={{ width: 28, height: 28, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#c9a84c", fontSize: 16, cursor: "pointer", fontFamily: SANS }}>+</button>
+                  style={{ width: 28, height: 28, borderRadius: "50%", border: `1px solid ${color.lineStrong}`, background: "none", color: color.gold, fontSize: 16, cursor: "pointer", fontFamily: SANS }}>+</button>
               </div>
               {cigar.vitola === "Unknown" && (
                 <input placeholder="Size/vitola (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
-                  style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
+                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
               )}
               <input placeholder="Notes (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, notes: e.target.value } : c))}
-                style={{ width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "8px 12px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
             </div>
           ))}
           <button onClick={handleConfirmScan}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
             Add {scanResult.length === 1 ? "to Humidor" : `${scanResult.length} Cigars to Humidor`}
           </button>
           <button onClick={resetScan}
-            style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Cancel
           </button>
         </>
@@ -387,14 +387,14 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         <div style={{ textAlign: "center", padding: 20 }}>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 16 }} />}
           <div style={{ fontSize: 28, marginBottom: 10 }}>🚫</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 6 }}>Could not identify</div>
-          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 20, lineHeight: 1.6 }}>{scanError}</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Could not identify</div>
+          <div style={{ fontSize: 13, color: color.muted, marginBottom: 20, lineHeight: 1.6 }}>{scanError}</div>
           <button onClick={() => setScanStage("idle")}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
             Try Again
           </button>
           <button onClick={resetScan}
-            style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 12, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Cancel
           </button>
         </div>
@@ -404,16 +404,16 @@ Return ONLY raw JSON, no markdown, no explanation.` }
 
   // MAIN HUMIDOR VIEW
   return (
-    <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
+    <div style={{ padding: 16, fontFamily: SANS, color: color.text }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 13, color: "#c9a84c", fontWeight: 700, letterSpacing: 1 }}>WHAT'S IN MY HUMIDOR?</div>
-          {items.length > 0 && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
+          <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1 }}>WHAT'S IN MY HUMIDOR?</div>
+          {items.length > 0 && <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
         </div>
         <button onClick={() => setShowAddOptions(true)}
-          style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: "8px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: "8px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           + Add a Cigar
         </button>
       </div>
@@ -422,30 +422,30 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {showAddOptions && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
           onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setAddSearchResults([]); }}>
-          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "20px 20px 36px", display: "flex", flexDirection: "column" }}
+          <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, padding: "20px 20px 36px", display: "flex", flexDirection: "column" }}
             onClick={e => e.stopPropagation()}>
-            <div style={{ width: 40, height: 4, background: "#4a3520", borderRadius: 2, margin: "0 auto 16px", flexShrink: 0 }} />
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8", marginBottom: 12, textAlign: "center", flexShrink: 0 }}>Add a Cigar to Your Humidor</div>
+            <div style={{ width: 40, height: 4, background: color.lineStrong, borderRadius: 2, margin: "0 auto 16px", flexShrink: 0 }} />
+            <div style={{ fontSize: 14, fontWeight: 700, color: color.heading, marginBottom: 12, textAlign: "center", flexShrink: 0 }}>Add a Cigar to Your Humidor</div>
             <input
               value={addSearchQuery}
               onChange={e => handleAddSearch(e.target.value)}
               placeholder="Search by cigar name or brand..."
-              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "11px 14px", color: "#f5ead8", fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
+              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "11px 14px", color: color.heading, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
             />
             <div style={{ overflowY: "auto", maxHeight: "30vh", flexShrink: 1 }}>
-              {addSearching && <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: 8 }}>Searching...</div>}
+              {addSearching && <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: 8 }}>Searching...</div>}
               {addSearchResults.map(c => (
                 <div key={c.id} onClick={() => handleAddFromSearch(c)}
-                  style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "10px 14px", marginBottom: 8, cursor: "pointer" }}>
-                  <div style={{ fontSize: 11, color: "#a08060" }}>{c.brand}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#f5ead8" }}>{c.line}</div>
-                  {c.vitola && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{c.vitola}</div>}
+                  style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "10px 14px", marginBottom: 8, cursor: "pointer" }}>
+                  <div style={{ fontSize: 11, color: color.tan }}>{c.brand}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: color.heading }}>{c.line}</div>
+                  {c.vitola && <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>{c.vitola}</div>}
                 </div>
               ))}
             </div>
             {addSearchQuery.length < 2 && (
               <button onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setScanning(true); }}
-                style={{ width: "100%", background: "#2a1a0e", border: "1px solid #4caf6e55", borderRadius: 12, padding: 14, color: "#4caf6e", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
+                style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 12, padding: 14, color: color.greenBright, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
                 📷 Scan a Band Instead
               </button>
             )}
@@ -458,17 +458,17 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
           {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(s => {
             const active = filterStrength.includes(s);
-            const color = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s];
+            const swatch = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s];
             return (
               <button key={s} onClick={() => setFilterStrength(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
-                style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? color : "#4a3520"}`, background: active ? color + "22" : "transparent", color: active ? color : "#7a6048", fontSize: 11, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }}>
+                style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? swatch : color.lineStrong}`, background: active ? swatch + "22" : "transparent", color: active ? swatch : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }}>
                 {s}
               </button>
             );
           })}
           {filterStrength.length > 0 && (
             <button onClick={() => setFilterStrength([])}
-              style={{ padding: "5px 10px", borderRadius: 20, border: "1px solid #4a3520", background: "transparent", color: "#5a4535", fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+              style={{ padding: "5px 10px", borderRadius: 20, border: `1px solid ${color.lineStrong}`, background: "transparent", color: color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
               Clear ×
             </button>
           )}
@@ -479,8 +479,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {items.length === 0 && !loading && (
         <div style={{ textAlign: "center", padding: 40 }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>📦</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Your humidor is empty</div>
-          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Search for a cigar or scan a band to add it.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>Your humidor is empty</div>
+          <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>Search for a cigar or scan a band to add it.</div>
         </div>
       )}
 
@@ -493,7 +493,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         });
 
         if (filtered.length === 0 && items.length > 0) return (
-          <div style={{ textAlign: "center", padding: 30, fontSize: 13, color: "#7a6048" }}>No cigars match your filter.</div>
+          <div style={{ textAlign: "center", padding: 30, fontSize: 13, color: color.dim }}>No cigars match your filter.</div>
         );
 
         // Group by brand
@@ -513,8 +513,8 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div key={brand} style={{ marginBottom: 16 }}>
               {/* Brand header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingLeft: 2 }}>
-                <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2 }}>{brand.toUpperCase()}</div>
-                <div style={{ fontSize: 10, color: "#8a7055" }}>{brandTotal} cigars</div>
+                <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 2 }}>{brand.toUpperCase()}</div>
+                <div style={{ fontSize: 10, color: color.muted }}>{brandTotal} cigars</div>
               </div>
 
               {/* Lines under this brand */}
@@ -522,51 +522,51 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 const lineTotal = lineItems.reduce((a, i) => a + i.quantity, 0);
 
                 return (
-                  <div key={line} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #4a3520", borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
+                  <div key={line} style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surface} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
                     <div style={{ padding: "12px 14px 12px" }}>
 
                       {/* Line name + total */}
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7" }}>{line}</div>
-                        {lineItems.length > 1 && <div style={{ fontSize: 10, color: "#8a7055" }}>{lineTotal} total</div>}
+                        <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>{line}</div>
+                        {lineItems.length > 1 && <div style={{ fontSize: 10, color: color.muted }}>{lineTotal} total</div>}
                       </div>
 
                       {/* Vitola rows */}
                       {lineItems.map((item, idx) => {
                         const vitola = item.cigars?.vitola || item.cigar_vitola || null;
                         const strength = item.cigars?.strength || null;
-                        const color = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[strength] || "#888";
+                        const swatch = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[strength] || "#888";
                         const isEditingQty = editingQty === item.id;
                         const isConfirmingRemove = confirmRemoveAll === item.id;
 
                         return (
-                          <div key={item.id} style={{ borderTop: idx === 0 ? "none" : "1px solid #4a352044", paddingTop: idx === 0 ? 0 : 10, marginTop: idx === 0 ? 0 : 10 }}>
+                          <div key={item.id} style={{ borderTop: idx === 0 ? "none" : `1px solid ${color.lineStrong}44`, paddingTop: idx === 0 ? 0 : 10, marginTop: idx === 0 ? 0 : 10 }}>
                             {/* Badges + stepper */}
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                                 {vitola
-                                  ? <span style={{ background: "#c9a84c22", color: "#c9a84c", border: "1px solid #c9a84c55", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>
-                                  : <span style={{ color: "#5a4535", fontSize: 11, fontStyle: "italic" }}>No vitola</span>
+                                  ? <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>
+                                  : <span style={{ color: color.faint, fontSize: 11, fontStyle: "italic" }}>No vitola</span>
                                 }
-                                {strength && <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>}
+                                {strength && <span style={{ background: swatch + "22", color: swatch, border: `1px solid ${swatch}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>}
                               </div>
                               {/* Qty stepper */}
                               {isEditingQty ? (
                                 <input type="number" min="1" defaultValue={item.quantity} autoFocus
                                   onBlur={e => handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
                                   onKeyDown={e => e.key === "Enter" && handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
-                                  style={{ width: 48, textAlign: "center", background: "#2a1a0e", border: "1px solid #c9a84c", borderRadius: 6, padding: "4px 0", color: "#c9a84c", fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
+                                  style={{ width: 48, textAlign: "center", background: color.surfaceRaised, border: `1px solid ${color.gold}`, borderRadius: 6, padding: "4px 0", color: color.gold, fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
                                 />
                               ) : (
                                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                   <button onClick={() => handleRemoveOne(item)}
-                                    style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                                    style={{ width: 24, height: 24, borderRadius: "50%", border: `1px solid ${color.lineStrong}`, background: "none", color: color.muted, fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                                   <div onClick={() => setEditingQty(item.id)}
-                                    style={{ fontSize: 20, fontWeight: 700, color: "#c9a84c", cursor: "pointer", minWidth: 28, textAlign: "center" }}>
+                                    style={{ fontSize: 20, fontWeight: 700, color: color.gold, cursor: "pointer", minWidth: 28, textAlign: "center" }}>
                                     {item.quantity}
                                   </div>
                                   <button onClick={async () => { await supabase.from("humidor").update({ quantity: item.quantity + 1 }).eq("id", item.id); fetchHumidor(); }}
-                                    style={{ width: 24, height: 24, borderRadius: "50%", border: "1px solid #4a3520", background: "none", color: "#8a7055", fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                                    style={{ width: 24, height: 24, borderRadius: "50%", border: `1px solid ${color.lineStrong}`, background: "none", color: color.muted, fontSize: 15, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                                 </div>
                               )}
                             </div>
@@ -574,27 +574,27 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             {/* Action buttons */}
                             <div style={{ display: "flex", gap: 8 }}>
                               <button onClick={() => handleSmokeOne(item)}
-                                style={{ flex: 2, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                                style={{ flex: 2, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                                 🔥 Smoke One
                               </button>
                               <button onClick={() => openVitolaPicker(item)}
-                                style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                                 ✎ Vitola
                               </button>
                               {isConfirmingRemove ? (
                                 <>
                                   <button onClick={() => handleRemoveAll(item.id)}
-                                    style={{ flex: 1, background: "#a0522d", border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                                    style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                                     Confirm
                                   </button>
                                   <button onClick={() => setConfirmRemoveAll(null)}
-                                    style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                                     Cancel
                                   </button>
                                 </>
                               ) : (
                                 <button onClick={() => setConfirmRemoveAll(item.id)}
-                                  style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
                                   Remove All
                                 </button>
                               )}
@@ -614,33 +614,33 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {vitolaPickerItem && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
           onClick={() => setVitolaPickerItem(null)}>
-          <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, maxHeight: "70vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+          <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 420, maxHeight: "70vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
             onClick={e => e.stopPropagation()}>
             <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
-              <div style={{ width: 36, height: 4, background: "#4a3520", borderRadius: 2 }} />
+              <div style={{ width: 36, height: 4, background: color.lineStrong, borderRadius: 2 }} />
             </div>
-            <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #4a3520", flexShrink: 0 }}>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 2px" }}>{vitolaPickerItem.cigars?.line || vitolaPickerItem.cigar_name}</div>
-              <div style={{ fontSize: 12, color: "#8a7055" }}>Select a vitola</div>
+            <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.lineStrong}`, flexShrink: 0 }}>
+              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 2px" }}>{vitolaPickerItem.cigars?.line || vitolaPickerItem.cigar_name}</div>
+              <div style={{ fontSize: 12, color: color.muted }}>Select a vitola</div>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 32px" }}>
-              {vitolaPickerLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>Loading sizes...</div>}
+              {vitolaPickerLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>Loading sizes...</div>}
               {!vitolaPickerLoading && vitolaPickerOptions.length === 0 && (
-                <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>No vitolas found for this cigar.</div>
+                <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>No vitolas found for this cigar.</div>
               )}
               {vitolaPickerOptions.map((v, i) => (
                 <div key={i} onClick={async () => {
                   await handleUpdateVitola(vitolaPickerItem, v.vitola, v.strength, v.id);
                   setVitolaPickerItem(null);
                 }}
-                  style={{ background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c22" : "#221508", border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? "#c9a84c55" : "#4a3520"}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  style={{ background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}22` : color.surface, border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}55` : color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
-                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{v.strength}</div>}
+                    <div style={{ fontSize: 15, fontWeight: 600, color: color.text }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.strength}</div>}
                   </div>
                   {(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola && (
-                    <span style={{ color: "#c9a84c", fontSize: 16 }}>✓</span>
+                    <span style={{ color: color.gold, fontSize: 16 }}>✓</span>
                   )}
                 </div>
               ))}

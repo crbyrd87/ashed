@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist, onAddToHumidor, onSearchManually }) {
   const [stage, setStage] = useState("capture");
@@ -192,15 +191,15 @@ Be as specific as possible with brand and line. If you can read text on the band
   // whatever was already on screen instead of covering it. Matches the
   // overlay CheckIn.js uses: same z-index, same 420 cap.
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", fontFamily: SANS, maxWidth: 420, margin: "0 auto" }}>
+    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, maxWidth: 420, margin: "0 auto" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: "1px solid #4a3520" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${color.lineStrong}` }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
-          <div style={{ fontSize: 11, color: "#c9a84c", letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
+          <div style={{ fontSize: 11, color: color.gold, letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
       </div>
 
       {/* CAPTURE STAGE */}
@@ -208,8 +207,8 @@ Be as specific as possible with brand and line. If you can read text on the band
         <div style={{ padding: 20 }}>
 
           {/* Feature explanation */}
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
+          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, color: color.gold, letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
             {[
               { icon: "📷", text: "Take a photo of any cigar band" },
               { icon: "🤖", text: "AI reads the label and identifies the cigar" },
@@ -218,29 +217,29 @@ Be as specific as possible with brand and line. If you can read text on the band
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
                 <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
-                <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{item.text}</span>
+                <span style={{ fontSize: 13, color: color.cream, lineHeight: 1.5 }}>{item.text}</span>
               </div>
             ))}
           </div>
 
           {/* Tips */}
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 13, color: "#c9a84c", letterSpacing: 1, fontWeight: 700, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
+          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: color.gold, letterSpacing: 1, fontWeight: 700, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
             {[
               "Hold steady in good lighting",
               "Fill the frame with the band",
               "Keep the label sharp and in focus",
               "Both ends of the band help",
             ].map((tip, i) => (
-              <div key={i} style={{ fontSize: 13, color: "#c8b89a", marginBottom: i < 3 ? 8 : 0, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <span style={{ color: "#c9a84c", flexShrink: 0 }}>→</span>{tip}
+              <div key={i} style={{ fontSize: 13, color: color.cream, marginBottom: i < 3 ? 8 : 0, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ color: color.gold, flexShrink: 0 }}>→</span>{tip}
               </div>
             ))}
           </div>
 
           {/* Camera button */}
           <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
-            <div style={{ width: "100%", background: "linear-gradient(135deg, #4caf6e, #2e8b4a)", borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
             <input
@@ -255,7 +254,7 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {/* Library button */}
           <label style={{ display: "block", cursor: "pointer" }}>
-            <div style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#c8b89a", fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.cream, fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
             <input
@@ -276,10 +275,10 @@ Be as specific as possible with brand and line. If you can read text on the band
             <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 240, objectFit: "cover", marginBottom: 24 }} />
           )}
           <div style={{ fontSize: 32, marginBottom: 16 }}>🔍</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Analyzing your cigar band...</div>
-          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 24 }}>Ashed is reading the band label</div>
-          <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+          <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Analyzing your cigar band...</div>
+          <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is reading the band label</div>
+          <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>
@@ -289,27 +288,27 @@ Be as specific as possible with brand and line. If you can read text on the band
       {stage === "vitola" && cigar && (
         <div style={{ padding: 20 }}>
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? "#7a9a7a22" : "#c9a84c22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : "#c9a84c55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
-            <span style={{ fontSize: 12, color: confidence === "high" ? "#7a9a7a" : "#c9a84c" }}>
+            <span style={{ fontSize: 12, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
           </div>
 
-          <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 2 }}>{cigar.brand.toUpperCase()}</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 4 }}>{cigar.line}</div>
-          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 20 }}>Select your vitola to continue</div>
+          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, marginBottom: 2 }}>{cigar.brand.toUpperCase()}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: color.text, marginBottom: 4 }}>{cigar.line}</div>
+          <div style={{ fontSize: 13, color: color.muted, marginBottom: 20 }}>Select your vitola to continue</div>
 
           {violasLoading && (
-            <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "#8a7055" }}>Loading sizes...</div>
+            <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>Loading sizes...</div>
           )}
           {!violasLoading && vitolas.length === 0 && (
             <div style={{ textAlign: "center", padding: 24 }}>
-              <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 16 }}>No vitolas found in the database for this cigar.</div>
-              <button onClick={() => setStage("result")} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+              <div style={{ fontSize: 13, color: color.muted, marginBottom: 16 }}>No vitolas found in the database for this cigar.</div>
+              <button onClick={() => setStage("result")} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
                 Continue Anyway
               </button>
-              <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
+              <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
                 Search Manually
               </button>
             </div>
@@ -326,15 +325,15 @@ Be as specific as possible with brand and line. If you can read text on the band
                   setCigar({ ...cigar, vitola: null, strength: strengthRange });
                   setStage("result");
                 }}
-                style={{ background: "#2a1a0e", border: "1px solid #c9a84c44", borderRadius: 10, padding: "12px 14px", marginBottom: 12, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                style={{ background: color.surfaceRaised, border: `1px solid ${color.gold}44`, borderRadius: 10, padding: "12px 14px", marginBottom: 12, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#c9a84c" }}>Not Sure</div>
-                  <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>Show general info for this line</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: color.gold }}>Not Sure</div>
+                  <div style={{ fontSize: 11, color: color.muted, marginTop: 3 }}>Show general info for this line</div>
                 </div>
-                <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                <span style={{ color: color.gold, fontSize: 18 }}>›</span>
               </div>
               {/* Divider */}
-              <div style={{ fontSize: 10, color: "#5a4535", letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
+              <div style={{ fontSize: 10, color: color.faint, letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
               {vitolas.map((v, i) => (
                 <div key={i}
                   onClick={() => {
@@ -342,18 +341,18 @@ Be as specific as possible with brand and line. If you can read text on the band
                     setCigar(selected);
                     setStage("result");
                   }}
-                  style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: "#e8d5b7" }}>{v.vitola}</div>
-                    {v.strength && <div style={{ fontSize: 11, color: "#8a7055", marginTop: 3 }}>{v.strength}</div>}
+                    <div style={{ fontSize: 15, fontWeight: 600, color: color.text }}>{v.vitola}</div>
+                    {v.strength && <div style={{ fontSize: 11, color: color.muted, marginTop: 3 }}>{v.strength}</div>}
                   </div>
-                  <span style={{ color: "#c9a84c", fontSize: 18 }}>›</span>
+                  <span style={{ color: color.gold, fontSize: 18 }}>›</span>
                 </div>
               ))}
             </>
           )}
 
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 8, boxSizing: "border-box" }}>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 8, boxSizing: "border-box" }}>
             Scan Again
           </button>
         </div>
@@ -367,61 +366,61 @@ Be as specific as possible with brand and line. If you can read text on the band
           )}
 
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? "#7a9a7a22" : "#c9a84c22", border: `1px solid ${confidence === "high" ? "#7a9a7a55" : "#c9a84c55"}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
-            <span style={{ fontSize: 12, color: confidence === "high" ? "#7a9a7a" : "#c9a84c" }}>
+            <span style={{ fontSize: 12, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
           </div>
 
-          <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", margin: "4px 0 10px" }}>{cigar.line}</div>
-          {cigar.vitola && <div style={{ fontSize: 14, color: "#c9a84c", marginBottom: 12, fontWeight: 600 }}>{cigar.vitola}</div>}
+          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: color.text, margin: "4px 0 10px" }}>{cigar.line}</div>
+          {cigar.vitola && <div style={{ fontSize: 14, color: color.gold, marginBottom: 12, fontWeight: 600 }}>{cigar.vitola}</div>}
 
           {/* Info boxes — text style, no colored badges */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
             {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Origin", cigar.origin]].map(([k, v]) => v && (
-              <div key={k} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 14px" }}>
-                <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
-                <div style={{ fontSize: 14, color: "#e8d5b7", marginTop: 3 }}>{v}</div>
+              <div key={k} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
+                <div style={{ fontSize: 14, color: color.text, marginTop: 3 }}>{v}</div>
               </div>
             ))}
           </div>
 
           {cigar.tasting_notes && (
-            <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
-              <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{cigar.tasting_notes}</div>
+            <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
+              <div style={{ fontSize: 13, color: color.cream, lineHeight: 1.6 }}>{cigar.tasting_notes}</div>
             </div>
           )}
 
           {cigar.description && (
-            <div style={{ fontSize: 13, color: "#8a7055", fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
+            <div style={{ fontSize: 13, color: color.muted, fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
           )}
 
-          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             🚬 Log This Smoke
           </button>
-          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             ♡ Add to Wishlist
           </button>
-          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 14, color: "#7a9a7a", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
           </button>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); setVitolas([]); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); setVitolas([]); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Scan Again
           </button>
 
           {!flagged ? (
-            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: "1px solid #3a251044", borderRadius: 10, padding: 10, color: "#5a4535", fontSize: 12, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
+            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: `1px solid ${color.line}44`, borderRadius: 10, padding: 10, color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
               {flagging ? "Flagging..." : "⚑ Flag incorrect info"}
             </button>
           ) : (
-            <div style={{ textAlign: "center", fontSize: 12, color: "#7a9a7a", padding: 10 }}>✓ Thanks — flagged for review</div>
+            <div style={{ textAlign: "center", fontSize: 12, color: color.green, padding: 10 }}>✓ Thanks — flagged for review</div>
           )}
 
           {toast && (
-            <div style={{ position: "fixed", bottom: 100, left: "50%", transform: "translateX(-50%)", background: "#4caf6e", color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 30, zIndex: 500, fontFamily: SANS, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+            <div style={{ position: "fixed", bottom: 100, left: "50%", transform: "translateX(-50%)", background: color.greenBright, color: "#fff", fontWeight: 700, fontSize: 14, padding: "12px 28px", borderRadius: 30, zIndex: 500, fontFamily: SANS, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
               {toast}
             </div>
           )}
@@ -435,12 +434,12 @@ Be as specific as possible with brand and line. If you can read text on the band
             <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 200, objectFit: "cover", marginBottom: 20 }} />
           )}
           <div style={{ fontSize: 32, marginBottom: 12 }}>🚫</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Couldn't identify this band</div>
-          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 24, lineHeight: 1.6 }}>{errorMsg}</div>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Couldn't identify this band</div>
+          <div style={{ fontSize: 13, color: color.muted, marginBottom: 24, lineHeight: 1.6 }}>{errorMsg}</div>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Try Again
           </button>
-          <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
+          <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
             Search Manually Instead
           </button>
         </div>
