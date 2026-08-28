@@ -13,19 +13,41 @@ const SECTIONS = [
 export default function PartnerDashboard({ user, placeId, onClose }) {
   const [section, setSection] = useState("analytics");
   const [venue, setVenue] = useState(null);
+  // "idle" when there is no placeId to look up. Without this, a venue that is
+  // simply not there is indistinguishable from one still loading, and the
+  // header claims "Loading venue..." forever.
+  const [venueState, setVenueState] = useState(placeId ? "loading" : "idle");
 
   useEffect(() => {
-    if (!placeId) return;
+    if (!placeId) {
+      setVenue(null);
+      setVenueState("idle");
+      return;
+    }
+    let cancelled = false;
     const loadVenue = async () => {
-      const { data } = await supabase
+      setVenueState("loading");
+      const { data, error } = await supabase
         .from("places")
         .select("*")
         .eq("place_id", placeId)
         .maybeSingle();
+      if (cancelled) return;
       setVenue(data || null);
+      // An RLS refusal or a network failure is not the same as "no such
+      // venue", and the two need different advice.
+      setVenueState(error ? "error" : data ? "loaded" : "missing");
     };
     loadVenue();
+    return () => { cancelled = true; };
   }, [placeId]);
+
+  const venueLabel =
+    venueState === "loaded" ? (venue.name || "Unnamed venue")
+    : venueState === "loading" ? "Loading venue..."
+    : venueState === "missing" ? "Venue not found"
+    : venueState === "error" ? "Could not load venue"
+    : "No venue linked";
 
   return (
     <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 500, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 900, margin: "0 auto" }}>
@@ -35,7 +57,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.partner, letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
           <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
-            {venue ? venue.name : placeId ? "Loading venue..." : "No venue linked"}
+            {venueLabel}
           </div>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
