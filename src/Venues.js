@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 // Fix Leaflet default icon broken by webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -49,19 +48,19 @@ function MapController({ venues, userLocation }) {
   return null;
 }
 
-const ShopIcon = ({ color = "#c9a84c", size = 24 }) => (
+const ShopIcon = ({ tint = color.gold, size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="9" width="18" height="13" rx="1" fill={color}/>
-    <polygon points="1,9 23,9 21,5 3,5" fill={color}/>
-    <line x1="7" y1="5" x2="6" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="11" y1="5" x2="10" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="15" y1="5" x2="14" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="19" y1="5" x2="18" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/>
-    <circle cx="14" cy="18.5" r="0.8" fill={color}/>
-    <rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
-    <rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
-    <path d="M19 4 Q20 2 19 0" stroke={color} strokeWidth="0.6" fill="none" opacity="0.6"/>
+    <rect x="3" y="9" width="18" height="13" rx="1" fill={tint}/>
+    <polygon points="1,9 23,9 21,5 3,5" fill={tint}/>
+    <line x1="7" y1="5" x2="6" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="11" y1="5" x2="10" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="15" y1="5" x2="14" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="19" y1="5" x2="18" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <rect x="9" y="15" width="6" height="7" rx="0.5" fill={color.bg}/>
+    <circle cx="14" cy="18.5" r="0.8" fill={tint}/>
+    <rect x="3" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
+    <rect x="17" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
+    <path d="M19 4 Q20 2 19 0" stroke={tint} strokeWidth="0.6" fill="none" opacity="0.6"/>
   </svg>
 );
 
@@ -69,8 +68,8 @@ const StarRating = ({ rating, count }) => {
   if (!rating) return null;
   const stars = Math.round(rating);
   return (
-    <span style={{ fontSize: 11, color: "#c9a84c" }}>
-      {"★".repeat(stars)}{"☆".repeat(5 - stars)} <span style={{ color: "#8a7055" }}>{rating.toFixed(1)}{count ? ` (${count.toLocaleString()})` : ""}</span>
+    <span style={{ fontSize: 11, color: color.gold }}>
+      {"★".repeat(stars)}{"☆".repeat(5 - stars)} <span style={{ color: color.muted }}>{rating.toFixed(1)}{count ? ` (${count.toLocaleString()})` : ""}</span>
     </span>
   );
 };
@@ -180,14 +179,14 @@ const getHoursDisplay = (openingHours) => {
           const openMins = h * 60 + m;
           const minsUntilOpen = openMins - currentMins;
           if (minsUntilOpen <= 60 && minsUntilOpen > 0) {
-            return { text: `Opening Soon · ${label}`, color: "#c9a84c" };
+            return { text: `Opening Soon · ${label}`, color: color.gold };
           }
-          return { text: `Closed · Opens at ${label}`, color: "#a0522d" };
+          return { text: `Closed · Opens at ${label}`, color: color.danger };
         }
-        return { text: `Closed · Opens ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][checkDay]} ${label}`, color: "#a0522d" };
+        return { text: `Closed · Opens ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][checkDay]} ${label}`, color: color.danger };
       }
     }
-    return { text: "Closed", color: "#a0522d" };
+    return { text: "Closed", color: color.danger };
   }
 
   if (todayPeriod?.close?.time) {
@@ -197,12 +196,12 @@ const getHoursDisplay = (openingHours) => {
     const minsUntilClose = closeMins - currentMins;
     const label = `${h > 12 ? h - 12 : h || 12}:${m.toString().padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
     if (minsUntilClose <= 60 && minsUntilClose > 0) {
-      return { text: `Closing Soon · ${label}`, color: "#e8632a" };
+      return { text: `Closing Soon · ${label}`, color: color.alert };
     }
-    return { text: `Open · Closes ${label}`, color: "#7a9a7a" };
+    return { text: `Open · Closes ${label}`, color: color.green };
   }
 
-  return { text: "Open now", color: "#7a9a7a" };
+  return { text: "Open now", color: color.green };
 };
 
 export default function Venues() {
@@ -354,14 +353,14 @@ export default function Venues() {
   };
 
   return (
-    <div style={{ padding: 16, fontFamily: SANS, color: "#e8d5b7" }}>
+    <div style={{ padding: 16, fontFamily: SANS, color: color.text }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 12, color: "#8a7055", letterSpacing: 2 }}>FIND A CIGAR SHOP</div>
+        <div style={{ fontSize: 12, color: color.muted, letterSpacing: 2 }}>FIND A CIGAR SHOP</div>
         {hasSearched && venues.length > 0 && (
-          <div style={{ display: "flex", background: "#2a1a0e", borderRadius: 20, padding: 2, border: "1px solid #3a2510" }}>
+          <div style={{ display: "flex", background: color.surfaceRaised, borderRadius: 20, padding: 2, border: `1px solid ${color.line}` }}>
             {[["list", "List"], ["map", "Map"]].map(([id, label]) => (
               <button key={id} onClick={() => setViewMode(id)}
-                style={{ padding: "4px 12px", borderRadius: 18, border: "none", background: viewMode === id ? "#c9a84c" : "transparent", color: viewMode === id ? "#1a0f08" : "#8a7055", fontSize: 11, fontWeight: viewMode === id ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
+                style={{ padding: "4px 12px", borderRadius: 18, border: "none", background: viewMode === id ? color.gold : "transparent", color: viewMode === id ? color.bg : color.muted, fontSize: 11, fontWeight: viewMode === id ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
                 {label}
               </button>
             ))}
@@ -373,7 +372,7 @@ export default function Venues() {
       <div style={{ position: "relative", marginBottom: 10 }}>
         <div style={{ display: "flex", gap: 8 }}>
           <input
-            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #4a3020", borderRadius: showSuggestions && suggestions.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: "#e8d5b7", fontSize: 14, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: showSuggestions && suggestions.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none" }}
             placeholder="Search by city or zip..."
             value={searchQuery}
             onChange={e => handleQueryChange(e.target.value)}
@@ -384,7 +383,7 @@ export default function Venues() {
           <button
             onClick={() => searchQuery.trim() && doSearch(searchQuery.trim())}
             disabled={loading}
-            style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 16px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+            style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
           >
             {loading ? "..." : "Search"}
           </button>
@@ -392,14 +391,14 @@ export default function Venues() {
 
         {/* Autocomplete dropdown */}
         {showSuggestions && suggestions.length > 0 && (
-          <div style={{ position: "absolute", top: "100%", left: 0, right: 56, background: "#2a1a0e", border: "1px solid #4a3020", borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "100%", left: 0, right: 56, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderTop: "none", borderRadius: "0 0 8px 8px", zIndex: 50, overflow: "hidden" }}>
             {suggestions.map(s => (
               <div
                 key={s.place_id}
                 onMouseDown={() => { setSearchQuery(s.description); doSearch(s.description); }}
-                style={{ padding: "10px 14px", fontSize: 13, color: "#e8d5b7", cursor: "pointer", borderBottom: "1px solid #3a251033", display: "flex", alignItems: "center", gap: 8 }}
+                style={{ padding: "10px 14px", fontSize: 13, color: color.text, cursor: "pointer", borderBottom: `1px solid ${color.line}33`, display: "flex", alignItems: "center", gap: 8 }}
               >
-                <span style={{ fontSize: 12, color: "#c9a84c" }}>📍</span>
+                <span style={{ fontSize: 12, color: color.gold }}>📍</span>
                 <span>{s.description}</span>
               </div>
             ))}
@@ -410,19 +409,19 @@ export default function Venues() {
       {/* Use my location */}
       <button
         onClick={requestLocation}
-        style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: "10px 14px", color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+        style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "10px 14px", color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
       >
         📍 Use my current location
       </button>
 
       {/* Error */}
       {error && (
-        <div style={{ background: "#a0522d18", border: "1px solid #a0522d44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", marginBottom: 14, lineHeight: 1.6 }}>
+        <div style={{ background: `${color.danger}18`, border: `1px solid ${color.danger}44`, borderRadius: 8, padding: "10px 14px", fontSize: 13, color: color.dangerText, marginBottom: 14, lineHeight: 1.6 }}>
           {error}
           {canRetry && (
             <button
               onClick={() => { setCanRetry(false); if (retryRef.current) retryRef.current(); }}
-              style={{ display: "block", marginTop: 8, background: "none", border: "1px solid #e8a07a66", borderRadius: 8, padding: "8px 14px", color: "#e8a07a", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
+              style={{ display: "block", marginTop: 8, background: "none", border: `1px solid ${color.dangerText}66`, borderRadius: 8, padding: "8px 14px", color: color.dangerText, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
             >
               Try again
             </button>
@@ -434,9 +433,9 @@ export default function Venues() {
       {loading && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-            <ShopIcon size={40} color="#3a2510" />
+            <ShopIcon size={40} color={color.line} />
           </div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>Finding nearby cigar shops...</div>
+          <div style={{ fontSize: 13, color: color.faint }}>Finding nearby cigar shops...</div>
         </div>
       )}
 
@@ -444,8 +443,8 @@ export default function Venues() {
       {!loading && hasSearched && venues.length === 0 && !error && (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>No cigar shops found</div>
-          <div style={{ fontSize: 13, color: "#5a4535" }}>Try a different city or zip code.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>No cigar shops found</div>
+          <div style={{ fontSize: 13, color: color.faint }}>Try a different city or zip code.</div>
         </div>
       )}
 
@@ -453,10 +452,10 @@ export default function Venues() {
       {!loading && !hasSearched && (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-            <ShopIcon size={48} color="#3a2510" />
+            <ShopIcon size={48} color={color.line} />
           </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Find a cigar shop near you</div>
-          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>Allow location access or search by city or zip to find nearby cigar shops and lounges.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>Find a cigar shop near you</div>
+          <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>Allow location access or search by city or zip to find nearby cigar shops and lounges.</div>
         </div>
       )}
 
@@ -491,7 +490,7 @@ export default function Venues() {
                     {venue.rating && <div style={{ fontSize: 11 }}>{"★".repeat(Math.round(venue.rating))} {venue.rating.toFixed(1)}</div>}
                     <button
                       onClick={() => { setSelectedVenue(venue); setViewMode("list"); }}
-                      style={{ marginTop: 8, background: "#c9a84c", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", width: "100%" }}
+                      style={{ marginTop: 8, background: color.gold, border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", width: "100%" }}
                     >
                       View details
                     </button>
@@ -515,17 +514,17 @@ export default function Venues() {
           <div
             key={venue.place_id || i}
             ref={el => { venueRefs.current[venue.place_id] = el; }}
-            style={{ background: "linear-gradient(135deg, #2a1a0e, #221508)", border: `1px solid ${isSelected ? "#c9a84c55" : "#3a2510"}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
+            style={{ background: `linear-gradient(135deg, ${color.surfaceRaised}, ${color.surface})`, border: `1px solid ${isSelected ? `${color.gold}55` : color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
             onClick={() => handleVenueTap(venue)}
           >
             <div style={{ padding: "12px 14px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <ShopIcon size={16} color="#c9a84c" />
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7" }}>{venue.name}</div>
+                    <ShopIcon size={16} color={color.gold} />
+                    <div style={{ fontSize: 15, fontWeight: 700, color: color.text }}>{venue.name}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: "#8a7055", marginBottom: 4 }}>
+                  <div style={{ fontSize: 12, color: color.muted, marginBottom: 4 }}>
                     {venue.vicinity || venue.formatted_address}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -534,34 +533,34 @@ export default function Venues() {
                       <span style={{ fontSize: 11, color: hours.color, fontWeight: 600 }}>{hours.text}</span>
                     )}
                     {!hours && venue.opening_hours && (
-                      <span style={{ fontSize: 11, color: venue.opening_hours.open_now ? "#7a9a7a" : "#a0522d", fontWeight: 600 }}>
+                      <span style={{ fontSize: 11, color: venue.opening_hours.open_now ? color.green : color.danger, fontWeight: 600 }}>
                         {venue.opening_hours.open_now ? "Open now" : "Closed"}
                       </span>
                     )}
-                    {distance && <span style={{ fontSize: 11, color: "#5a4535" }}>{distance}</span>}
+                    {distance && <span style={{ fontSize: 11, color: color.faint }}>{distance}</span>}
                   </div>
                 </div>
               </div>
             </div>
 
             {isSelected && (
-              <div style={{ borderTop: "1px solid #3a2510", padding: "12px 14px" }}>
+              <div style={{ borderTop: `1px solid ${color.line}`, padding: "12px 14px" }}>
                 {phone && (
-                  <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 12 }}>
-                    📞 <span style={{ color: "#c8b89a" }}>{phone}</span>
+                  <div style={{ fontSize: 13, color: color.muted, marginBottom: 12 }}>
+                    📞 <span style={{ color: color.cream }}>{phone}</span>
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={(e) => { e.stopPropagation(); openDirections(venue); }}
-                    style={{ flex: 1, background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 0", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+                    style={{ flex: 1, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
                   >
                     📍 Directions
                   </button>
                   {phone && (
                     <button
                       onClick={(e) => { e.stopPropagation(); openCall({ ...venue, formatted_phone_number: phone }); }}
-                      style={{ flex: 1, background: "none", border: "1px solid #c9a84c55", borderRadius: 8, padding: "10px 0", color: "#c9a84c", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
+                      style={{ flex: 1, background: "none", border: `1px solid ${color.gold}55`, borderRadius: 8, padding: "10px 0", color: color.gold, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
                     >
                       📞 Call
                     </button>

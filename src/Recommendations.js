@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s] || "#888");
 
-const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": "#a0522d" }[s] || "#888");
-
-const Badge = ({ label, color = "#c9a84c" }) => (
-  <span style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
+const Badge = ({ label, tint = color.gold }) => (
+  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
 );
 
 // Flavour vocabulary is shared with the check-in screen — see src/flavors.js.
@@ -153,39 +152,39 @@ Recommend a variety of well-known, widely available cigars that match the prefer
   };
 
   const s = {
-    overlay: { position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", fontFamily: SANS, color: "#e8d5b7", maxWidth: 420, margin: "0 auto" },
-    header: { background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)", padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center" },
-    section: { padding: "20px 20px", borderBottom: "1px solid #3a251033" },
-    pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? "#c9a84c" : "#3a2510"}`, background: active ? "#c9a84c22" : "transparent", color: active ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
-    strengthPill: (s, active) => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? strengthColor(s) : "#3a2510"}`, background: active ? strengthColor(s) + "22" : "transparent", color: active ? strengthColor(s) : "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
+    overlay: { position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 420, margin: "0 auto" },
+    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    section: { padding: "20px 20px", borderBottom: `1px solid ${color.line}33` },
+    pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
+    strengthPill: (s, active) => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? strengthColor(s) : color.line}`, background: active ? strengthColor(s) + "22" : "transparent", color: active ? strengthColor(s) : color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
   };
 
   return (
     <div style={s.overlay}>
       <div style={s.header}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>
             {mode === "loading" ? "Finding Recommendations..." : "Recommended for You"}
           </div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>AI POWERED · ASHED</div>
+          <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>AI POWERED · ASHED</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
       </div>
 
       {/* AUTO MODE */}
       {mode === "auto" && (
         <div style={{ padding: 24 }}>
-          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 12, padding: 20, marginBottom: 20, textAlign: "center" }}>
+          <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 12, padding: 20, marginBottom: 20, textAlign: "center" }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>✨</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Personalized for You</div>
-            <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Personalized for You</div>
+            <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>
               Based on your {checkins.length} logged cigars and ratings, Ashed will recommend cigars you'll love.
             </div>
           </div>
 
           {/* Taste profile summary */}
-          <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>YOUR TASTE PROFILE</div>
+          <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>YOUR TASTE PROFILE</div>
             {(() => {
               const avg = (checkins.reduce((a, c) => a + c.rating, 0) / checkins.length).toFixed(1);
               const top = [...checkins].sort((a, b) => b.rating - a.rating)[0];
@@ -194,33 +193,33 @@ Recommend a variety of well-known, widely available cigars that match the prefer
               return (
                 <>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "#8a7055" }}>Avg rating</span>
-                    <span style={{ fontSize: 12, color: "#c9a84c", fontWeight: 700 }}>{avg}</span>
+                    <span style={{ fontSize: 12, color: color.muted }}>Avg rating</span>
+                    <span style={{ fontSize: 12, color: color.gold, fontWeight: 700 }}>{avg}</span>
                   </div>
                   {topStrength && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "#8a7055" }}>Preferred body</span>
-                    <span style={{ fontSize: 12, color: "#e8d5b7" }}>{topStrength[0]}</span>
+                    <span style={{ fontSize: 12, color: color.muted }}>Preferred body</span>
+                    <span style={{ fontSize: 12, color: color.text }}>{topStrength[0]}</span>
                   </div>}
                   {top && <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: "#8a7055" }}>Top rated</span>
-                    <span style={{ fontSize: 12, color: "#e8d5b7" }}>{top.cigars?.brand || top.cigar_brand} {top.cigars?.line || top.cigar_name}</span>
+                    <span style={{ fontSize: 12, color: color.muted }}>Top rated</span>
+                    <span style={{ fontSize: 12, color: color.text }}>{top.cigars?.brand || top.cigar_brand} {top.cigars?.line || top.cigar_name}</span>
                   </div>}
                 </>
               );
             })()}
           </div>
 
-          {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
+          {error && <div style={{ color: color.dangerText, fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
 
           <button
             onClick={handleAutoRecommend}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
+            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
           >
             ✨ Recommend for Me
           </button>
           <button
             onClick={() => { setMode("survey"); setLastMode("survey"); setError(null); }}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+            style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}
           >
             Set preferences manually instead
           </button>
@@ -231,15 +230,15 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {mode === "survey" && (
         <div style={{ padding: 20 }}>
           {!hasEnoughData && (
-            <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-              <div style={{ fontSize: 13, color: "#8a7055", lineHeight: 1.6 }}>
+            <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+              <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>
                 Log {MIN_CHECKINS_FOR_AUTO - checkins.length} more {MIN_CHECKINS_FOR_AUTO - checkins.length === 1 ? "cigar" : "cigars"} to unlock personalized recommendations. For now, tell us your preferences:
               </div>
             </div>
           )}
 
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>PREFERRED BODY</div>
+            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PREFERRED BODY</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(str => (
                 <button key={str} style={s.strengthPill(str, prefStrength.includes(str))}
@@ -251,7 +250,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>FLAVORS YOU ENJOY</div>
+            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>FLAVORS YOU ENJOY</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {FLAVOR_TAG_NAMES.map(f => (
                 <button key={f} style={s.pill(prefFlavors.includes(f))}
@@ -262,18 +261,18 @@ Recommend a variety of well-known, widely available cigars that match the prefer
             </div>
           </div>
 
-          {error && <div style={{ color: "#e8a07a", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
+          {error && <div style={{ color: color.dangerText, fontSize: 13, marginBottom: 12, textAlign: "center" }}>{error}</div>}
 
           <button
             onClick={handleSurveySubmit}
-            style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 16, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
+            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
           >
             Find My Cigars
           </button>
           {hasEnoughData && (
             <button
               onClick={() => { setMode("auto"); setLastMode("auto"); setError(null); }}
-              style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+              style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}
             >
               ← Back to personalized recommendations
             </button>
@@ -285,10 +284,10 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {mode === "loading" && (
         <div style={{ padding: 40, textAlign: "center" }}>
           <div style={{ fontSize: 32, marginBottom: 16 }}>✨</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Finding your perfect cigars...</div>
-          <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 24 }}>Ashed is analyzing your taste profile</div>
-          <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+          <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Finding your perfect cigars...</div>
+          <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is analyzing your taste profile</div>
+          <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>
@@ -297,7 +296,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {/* RESULTS */}
       {mode === "results" && (
         <div style={{ padding: 16 }}>
-          <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 14 }}>
             {resultsBasis}
           </div>
 
@@ -305,37 +304,37 @@ Recommend a variety of well-known, widely available cigars that match the prefer
             const key = `${rec.brand}|${rec.line}`;
             const added = addedToWishlist[key];
             return (
-              <div key={i} style={{ background: "linear-gradient(135deg, #2a1a0e 0%, #221508 100%)", border: "1px solid #3a2510", borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+              <div key={i} style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surface} 100%)`, border: `1px solid ${color.line}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
                 <div style={{ padding: "14px 16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{rec.brand?.toUpperCase()}</div>
-                      <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "2px 0 6px" }}>{rec.line}</div>
+                      <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1 }}>{rec.brand?.toUpperCase()}</div>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "2px 0 6px" }}>{rec.line}</div>
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         {rec.vitola && <Badge label={rec.vitola} />}
                         {rec.strength && <Badge label={rec.strength} color={strengthColor(rec.strength)} />}
-                        {rec.origin && <Badge label={rec.origin} color="#7a9a7a" />}
+                        {rec.origin && <Badge label={rec.origin} color={color.green} />}
                       </div>
                     </div>
-                    <div style={{ background: "#c9a84c22", border: "1px solid #c9a84c44", borderRadius: 20, padding: "2px 10px", fontSize: 12, color: "#c9a84c", fontWeight: 700, marginLeft: 8, whiteSpace: "nowrap" }}>
+                    <div style={{ background: `${color.gold}22`, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: 12, color: color.gold, fontWeight: 700, marginLeft: 8, whiteSpace: "nowrap" }}>
                       #{i + 1}
                     </div>
                   </div>
 
                   {rec.tasting_notes && (
-                    <div style={{ fontSize: 12, color: "#8a7055", marginBottom: 8 }}>{rec.tasting_notes}</div>
+                    <div style={{ fontSize: 12, color: color.muted, marginBottom: 8 }}>{rec.tasting_notes}</div>
                   )}
 
                   {/* Why this cigar */}
-                  <div style={{ background: "#1a0f08", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
-                    <div style={{ fontSize: 10, color: "#c9a84c", letterSpacing: 1, marginBottom: 4 }}>WHY THIS CIGAR</div>
-                    <div style={{ fontSize: 12, color: "#c8b89a", lineHeight: 1.5, fontStyle: "italic" }}>{rec.why}</div>
+                  <div style={{ background: color.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: color.gold, letterSpacing: 1, marginBottom: 4 }}>WHY THIS CIGAR</div>
+                    <div style={{ fontSize: 12, color: color.cream, lineHeight: 1.5, fontStyle: "italic" }}>{rec.why}</div>
                   </div>
 
                   <button
                     onClick={() => handleAddToWishlist(rec)}
                     disabled={added}
-                    style={{ width: "100%", background: added ? "#c9a84c22" : "none", border: `1px solid ${added ? "#c9a84c" : "#3a2510"}`, borderRadius: 8, padding: "8px 0", color: added ? "#c9a84c" : "#8a7055", fontSize: 12, cursor: added ? "default" : "pointer", fontFamily: SANS }}
+                    style={{ width: "100%", background: added ? `${color.gold}22` : "none", border: `1px solid ${added ? color.gold : color.line}`, borderRadius: 8, padding: "8px 0", color: added ? color.gold : color.muted, fontSize: 12, cursor: added ? "default" : "pointer", fontFamily: SANS }}
                   >
                     {added ? "✓ Added to Wishlist" : "+ Add to Wishlist"}
                   </button>
@@ -346,13 +345,13 @@ Recommend a variety of well-known, widely available cigars that match the prefer
 
           <button
             onClick={() => fetchRecommendations(lastMode === "survey" ? buildSurveyPrompt() : buildAutoPrompt())}
-            style={{ width: "100%", background: "none", border: "1px solid #c9a84c55", borderRadius: 10, padding: 14, color: "#c9a84c", fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, marginBottom: 10 }}
+            style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 4, marginBottom: 10 }}
           >
             ↻ Refresh Recommendations
           </button>
           <button
             onClick={() => setMode(lastMode)}
-            style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 14, color: "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS }}
+            style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS }}
           >
             ← Back
           </button>

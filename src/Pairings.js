@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
 
@@ -142,12 +141,12 @@ Return ONLY a raw JSON object, no markdown:
     const lines = content.split(/;\s*|\n+|\d+\.\s+/).map(l => l.trim()).filter(l => l.length > 5);
     return (
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "#c9a84c", letterSpacing: 0.5, marginBottom: 8 }}>{icon} {title}</div>
-        <div style={{ background: "#1a0f08", borderRadius: 8, padding: "10px 12px" }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: color.gold, letterSpacing: 0.5, marginBottom: 8 }}>{icon} {title}</div>
+        <div style={{ background: color.bg, borderRadius: 8, padding: "10px 12px" }}>
           {lines.map((line, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: i < lines.length - 1 ? 8 : 0, alignItems: "flex-start" }}>
-              <span style={{ color: "#c9a84c", fontSize: 12, flexShrink: 0, marginTop: 2 }}>•</span>
-              <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{line}{!line.endsWith(".") ? "." : ""}</span>
+              <span style={{ color: color.gold, fontSize: 12, flexShrink: 0, marginTop: 2 }}>•</span>
+              <span style={{ fontSize: 13, color: color.cream, lineHeight: 1.5 }}>{line}{!line.endsWith(".") ? "." : ""}</span>
             </div>
           ))}
         </div>
@@ -157,23 +156,23 @@ Return ONLY a raw JSON object, no markdown:
 
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", fontFamily: SANS }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: "#1a0f08", borderRadius: "16px 16px 0 0", maxHeight: "85vh", overflowY: "auto", border: "1px solid #3a2510" }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: color.bg, borderRadius: "16px 16px 0 0", maxHeight: "85vh", overflowY: "auto", border: `1px solid ${color.line}` }}>
 
         {/* Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid #3a2510", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: "#1a0f08", zIndex: 1 }}>
+        <div style={{ padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: color.bg, zIndex: 1 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#e8d5b7" }}>🥃 Drink Pairings</div>
-            <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>🥃 Drink Pairings</div>
+            <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#8a7055", fontSize: 24, cursor: "pointer" }}>×</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
         </div>
 
         <div style={{ padding: 20 }}>
           {loading && (
             <div style={{ textAlign: "center", padding: 30 }}>
-              <div style={{ fontSize: 13, color: "#8a7055", marginBottom: 12 }}>Finding perfect pairings...</div>
-              <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+              <div style={{ fontSize: 13, color: color.muted, marginBottom: 12 }}>Finding perfect pairings...</div>
+              <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
               </div>
               <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
             </div>
@@ -181,15 +180,15 @@ Return ONLY a raw JSON object, no markdown:
 
           {error && (
             <div style={{ textAlign: "center", padding: 20 }}>
-              <div style={{ fontSize: 13, color: "#e8a07a", marginBottom: 16 }}>{error}</div>
-              <button onClick={() => setRetryCount(c => c + 1)} style={{ background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 8, padding: "10px 20px", color: "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Try Again</button>
+              <div style={{ fontSize: 13, color: color.dangerText, marginBottom: 16 }}>{error}</div>
+              <button onClick={() => setRetryCount(c => c + 1)} style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 20px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Try Again</button>
             </div>
           )}
 
           {pairings && !loading && (
             <>
               {pairings.notes && (
-                <div style={{ background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 10, padding: 12, marginBottom: 20, fontSize: 13, color: "#8a7055", fontStyle: "italic", lineHeight: 1.6 }}>
+                <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 10, padding: 12, marginBottom: 20, fontSize: 13, color: color.muted, fontStyle: "italic", lineHeight: 1.6 }}>
                   {pairings.notes}
                 </div>
               )}
@@ -201,37 +200,37 @@ Return ONLY a raw JSON object, no markdown:
               <PairingSection title="Non-Alcoholic" icon="🥤" content={pairings.non_alcoholic} />
 
               {/* Seasonal pairings */}
-              <div style={{ borderTop: "1px solid #3a251033", paddingTop: 16, marginTop: 4 }}>
-                <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>SEASONAL PAIRING</div>
+              <div style={{ borderTop: `1px solid ${color.line}33`, paddingTop: 16, marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>SEASONAL PAIRING</div>
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
                   {SEASONS.map(s => (
                     <button key={s} onClick={() => { setSeason(s); setSeasonalNote(null); }}
-                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${season === s ? "#c9a84c" : "#3a2510"}`, background: season === s ? "#c9a84c22" : "transparent", color: season === s ? "#c9a84c" : "#5a4535", fontSize: 10, cursor: "pointer", fontFamily: SANS }}>
+                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${season === s ? color.gold : color.line}`, background: season === s ? `${color.gold}22` : "transparent", color: season === s ? color.gold : color.faint, fontSize: 10, cursor: "pointer", fontFamily: SANS }}>
                       {s}
                     </button>
                   ))}
                 </div>
                 {!seasonalNote ? (
                   <button onClick={handleSeasonalNote} disabled={loadingSeasonalNote}
-                    style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 8, padding: 10, color: loadingSeasonalNote ? "#5a4535" : "#8a7055", fontSize: 12, cursor: loadingSeasonalNote ? "default" : "pointer", fontFamily: SANS }}>
+                    style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: 10, color: loadingSeasonalNote ? color.faint : color.muted, fontSize: 12, cursor: loadingSeasonalNote ? "default" : "pointer", fontFamily: SANS }}>
                     {loadingSeasonalNote ? "Loading..." : `✨ Get ${season} pairing suggestion`}
                   </button>
                 ) : (
-                  <div style={{ background: "#2a1a0e", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ background: color.surfaceRaised, borderRadius: 8, padding: "10px 12px" }}>
                     {typeof seasonalNote === "object" && seasonalNote.pairings ? (
                       <>
                         {seasonalNote.context && (
-                          <div style={{ fontSize: 12, color: "#7a6048", fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>{seasonalNote.context}</div>
+                          <div style={{ fontSize: 12, color: color.dim, fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>{seasonalNote.context}</div>
                         )}
                         {seasonalNote.pairings.map((p, i) => (
                           <div key={i} style={{ marginBottom: i < seasonalNote.pairings.length - 1 ? 8 : 0 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: "#c9a84c" }}>{p.drink}</span>
-                            <span style={{ fontSize: 13, color: "#c8b89a" }}> — {p.reason}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: color.gold }}>{p.drink}</span>
+                            <span style={{ fontSize: 13, color: color.cream }}> — {p.reason}</span>
                           </div>
                         ))}
                       </>
                     ) : (
-                      <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.6 }}>{seasonalNote}</div>
+                      <div style={{ fontSize: 13, color: color.cream, lineHeight: 1.6 }}>{seasonalNote}</div>
                     )}
                   </div>
                 )}
@@ -242,7 +241,7 @@ Return ONLY a raw JSON object, no markdown:
 
         {/* Close button */}
         <div style={{ padding: "0 20px 24px" }}>
-          <button onClick={onClose} style={{ width: "100%", background: "none", border: "1px solid #3a2510", borderRadius: 10, padding: 12, color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+          <button onClick={onClose} style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 10, padding: 12, color: color.dim, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Done
           </button>
         </div>
