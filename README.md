@@ -1,70 +1,124 @@
-# Getting Started with Create React App
+# Ashed
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A cigar journal and community app. Log what you smoke, rate it, build a humidor
+and wishlist, find cigar lounges near you, and follow what friends are smoking.
+Several features are AI-assisted: identifying a cigar from a photo of its band,
+recommending cigars from your history, suggesting drink pairings, and drafting
+tasting notes.
 
-## Available Scripts
+React PWA, currently pre-launch (alpha, v0.9.2). Live at
+[ashed.app](https://ashed.app); the app itself is behind `/login` while a
+"Coming Soon" page serves the root.
 
-In the project directory, you can run:
+## Running it
 
-### `npm start`
+Requires **Node 24.x** (`package.json` pins `engines.node` to `24.x`).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install
+npm start          # dev server at localhost:3000
+npm run build      # production build — run before every push
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**Run `npm run build` before pushing.** Vercel builds with `CI=true`, which
+turns every ESLint warning into a build failure. An unused variable or a
+missing hook dependency will fail the deploy. To reproduce that strictness
+locally:
 
-### `npm test`
+```powershell
+$env:CI = "true"; npm run build
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### The `/api` routes do not run under `npm start`
 
-### `npm run build`
+`/api/anthropic`, `/api/places` and `/api/db-refresh` are Vercel serverless
+functions. Create React App's dev server does not serve them — it returns
+`index.html` for any unmatched path, so a call to `/api/...` comes back as HTML
+and the calling code's `response.json()` throws. Every AI feature will appear
+broken locally, showing its generic "Something went wrong" message.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+To run the functions locally you need the Vercel CLI:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+vercel link                # link to the existing project, do not create a new one
+vercel env pull .env.local
+vercel dev
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Note that `vercel env pull` will **not** return variables stored as Vercel
+*Secrets* — they arrive as the literal string `[SENSITIVE]`. Only
+`GOOGLE_PLACES_KEY` is currently a plain config value. The alternative, and what
+this project has used, is to test on a preview deployment: push a branch, and
+Vercel builds it with the real Preview environment.
 
-### `npm run eject`
+## Deploying
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Pushing to `master` deploys to production automatically.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+git add . && git commit -m "msg" && git push origin master
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+There is no staging database. **Local development already reads and writes the
+production Supabase project**, because `src/supabase.js` hardcodes its URL and
+publishable key. Only the serverless functions are absent locally.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Environment variables
 
-## Learn More
+Set in the Vercel project, not in the repo. The `/api` functions read:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Variable | Used by | Notes |
+|---|---|---|
+| `ANTHROPIC_KEY` | `/api/anthropic`, `/api/db-refresh` | Secret |
+| `GOOGLE_PLACES_KEY` | `/api/places` | Billed key |
+| `SUPABASE_URL` | all three | Not actually secret — it also ships in the browser bundle |
+| `SUPABASE_SERVICE_KEY` | all three | **Bypasses Row Level Security.** Server-side only |
+| `CRON_SECRET` | `/api/db-refresh` | Sent by Vercel Cron as a bearer token |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+`RESEND_API_KEY` is also set on the project for transactional email.
 
-### Code Splitting
+## The API layer
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+All three endpoints verify a Supabase access token and derive the caller's
+identity from it. `user_id` in a request body is ignored. Client code should
+call them through `src/apiClient.js`, which attaches the session token.
 
-### Analyzing the Bundle Size
+- **`/api/anthropic`** — proxy for all AI calls. Requires a valid token and a
+  known `feature`. Enforces a premium check on Opus models and per-feature
+  hourly rate limits (`band_scanner` 15, `recommendations` 5, `pairings` 5,
+  `tasting_notes` 10) against the `api_usage` table.
+- **`/api/places`** — Google Places proxy. Actions: `geocode`, `search`,
+  `autocomplete`, `details`. Requires a valid token. The expensive Text Search
+  action is rate limited to 60/hour per user.
+- **`/api/db-refresh`** — monthly cron (1st, 09:00 UTC). Scrapes new releases
+  and writes candidates to `db_refresh_candidates` for admin review. Requires
+  `CRON_SECRET` as a bearer token, so it cannot be triggered from a browser.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Models: the band scanner uses `claude-opus-4-6`; everything else uses
+`claude-haiku-4-5-20251001`.
 
-### Making a Progressive Web App
+## Database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Supabase Postgres, 23 tables, RLS enabled on all of them.
 
-### Advanced Configuration
+**Core** — `users`, `cigars`, `checkins`, `ratings`, `humidor`, `wishlist`, `places`
+**Social** — `friends`, `fires`, `comments`, `notifications`, `badges`, `user_badges`, `referrals`
+**Ops** — `reports`, `announcements`, `missing_cigars`, `api_usage`, `feedback`, `db_refresh_candidates`, `audit_log`, `pairings`, `tracker_progress`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Three things that trip people up:
 
-### Deployment
+- `cigars` stores **one row per vitola**, not per line. A brand + line lookup
+  returns many rows, so `.maybeSingle()` on brand + line will error.
+- `checkins.rating` and `ratings.score` both store a **0–10** value. The UI
+  shows five flames and halves it.
+- `users` has `member_since`, **not** `created_at`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Where to look next
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **`CLAUDE.md`** — architecture, conventions, styling, and the gotchas above in
+  more depth. Read this before changing anything.
+- **`ashed_findings.md`** — every known defect and design recommendation, with
+  status.
+- **`ashed_workplan.md`** — the order those are being worked through.
+- **`/tracker`** — the project tracker, in-app, admin only. Its task definitions
+  are the `PLAN` array in `src/Tracker.js`.

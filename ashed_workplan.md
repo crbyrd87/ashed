@@ -185,7 +185,7 @@ a token should now fail.
 
 Do before Phase D. These reduce the surface the design system work has to cover.
 
-### ☐ Session 8 — Clean the repo
+### ☑ Session 8 — Clean the repo — DONE 28 Aug 2026 (build/ item done early on 27 Aug)
 
 - Findings: rec `53`, `54`, `55`, `4`, `CR-16`, `CR-17`
 - Delete `project files/Chat 1.3/` and `project files/Chat 1.4/` — outdated forks
