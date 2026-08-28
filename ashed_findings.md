@@ -481,6 +481,39 @@ real deletion is currently impossible at the database level, and rec `58`
 makes in-app account deletion an App Store review requirement. So this is a
 launch blocker for the native app, not a tidy-up.
 
+**Was the NO ACTION deliberate?** The owner raised this: eight foreign keys
+carry an explicit CASCADE and six carry SET NULL, so per-table decisions clearly
+were made, and preserving check-in history is a defensible intent. Against
+that: `NO ACTION` is also what Postgres gives you for `references users(id)`
+with no clause, so a deliberate choice and an unmade one are indistinguishable
+in the schema. Two details lean toward accident — `cigars.submitted_by` is
+SET NULL while `cigars.added_by` on the same table is NO ACTION, and
+`Settings.js` promises "This will permanently delete your account and all your
+data", which the schema forbids.
+
+It does not matter which it was: the schema and the interface disagree, and one
+of them has to change either way.
+
+**DECIDED 28 Aug 2026 — anonymise, do not cascade.** A deleted account's
+identity is removed; the check-in history it produced is kept and detached.
+Community ratings and `cigars.avg_rating` stay intact, and the person genuinely
+disappears. This satisfies both readings above and the App Store requirement,
+which a hard cascade cannot.
+
+Nulling the author was chosen over a tombstone user because **every surface that
+renders an author already handles a missing one** — Feed shows "Someone",
+FeedModal "Unknown", Notifications "Someone", AdminConsole "unknown" — so no
+interface changes are needed. A tombstone would additionally need its own
+`auth.users` row, since `public.users.id` references it, and would merge every
+deleted person into one fake profile the admin console would list as real.
+
+`checkins`, `ratings`, `comments` and `fires` all have `user_id NOT NULL`
+today, so that constraint has to be dropped first. The migration is written up
+in `db/anonymise-on-delete.sql` and is **not yet run**: it carries two
+preconditions, the important one being that any RLS SELECT policy written as
+`user_id = auth.uid()` would make an anonymised row invisible to everyone,
+silently hiding it from the Feed.
+
 **It needs a decision per table, not a blanket cascade.** Cascading everything
 would delete a departing user's comments and reactions from other people's
 check-ins, silently changing counts on content that is not theirs, and would
