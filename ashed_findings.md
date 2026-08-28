@@ -291,6 +291,29 @@ explicit `BADGE_DISPLAY_ORDER` in `badgeEngine.js`, hardest-won first.
    is what friends should see too, so building the picker and fixing rec 42
    separately would mean touching the same surface twice.
 
+### 12-H · Band Scanner opened inline instead of as an overlay
+
+Found 28 Aug 2026 while testing the security branch, and pre-existing on
+`master` — unrelated to that work.
+
+`BandScanner`'s root element was
+`<div style={{ background: "#1a0f08", minHeight: "100%" }}>` with no
+`position: fixed`, and `App.js` renders `<BandScanner />` with no wrapping
+overlay. The scanner therefore laid out in normal page flow and appeared as a
+scrollable panel *below* whatever was already on screen, rather than covering
+it. Every other full-screen surface — `CheckIn.js` for instance — uses
+`position: fixed, inset: 0, zIndex: 300`.
+
+This contradicts the file history in `Tracker.js`, which records for
+BandScanner v1.5: "Week 32: Full UI redesign. Wrapped in fixed overlay
+(App.js)." No such wrapper exists in `App.js`, so either it was lost or the
+note was aspirational.
+
+**FIXED 28 Aug 2026** — the root now uses the same overlay treatment as
+`CheckIn.js`.
+
+---
+
 ## #12 Badges — walked 27 Aug 2026
 
 **Fix confirmed:** all 18 seeded badges render in four categories with icons,

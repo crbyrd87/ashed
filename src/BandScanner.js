@@ -187,8 +187,12 @@ Be as specific as possible with brand and line. If you can read text on the band
     }
   };
 
+  // Full-screen overlay. Without position:fixed this rendered inline in the
+  // page flow, so opening the scanner appended a scrollable panel below
+  // whatever was already on screen instead of covering it. Matches the
+  // overlay CheckIn.js uses: same z-index, same 420 cap.
   return (
-    <div style={{ background: "#1a0f08", minHeight: "100%", fontFamily: SANS }}>
+    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300, overflowY: "auto", fontFamily: SANS, maxWidth: 420, margin: "0 auto" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: "1px solid #4a3520" }}>
