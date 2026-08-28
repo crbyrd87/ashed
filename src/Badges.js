@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { fetchUserBadges } from "./badgeEngine";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const CATEGORY_LABELS = {
   milestone: "Milestones",
@@ -29,7 +28,7 @@ export default function Badges({ userId }) {
   }, [userId]);
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "20px 0", fontSize: 12, color: "#5a4535", fontFamily: SANS }}>
+    <div style={{ textAlign: "center", padding: "20px 0", fontSize: 12, color: color.faint, fontFamily: SANS }}>
       Loading badges...
     </div>
   );
@@ -39,9 +38,9 @@ export default function Badges({ userId }) {
   const percent = total > 0 ? Math.round((earned / total) * 100) : 0;
 
   if (total === 0) return (
-    <div style={{ background: "#1a0f08", border: "1px solid #2a1a0e", borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
+    <div style={{ background: color.bg, border: `1px solid ${color.surfaceRaised}`, borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
       <div style={{ fontSize: 24, marginBottom: 8, filter: "grayscale(1)" }}>🏅</div>
-      <div style={{ fontSize: 12, color: "#8a7055", lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
+      <div style={{ fontSize: 12, color: color.muted, lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
     </div>
   );
 
@@ -60,12 +59,12 @@ export default function Badges({ userId }) {
     <div style={{ fontFamily: SANS }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: "#5a4535", letterSpacing: 1 }}>BADGES & ACHIEVEMENTS</div>
-        <div style={{ fontSize: 11, color: "#c9a84c" }}>{earned}/{total} earned</div>
+        <div style={{ fontSize: 11, color: color.faint, letterSpacing: 1 }}>BADGES & ACHIEVEMENTS</div>
+        <div style={{ fontSize: 11, color: color.gold }}>{earned}/{total} earned</div>
       </div>
 
       {/* Progress bar */}
-      <div style={{ width: "100%", height: 4, background: "#2a1a0e", borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
+      <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ width: `${percent}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, transition: "width 0.3s" }} />
       </div>
 
@@ -82,12 +81,12 @@ export default function Badges({ userId }) {
               onClick={() => toggleCategory(cat)}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", cursor: "pointer" }}
             >
-              <div style={{ fontSize: 11, color: "#8a7055", letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
+              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 11, color: catEarned === catBadges.length ? "#c9a84c" : "#5a4535" }}>
+                <span style={{ fontSize: 11, color: catEarned === catBadges.length ? color.gold : color.faint }}>
                   {catEarned}/{catBadges.length}
                 </span>
-                <span style={{ color: "#5a4535", fontSize: 12 }}>{isOpen ? "−" : "+"}</span>
+                <span style={{ color: color.faint, fontSize: 12 }}>{isOpen ? "−" : "+"}</span>
               </div>
             </div>
 
@@ -97,8 +96,8 @@ export default function Badges({ userId }) {
                   <div
                     key={badge.key}
                     style={{
-                      background: badge.earned ? "linear-gradient(135deg, #2a1a0e, #1a0f08)" : "#1a0f08",
-                      border: `1px solid ${badge.earned ? "#c9a84c55" : "#2a1a0e"}`,
+                      background: badge.earned ? "linear-gradient(135deg, #2a1a0e, #1a0f08)" : color.bg,
+                      border: `1px solid ${badge.earned ? `${color.gold}55` : color.surfaceRaised}`,
                       borderRadius: 10,
                       padding: "12px 10px",
                       textAlign: "center",
@@ -113,19 +112,19 @@ export default function Badges({ userId }) {
                     <div style={{ fontSize: 28, marginBottom: 6, filter: badge.earned ? "none" : "grayscale(1)" }}>
                       {badge.icon}
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? "#e8d5b7" : "#c8b89a", marginBottom: 3, lineHeight: 1.3 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? color.text : color.cream, marginBottom: 3, lineHeight: 1.3 }}>
                       {badge.name}
                     </div>
-                    <div style={{ fontSize: 10, color: badge.earned ? "#8a7055" : "#8a7055", lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 10, color: badge.earned ? color.muted : color.muted, lineHeight: 1.4 }}>
                       {badge.description}
                     </div>
                     {badge.earned && badge.awarded_at && (
-                      <div style={{ fontSize: 9, color: "#c9a84c88", marginTop: 6 }}>
+                      <div style={{ fontSize: 9, color: `${color.gold}88`, marginTop: 6 }}>
                         {new Date(badge.awarded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </div>
                     )}
                     {!badge.earned && (
-                      <div style={{ fontSize: 9, color: "#8a7055", marginTop: 6 }}>🔒 Locked</div>
+                      <div style={{ fontSize: 9, color: color.muted, marginTop: 6 }}>🔒 Locked</div>
                     )}
                   </div>
                 ))}

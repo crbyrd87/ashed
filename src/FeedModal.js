@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { formatSmokeDate } from "./dateUtils";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
   const [comments, setComments] = useState([]);
@@ -126,29 +125,29 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
       onClick={onClose}
     >
       <div
-        style={{ background: "#1a0f08", borderRadius: "16px 16px 0 0", border: "1px solid #3a2510", borderBottom: "none", width: "100%", maxWidth: 420, maxHeight: "80vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
+        style={{ background: color.bg, borderRadius: "16px 16px 0 0", border: `1px solid ${color.line}`, borderBottom: "none", width: "100%", maxWidth: 420, maxHeight: "80vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
         <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
-          <div style={{ width: 36, height: 4, background: "#3a2510", borderRadius: 2 }} />
+          <div style={{ width: 36, height: 4, background: color.line, borderRadius: 2 }} />
         </div>
 
         {/* Check-in header */}
-        <div style={{ padding: "12px 18px 14px", borderBottom: "1px solid #3a2510", flexShrink: 0 }}>
+        <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.line}`, flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div style={{ flex: 1, marginRight: 12 }}>
-              <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: "#e8d5b7", margin: "3px 0 4px" }}>{cigarName}{vitola ? ` · ${vitola}` : ""}</div>
-              <div style={{ fontSize: 11, color: "#8a7055" }}>
-                {smokerHandle && <span style={{ color: "#c9a84c" }}>{smokerHandle}</span>}
+              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 4px" }}>{cigarName}{vitola ? ` · ${vitola}` : ""}</div>
+              <div style={{ fontSize: 11, color: color.muted }}>
+                {smokerHandle && <span style={{ color: color.gold }}>{smokerHandle}</span>}
                 {smokerHandle && " · "}
-                {checkin.rating && <span style={{ color: "#c9a84c", fontWeight: 700 }}>{(checkin.rating / 2).toFixed(1)}</span>}
+                {checkin.rating && <span style={{ color: color.gold, fontWeight: 700 }}>{(checkin.rating / 2).toFixed(1)}</span>}
                 {checkin.rating && " · "}
                 {smokeDate}
               </div>
               {checkin.smoke_location && (
-                <div style={{ fontSize: 11, color: "#5a4535", marginTop: 3 }}>📍 {checkin.smoke_location}</div>
+                <div style={{ fontSize: 11, color: color.faint, marginTop: 3 }}>📍 {checkin.smoke_location}</div>
               )}
             </div>
             {/* Like + Wishlist buttons */}
@@ -156,7 +155,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
               <button
                 onClick={handleFireToggle}
                 disabled={isOwnCheckin}
-                style={{ background: fired ? "#4a7a4a22" : "none", border: `1px solid ${fired ? "#4a7a4a66" : "#3a2510"}`, borderRadius: 20, padding: "5px 12px", color: fired ? "#7a9a7a" : isOwnCheckin ? "#3a2510" : "#8a7055", fontSize: 13, cursor: isOwnCheckin ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
+                style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "5px 12px", color: fired ? color.green : isOwnCheckin ? color.line : color.muted, fontSize: 13, cursor: isOwnCheckin ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
               >
                 👍 {fireCount}
               </button>
@@ -164,7 +163,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                 <button
                   onClick={handleWishlist}
                   disabled={wishlistLoading}
-                  style={{ background: wishlisted ? "#c0392b22" : "none", border: `1px solid ${wishlisted ? "#c0392b66" : "#3a2510"}`, borderRadius: 20, padding: "5px 12px", color: wishlisted ? "#e05a4a" : "#8a7055", fontSize: 13, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                  style={{ background: wishlisted ? "#c0392b22" : "none", border: `1px solid ${wishlisted ? "#c0392b66" : color.line}`, borderRadius: 20, padding: "5px 12px", color: wishlisted ? "#e05a4a" : color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
                   {wishlisted ? "❤️ Wishlisted" : "♡ Wishlist"}
                 </button>
@@ -175,14 +174,14 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
 
         {/* Comments list — scrollable */}
         <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 12px" }}>
-          <div style={{ fontSize: 10, color: "#8a7055", letterSpacing: 1, marginBottom: 10 }}>
+          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
           </div>
           {commentsLoading && (
-            <div style={{ fontSize: 12, color: "#5a4535", textAlign: "center", padding: "16px 0" }}>Loading...</div>
+            <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: "16px 0" }}>Loading...</div>
           )}
           {!commentsLoading && comments.length === 0 && (
-            <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>No comments yet. Be the first!</div>
+            <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No comments yet. Be the first!</div>
           )}
           {comments.map(c => {
             const handle = c.users?.username ? `@${c.users.username}` : "Unknown";
@@ -191,15 +190,15 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             return (
               <div key={c.id} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: isMe ? "#1a0f08" : "#7a9a7a", fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
                     {(name[0] || "?").toUpperCase()}
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: isMe ? "#c9a84c" : "#e8d5b7" }}>{handle}</span>
-                  <span style={{ fontSize: 9, color: "#5a4535", marginLeft: "auto" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isMe ? color.gold : color.text }}>{handle}</span>
+                  <span style={{ fontSize: 9, color: color.faint, marginLeft: "auto" }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 </div>
-                <div style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5, paddingLeft: 28 }}>{c.content}</div>
+                <div style={{ fontSize: 13, color: color.cream, lineHeight: 1.5, paddingLeft: 28 }}>{c.content}</div>
               </div>
             );
           })}
@@ -207,19 +206,19 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         </div>
 
         {/* Comment input */}
-        <div style={{ padding: "10px 18px 24px", borderTop: "1px solid #3a2510", display: "flex", gap: 8, flexShrink: 0, background: "#1a0f08" }}>
+        <div style={{ padding: "10px 18px 24px", borderTop: `1px solid ${color.line}`, display: "flex", gap: 8, flexShrink: 0, background: color.bg }}>
           <input
             ref={inputRef}
             value={commentInput}
             onChange={e => setCommentInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handlePostComment()}
             placeholder="Add a comment..."
-            style={{ flex: 1, background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 20, padding: "8px 14px", color: "#e8d5b7", fontSize: 16, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 20, padding: "8px 14px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none" }}
           />
           <button
             onClick={handlePostComment}
             disabled={!commentInput.trim() || posting}
-            style={{ background: commentInput.trim() ? "linear-gradient(135deg,#c9a84c,#a07830)" : "#2a1a0e", border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? "#1a0f08" : "#5a4535", fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS }}
+            style={{ background: commentInput.trim() ? "linear-gradient(135deg,#c9a84c,#a07830)" : color.surfaceRaised, border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? color.bg : color.faint, fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS }}
           >
             {posting ? "..." : "Post"}
           </button>

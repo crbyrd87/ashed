@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 const TYPE_META = {
   fire:             { icon: "🔥", label: "fired your check-in" },
@@ -91,19 +90,19 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
 
   const s = {
     overlay: {
-      position: "fixed", inset: 0, background: "#1a0f08", zIndex: 300,
-      overflowY: "auto", fontFamily: SANS, color: "#e8d5b7",
+      position: "fixed", inset: 0, background: color.bg, zIndex: 300,
+      overflowY: "auto", fontFamily: SANS, color: color.text,
       maxWidth: 420, margin: "0 auto",
     },
     header: {
       background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)",
-      padding: "16px 20px", borderBottom: "1px solid #3a2510",
+      padding: "16px 20px", borderBottom: `1px solid ${color.line}`,
       display: "flex", justifyContent: "space-between", alignItems: "center",
       position: "sticky", top: 0, zIndex: 10,
     },
     card: (unread, tappable) => ({
-      background: unread ? "#2a1a0e" : "#1e1208",
-      borderBottom: "1px solid #3a251033",
+      background: unread ? color.surfaceRaised : color.surfaceSunken,
+      borderBottom: `1px solid ${color.line}33`,
       padding: "14px 20px",
       display: "flex", alignItems: "flex-start", gap: 12,
       cursor: tappable ? "pointer" : "default",
@@ -123,8 +122,8 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
     <div style={s.overlay}>
       <div style={s.header}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#e8d5b7" }}>Notifications</div>
-          <div style={{ fontSize: 11, color: "#8a7055", marginTop: 2, letterSpacing: 1 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>Notifications</div>
+          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
             {notifications.length === 0 ? "All caught up" : `${notifications.length} recent`}
           </div>
         </div>
@@ -132,7 +131,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
           {notifications.length > 0 && !confirmClear && (
             <button
               onClick={() => setConfirmClear(true)}
-              style={{ background: "none", border: "1px solid #4a3520", borderRadius: 20, padding: "6px 12px", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+              style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
             >
               Clear all
             </button>
@@ -141,13 +140,13 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
                 onClick={handleClearAll}
-                style={{ background: "#a0522d22", border: "1px solid #a0522d66", borderRadius: 20, padding: "6px 12px", color: "#e8a07a", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}66`, borderRadius: 20, padding: "6px 12px", color: color.dangerText, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
               >
                 Clear all?
               </button>
               <button
                 onClick={() => { setConfirmClear(false); setClearError(null); }}
-                style={{ background: "none", border: "none", color: "#8a7055", fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                style={{ background: "none", border: "none", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}
               >
                 Cancel
               </button>
@@ -155,7 +154,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
           )}
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", color: "#8a7055", fontSize: 26, cursor: "pointer", lineHeight: 1 }}
+            style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}
           >
             ×
           </button>
@@ -163,13 +162,13 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
       </div>
 
       {clearError && (
-        <div style={{ background: "#a0522d18", border: "1px solid #a0522d44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", margin: "14px 20px 0", lineHeight: 1.6 }}>
+        <div style={{ background: `${color.danger}18`, border: `1px solid ${color.danger}44`, borderRadius: 8, padding: "10px 14px", fontSize: 13, color: color.dangerText, margin: "14px 20px 0", lineHeight: 1.6 }}>
           {clearError}
         </div>
       )}
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: "#5a4535" }}>
+        <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>
           Loading...
         </div>
       )}
@@ -177,10 +176,10 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
       {!loading && notifications.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px", fontFamily: SANS }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>🔔</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>
             No notifications yet
           </div>
-          <div style={{ fontSize: 13, color: "#5a4535", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>
             You'll see fires, comments, badges, and friend activity here.
           </div>
         </div>
@@ -222,23 +221,23 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
               {meta.icon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#e8d5b7", lineHeight: 1.4 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: color.text, lineHeight: 1.4 }}>
                 {title}
               </div>
               {subtitle ? (
-                <div style={{ fontSize: 12, color: "#8a7055", marginTop: 3, lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: color.muted, marginTop: 3, lineHeight: 1.4 }}>
                   {subtitle}
                 </div>
               ) : null}
-              <div style={{ fontSize: 11, color: "#5a4535", marginTop: 5 }}>
+              <div style={{ fontSize: 11, color: color.faint, marginTop: 5 }}>
                 {timeAgo(n.created_at)}
               </div>
             </div>
             {!n.is_read && (
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#c9a84c", flexShrink: 0, marginTop: 5 }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: color.gold, flexShrink: 0, marginTop: 5 }} />
             )}
             {tappable && (
-              <div style={{ fontSize: 14, color: "#4a3020", flexShrink: 0, marginTop: 2 }}>›</div>
+              <div style={{ fontSize: 14, color: color.lineInput, flexShrink: 0, marginTop: 2 }}>›</div>
             )}
           </div>
         );
