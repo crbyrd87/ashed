@@ -335,6 +335,36 @@ accurate · category headers collapse and expand.
 
 ---
 
+### CR-19 · UserProfileModal is built but never rendered
+
+Found 28 Aug 2026 while migrating it to theme tokens.
+
+`src/UserProfileModal.js` is a complete 155-line component that nothing
+imports. Searching `src/` finds it only in prose inside `Tracker.js`. It has
+never been mounted, so the profile view it implements has never been reachable.
+
+The visible symptom: tapping a person's handle or avatar in the Feed opens the
+comments sheet rather than their profile. That is not a bug in the Feed — the
+whole row is a single tap target (`Feed.js` line 174) and there is no separate
+handler on the avatar or handle. Nothing is broken; the feature was never wired.
+
+Related to 10-B, where notification rows for `friend_accepted` currently open
+the Friends list rather than the specific person's profile, for the same
+underlying reason: `App.js` has no profile-modal plumbing at all.
+
+**Three ways out, needs a decision:**
+
+1. **Wire it.** Give the avatar and handle their own tap target with
+   `stopPropagation`, so the row still opens comments and the person opens
+   their profile. This also gives 10-B somewhere to send `friend_accepted`.
+2. **Use `FriendProfile` instead.** `Friends.js` already contains a working,
+   richer profile view. Two components doing one job is the deeper problem;
+   design rec 42 also flags `FriendProfile` for its hardcoded badges.
+3. **Delete it.** If `FriendProfile` is the real one, this is dead weight that
+   still has to be maintained through every design change — it already carries
+   its own `BADGE_ICONS` map, which CR-14 flags as one of three disagreeing
+   sources of badge icons.
+
 ## Decisions recorded during the walkthrough
 
 ### DEC-1 · "Fires" becomes "Likes" — reverses design rec #14
