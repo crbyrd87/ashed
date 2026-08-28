@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { authedFetch } from "./apiClient";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -97,7 +98,7 @@ const placesApi = async (params) => {
   const query = new URLSearchParams(params).toString();
   let res;
   try {
-    res = await fetch(`/api/places?${query}`);
+    res = await authedFetch(`/api/places?${query}`);
   } catch (e) {
     const err = new Error("Could not reach /api/places");
     err.kind = "network";

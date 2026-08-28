@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { todayLocalISO } from "./dateUtils";
@@ -22,13 +23,12 @@ Return ONLY raw JSON, no markdown:
 
 Only include tags from our list that genuinely apply. Typically 3-6 tags.`;
 
-  const response = await fetch("/api/anthropic", {
+  const response = await authedFetch("/api/anthropic", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 200,
-      user_id: userId,
       feature: "tasting_notes",
       messages: [{ role: "user", content: prompt }],
     }),
@@ -231,11 +231,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     setVenueSearching(true);
     setVenueResults([]);
     try {
-      const geoRes = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(venueQuery.trim())}`);
+      const geoRes = await authedFetch(`/api/places?action=geocode&address=${encodeURIComponent(venueQuery.trim())}`);
       const geoData = await geoRes.json();
       if (geoData.status === "OK" && geoData.results?.[0]) {
         const { lat, lng } = geoData.results[0].geometry.location;
-        const searchRes = await fetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
+        const searchRes = await authedFetch(`/api/places?action=search&lat=${lat}&lng=${lng}`);
         const searchData = await searchRes.json();
         // Sort by distance from search location
         const results = (searchData.results || []).map(p => {

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { isCronRequest } from "./_auth.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -17,6 +18,15 @@ export default async function handler(req, res) {
   // Allow GET only (both cron and manual admin trigger)
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // CR-7: this endpoint had no auth whatsoever. Every hit ran a page scrape
+  // plus an AI call and wrote rows, and the admin UI printed the URL for
+  // anyone to copy. Vercel Cron sends the project's CRON_SECRET as a bearer
+  // token; nothing else may run it. CRON_SECRET must therefore exist in the
+  // Vercel environment, or the monthly job starts returning 401.
+  if (!isCronRequest(req)) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);

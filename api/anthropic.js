@@ -1,7 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+import { adminClient, verifiedUserId } from "./_auth.js";
 
 const RATE_LIMITS = {
   band_scanner:    { max: 15, windowMinutes: 60 },
@@ -11,31 +8,44 @@ const RATE_LIMITS = {
 };
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") { res.status(200).end(); return; }
+  // The app calls this from its own origin, so no cross-origin access is
+  // needed. This used to send Access-Control-Allow-Origin: * , which invited
+  // any website to spend our Anthropic credits through a user's browser.
+  res.setHeader("Vary", "Origin");
+  if (req.method === "OPTIONS") { res.status(204).end(); return; }
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const KEY = process.env.ANTHROPIC_KEY;
   if (!KEY) return res.status(500).json({ error: "Anthropic API key not configured" });
 
-  const { model, messages, system, max_tokens, user_id, feature } = req.body;
+  // CR-5: identity comes from a verified token, never from the request body.
+  // Previously user_id was read straight off req.body, so any caller could
+  // claim a premium user's id to unlock Opus, and could rotate ids or omit
+  // `feature` to slip the rate limiter entirely.
+  const userId = await verifiedUserId(req);
+  if (!userId) return res.status(401).json({ error: "Sign in required" });
+
+  const { model, messages, system, max_tokens, feature } = req.body;
 
   if (!model || !messages) {
     return res.status(400).json({ error: "Missing required fields: model, messages" });
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+  // Every request must name a metered feature. Without this an unknown or
+  // missing feature simply skipped the limiter.
+  if (!feature || !RATE_LIMITS[feature]) {
+    return res.status(400).json({ error: "Missing or unknown feature" });
+  }
 
-  // Server-side premium check for Opus model (band scanner)
+  const supabase = adminClient();
+
+  // Server-side premium check for Opus (band scanner).
   if (model.includes("opus")) {
-    if (!user_id) return res.status(403).json({ error: "Premium required for this feature" });
     try {
       const { data, error } = await supabase
         .from("users")
         .select("is_premium")
-        .eq("id", user_id)
+        .eq("id", userId)
         .single();
       if (error || !data?.is_premium) {
         return res.status(403).json({ error: "Premium subscription required for Band Scanner" });
@@ -45,15 +55,15 @@ export default async function handler(req, res) {
     }
   }
 
-  // Rate limiting
-  if (user_id && feature && RATE_LIMITS[feature]) {
+  // Rate limiting, keyed to the verified user.
+  {
     const { max, windowMinutes } = RATE_LIMITS[feature];
     const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
     try {
       const { count } = await supabase
         .from("api_usage")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", user_id)
+        .eq("user_id", userId)
         .eq("feature", feature)
         .gte("created_at", windowStart);
 
@@ -63,11 +73,11 @@ export default async function handler(req, res) {
         });
       }
 
-      // Log this usage
-      await supabase.from("api_usage").insert({ user_id, feature });
+      await supabase.from("api_usage").insert({ user_id: userId, feature });
     } catch (e) {
+      // Deliberately still fails open: a logging outage should not take the
+      // whole feature down. The premium gate above does NOT fail open.
       console.error("Rate limit check failed:", e);
-      // Don't block on rate limit errors — fail open
     }
   }
 

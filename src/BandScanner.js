@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -90,13 +91,12 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
     });
 
     try {
-      const response = await fetch("/api/anthropic", {
+      const response = await authedFetch("/api/anthropic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-opus-4-6",
           max_tokens: 1024,
-          user_id: user?.id,
           feature: "band_scanner",
           messages: [
             {

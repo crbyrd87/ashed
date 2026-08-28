@@ -1458,7 +1458,7 @@ function DbRefreshSection() {
       </div>
 
       <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
-        Searches Halfwheel for new releases from brands in our DB. To trigger manually, run: <span style={{ color: "#a08060", fontFamily: "monospace" }}>curl https://ashed.app/api/db-refresh</span>
+        Searches Halfwheel for new releases from brands in our DB. Runs automatically via Vercel Cron. Manual triggering now requires the CRON_SECRET, which is deliberately not available in the browser — run it from a terminal: <span style={{ color: "#a08060", fontFamily: "monospace" }}>curl -H "Authorization: Bearer $CRON_SECRET" https://ashed.app/api/db-refresh</span>
       </div>
 
       {/* Filter tabs */}
