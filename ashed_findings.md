@@ -365,44 +365,65 @@ underlying reason: `App.js` has no profile-modal plumbing at all.
    its own `BADGE_ICONS` map, which CR-14 flags as one of three disagreeing
    sources of badge icons.
 
-### CR-20 · New signups get no profile row — **blocks launch**
+### CR-20 · Signing up with an existing email looks like success
 
-Found 28 Aug 2026 by signing up as rareops@gmail.com. The account appears in
-`auth.users` but there is **no matching row in `public.users`**.
+Investigated 28 Aug 2026. **This entry replaces an earlier version that was
+wrong on three counts; the corrections are recorded below because the wrong
+version was committed.**
 
-Supabase keeps credentials in `auth.users`; everything else lives in
-`public.users`. Nothing in the application code ever inserts into
-`public.users` — every write there is an UPDATE or DELETE from AdminConsole.
-The row can therefore only come from a database trigger on `auth.users`, and
-that trigger is missing or was dropped.
+**What actually happens.** Signing up with an address that already has an
+account returns success from Supabase without creating anything and without
+sending any email. That is deliberate on Supabase's part — it stops people
+probing which addresses are registered. `Auth.js` then shows "Account created!
+Check your email to confirm your account", because it inspects only `error`,
+which is null. The person believes they made an account, waits for an email
+that will never arrive, and may then find they can log in anyway with their
+old password — which reads as the app being broken.
 
-**Consequences.** `App.js` reads the user's flags with `.single()`, so a
-missing row returns nothing and every flag quietly defaults to false: no
-username, no premium, no admin, no saved settings. Anything with a foreign key
-to `public.users` will refuse to insert outright. The account authenticates
-and then behaves like a broken one.
+Real users will hit this. It is the single most likely thing to happen when
+someone forgets they already signed up.
 
-This affects **every new signup**, so it has to be fixed before real users.
+**The fix.** `supabase.auth.signUp` returns a user whose `identities` array is
+empty in exactly this case. `Auth.js` should check it and say so plainly —
+"An account with that email already exists. Try logging in, or use Forgot
+password" — instead of promising an email.
 
-**Fix:** `db/handle_new_user.sql` in this repo restores the trigger and
-backfills anyone already orphaned. It must be run in the Supabase SQL editor —
-there is no migration tooling in this project. Check the column names against
-the live schema first, and read the note about a UNIQUE username constraint:
-if one exists, a naive trigger can block signup entirely, which is worse than
-the bug.
+**Corrections to the earlier version of this finding:**
 
-**Two related problems found while diagnosing this:**
+1. It claimed the `handle_new_user` trigger was missing or dropped. It is not.
+   `on_auth_user_created AFTER INSERT ON auth.users` exists and the function is
+   correct. This was inferred from a missing row rather than checked.
+2. It claimed email confirmation was disabled in the Supabase project. It is
+   enabled. All six accounts carry `email_confirmed_at`, set between ten
+   seconds and two minutes after creation — a person clicking a real link.
+3. It claimed every new signup was broken and that this blocked launch. It does
+   not. Five of six accounts have profile rows, including one created in
+   August, after the orphan. The trigger has worked before and since.
 
-`Auth.js` line 85 shows "Account created! Check your email to confirm your
-account, then log in." unconditionally. It inspects only `error` and never the
-signup response, so it claims an email was sent whether or not one was. Email
-confirmation is currently disabled in the Supabase project — which is why the
-account could log in immediately and why no email arrived. Nothing is wrong
-with email delivery; none was requested.
+**The orphan is a known leftover, not a new bug.** `rareops@gmail.com` was
+created 29 Apr 2026 and confirmed the same minute. Its `public.users` row was
+created by the trigger and later deleted by hand — which is precisely what
+finding 11-E already records: "Deleting the profile row leaves an orphaned
+login. Cleanup needed: the orphaned auth user from this test."
 
-`Settings.js` line 167 changes an address with `supabase.auth.updateUser()`,
-which writes `auth.users.email` and never touches `public.users.email`. The
-two can drift apart permanently. Same root cause as 11-E.
+**To clean it up**, either delete the account from Supabase's Authentication →
+Users page, or restore its profile row to match what the trigger would have
+made:
+
+```sql
+insert into public.users (id, email, username, display_name, is_premium, is_founding_member, referral_code)
+select u.id, u.email,
+       u.raw_user_meta_data->>'username',
+       u.raw_user_meta_data->>'display_name',
+       false, false, substr(md5(random()::text), 1, 8)
+from auth.users u
+where not exists (select 1 from public.users p where p.id = u.id);
+```
+
+**Still true and worth fixing separately:** `Settings.js` line 167 changes an
+address with `supabase.auth.updateUser()`, which writes `auth.users.email` and
+never `public.users.email`, so the two drift apart permanently. Same root cause
+as 11-E, and the reason the admin console can show a stale address.
 
 ## Decisions recorded during the walkthrough
 
