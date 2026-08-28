@@ -454,6 +454,52 @@ Worth doing all three together rather than three times.
 **Interim:** delete test accounts from Supabase's Authentication → Users page,
 not from the table editor and not from the admin console.
 
+### CR-22 · No user with any data can be deleted — **blocks the native launch**
+
+Found 28 Aug 2026 while cleaning up the CR-20 orphan.
+
+`public.users.id` references `auth.users(id)` with **no delete rule**, and ten
+of the twenty-four foreign keys pointing at `public.users` are likewise
+`NO ACTION`. Postgres therefore refuses to delete any user who has data.
+
+**Blocking:** `checkins`, `ratings`, `comments`, `fires`, `friends`
+(requester and recipient), `wishlist`, `humidor`, `places`, `cigars.added_by`.
+
+**Already cascading:** `user_badges`, `notifications.user_id`, `referrals`
+(both), `reports`, `announcements`, `api_usage`, `tracker_progress`.
+
+**Already set-null:** `cigars.submitted_by`, `notifications.actor_id`,
+`missing_cigars.reported_by`, `feedback` (both), `audit_log.performed_by`.
+
+Anyone who has logged one check-in cannot be deleted by any route — not the
+Supabase Authentication page, not the table editor, not the admin console. The
+CR-20 orphan deleted cleanly only because that account had no data.
+
+**This reframes rec `40`.** That finding says account deletion "only sets a
+flag" and should be replaced with real deletion. The deeper problem is that
+real deletion is currently impossible at the database level, and rec `58`
+makes in-app account deletion an App Store review requirement. So this is a
+launch blocker for the native app, not a tidy-up.
+
+**It needs a decision per table, not a blanket cascade.** Cascading everything
+would delete a departing user's comments and reactions from other people's
+check-ins, silently changing counts on content that is not theirs, and would
+remove catalog rows in `cigars` that the community depends on.
+
+A defensible split, for discussion:
+
+| Table | Suggested | Why |
+|---|---|---|
+| `checkins`, `ratings`, `wishlist`, `humidor`, `places` | CASCADE | Personal records. Deleting the account should remove them. |
+| `friends` (both) | CASCADE | A relationship with no one on one side is meaningless. |
+| `comments`, `fires` | **decide** | These live on other people's check-ins. Cascading rewrites someone else's page; set-null needs the UI to render an author-less comment. |
+| `cigars.added_by` | SET NULL | The catalog must outlive its contributors. `submitted_by` is already SET NULL, so this is inconsistent today. |
+
+**Related, and best solved together:** rec `40` (real deletion), rec `58` (store
+requirement), and CR-21 (the admin console orphans logins because nothing calls
+`auth.admin.deleteUser`). All three need one serverless endpoint holding the
+service-role key, plus this schema decision.
+
 ## Decisions recorded during the walkthrough
 
 ### DEC-1 · "Fires" becomes "Likes" — reverses design rec #14
