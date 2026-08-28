@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
+import { SANS, color } from "./theme";
 import { supabase } from "./supabase";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 function Toggle({ label, sublabel, value, onChange, disabled }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
       <div>
-        <div style={{ fontSize: 14, color: "#f5ead8" }}>{label}</div>
-        {sublabel && <div style={{ fontSize: 12, color: "#7a6048", marginTop: 2 }}>{sublabel}</div>}
+        <div style={{ fontSize: 14, color: color.heading }}>{label}</div>
+        {sublabel && <div style={{ fontSize: 12, color: color.dim, marginTop: 2 }}>{sublabel}</div>}
       </div>
       <button onClick={() => onChange(!value)} disabled={disabled}
-        style={{ width: 44, height: 24, borderRadius: 12, background: value ? "#d4b45a" : "#3a2510", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
-        <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#f5ead8", position: "absolute", top: 3, left: value ? 23 : 3, transition: "left 0.2s" }} />
+        style={{ width: 44, height: 24, borderRadius: 12, background: value ? color.goldLegacy : color.line, border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+        <div style={{ width: 18, height: 18, borderRadius: "50%", background: color.heading, position: "absolute", top: 3, left: value ? 23 : 3, transition: "left 0.2s" }} />
       </button>
     </div>
   );
@@ -22,12 +21,12 @@ function Section({ id, title, openSection, onToggle, children }) {
   return (
     <div style={{ marginBottom: 10 }}>
       <button onClick={() => onToggle(id)}
-        style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: "#f5ead8", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+        style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: color.heading, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
         {title}
-        <span style={{ color: "#d4b45a", fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
+        <span style={{ color: color.goldLegacy, fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
       </button>
       {openSection === id && (
-        <div style={{ background: "#1e1208", border: "1px solid #4a3520", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
+        <div style={{ background: color.surfaceSunken, border: `1px solid ${color.lineStrong}`, borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
           {children}
         </div>
       )}
@@ -37,21 +36,21 @@ function Section({ id, title, openSection, onToggle, children }) {
 
 function Row({ label, value, sub }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
       <div>
-        <div style={{ fontSize: 13, color: "#f5ead8", fontWeight: 600 }}>{label}</div>
-        {sub && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 2 }}>{sub}</div>}
+        <div style={{ fontSize: 13, color: color.heading, fontWeight: 600 }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>{sub}</div>}
       </div>
-      <div style={{ fontSize: 13, color: "#a08060", textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
+      <div style={{ fontSize: 13, color: color.tan, textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
     </div>
   );
 }
 
 function Term({ word, def }) {
   return (
-    <div style={{ padding: "8px 0", borderBottom: "1px solid #2a1a0e" }}>
-      <div style={{ fontSize: 13, color: "#d4b45a", fontWeight: 600, marginBottom: 2 }}>{word}</div>
-      <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5 }}>{def}</div>
+    <div style={{ padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
+      <div style={{ fontSize: 13, color: color.goldLegacy, fontWeight: 600, marginBottom: 2 }}>{word}</div>
+      <div style={{ fontSize: 12, color: color.tan, lineHeight: 1.5 }}>{def}</div>
     </div>
   );
 }
@@ -63,21 +62,21 @@ export default function Settings({ user, onClose, onSignOut, onReplayTour }) {
   const username = user?.user_metadata?.username?.replace(/^@/, "") || "";
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 600, display: "flex", flexDirection: "column", fontFamily: SANS, maxWidth: 420, margin: "0 auto", left: "50%", transform: "translateX(-50%)", width: "100%" }}>
+    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 600, display: "flex", flexDirection: "column", fontFamily: SANS, maxWidth: 420, margin: "0 auto", left: "50%", transform: "translateX(-50%)", width: "100%" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 16px 12px", borderBottom: "1px solid #4a3520" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 16px 12px", borderBottom: `1px solid ${color.lineStrong}` }}>
         <button onClick={onClose}
-          style={{ background: "none", border: "none", color: "#a08060", fontSize: 20, cursor: "pointer", padding: 4, lineHeight: 1 }}>
+          style={{ background: "none", border: "none", color: color.tan, fontSize: 20, cursor: "pointer", padding: 4, lineHeight: 1 }}>
           ←
         </button>
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#f5ead8" }}>Settings</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: color.heading }}>Settings</div>
       </div>
 
       {/* Section tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid #4a3520" }}>
+      <div style={{ display: "flex", borderBottom: `1px solid ${color.lineStrong}` }}>
         {[["account", "Account"], ["privacy", "Privacy"], ["guide", "Guide"], ["help", "Help"]].map(([id, label]) => (
           <button key={id} onClick={() => setSection(id)}
-            style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${section === id ? "#d4b45a" : "transparent"}`, padding: "10px 0", color: section === id ? "#d4b45a" : "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS, fontWeight: section === id ? 700 : 400, textAlign: "center" }}>
+            style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${section === id ? color.goldLegacy : "transparent"}`, padding: "10px 0", color: section === id ? color.goldLegacy : color.dim, fontSize: 13, cursor: "pointer", fontFamily: SANS, fontWeight: section === id ? 700 : 400, textAlign: "center" }}>
             {label}
           </button>
         ))}
@@ -115,34 +114,34 @@ function Field({ label, value, onSave, type = "text", hint }) {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
       {editing ? (
         <div>
           <input
             type={type}
             value={val}
             onChange={e => setVal(e.target.value)}
-            style={{ width: "100%", background: "#2a1a0e", border: "1px solid #d4b45a", borderRadius: 8, padding: "10px 12px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.goldLegacy}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             autoFocus
           />
-          {hint && <div style={{ fontSize: 11, color: "#7a6048", marginTop: 4 }}>{hint}</div>}
-          {msg && <div style={{ fontSize: 12, color: msg.isError ? "#e8a07a" : "#7a9a7a", marginTop: 4 }}>{msg.text}</div>}
+          {hint && <div style={{ fontSize: 11, color: color.dim, marginTop: 4 }}>{hint}</div>}
+          {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 4 }}>{msg.text}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button onClick={handleSave} disabled={saving}
-              style={{ flex: 1, background: saving ? "#3a2510" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 8, padding: "9px 0", color: saving ? "#7a6048" : "#1a0f08", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: saving ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: saving ? color.dim : color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
               {saving ? "Saving..." : "Save"}
             </button>
             <button onClick={() => { setEditing(false); setVal(value || ""); }}
-              style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "9px 0", color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.dim, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px" }}>
-          <span style={{ fontSize: 14, color: value ? "#f5ead8" : "#5a4535" }}>{value || "Not set"}</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px" }}>
+          <span style={{ fontSize: 14, color: value ? color.heading : color.faint }}>{value || "Not set"}</span>
           <button onClick={() => setEditing(true)}
-            style={{ background: "none", border: "none", color: "#d4b45a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
             Edit
           </button>
         </div>
@@ -192,57 +191,57 @@ function AccountSection({ user, displayName, username, onSignOut }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
       <Field label="DISPLAY NAME" value={displayName} onSave={saveDisplayName} />
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
-        <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 14, color: "#5a4535" }}>{username ? `@${username}` : "Not set"}</span>
-          <span style={{ fontSize: 11, color: "#5a4535" }}>Cannot be changed</span>
+        <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
+        <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 14, color: color.faint }}>{username ? `@${username}` : "Not set"}</span>
+          <span style={{ fontSize: 11, color: color.faint }}>Cannot be changed</span>
         </div>
       </div>
       
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>SECURITY</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>SECURITY</div>
       <Field label="EMAIL ADDRESS" value={user?.email} onSave={saveEmail} hint="A confirmation will be sent to your current email address." />
 
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>PASSWORD</div>
-        <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 14, color: "#5a4535" }}>••••••••</span>
+        <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>PASSWORD</div>
+        <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 14, color: color.faint }}>••••••••</span>
           <button onClick={handlePasswordReset}
-            style={{ background: "none", border: "none", color: "#d4b45a", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
             Reset via Email
           </button>
         </div>
-        {msg && <div style={{ fontSize: 12, color: msg.isError ? "#e8a07a" : "#7a9a7a", marginTop: 6 }}>{msg.text}</div>}
+        {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 6 }}>{msg.text}</div>}
       </div>
 
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>ACCOUNT ACTIONS</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>ACCOUNT ACTIONS</div>
       <button onClick={onSignOut}
-        style={{ width: "100%", background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#a08060", fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+        style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
         Sign Out
       </button>
 
       {!confirmDelete ? (
         <button onClick={() => setConfirmDelete(true)}
-          style={{ width: "100%", background: "none", border: "1px solid #a0522d44", borderRadius: 10, padding: 14, color: "#a0522d", fontSize: 14, cursor: "pointer", fontFamily: SANS }}>
+          style={{ width: "100%", background: "none", border: `1px solid ${color.danger}44`, borderRadius: 10, padding: 14, color: color.danger, fontSize: 14, cursor: "pointer", fontFamily: SANS }}>
           Delete Account
         </button>
       ) : (
-        <div style={{ background: "#221508", border: "1px solid #a0522d44", borderRadius: 10, padding: 16 }}>
-          <div style={{ fontSize: 13, color: "#e8a07a", marginBottom: 12, lineHeight: 1.6 }}>
+        <div style={{ background: color.surface, border: `1px solid ${color.danger}44`, borderRadius: 10, padding: 16 }}>
+          <div style={{ fontSize: 13, color: color.dangerText, marginBottom: 12, lineHeight: 1.6 }}>
             This will permanently delete your account and all your data. Type <strong>DELETE</strong> to confirm.
           </div>
           <input value={deleteInput} onChange={e => setDeleteInput(e.target.value)}
             placeholder="Type DELETE"
-            style={{ width: "100%", background: "#1a0f08", border: "1px solid #a0522d", borderRadius: 8, padding: "10px 12px", color: "#f5ead8", fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }} />
+            style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }} />
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={handleDeleteAccount} disabled={deleteInput !== "DELETE"}
-              style={{ flex: 1, background: deleteInput === "DELETE" ? "#a0522d" : "#3a2510", border: "none", borderRadius: 8, padding: 10, color: deleteInput === "DELETE" ? "#f5ead8" : "#5a4535", fontSize: 13, fontWeight: 700, cursor: deleteInput === "DELETE" ? "pointer" : "default", fontFamily: SANS }}>
+              style={{ flex: 1, background: deleteInput === "DELETE" ? color.danger : color.line, border: "none", borderRadius: 8, padding: 10, color: deleteInput === "DELETE" ? color.heading : color.faint, fontSize: 13, fontWeight: 700, cursor: deleteInput === "DELETE" ? "pointer" : "default", fontFamily: SANS }}>
               Delete Forever
             </button>
             <button onClick={() => { setConfirmDelete(false); setDeleteInput(""); }}
-              style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: 10, color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: 10, color: color.dim, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
               Cancel
             </button>
           </div>
@@ -284,9 +283,9 @@ function PrivacySection({ user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>PRIVACY</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PRIVACY</div>
       {!loaded ? (
-        <div style={{ fontSize: 13, color: "#5a4535", textAlign: "center", padding: "20px 0" }}>Loading...</div>
+        <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>
       ) : (
         <>
           <Toggle
@@ -305,7 +304,7 @@ function PrivacySection({ user }) {
           />
         </>
       )}
-      <div style={{ fontSize: 12, color: "#5a4535", marginTop: 16, lineHeight: 1.6 }}>
+      <div style={{ fontSize: 12, color: color.faint, marginTop: 16, lineHeight: 1.6 }}>
         Individual check-in visibility can always be changed from your journal.
       </div>
     </div>
@@ -319,10 +318,10 @@ function GuideSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
 
       <Section id="vitolas" title="🎋 Vitola Size Chart" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
+        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
         <Row label="Petit Corona" value='4–4.5" × 40–42 ring' sub="~20–30 min" />
         <Row label="Corona" value='5.5" × 42 ring' sub="~30–45 min" />
         <Row label="Robusto" value='4.75–5.5" × 48–52 ring' sub="~45–60 min" />
@@ -333,23 +332,23 @@ function GuideSection() {
         <Row label="Gordo/60 Ring" value='6" × 60 ring' sub="~75–90 min, very full" />
         <Row label="Lancero/Panetela" value='7+" × 38–40 ring' sub="Slim, long — complex draw" />
         <Row label="Perfecto" value="Varies" sub="Tapered at both ends" />
-        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
+        <div style={{ fontSize: 11, color: color.faint, marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
       </Section>
 
       <Section id="strength" title="💪 Body & Strength Guide" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
+        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
         <Row label="Mild" value="Smooth, low nicotine" sub="Good for beginners" />
         <Row label="Mild-Medium" value="Easy draw with a bit more body" sub="Great step up from mild" />
         <Row label="Medium" value="Balanced flavor and nicotine" sub="Most popular range" />
         <Row label="Medium-Full" value="More complexity, noticeable nicotine" sub="For experienced smokers" />
         <Row label="Full" value="Bold, rich, strong nicotine hit" sub="Smoke after a meal" />
-        <div style={{ fontSize: 12, color: "#a08060", marginTop: 10, lineHeight: 1.6 }}>
+        <div style={{ fontSize: 12, color: color.tan, marginTop: 10, lineHeight: 1.6 }}>
           💡 A cigar can be full-bodied (complex flavor) but medium strength (low nicotine) — like a Padron 1964. Don't confuse the two.
         </div>
       </Section>
 
       <Section id="wrappers" title="🍂 Wrapper Types" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: "#7a6048", marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
+        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
         <Row label="Claro" value="Light tan, mild and creamy" />
         <Row label="Colorado Claro" value="Medium brown, balanced" />
         <Row label="Colorado" value="Reddish-brown, full flavor" />
@@ -358,7 +357,7 @@ function GuideSection() {
         <Row label="Oscuro" value="Almost black, strongest maduro" />
         <Row label="Natural" value="Light, slightly oily — Connecticut style" />
         <Row label="Candela" value="Green, very rare, grassy/sweet" />
-        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
+        <div style={{ fontSize: 11, color: color.faint, marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
       </Section>
 
       <Section id="origins" title="🌍 Origins Guide" openSection={openSection} onToggle={toggle}>
@@ -400,8 +399,8 @@ function GuideSection() {
             "Don't comment negatively on someone else's cigar choice — taste is personal.",
           ].map((tip, i) => (
             <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <span style={{ color: "#d4b45a", flexShrink: 0 }}>•</span>
-              <span style={{ fontSize: 13, color: "#a08060", lineHeight: 1.5 }}>{tip}</span>
+              <span style={{ color: color.goldLegacy, flexShrink: 0 }}>•</span>
+              <span style={{ fontSize: 13, color: color.tan, lineHeight: 1.5 }}>{tip}</span>
             </div>
           ))}
         </div>
@@ -456,15 +455,15 @@ function HelpSection({ onReplayTour, user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>REPORT A BUG / GIVE FEEDBACK</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>REPORT A BUG / GIVE FEEDBACK</div>
 
       {submitted ? (
-        <div style={{ background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
+        <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
-          <div style={{ fontSize: 14, color: "#7a9a7a", fontWeight: 700, marginBottom: 4 }}>Thanks for the report!</div>
-          <div style={{ fontSize: 12, color: "#5a4535" }}>We'll look into it and follow up if needed.</div>
+          <div style={{ fontSize: 14, color: color.green, fontWeight: 700, marginBottom: 4 }}>Thanks for the report!</div>
+          <div style={{ fontSize: 12, color: color.faint }}>We'll look into it and follow up if needed.</div>
           <button onClick={() => setSubmitted(false)}
-            style={{ marginTop: 14, background: "none", border: "1px solid #4a3520", borderRadius: 8, padding: "8px 16px", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ marginTop: 14, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 16px", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
             Submit Another
           </button>
         </div>
@@ -474,13 +473,13 @@ function HelpSection({ onReplayTour, user }) {
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
             {[["bug", "🐛 Bug Report"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
               <button key={val} onClick={() => setType(val)}
-                style={{ flex: 1, background: type === val ? "#d4b45a22" : "none", border: `1px solid ${type === val ? "#d4b45a" : "#4a3520"}`, borderRadius: 8, padding: "10px 0", color: type === val ? "#d4b45a" : "#7a6048", fontSize: 13, fontWeight: type === val ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: type === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${type === val ? color.goldLegacy : color.lineStrong}`, borderRadius: 8, padding: "10px 0", color: type === val ? color.goldLegacy : color.dim, fontSize: 13, fontWeight: type === val ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
                 {label}
               </button>
             ))}
           </div>
 
-          <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 6 }}>
+          <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 6 }}>
             {type === "bug" ? "DESCRIBE THE BUG — WHAT HAPPENED?" : "WHAT'S ON YOUR MIND?"}
           </div>
           <textarea
@@ -490,75 +489,75 @@ function HelpSection({ onReplayTour, user }) {
               ? "e.g. When I tap the fire button on a check-in, the count doesn't update..."
               : "e.g. It would be great if I could filter my journal by brand..."}
             rows={5}
-            style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", color: "#f5ead8", fontSize: 13, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
+            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 13, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
           />
-          {error && <div style={{ fontSize: 12, color: "#e8a07a", marginBottom: 8 }}>{error}</div>}
-          <div style={{ fontSize: 11, color: "#5a4535", marginBottom: 12 }}>
+          {error && <div style={{ fontSize: 12, color: color.dangerText, marginBottom: 8 }}>{error}</div>}
+          <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
             {type === "bug" ? "Your session replay will be attached so we can see exactly what happened." : "Your feedback helps us build a better app."}
           </div>
           <button onClick={handleSubmit} disabled={submitting || !description.trim()}
-            style={{ width: "100%", background: description.trim() ? "linear-gradient(135deg, #d4b45a, #a07830)" : "#2a1a0e", border: "none", borderRadius: 10, padding: 14, color: description.trim() ? "#1a0f08" : "#5a4535", fontSize: 14, fontWeight: 700, cursor: description.trim() ? "pointer" : "default", fontFamily: SANS }}>
+            style={{ width: "100%", background: description.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 10, padding: 14, color: description.trim() ? color.bg : color.faint, fontSize: 14, fontWeight: 700, cursor: description.trim() ? "pointer" : "default", fontFamily: SANS }}>
             {submitting ? "Submitting..." : "Submit"}
           </button>
         </>
       )}
 
-      <div style={{ height: 1, background: "#3a2510", margin: "24px 0" }} />
+      <div style={{ height: 1, background: color.line, margin: "24px 0" }} />
 
       {/* Past feedback with replies */}
       {pastFeedback.length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 12 }}>YOUR PREVIOUS SUBMISSIONS</div>
+          <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 12 }}>YOUR PREVIOUS SUBMISSIONS</div>
           {pastFeedback.map(item => (
-            <div key={item.id} style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+            <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: item.type === "bug" ? "#e8a07a" : "#7a9a7a" }}>
+                <span style={{ fontSize: 11, color: item.type === "bug" ? color.dangerText : color.green }}>
                   {item.type === "bug" ? "🐛 Bug Report" : "💡 Feedback"}
                 </span>
-                <span style={{ fontSize: 10, color: "#5a4535", marginLeft: "auto" }}>
+                <span style={{ fontSize: 10, color: color.faint, marginLeft: "auto" }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "#a08060", lineHeight: 1.5, marginBottom: item.reply_text ? 8 : 0 }}>
+              <div style={{ fontSize: 12, color: color.tan, lineHeight: 1.5, marginBottom: item.reply_text ? 8 : 0 }}>
                 {item.description}
               </div>
               {item.reply_text && (
-                <div style={{ background: "#2a1a0e", border: "1px solid #7a9a7a33", borderRadius: 8, padding: "8px 10px", marginTop: 8 }}>
-                  <div style={{ fontSize: 10, color: "#7a9a7a", letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
-                  <div style={{ fontSize: 12, color: "#ddc9a8", lineHeight: 1.5 }}>{item.reply_text}</div>
+                <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px", marginTop: 8 }}>
+                  <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
+                  <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
                 </div>
               )}
             </div>
           ))}
-          <div style={{ height: 1, background: "#3a2510", margin: "16px 0" }} />
+          <div style={{ height: 1, background: color.line, margin: "16px 0" }} />
         </div>
       )}
 
-      <div style={{ fontSize: 11, color: "#7a6048", letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
+      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
 
       <button onClick={onReplayTour}
-        style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#d4b45a", fontSize: 14, cursor: "pointer", fontFamily: SANS, textAlign: "left", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
+        style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.goldLegacy, fontSize: 14, cursor: "pointer", fontFamily: SANS, textAlign: "left", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
         <span>🎯</span> Replay Onboarding Tour
       </button>
 
       <a href="mailto:support@ashed.app"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#a08060", fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
+        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
         <span>✉️</span> Contact Support
       </a>
 
       <a href="https://ashed.app/privacy" target="_blank" rel="noreferrer"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#a08060", fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
+        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
         <span>🔒</span> Privacy Policy
       </a>
 
       <a href="https://ashed.app/terms" target="_blank" rel="noreferrer"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 10, padding: 14, color: "#a08060", fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
+        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
         <span>📄</span> Terms of Service
       </a>
 
       <div style={{ marginTop: 24, textAlign: "center" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#d4b45a", letterSpacing: 2 }}>ASHED</div>
-        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: color.goldLegacy, letterSpacing: 2 }}>ASHED</div>
+        <div style={{ fontSize: 11, color: color.faint, marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
       </div>
     </div>
   );

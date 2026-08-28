@@ -1,12 +1,11 @@
 import { useState } from "react";
-
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+import { SANS, color } from "./theme";
 
 const CigarIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="24" width="40" height="8" rx="4" fill="#a07830"/>
-    <rect x="4" y="25" width="40" height="3" rx="2" fill="#c9a84c" opacity="0.5"/>
-    <rect x="40" y="22" width="10" height="12" rx="2" fill="#d4b45a"/>
+    <rect x="4" y="24" width="40" height="8" rx="4" fill={color.goldDeep}/>
+    <rect x="4" y="25" width="40" height="3" rx="2" fill={color.gold} opacity="0.5"/>
+    <rect x="40" y="22" width="10" height="12" rx="2" fill={color.goldLegacy}/>
     <rect x="40" y="23" width="10" height="4" rx="1" fill="#f0cc6a" opacity="0.6"/>
     <path d="M44 22 Q46 16 48 14" stroke="#8a8a8a" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
     <path d="M46 20 Q49 13 50 11" stroke="#aaaaaa" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.6"/>
@@ -15,61 +14,61 @@ const CigarIcon = () => (
 
 const FeedIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="6" y="8" width="44" height="14" rx="3" fill="#2a1a0e" stroke="#c9a84c" strokeWidth="1"/>
-    <rect x="10" y="12" width="8" height="6" rx="2" fill="#c9a84c" opacity="0.8"/>
-    <rect x="22" y="12" width="16" height="2" rx="1" fill="#a08060"/>
-    <rect x="22" y="16" width="10" height="2" rx="1" fill="#7a6048"/>
-    <rect x="36" y="13" width="8" height="4" rx="1" fill="#3a2510"/>
-    <rect x="38" y="14" width="4" height="2" rx="0.5" fill="#e8632a" opacity="0.7"/>
-    <rect x="6" y="26" width="44" height="14" rx="3" fill="#2a1a0e" stroke="#4a3520" strokeWidth="1"/>
-    <rect x="10" y="30" width="8" height="6" rx="2" fill="#7a9a7a" opacity="0.8"/>
-    <rect x="22" y="30" width="16" height="2" rx="1" fill="#a08060"/>
-    <rect x="22" y="34" width="10" height="2" rx="1" fill="#7a6048"/>
-    <rect x="36" y="31" width="8" height="4" rx="1" fill="#3a2510"/>
-    <rect x="38" y="32" width="4" height="2" rx="0.5" fill="#5a4535" opacity="0.7"/>
-    <rect x="6" y="44" width="44" height="6" rx="3" fill="#221508" stroke="#3a2510" strokeWidth="1" opacity="0.6"/>
+    <rect x="6" y="8" width="44" height="14" rx="3" fill={color.surfaceRaised} stroke={color.gold} strokeWidth="1"/>
+    <rect x="10" y="12" width="8" height="6" rx="2" fill={color.gold} opacity="0.8"/>
+    <rect x="22" y="12" width="16" height="2" rx="1" fill={color.tan}/>
+    <rect x="22" y="16" width="10" height="2" rx="1" fill={color.dim}/>
+    <rect x="36" y="13" width="8" height="4" rx="1" fill={color.line}/>
+    <rect x="38" y="14" width="4" height="2" rx="0.5" fill={color.alert} opacity="0.7"/>
+    <rect x="6" y="26" width="44" height="14" rx="3" fill={color.surfaceRaised} stroke={color.lineStrong} strokeWidth="1"/>
+    <rect x="10" y="30" width="8" height="6" rx="2" fill={color.green} opacity="0.8"/>
+    <rect x="22" y="30" width="16" height="2" rx="1" fill={color.tan}/>
+    <rect x="22" y="34" width="10" height="2" rx="1" fill={color.dim}/>
+    <rect x="36" y="31" width="8" height="4" rx="1" fill={color.line}/>
+    <rect x="38" y="32" width="4" height="2" rx="0.5" fill={color.faint} opacity="0.7"/>
+    <rect x="6" y="44" width="44" height="6" rx="3" fill={color.surface} stroke={color.line} strokeWidth="1" opacity="0.6"/>
   </svg>
 );
 
 const HumidorIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="6" y="18" width="44" height="28" rx="3" fill="#7a4a20"/>
-    <rect x="6" y="18" width="44" height="4" rx="2" fill="#a07830"/>
+    <rect x="6" y="18" width="44" height="28" rx="3" fill={color.cedar}/>
+    <rect x="6" y="18" width="44" height="4" rx="2" fill={color.goldDeep}/>
     <rect x="6" y="14" width="44" height="6" rx="2" fill="#8a5a28"/>
-    <rect x="6" y="15" width="44" height="2" rx="1" fill="#c9a84c" opacity="0.4"/>
+    <rect x="6" y="15" width="44" height="2" rx="1" fill={color.gold} opacity="0.4"/>
     <rect x="10" y="26" width="36" height="3" rx="1" fill="#6a3a18" opacity="0.8"/>
     <rect x="10" y="32" width="36" height="3" rx="1" fill="#6a3a18" opacity="0.8"/>
     <rect x="10" y="38" width="36" height="3" rx="1" fill="#6a3a18" opacity="0.8"/>
-    <rect x="24" y="19" width="8" height="3" rx="1" fill="#d4b45a"/>
-    <circle cx="28" cy="20.5" r="1.5" fill="#a07830"/>
+    <rect x="24" y="19" width="8" height="3" rx="1" fill={color.goldLegacy}/>
+    <circle cx="28" cy="20.5" r="1.5" fill={color.goldDeep}/>
   </svg>
 );
 
 const WishlistIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="10" y="8" width="36" height="42" rx="3" fill="#2a1a0e" stroke="#4a3520" strokeWidth="1"/>
-    <rect x="10" y="8" width="36" height="6" rx="3" fill="#c9a84c"/>
-    <circle cx="28" cy="11" r="2" fill="#a07830"/>
-    <rect x="16" y="20" width="4" height="4" rx="1" fill="#c9a84c" opacity="0.8"/>
-    <rect x="24" y="21" width="16" height="2" rx="1" fill="#a08060"/>
-    <rect x="16" y="30" width="4" height="4" rx="1" fill="#c9a84c" opacity="0.8"/>
-    <rect x="24" y="31" width="16" height="2" rx="1" fill="#a08060"/>
-    <rect x="16" y="40" width="4" height="4" rx="1" fill="#5a4535" opacity="0.5"/>
-    <rect x="24" y="41" width="12" height="2" rx="1" fill="#5a4535" opacity="0.5"/>
+    <rect x="10" y="8" width="36" height="42" rx="3" fill={color.surfaceRaised} stroke={color.lineStrong} strokeWidth="1"/>
+    <rect x="10" y="8" width="36" height="6" rx="3" fill={color.gold}/>
+    <circle cx="28" cy="11" r="2" fill={color.goldDeep}/>
+    <rect x="16" y="20" width="4" height="4" rx="1" fill={color.gold} opacity="0.8"/>
+    <rect x="24" y="21" width="16" height="2" rx="1" fill={color.tan}/>
+    <rect x="16" y="30" width="4" height="4" rx="1" fill={color.gold} opacity="0.8"/>
+    <rect x="24" y="31" width="16" height="2" rx="1" fill={color.tan}/>
+    <rect x="16" y="40" width="4" height="4" rx="1" fill={color.faint} opacity="0.5"/>
+    <rect x="24" y="41" width="12" height="2" rx="1" fill={color.faint} opacity="0.5"/>
   </svg>
 );
 
 const VenueIcon = () => (
   <svg width="56" height="56" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="9" width="18" height="13" rx="1" fill="#d4b45a"/>
-    <polygon points="1,9 23,9 21,5 3,5" fill="#d4b45a"/>
-    <line x1="7" y1="5" x2="6" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="11" y1="5" x2="10" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="15" y1="5" x2="14" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <line x1="19" y1="5" x2="18" y2="9" stroke="#a07830" strokeWidth="0.8"/>
-    <rect x="9" y="15" width="6" height="7" rx="0.5" fill="#1a0f08"/>
-    <rect x="3" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
-    <rect x="17" y="11" width="4" height="3" rx="0.5" fill="#1a0f08"/>
+    <rect x="3" y="9" width="18" height="13" rx="1" fill={color.goldLegacy}/>
+    <polygon points="1,9 23,9 21,5 3,5" fill={color.goldLegacy}/>
+    <line x1="7" y1="5" x2="6" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="11" y1="5" x2="10" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="15" y1="5" x2="14" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <line x1="19" y1="5" x2="18" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
+    <rect x="9" y="15" width="6" height="7" rx="0.5" fill={color.bg}/>
+    <rect x="3" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
+    <rect x="17" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
   </svg>
 );
 
@@ -153,17 +152,17 @@ export default function OnboardingTour({ onComplete }) {
   const IconComponent = screen.Icon;
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#1a0f08", zIndex: 700, display: "flex", flexDirection: "column", fontFamily: SANS }}>
+    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 700, display: "flex", flexDirection: "column", fontFamily: SANS }}>
       <div style={{ padding: "16px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 11, color: "#a08060", letterSpacing: 2 }}>ASHED TOUR</div>
+        <div style={{ fontSize: 11, color: color.tan, letterSpacing: 2 }}>ASHED TOUR</div>
         <button onClick={onComplete}
-          style={{ background: "none", border: "none", color: "#7a6048", fontSize: 12, cursor: "pointer", fontFamily: SANS, padding: "4px 8px" }}>
+          style={{ background: "none", border: "none", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS, padding: "4px 8px" }}>
           Skip Tour
         </button>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: 6, padding: "12px 20px" }}>
         {SCREENS.map((_, i) => (
-          <div key={i} style={{ width: i === step ? 20 : 6, height: 6, borderRadius: 3, background: i === step ? "#d4b45a" : i < step ? "#7a6048" : "#3a2510", transition: "all 0.2s" }} />
+          <div key={i} style={{ width: i === step ? 20 : 6, height: 6, borderRadius: 3, background: i === step ? color.goldLegacy : i < step ? color.dim : color.line, transition: "all 0.2s" }} />
         ))}
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 28px 0" }}>
@@ -172,18 +171,18 @@ export default function OnboardingTour({ onComplete }) {
             {IconComponent ? <IconComponent /> : <span style={{ fontSize: 56 }}>{screen.icon}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "#f5ead8" }}>{screen.title}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: color.heading }}>{screen.title}</div>
             {screen.pro && (
-              <span style={{ fontSize: 10, background: "#d4b45a22", border: "1px solid #d4b45a55", borderRadius: 8, padding: "2px 8px", color: "#d4b45a", fontWeight: 700 }}>PRO</span>
+              <span style={{ fontSize: 10, background: `${color.goldLegacy}22`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "2px 8px", color: color.goldLegacy, fontWeight: 700 }}>PRO</span>
             )}
           </div>
-          <div style={{ fontSize: 14, color: "#a08060", lineHeight: 1.7 }}>{screen.description}</div>
+          <div style={{ fontSize: 14, color: color.tan, lineHeight: 1.7 }}>{screen.description}</div>
         </div>
-        <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: "16px 18px", marginBottom: 28 }}>
+        <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: "16px 18px", marginBottom: 28 }}>
           {screen.features.map((f, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < screen.features.length - 1 ? 10 : 0 }}>
-              <span style={{ color: "#d4b45a", fontSize: 14, flexShrink: 0 }}>✓</span>
-              <span style={{ fontSize: 13, color: "#ddc9a8" }}>{f}</span>
+              <span style={{ color: color.goldLegacy, fontSize: 14, flexShrink: 0 }}>✓</span>
+              <span style={{ fontSize: 13, color: color.soft }}>{f}</span>
             </div>
           ))}
         </div>
@@ -191,12 +190,12 @@ export default function OnboardingTour({ onComplete }) {
       <div style={{ padding: "12px 28px 36px", display: "flex", gap: 10 }}>
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)}
-            style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 12, padding: 14, color: "#7a6048", fontSize: 14, cursor: "pointer", fontFamily: SANS }}>
+            style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 14, color: color.dim, fontSize: 14, cursor: "pointer", fontFamily: SANS }}>
             Back
           </button>
         )}
         <button onClick={() => isLast ? onComplete() : setStep(s => s + 1)}
-          style={{ flex: 2, background: "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 12, padding: 14, color: "#1a0f08", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           {isLast ? "Start Smoking 🔥" : "Next"}
         </button>
       </div>

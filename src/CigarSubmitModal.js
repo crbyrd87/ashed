@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { SANS, color } from "./theme";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort } from "./sanitize";
 
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 const STRENGTHS = ["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"];
 
 export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
@@ -93,9 +93,9 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
-      <div style={{ background: "#1a0f08", border: "1px solid #4a3520", borderRadius: 16, padding: 24, maxWidth: 380, width: "100%" }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#f5ead8", marginBottom: 4 }}>Can't Find Your Cigar?</div>
-        <div style={{ fontSize: 12, color: "#7a6048", marginBottom: 20, lineHeight: 1.5 }}>
+      <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 16, padding: 24, maxWidth: 380, width: "100%" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: color.heading, marginBottom: 4 }}>Can't Find Your Cigar?</div>
+        <div style={{ fontSize: 12, color: color.dim, marginBottom: 20, lineHeight: 1.5 }}>
           Submit it and you can log it right away. Our team will review and verify it.
         </div>
 
@@ -105,43 +105,43 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
           { label: "VITOLA", field: "vitola", placeholder: "e.g. Robusto, Toro, Churchill" },
         ].map(({ label, field, placeholder }) => (
           <div key={field} style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
             <input
               value={form[field]}
               onChange={e => set(field, e.target.value)}
               placeholder={placeholder}
-              style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", color: "#f5ead8", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             />
           </div>
         ))}
 
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: "#7a6048", letterSpacing: 1, marginBottom: 4 }}>STRENGTH (optional)</div>
+          <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>STRENGTH (optional)</div>
           <select value={form.strength} onChange={e => set("strength", e.target.value)}
-            style={{ width: "100%", background: "#221508", border: "1px solid #4a3520", borderRadius: 8, padding: "10px 12px", color: form.strength ? "#f5ead8" : "#5a4535", fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: form.strength ? color.heading : color.faint, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
             <option value="">Select strength...</option>
             {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
 
         {error && (
-          <div style={{ background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 12, color: "#e8a07a", lineHeight: 1.5 }}>
+          <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 12, color: color.dangerText, lineHeight: 1.5 }}>
             {error}
           </div>
         )}
 
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={handleSubmit} disabled={verifying}
-            style={{ flex: 2, background: verifying ? "#2a1a0e" : "linear-gradient(135deg, #d4b45a, #a07830)", border: "none", borderRadius: 10, padding: 13, color: verifying ? "#5a4535" : "#1a0f08", fontSize: 14, fontWeight: 700, cursor: verifying ? "default" : "pointer", fontFamily: SANS }}>
+            style={{ flex: 2, background: verifying ? color.surfaceRaised : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 13, color: verifying ? color.faint : color.bg, fontSize: 14, fontWeight: 700, cursor: verifying ? "default" : "pointer", fontFamily: SANS }}>
             {verifying ? "Verifying..." : "Submit Cigar"}
           </button>
           <button onClick={onClose}
-            style={{ flex: 1, background: "none", border: "1px solid #4a3520", borderRadius: 10, padding: 13, color: "#7a6048", fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
+            style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 13, color: color.dim, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
             Cancel
           </button>
         </div>
 
-        <div style={{ fontSize: 11, color: "#5a4535", marginTop: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 11, color: color.faint, marginTop: 12, textAlign: "center" }}>
           You can log this cigar right away while we verify it.
         </div>
       </div>
