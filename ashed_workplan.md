@@ -238,7 +238,7 @@ These sessions touch every file in the app. Do not combine them with anything.
 
 ---
 
-### ☐ Session 10 — Shared components
+### ◐ Session 10 — Shared components — PART DONE 29 Aug 2026
 
 - Finding: rec `3`
 - Extract into `src/ui/`: `Button`, `Sheet`, `Pill`/`Badge`, `Toggle`, `Toast`,
@@ -252,13 +252,31 @@ These sessions touch every file in the app. Do not combine them with anything.
 
 **Verify:** every screen still opens and closes correctly.
 
+**Progress, 29 Aug 2026.** `src/ui/` now holds Sheet, Screen, CloseButton,
+SectionLabel, EmptyState, Toggle, Notice, Pill, Button, Pressable and
+ClickableRow. Migrated: all four modals and Pairings onto Sheet;
+Notifications, Recommendations, CheckIn, Friends, FriendProfile, BandScanner
+and both dashboards onto Screen; six close buttons; both toggles.
+
+Still on their own overlay markup: App.js (five), Humidor (two),
+OnboardingTour and Settings. The last two use a flex-column layout Screen
+does not yet model. All are nested inside conditional blocks with no
+unambiguous closing-tag anchor, so each needs an individually located edit.
+
+Not started: SectionLabel (73 call sites), EmptyState, Pill, Notice and
+Button have no call sites migrated yet.
+
 **STOP between batches.**
 
 ---
 
-### ☐ Session 11 — Type and contrast
+### ☐ Session 11 — Type and contrast — DEFERRED 29 Aug 2026
 
 - Findings: recs `5`, `6`, `8`, `9`, `17`, `29`
+- **Deferred by the owner on 29 Aug 2026**, pending the design direction
+  recorded below. Claude Design is likely to settle the type scale, the muted
+  colour ramp and the section-label treatment, so doing it first would be
+  work done twice. Session 12 depends on part of it — see the note there.
 - **Order matters.** Do `6`, `17` and `29` first — thin the Feed row — then apply
   the 13px floor. The Feed row carries 13 elements in ~70px; raising type first
   will break it.
@@ -274,7 +292,7 @@ These sessions touch every file in the app. Do not combine them with anything.
 
 ---
 
-### ☐ Session 12 — Tap targets and real buttons
+### ◐ Session 12 — Tap targets and real buttons — PART DONE 29 Aug 2026
 
 - Findings: recs `10`, `11`, `12`, `63`, and `9-D`
 - **Build to 48px, not 44.** One value satisfies both Apple and Android.
@@ -282,6 +300,20 @@ These sessions touch every file in the app. Do not combine them with anything.
   Venues, CheckIn, Feed, Notifications and App.js. Add `aria-label` to icon-only
   controls.
 - This is also the prerequisite for Android's back button working later.
+
+**Progress, 29 Aug 2026.** Converted: the Feed, Venues and Notifications
+rows to ClickableRow; the Badges category header, Humidor's vitola picker
+and add-search results, and CheckIn's venue results to Pressable. The six
+panel close buttons gained 48px hit areas and labels in Session 10.
+
+About 14 clickable divs remain, mostly in App.js and AdminConsole. A further
+8 are overlay scrims, which should stay divs — they are dismiss surfaces,
+not controls, and will disappear as those overlays move onto Sheet.
+
+**Blocked on Session 11.** The Feed row's inline fire and comment buttons are
+about 23px tall and cannot be raised to 48 until the row is thinned, exactly
+as the ordering note in Session 11 warns. Raising them now would break the
+row. The same applies anywhere else a control sits inside a dense row.
 
 **Verify:** every control still works, and is reachable by keyboard.
 
