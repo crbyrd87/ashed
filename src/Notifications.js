@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { ClickableRow, Screen } from "./ui";
+import { ClickableRow, Icon, Screen } from "./ui";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
 
 const TYPE_META = {
-  fire:             { icon: "👍", label: "liked your check-in" },
-  comment:          { icon: "💬", label: "commented on your check-in" },
-  badge:            { icon: "🏅", label: "You earned a badge" },
-  friend_accepted:  { icon: "🤝", label: "accepted your friend request" },
-  feedback_reply:   { icon: "💬", label: "replied to your feedback" },
+  fire:             { Icon: Icon.Flame,   label: "liked your check-in" },
+  comment:          { Icon: Icon.Feed,    label: "commented on your check-in" },
+  badge:            { Icon: Icon.Check,   label: "You earned a badge" },
+  friend_accepted:  { Icon: Icon.Friends, label: "accepted your friend request" },
+  feedback_reply:   { Icon: Icon.Feed,    label: "replied to your feedback" },
 };
 
 function timeAgo(dateStr) {
@@ -171,7 +171,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
 
       {!loading && notifications.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px", fontFamily: SANS }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>🔔</div>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Bell size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>
             No notifications yet
           </div>
@@ -182,7 +182,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
       )}
 
       {!loading && notifications.map((n) => {
-        const meta = TYPE_META[n.type] || { icon: "🔔", label: "" };
+        const meta = TYPE_META[n.type] || { Icon: Icon.Bell, label: "" };
         const isBadge = n.type === "badge";
         const actorName = n.actor?.username
           ? `@${n.actor.username}`
@@ -215,7 +215,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
             onClick={() => tappable && handleTap(n)}
           >
             <div style={s.avatar(isBadge)}>
-              {meta.icon}
+              <meta.Icon size={17} color={isBadge ? color.gold : color.textMuted} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: color.text, lineHeight: 1.4 }}>

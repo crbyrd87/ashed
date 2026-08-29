@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Pressable } from "./ui";
+import { Icon, Pressable } from "./ui";
 import { fetchUserBadges } from "./badgeEngine";
 
 const CATEGORY_LABELS = {
@@ -40,7 +40,7 @@ export default function Badges({ userId }) {
 
   if (total === 0) return (
     <div style={{ background: color.bg, border: `1px solid ${color.surfaceRaised}`, borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
-      <div style={{ fontSize: 24, marginBottom: 8, filter: "grayscale(1)" }}>🏅</div>
+      <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><Icon.Check size={24} color={color.borderStrong} /></div>
       <div style={{ fontSize: type.xs, color: color.muted, lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
     </div>
   );
@@ -125,7 +125,7 @@ export default function Badges({ userId }) {
                       </div>
                     )}
                     {!badge.earned && (
-                      <div style={{ fontSize: type.xs, color: color.muted, marginTop: 6 }}>🔒 Locked</div>
+                      <div style={{ fontSize: type.xs, color: color.textMuted, marginTop: 6 }}>Locked</div>
                     )}
                   </div>
                 ))}

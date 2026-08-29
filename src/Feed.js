@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame, font, type, weight } from "./theme";
-import { ClickableRow } from "./ui";
+import { ClickableRow, Icon } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
 import FeedModal from "./FeedModal";
@@ -145,7 +145,7 @@ export default function Feed({ user }) {
 
   if (feedItems.length === 0) return (
     <div style={{ textAlign: "center", padding: "40px 20px", fontFamily: SANS }}>
-      <div style={{ fontSize: 32, marginBottom: 12 }}>🔥</div>
+      <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Flame size={32} filled={false} color={color.borderStrong} /></div>
       <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>Your feed is empty</div>
       <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>Add friends to see their smokes here. Community activity will show up too as people check in.</div>
     </div>
@@ -235,13 +235,13 @@ export default function Feed({ user }) {
                       disabled={isOwn}
                       style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "3px 10px", color: fired ? color.green : isOwn ? color.line : color.muted, fontSize: type.xs, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
                     >
-                      👍 {fireCount}
+                      <Icon.Flame size={15} filled={fired} color={fired ? color.positive : color.textMuted} /> {fireCount}
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
                       style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "3px 10px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                     >
-                      💬
+                      <Icon.Feed size={15} color={color.textMuted} />
                     </button>
                   </div>
                 </div>

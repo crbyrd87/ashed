@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
-import { Sheet } from "./ui";
+import { Icon, Sheet } from "./ui";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { formatSmokeDate } from "./dateUtils";
@@ -147,7 +147,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                 {smokeDate}
               </div>
               {checkin.smoke_location && (
-                <div style={{ fontSize: type.xs, color: color.faint, marginTop: 3 }}>📍 {checkin.smoke_location}</div>
+                <div style={{ fontSize: type.xs, color: color.textFaint, marginTop: 3, display: "flex", alignItems: "center", gap: 4 }}><Icon.Venue size={13} color={color.textFaint} /> {checkin.smoke_location}</div>
               )}
             </div>
             {/* Like + Wishlist buttons */}
@@ -157,7 +157,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                 disabled={isOwnCheckin}
                 style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "5px 12px", color: fired ? color.green : isOwnCheckin ? color.line : color.muted, fontSize: 13, cursor: isOwnCheckin ? "default" : "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
               >
-                👍 {fireCount}
+                <Icon.Flame size={17} filled={fired} color={fired ? color.positive : color.textMuted} /> {fireCount}
               </button>
               {!isOwnCheckin && checkin.cigar_id && (
                 <button
