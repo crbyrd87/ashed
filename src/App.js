@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
+import { Icon } from "./ui";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
 import { FLAVOR_TAG_NAMES } from "./flavors";
@@ -898,7 +899,7 @@ export default function App() {
           <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${color.bg}44 0%, ${color.bg} 100%)` }} />
           <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: `${color.bg}bb`, border: `1px solid ${color.lineStrong}`, color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
-          {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: `${color.goldLegacy}dd`, color: color.bg, fontSize: type.xs, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
+          {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: `${color.goldLegacy}dd`, color: color.bg, fontSize: type.xs, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>SMOKED</div>}
           {/* Brand + Line overlapping image at bottom */}
           <div style={{ position: "absolute", bottom: 12, left: 20, right: 20 }}>
             <div style={{ fontSize: type.xs, color: `${color.soft}99`, letterSpacing: 2, textTransform: "uppercase" }}>{c.brand}</div>
@@ -982,7 +983,7 @@ export default function App() {
                 style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.partner}44`, borderRadius: 10, padding: "10px 16px", color: color.partner, fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}
               >
                 <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 16 }}>🥃</span>
+                  <Icon.Drink size={16} color={color.textMuted} />
                   <span style={{ fontWeight: 600 }}>Drink Pairings</span>
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1012,7 +1013,7 @@ export default function App() {
                         onClick={() => setCheckingIn(v)}
                         style={{ background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 22px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                       >
-                        Log this Smoke 🚬
+                        Log this smoke
                       </button>
                     </div>
                     {/* Wishlist + Humidor per vitola */}
@@ -1021,13 +1022,13 @@ export default function App() {
                         onClick={() => handleAddToWishlist(v)}
                         style={{ flex: 1, background: isOnWishlist(v) ? `${color.goldLegacy}22` : "none", border: `1px solid ${isOnWishlist(v) ? color.goldLegacy : color.tan}`, borderRadius: 8, padding: "6px 0", color: isOnWishlist(v) ? color.goldLegacy : color.soft, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                       >
-                        {isOnWishlist(v) ? "✓ Wishlisted" : "+ Wishlist"}
+                        {isOnWishlist(v) ? "Wishlisted" : "+ Wishlist"}
                       </button>
                       <button
                         onClick={() => handleAddToHumidor(v)}
                         style={{ flex: 1, background: isInHumidor(v) ? `${color.green}22` : "none", border: `1px solid ${isInHumidor(v) ? color.green : color.tan}`, borderRadius: 8, padding: "6px 0", color: isInHumidor(v) ? color.green : color.soft, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                       >
-                        {isInHumidor(v) ? "✓ In Humidor" : "+ Humidor"}
+                        {isInHumidor(v) ? "In humidor" : "+ Humidor"}
                       </button>
                     </div>
                   </div>
@@ -1056,20 +1057,20 @@ export default function App() {
                   onClick={() => { if (isPremium) { setPairingsCigar(c); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
                   style={{ width: "100%", background: "none", border: `1px solid ${color.partner}55`, borderRadius: 10, padding: 12, color: color.partner, fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  🥃 Drink Pairings {!isPremium && <span style={{ fontSize: type.xs, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                  Drink pairings {!isPremium && <span style={{ fontSize: type.xs, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
                 </button>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => handleAddToWishlist(c)}
                     style={{ flex: 1, background: isOnWishlist(c) ? `${color.goldLegacy}22` : "none", border: `1px solid ${isOnWishlist(c) ? color.goldLegacy : color.lineStrong}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
                   >
-                    {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
+                    {isOnWishlist(c) ? "Wishlisted" : "+ Wishlist"}
                   </button>
                   <button
                     onClick={() => handleAddToHumidor(c)}
                     style={{ flex: 1, background: isInHumidor(c) ? `${color.green}22` : "none", border: `1px solid ${isInHumidor(c) ? color.green : color.lineStrong}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? color.green : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                   >
-                    {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
+                    {isInHumidor(c) ? "In humidor" : "+ Humidor"}
                   </button>
                 </div>
               </div>
@@ -1104,14 +1105,14 @@ export default function App() {
       <div style={s.header}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 22 }}>🔥</span>
+            <Icon.Flame size={22} />
             <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
           </div>
           <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 3, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
         <button onClick={() => setShowSettings(true)}
           style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.tan, fontSize: 20, cursor: "pointer", fontFamily: SANS }}>
-          ⚙️
+          <Icon.Settings size={17} color={color.textMuted} />
         </button>
       </div>
 
@@ -1170,13 +1171,13 @@ export default function App() {
                   onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
                   style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  📷 Scan a Band {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                  Scan a band {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
                 </button>
                 <button
                   onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
                   style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  ✨ Recommendation {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                  Recommendation {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
                 </button>
               </div>
             </div>
@@ -1197,7 +1198,7 @@ export default function App() {
               in it wrapped. Nothing competes with the name here now.
               Row 2 carries the badges and the two quick actions. */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 0 12px" }}>
-            <div style={{ width: 64, height: 64, flex: "0 0 64px", borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.cedar})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
+            <div style={{ width: 64, height: 64, flex: "0 0 64px", borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.cedar})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}><Icon.Friends size={28} color={color.bg} /></div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: color.heading }}>{displayName}</div>
               <div style={{ fontSize: type.xs, color: color.tan }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
@@ -1207,15 +1208,15 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, paddingBottom: 16, borderBottom: `1px solid ${color.lineStrong}` }}>
             <div style={{ flex: 1, minWidth: 0, display: "flex", gap: 6, flexWrap: "wrap" }}>
               {earnedBadges.slice(0, 1).map(b => (
-                <Badge key={b.key} label={`${b.icon || "🏅"} ${b.name}`} color={color.goldLegacy} />
+                <Badge key={b.key} label={b.name} color={color.goldLegacy} />
               ))}
-              {isPremium && <Badge label="⭐ Premium" color={color.goldPale} />}
+              {isPremium && <Badge label="Premium" color={color.goldPale} />}
             </div>
             <button
               onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
               style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative", flex: "0 0 auto" }}
             >
-              👥 Friends
+              Friends
               {pendingFriendCount > 0 && (
                 <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
                   {pendingFriendCount}
@@ -1226,7 +1227,7 @@ export default function App() {
               onClick={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
               style={{ background: "none", border: `1px solid ${unreadNotifCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: unreadNotifCount > 0 ? color.goldLegacy : color.tan, fontSize: 16, cursor: "pointer", fontFamily: SANS, position: "relative", lineHeight: 1, flex: "0 0 auto" }}
             >
-              🔔
+              <Icon.Bell size={17} color={color.textMuted} />
               {unreadNotifCount > 0 && (
                 <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
                   {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
@@ -1242,7 +1243,7 @@ export default function App() {
                 onClick={() => setShowAdmin(true)}
                 style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.goldLegacy}44`, borderRadius: 10, padding: "10px 16px", color: color.goldLegacy, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
               >
-                {isAdmin ? "⚙️ Admin Console" : "🚩 Moderation Console"}
+                {isAdmin ? "Admin console" : "Moderation console"}
               </button>
             </div>
           )}
@@ -1254,7 +1255,7 @@ export default function App() {
                 onClick={() => setShowPartner(true)}
                 style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.partner}44`, borderRadius: 10, padding: "10px 16px", color: color.partner, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 8 }}
               >
-                🏪 Partner Dashboard
+                Partner dashboard
               </button>
             </div>
           )}
@@ -1275,7 +1276,7 @@ export default function App() {
 
           {/* Sub-tabs */}
           <div style={{ display: "flex", borderBottom: `1px solid ${color.lineStrong}`, marginBottom: 16 }}>
-            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"], ["advanced", isPremium ? "Advanced" : "⭐ Advanced"]].map(([id, label]) => (
+            {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"], ["advanced", "Advanced"]].map(([id, label]) => (
               <button key={id} onClick={() => setProfileTab(id)}
                 style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? color.goldLegacy : "transparent"}`, color: profileTab === id ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
                 {label.toUpperCase()}
@@ -1291,7 +1292,7 @@ export default function App() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <button onClick={() => setShowFilterDrawer(true)}
                       style={{ background: activeFilterCount > 0 ? `${color.goldLegacy}22` : "none", border: `1px solid ${activeFilterCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}>
-                      🔧 Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
+                      Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
                     </button>
                     <div style={{ display: "flex", gap: 8 }}>
                       {[["date", "Date"], ["score", "Score"], ["name", "Name"]].map(([val, label]) => (
@@ -1432,9 +1433,9 @@ export default function App() {
                             <span style={{ fontSize: type.xs, color: color.dim }}>{formatSmokeDate(c.smoke_date)}</span>
                             <div style={{ display: "flex", gap: 4 }} onClick={e => e.stopPropagation()}>
                               {[
-                                { value: "public", icon: "🌍", label: "Public" },
-                                { value: "friends_only", icon: "👥", label: "Friends" },
-                                { value: "private", icon: "🔒", label: "Private" },
+                                { value: "public", label: "Public" },
+                                { value: "friends_only", label: "Friends" },
+                                { value: "private", label: "Private" },
                               ].map(opt => {
                                 const isActive = c.visibility === opt.value;
                                 return (
@@ -1487,7 +1488,7 @@ export default function App() {
                         )}
                         {c.cigars?.rejection_reason && (
                           <div style={{ marginTop: 6 }}>
-                            <span style={{ fontSize: type.xs, background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "1px 6px", color: color.dangerText }}>⚠️ Not verified</span>
+                            <span style={{ fontSize: type.xs, background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "1px 6px", color: color.dangerText }}>Not verified</span>
                             <div style={{ fontSize: type.xs, color: color.dangerText, marginTop: 4, lineHeight: 1.5 }}>{c.cigars.rejection_reason}</div>
                           </div>
                         )}
@@ -1499,13 +1500,13 @@ export default function App() {
                           {checkinRating.would_smoke_again && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
                               background: checkinRating.would_smoke_again === "Yes" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.would_smoke_again === "Maybe" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` }}>
-                              {checkinRating.would_smoke_again === "Yes" ? "👍" : checkinRating.would_smoke_again === "Maybe" ? "🤔" : "👎"} {checkinRating.would_smoke_again}
+                              {checkinRating.would_smoke_again}
                             </span>
                           )}
                           {checkinRating.value_for_price && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
                               background: checkinRating.value_for_price === "Good value" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.value_for_price === "OK value" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` }}>
-                              {checkinRating.value_for_price === "Good value" ? "💰" : checkinRating.value_for_price === "OK value" ? "🤷" : "📉"} {checkinRating.value_for_price}
+                              {checkinRating.value_for_price}
                             </span>
                           )}
                         </div>
@@ -1533,7 +1534,7 @@ export default function App() {
                         <div style={{ padding: "12px 14px" }}>
                           <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
                             style={{ width: "100%", background: "linear-gradient(135deg, #8a2a1a, #6a1a0a)", border: `1px solid ${color.danger}`, borderRadius: 10, padding: 12, color: color.heading, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                            🗑️ Delete this check-in
+                            Delete this check-in
                           </button>
                         </div>
                       )}
@@ -1549,7 +1550,7 @@ export default function App() {
               onClick={handleExportCSV}
               style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 13, cursor: "pointer", fontFamily: SANS, marginTop: 8, marginBottom: 8 }}
             >
-              ⬇️ Export My Journal (CSV)
+              Export my journal (CSV)
             </button>
           )}
 
@@ -1568,12 +1569,12 @@ export default function App() {
                 const bestVitola = Object.entries(vitolaRatings).map(([v, ratings]) => [v, ratings.reduce((a, b) => a + b, 0) / ratings.length]).sort((a, b) => b[1] - a[1])[0];
                 return (
                   <div style={{ background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14 }}>
-                    {topLoc && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>📍 TOP LOCATION</div><div style={{ fontSize: 13, color: color.heading }}>{topLoc[0]} <span style={{ color: color.goldLegacy }}>({topLoc[1]})</span></div></div>}
-                    {topBrand && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>🏆 MOST SMOKED BRAND</div><div style={{ fontSize: 13, color: color.heading }}>{topBrand[0]} <span style={{ color: color.goldLegacy }}>({topBrand[1]})</span></div></div>}
-                    {bestVitola && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>🎯 FAVORITE VITOLA</div><div style={{ fontSize: 13, color: color.heading }}>{bestVitola[0]} <span style={{ color: color.goldLegacy }}>({bestVitola[1].toFixed(1)})</span></div></div>}
+                    {topLoc && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>TOP LOCATION</div><div style={{ fontSize: 13, color: color.heading }}>{topLoc[0]} <span style={{ color: color.goldLegacy }}>({topLoc[1]})</span></div></div>}
+                    {topBrand && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>MOST SMOKED BRAND</div><div style={{ fontSize: 13, color: color.heading }}>{topBrand[0]} <span style={{ color: color.goldLegacy }}>({topBrand[1]})</span></div></div>}
+                    {bestVitola && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${color.lineStrong}33` }}><div style={{ fontSize: type.xs, color: color.tan }}>FAVORITE VITOLA</div><div style={{ fontSize: 13, color: color.heading }}>{bestVitola[0]} <span style={{ color: color.goldLegacy }}>({bestVitola[1].toFixed(1)})</span></div></div>}
                     {top3.length > 0 && (
                       <div>
-                        <div style={{ fontSize: type.xs, color: color.tan, marginBottom: 8 }}>⭐ TOP RATED</div>
+                        <div style={{ fontSize: type.xs, color: color.tan, marginBottom: 8 }}>TOP RATED</div>
                         {top3.map((c, i) => (
                           <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < 2 ? 6 : 0 }}>
                             <div style={{ fontSize: 13, color: color.soft, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -1602,12 +1603,12 @@ export default function App() {
               <AdvancedStats checkins={checkins} />
             ) : (
               <div style={{ textAlign: "center", padding: "40px 20px" }}>
-                <div style={{ fontSize: 36, marginBottom: 16 }}>📊</div>
+                <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Feed size={36} color={color.borderStrong} /></div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: color.heading, marginBottom: 8 }}>Advanced Stats is Premium</div>
                 <div style={{ fontSize: 13, color: color.dim, lineHeight: 1.6, marginBottom: 20 }}>Monthly trends, flavor profile, brand breakdown and more.</div>
                 <button onClick={() => setUpgradeFeature("advanced_stats")}
                   style={{ background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: "12px 28px", color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                  ⭐ Upgrade to Premium
+                  Upgrade to Premium
                 </button>
               </div>
             )
@@ -1708,7 +1709,7 @@ export default function App() {
           {wishlistLoading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
           {!wishlistLoading && wishlist.length === 0 && (
             <div style={{ textAlign: "center", padding: 40 }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>🔖</div>
+              <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Wishlist size={32} color={color.borderStrong} /></div>
               <div style={{ fontSize: 15, fontWeight: 700, color: color.heading, marginBottom: 8 }}>Your wishlist is empty</div>
               <div style={{ fontSize: 13, color: color.dim }}>Search for a cigar or scan a band and tap "Add to Wishlist"</div>
             </div>
@@ -1774,7 +1775,7 @@ export default function App() {
                                   setWishlistVitolaLoading(false);
                                 }}
                                 style={{ flex: 1, background: `${color.green}22`, border: `1px solid ${color.green}88`, borderRadius: 8, padding: "9px 0", color: color.green, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}>
-                                ✓ Purchased
+                                Purchased
                               </button>
                               <button
                                 onClick={() => handleRemoveFromWishlist(w.id)}
@@ -1880,7 +1881,7 @@ export default function App() {
       {showWelcome && !showDisclaimer && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 700, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
           <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 16, padding: 28, maxWidth: 380, width: "100%", maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ fontSize: 36, textAlign: "center", marginBottom: 16 }}>🔥</div>
+            <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Flame size={36} /></div>
             <div style={{ fontSize: 22, fontWeight: 700, color: color.goldLegacy, textAlign: "center", letterSpacing: 1, marginBottom: 4 }}>Welcome to Ashed</div>
             <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 2, textAlign: "center", marginBottom: 24 }}>CIGAR JOURNAL & COMMUNITY</div>
             <div style={{ fontSize: 14, color: color.soft, lineHeight: 1.7, marginBottom: 12 }}>
@@ -1892,14 +1893,14 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
               {[
                 { svg: <svg width="20" height="20" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="24" width="40" height="8" rx="4" fill={color.goldDeep}/><rect x="4" y="25" width="40" height="3" rx="2" fill={color.gold} opacity="0.5"/><rect x="40" y="22" width="10" height="12" rx="2" fill={color.goldLegacy}/><path d="M44 22 Q46 16 48 14" stroke="#8a8a8a" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>, text: "Log smokes with ratings and tasting notes" },
-                { icon: "✨", text: "AI recommendations based on your palate" },
-                { icon: "📷", text: "Scan any cigar band to identify it instantly" },
+                { Glyph: Icon.Recommend, text: "AI recommendations based on your palate" },
+                { Glyph: Icon.Camera, text: "Scan any cigar band to identify it instantly" },
                 { svg: <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="9" width="18" height="13" rx="1" fill={color.goldLegacy}/><polygon points="1,9 23,9 21,5 3,5" fill={color.goldLegacy}/><rect x="9" y="15" width="6" height="7" rx="0.5" fill={color.bg}/><rect x="3" y="11" width="4" height="3" rx="0.5" fill={color.bg}/><rect x="17" y="11" width="4" height="3" rx="0.5" fill={color.bg}/></svg>, text: "Find cigar lounges near you" },
-                { icon: "👥", text: "Share check-ins with the community" },
+                { Glyph: Icon.Friends, text: "Share check-ins with the community" },
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ flexShrink: 0, width: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {item.svg || <span style={{ fontSize: 18 }}>{item.icon}</span>}
+                    {item.svg || (item.Glyph ? <item.Glyph size={18} color={color.textMuted} /> : null)}
                   </span>
                   <span style={{ fontSize: 13, color: color.tan }}>{item.text}</span>
                 </div>
@@ -1926,19 +1927,19 @@ export default function App() {
                 <div style={{ fontSize: 18, fontWeight: 700, color: color.heading }}>What's New</div>
                 <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>Version {APP_VERSION}</div>
               </div>
-              <div style={{ fontSize: 24 }}>🎉</div>
+              
             </div>
 
             {[
-              { icon: "⚙️", title: "Settings Screen", desc: "Edit your display name, email, and password. Manage privacy settings." },
-              { icon: "📖", title: "Cigar Guide", desc: "New guide covering vitola sizes, strength levels, wrapper types, origins, and tasting terms. Find it in Settings → Guide." },
-              { icon: "🐛", title: "Bug Reports & Feedback", desc: "Tap Help in Settings to send us bug reports or suggestions directly from the app." },
-              { icon: "🎯", title: "Onboarding Tour", desc: "New users now get a full walkthrough of every feature. Replay it anytime from Settings → Help." },
-              { icon: "💬", title: "Comment Counts", desc: "Feed cards now show how many comments a check-in has." },
-              { icon: "📊", title: "Analytics", desc: "We've added anonymous usage analytics to help us improve the app." },
+              { title: "Settings screen", desc: "Edit your display name, email, and password. Manage privacy settings." },
+              { title: "Cigar guide", desc: "New guide covering vitola sizes, strength levels, wrapper types, origins, and tasting terms. Find it in Settings → Guide." },
+              { title: "Bug reports & feedback", desc: "Tap Help in Settings to send us bug reports or suggestions directly from the app." },
+              { title: "Onboarding tour", desc: "New users now get a full walkthrough of every feature. Replay it anytime from Settings → Help." },
+              { title: "Comment counts", desc: "Feed cards now show how many comments a check-in has." },
+              { title: "Analytics", desc: "We've added anonymous usage analytics to help us improve the app." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 2 }}>{item.title}</div>
                   <div style={{ fontSize: type.xs, color: color.tan, lineHeight: 1.5 }}>{item.desc}</div>
@@ -2155,7 +2156,7 @@ export default function App() {
                 }
                 handleRemoveFromWishlist(w.id);
                 setPurchasedItem(null);
-                showToast(`${purchasedQty} × ${line} added to Humidor ✓`);
+                showToast(`${purchasedQty} × ${line} added to humidor`);
               }}
                 style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
                 Add {purchasedQty} to Humidor
