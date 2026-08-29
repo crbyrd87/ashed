@@ -105,7 +105,7 @@ export default function UpgradePrompt({ feature, onClose }) {
           <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "14px 16px", marginBottom: 20 }}>
             {copy.perks.map((perk, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < copy.perks.length - 1 ? 10 : 0 }}>
-                <span style={{ color: color.gold, fontSize: 14, flexShrink: 0 }}>✓</span>
+                <span style={{ flexShrink: 0, display: "flex" }}><Icon.Check size={14} color={color.gold} /></span>
                 <span style={{ fontSize: 13, color: color.cream }}>{perk}</span>
               </div>
             ))}

@@ -211,10 +211,10 @@ Be as specific as possible with brand and line. If you can read text on the band
           <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
             <div style={{ fontSize: 13, color: color.gold, letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
             {[
-              { icon: "📷", text: "Take a photo of any cigar band" },
-              { icon: "🤖", text: "AI reads the label and identifies the cigar" },
-              { icon: "📖", text: "Get the brand, vitola, strength, tasting notes and more" },
-              { icon: "🚬", text: "Log it, add to your humidor, or save to your wishlist" },
+              { Glyph: Icon.Camera, text: "Take a photo of any cigar band" },
+              { Glyph: Icon.Scan, text: "AI reads the label and identifies the cigar" },
+              { Glyph: Icon.Feed, text: "Get the brand, vitola, strength, tasting notes and more" },
+              { Glyph: Icon.Cigar, text: "Log it, add to your humidor, or save to your wishlist" },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
                 <span style={{ flexShrink: 0, display: "flex" }}><item.Glyph size={20} color={color.textMuted} /></span>
@@ -290,7 +290,7 @@ Be as specific as possible with brand and line. If you can read text on the band
         <div style={{ padding: 20 }}>
           {/* Confidence indicator */}
           <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
+            <span style={{ fontSize: type.xs }}>{confidence === "high" ? "High" : "Low"}</span>
             <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
@@ -368,7 +368,7 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {/* Confidence indicator */}
           <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
+            <span style={{ fontSize: type.xs }}>{confidence === "high" ? "High" : "Low"}</span>
             <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
@@ -402,10 +402,10 @@ Be as specific as possible with brand and line. If you can read text on the band
           <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Log this smoke
           </button>
-          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to wishlist"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Add to wishlist
           </button>
-          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to humidor"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
           </button>
           <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); setVitolas([]); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
@@ -417,7 +417,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               {flagging ? "Flagging..." : "Flag incorrect info"}
             </button>
           ) : (
-            <div style={{ textAlign: "center", fontSize: type.xs, color: color.green, padding: 10 }}>✓ Thanks — flagged for review</div>
+            <div style={{ textAlign: "center", fontSize: type.xs, color: color.green, padding: 10 }}>Thanks — flagged for review</div>
           )}
 
           {toast && (

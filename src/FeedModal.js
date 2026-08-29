@@ -165,7 +165,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                   disabled={wishlistLoading}
                   style={{ background: wishlisted ? "#c0392b22" : "none", border: `1px solid ${wishlisted ? "#c0392b66" : color.line}`, borderRadius: 20, padding: "5px 12px", color: wishlisted ? "#e05a4a" : color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
-                  {wishlisted ? "❤️ Wishlisted" : "♡ Wishlist"}
+                  {wishlisted ? "Wishlisted" : "Wishlist"}
                 </button>
               )}
             </div>

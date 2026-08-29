@@ -313,7 +313,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {scanStage === "analyzing" && (
         <div style={{ textAlign: "center", padding: 40 }}>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 12, maxHeight: 220, objectFit: "cover", marginBottom: 20 }} />}
-          <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Search size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Analyzing your cigars...</div>
           <div style={{ fontSize: type.xs, color: color.muted }}>Ashed is reading the band(s)</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginTop: 20 }}>
@@ -332,7 +332,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           {scanResult.some(c => c.confidence === "low") && (
             <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
               <div style={{ fontSize: type.xs, color: color.dangerText, lineHeight: 1.5 }}>
-                ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review before saving.
+                {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review before saving.
               </div>
             </div>
           )}
@@ -387,7 +387,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {scanStage === "error" && (
         <div style={{ textAlign: "center", padding: 20 }}>
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 16 }} />}
-          <div style={{ fontSize: 28, marginBottom: 10 }}>🚫</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Close size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Could not identify</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 20, lineHeight: 1.6 }}>{scanError}</div>
           <button onClick={() => setScanStage("idle")}
@@ -447,7 +447,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             {addSearchQuery.length < 2 && (
               <button onClick={() => { setShowAddOptions(false); setAddSearchQuery(""); setScanning(true); }}
                 style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 12, padding: 14, color: color.greenBright, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4 }}>
-                📷 Scan a Band Instead
+                Scan a band instead
               </button>
             )}
           </div>
@@ -479,7 +479,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       {/* Empty state */}
       {items.length === 0 && !loading && (
         <div style={{ textAlign: "center", padding: 40 }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>📦</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Humidor size={36} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>Your humidor is empty</div>
           <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>Search for a cigar or scan a band to add it.</div>
         </div>
@@ -576,11 +576,11 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             <div style={{ display: "flex", gap: 8 }}>
                               <button onClick={() => handleSmokeOne(item)}
                                 style={{ flex: 2, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                                🔥 Smoke One
+                                Smoke one
                               </button>
                               <button onClick={() => openVitolaPicker(item)}
                                 style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
-                                ✎ Vitola
+                                Vitola
                               </button>
                               {isConfirmingRemove ? (
                                 <>
@@ -641,7 +641,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                     {v.strength && <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{v.strength}</div>}
                   </div>
                   {(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola && (
-                    <span style={{ color: color.gold, fontSize: 16 }}>✓</span>
+                    <Icon.Check size={16} color={color.gold} />
                   )}
                 </Pressable>
               ))}

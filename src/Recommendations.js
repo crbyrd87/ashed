@@ -175,7 +175,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {mode === "auto" && (
         <div style={{ padding: 24 }}>
           <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 12, padding: 20, marginBottom: 20, textAlign: "center" }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>✨</div>
+            <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Recommend size={32} color={color.borderStrong} /></div>
             <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Personalized for You</div>
             <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>
               Based on your {checkins.length} logged cigars and ratings, Ashed will recommend cigars you'll love.
