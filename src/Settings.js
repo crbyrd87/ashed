@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { Icon, Toggle as Switch } from "./ui";
+import { SANS, TAP, color, font, type, weight } from "./theme";
+import { Icon, Pressable, SectionLabel, Toggle as Switch } from "./ui";
 import { supabase } from "./supabase";
 
 function Toggle({ label, sublabel, value, onChange, disabled }) {
@@ -15,16 +15,30 @@ function Toggle({ label, sublabel, value, onChange, disabled }) {
   );
 }
 
+// A labelled group of rows separated by hairlines, rather than a card with a
+// heavy border. The wall of identical outlined buttons was the main reason
+// Settings read as a game menu.
 function Section({ id, title, openSection, onToggle, children }) {
+  const open = openSection === id;
   return (
-    <div style={{ marginBottom: 10 }}>
-      <button onClick={() => onToggle(id)}
-        style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: openSection === id ? "10px 10px 0 0" : 10, padding: "14px 16px", color: color.heading, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
-        {title}
-        <span style={{ color: color.goldLegacy, fontSize: 16 }}>{openSection === id ? "−" : "+"}</span>
-      </button>
-      {openSection === id && (
-        <div style={{ background: color.surfaceSunken, border: `1px solid ${color.lineStrong}`, borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
+    <div style={{ marginBottom: 4 }}>
+      <Pressable
+        onClick={() => onToggle(id)}
+        label={title}
+        style={{
+          width: "100%", display: "flex", justifyContent: "space-between",
+          alignItems: "center", borderBottom: `1px solid ${color.border}`,
+        }}
+      >
+        <span style={{ fontFamily: font.display, fontSize: type.md, fontWeight: weight.displayMed, color: color.textPrimary }}>
+          {title}
+        </span>
+        <span style={{ display: "flex", transform: open ? "rotate(90deg)" : "none", transition: "transform 160ms" }}>
+          <Icon.Chevron size={15} color={color.textFaint} />
+        </span>
+      </Pressable>
+      {open && (
+        <div style={{ padding: "14px 0 18px" }}>
           {children}
         </div>
       )}
@@ -34,21 +48,21 @@ function Section({ id, title, openSection, onToggle, children }) {
 
 function Row({ label, value, sub }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, padding: "12px 0", borderBottom: `1px solid ${color.border}` }}>
       <div>
-        <div style={{ fontSize: 13, color: color.heading, fontWeight: 600 }}>{label}</div>
-        {sub && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>{sub}</div>}
+        <div style={{ fontFamily: font.display, fontSize: type.md, fontWeight: weight.displayMed, color: color.textPrimary }}>{label}</div>
+        {sub && <div style={{ fontSize: type.sm, color: color.textFaint, marginTop: 2 }}>{sub}</div>}
       </div>
-      <div style={{ fontSize: 13, color: color.tan, textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
+      <div style={{ fontSize: type.sm, color: color.textMuted, textAlign: "right", maxWidth: "55%", lineHeight: 1.45 }}>{value}</div>
     </div>
   );
 }
 
 function Term({ word, def }) {
   return (
-    <div style={{ padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
-      <div style={{ fontSize: 13, color: color.goldLegacy, fontWeight: 600, marginBottom: 2 }}>{word}</div>
-      <div style={{ fontSize: type.xs, color: color.tan, lineHeight: 1.5 }}>{def}</div>
+    <div style={{ padding: "12px 0", borderBottom: `1px solid ${color.border}` }}>
+      <div style={{ fontFamily: font.display, fontSize: type.md, fontWeight: weight.displayMed, color: color.textPrimary, marginBottom: 3 }}>{word}</div>
+      <div style={{ fontSize: type.sm, color: color.textMuted, lineHeight: 1.5 }}>{def}</div>
     </div>
   );
 }
@@ -531,31 +545,29 @@ function HelpSection({ onReplayTour, user }) {
         </div>
       )}
 
-      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
+      <SectionLabel rule style={{ marginBottom: 4 }}>Help &amp; support</SectionLabel>
 
-      <button onClick={onReplayTour}
-        style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.goldLegacy, fontSize: 14, cursor: "pointer", fontFamily: SANS, textAlign: "left", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
-        Replay onboarding tour
-      </button>
+      {/* One hairline group. These were four identical outlined buttons,
+          which gave a replay-the-tour action the same weight as a link to
+          the terms of service. */}
+      <Pressable onClick={onReplayTour} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${color.border}` }}>
+        <span style={{ fontSize: type.md, color: color.textBody }}>Replay onboarding tour</span>
+        <Icon.Chevron size={15} color={color.textFaint} />
+      </Pressable>
 
-      <a href="mailto:support@ashed.app"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        Contact support
-      </a>
-
-      <a href="https://ashed.app/privacy" target="_blank" rel="noreferrer"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        Privacy policy
-      </a>
-
-      <a href="https://ashed.app/terms" target="_blank" rel="noreferrer"
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        Terms of service
-      </a>
+      {[["Contact support", "mailto:support@ashed.app"],
+        ["Privacy policy", "https://ashed.app/privacy"],
+        ["Terms of service", "https://ashed.app/terms"]].map(([label, href]) => (
+        <a key={label} href={href} target="_blank" rel="noreferrer"
+          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: TAP, textDecoration: "none", borderBottom: `1px solid ${color.border}` }}>
+          <span style={{ fontSize: type.md, color: color.textBody }}>{label}</span>
+          <Icon.Chevron size={15} color={color.textFaint} />
+        </a>
+      ))}
 
       <div style={{ marginTop: 24, textAlign: "center" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: color.goldLegacy, letterSpacing: 2 }}>ASHED</div>
-        <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
+        <div style={{ fontFamily: font.display, fontSize: type.md, fontWeight: weight.displayMed, color: color.textMuted, letterSpacing: "0.06em" }}>Ashed</div>
+        <div style={{ fontFamily: font.mono, fontSize: type.xs, color: color.textFaint, marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
       </div>
     </div>
   );

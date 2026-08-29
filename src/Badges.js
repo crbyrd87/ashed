@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { Icon, Pressable } from "./ui";
+import { color, font, type, weight } from "./theme";
+import { EmptyState, Icon, Pressable, SectionLabel, SkeletonRow } from "./ui";
 import { fetchUserBadges } from "./badgeEngine";
 
 const CATEGORY_LABELS = {
@@ -29,8 +29,10 @@ export default function Badges({ userId }) {
   }, [userId]);
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "20px 0", fontSize: type.xs, color: color.faint, fontFamily: SANS }}>
-      Loading badges...
+    <div style={{ fontFamily: font.sans }}>
+      <SkeletonRow />
+      <SkeletonRow />
+      <SkeletonRow />
     </div>
   );
 
@@ -39,13 +41,13 @@ export default function Badges({ userId }) {
   const percent = total > 0 ? Math.round((earned / total) * 100) : 0;
 
   if (total === 0) return (
-    <div style={{ background: color.bg, border: `1px solid ${color.surfaceRaised}`, borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
-      <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><Icon.Check size={24} color={color.borderStrong} /></div>
-      <div style={{ fontSize: type.xs, color: color.muted, lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
-    </div>
+    <EmptyState
+      icon={<Icon.Check size={32} color={color.borderStrong} />}
+      title="No badges yet"
+      body="Log a check-in to start earning them."
+    />
   );
 
-  // Group by category
   const grouped = {};
   for (const b of badges) {
     if (!grouped[b.category]) grouped[b.category] = [];
@@ -57,16 +59,18 @@ export default function Badges({ userId }) {
   };
 
   return (
-    <div style={{ fontFamily: SANS }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: type.xs, color: color.faint, letterSpacing: 1 }}>BADGES & ACHIEVEMENTS</div>
-        <div style={{ fontSize: type.xs, color: color.gold }}>{earned}/{total} earned</div>
+    <div style={{ fontFamily: font.sans }}>
+      {/* Progress. A 2px gold rule on the border colour rather than a bar in a
+          rounded track — the number already says how many, so the rule only
+          has to show roughly how far. */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <SectionLabel>Badges</SectionLabel>
+        <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.textMuted }}>
+          {earned}/{total}
+        </span>
       </div>
-
-      {/* Progress bar */}
-      <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
-        <div style={{ width: `${percent}%`, height: "100%", background: "linear-gradient(90deg, #c9a84c, #e8cc7a)", borderRadius: 2, transition: "width 0.3s" }} />
+      <div style={{ width: "100%", height: 2, background: color.border, marginBottom: 22 }}>
+        <div style={{ width: `${percent}%`, height: "100%", background: color.gold, transition: "width 0.3s" }} />
       </div>
 
       {CATEGORY_ORDER.map(cat => {
@@ -76,61 +80,57 @@ export default function Badges({ userId }) {
         const isOpen = expandedCategories[cat];
 
         return (
-          <div key={cat} style={{ marginBottom: 12 }}>
-            {/* Category header */}
+          <div key={cat} style={{ marginBottom: 22 }}>
             <Pressable
               onClick={() => toggleCategory(cat)}
-              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}
+              label={`${CATEGORY_LABELS[cat]}, ${catEarned} of ${catBadges.length} earned`}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}
             >
-              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: type.xs, color: catEarned === catBadges.length ? color.gold : color.faint }}>
+              <SectionLabel tone={color.textMuted}>{CATEGORY_LABELS[cat]}</SectionLabel>
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{
+                  fontFamily: font.mono, fontSize: type.xs,
+                  color: catEarned === catBadges.length ? color.gold : color.textFaint,
+                }}>
                   {catEarned}/{catBadges.length}
                 </span>
-                <span style={{ color: color.faint, fontSize: type.xs }}>{isOpen ? "−" : "+"}</span>
-              </div>
+                <span style={{ display: "flex", transform: isOpen ? "rotate(90deg)" : "none", transition: "transform 160ms" }}>
+                  <Icon.Chevron size={15} color={color.textFaint} />
+                </span>
+              </span>
             </Pressable>
 
-            {isOpen && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                {catBadges.map(badge => (
-                  <div
-                    key={badge.key}
-                    style={{
-                      background: badge.earned ? "linear-gradient(135deg, #2a1a0e, #1a0f08)" : color.bg,
-                      border: `1px solid ${badge.earned ? `${color.gold}55` : color.surfaceRaised}`,
-                      borderRadius: 10,
-                      padding: "12px 10px",
-                      textAlign: "center",
-                      opacity: badge.earned ? 1 : 0.7,
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {badge.earned && (
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #c9a84c, #e8cc7a)" }} />
-                    )}
-                    <div style={{ fontSize: 28, marginBottom: 6, filter: badge.earned ? "none" : "grayscale(1)" }}>
-                      {badge.icon}
-                    </div>
-                    <div style={{ fontSize: type.xs, fontWeight: 700, color: badge.earned ? color.text : color.cream, marginBottom: 3, lineHeight: 1.3 }}>
-                      {badge.name}
-                    </div>
-                    <div style={{ fontSize: type.xs, color: badge.earned ? color.muted : color.muted, lineHeight: 1.4 }}>
-                      {badge.description}
-                    </div>
-                    {badge.earned && badge.awarded_at && (
-                      <div style={{ fontSize: type.xs, color: `${color.gold}88`, marginTop: 6 }}>
-                        {new Date(badge.awarded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      </div>
-                    )}
-                    {!badge.earned && (
-                      <div style={{ fontSize: type.xs, color: color.textMuted, marginTop: 6 }}>Locked</div>
-                    )}
-                  </div>
-                ))}
+            {/* Single-column rows rather than a 2x2 grid: a badge is a name and
+                a requirement, which reads as a line, not a card. */}
+            {isOpen && catBadges.map(badge => (
+              <div
+                key={badge.key}
+                style={{
+                  display: "flex", alignItems: "baseline", gap: 12,
+                  padding: "14px 0",
+                  borderBottom: `1px solid ${color.border}`,
+                  opacity: badge.earned ? 1 : 0.45,
+                }}
+              >
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    display: "block",
+                    fontFamily: font.display, fontSize: type.md, fontWeight: weight.displayMed,
+                    color: color.textPrimary,
+                  }}>
+                    {badge.name}
+                  </span>
+                  <span style={{ display: "block", fontSize: type.sm, color: color.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+                    {badge.description}
+                  </span>
+                </span>
+                {badge.earned && badge.awarded_at && (
+                  <span style={{ fontFamily: font.mono, fontSize: type.xs, color: color.textFaint, flexShrink: 0 }}>
+                    {new Date(badge.awarded_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                )}
               </div>
-            )}
+            ))}
           </div>
         );
       })}
