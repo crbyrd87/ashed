@@ -14,6 +14,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import './index.css';
 import App from './App';
 import Tracker from './Tracker';
+import { EmberDefs } from './ui';
 import reportWebVitals from './reportWebVitals';
 import posthog from 'posthog-js';
 
@@ -28,6 +29,8 @@ const isTracker = window.location.pathname.replace(/\/+$/, "") === "/tracker";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    {/* The rating flame's gradient, defined once for the whole page. */}
+    {!isTracker && <EmberDefs />}
     {isTracker ? <Tracker /> : <App />}
   </React.StrictMode>
 );

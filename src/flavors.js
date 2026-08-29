@@ -6,17 +6,13 @@
 // for, and the AI prompt on each side described a different palate. Both now
 // import from here.
 
-// Plain names. These are what go into AI prompts and what is stored.
+// Plain names. These are what go into AI prompts, what is stored, and what
+// the check-in picker renders. There used to be a second, emoji-prefixed
+// copy of this list purely so the picker could show a glyph; the name then
+// had to be parsed back out of the label with split(" ").slice(1) on every
+// render. The tags are chips of text and need no icon.
 export const FLAVOR_TAG_NAMES = [
   "Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper",
   "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice",
   "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"
-];
-
-// The same list with the emoji used by the check-in picker, in the same order,
-// so the two can be zipped by index.
-export const FLAVOR_TAGS = [
-  "🌲 Cedar", "🤎 Leather", "🌍 Earth", "☕ Coffee", "🍫 Chocolate", "🌶️ Pepper",
-  "🥛 Cream", "🥜 Nuts", "🍯 Caramel", "🍋 Citrus", "🌸 Floral", "✨ Spice",
-  "🪵 Wood", "🌾 Hay", "🍬 Sweetness", "🍂 Tobacco", "🌿 Grass", "🪨 Mineral"
 ];

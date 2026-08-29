@@ -5,7 +5,7 @@ import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { todayLocalISO } from "./dateUtils";
-import { FLAVOR_TAG_NAMES, FLAVOR_TAGS } from "./flavors";
+import { FLAVOR_TAG_NAMES } from "./flavors";
 
 const fetchAISuggestions = async (cigar, userId) => {
   const prompt = `You are a cigar expert. Based on this cigar's profile, describe the tasting experience in one natural sentence, then list which of our flavor tags apply.
@@ -492,19 +492,15 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
 
             {/* Flavor Tags */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {FLAVOR_TAGS.map(tag => {
-                const tagName = tag.split(" ").slice(1).join(" ");
-                const isSelected = selectedTags.includes(tagName);
-                return (
-                  <button
-                    key={tag}
-                    style={s.tag(isSelected)}
-                    onClick={() => toggleTag(tagName)}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+              {FLAVOR_TAG_NAMES.map(tagName => (
+                <button
+                  key={tagName}
+                  style={s.tag(selectedTags.includes(tagName))}
+                  onClick={() => toggleTag(tagName)}
+                >
+                  {tagName}
+                </button>
+              ))}
             </div>
           </div>
 

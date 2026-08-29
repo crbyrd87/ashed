@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
+import { FLAVOR_TAG_NAMES } from "./flavors";
 import { useBackDismiss } from "./useBackDismiss";
 import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
@@ -371,7 +372,6 @@ export default function App() {
   const [filterBrandOpen, setFilterBrandOpen] = useState(false);
   const [filterNoteTags, setFilterNoteTags] = useState([]);
 
-  const FLAVOR_TAGS = ["Cedar", "Leather", "Earth", "Coffee", "Chocolate", "Pepper", "Cream", "Nuts", "Caramel", "Citrus", "Floral", "Spice", "Wood", "Hay", "Sweetness", "Tobacco", "Grass", "Mineral"];
 
   const uniqueNames = [...new Set(checkins.map(c => c.cigars?.line || c.cigar_name).filter(Boolean))].sort();
   const uniqueBrands = [...new Set(checkins.map(c => c.cigars?.brand || c.cigar_brand).filter(Boolean))].sort();
@@ -1339,7 +1339,7 @@ export default function App() {
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 8 }}>TASTING NOTES</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {FLAVOR_TAGS.map(tag => (
+                      {FLAVOR_TAG_NAMES.map(tag => (
                         <button key={tag} onClick={() => setFilterNoteTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}
                           style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? color.goldLegacy : color.lineStrong}`, background: filterNoteTags.includes(tag) ? `${color.goldLegacy}22` : "transparent", color: filterNoteTags.includes(tag) ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
                       ))}
