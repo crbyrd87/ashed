@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { ClickableRow } from "./ui";
 import { authedFetch } from "./apiClient";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -511,7 +512,7 @@ export default function Venues() {
         const phone = details?.formatted_phone_number || venue.formatted_phone_number;
 
         return (
-          <div
+          <ClickableRow
             key={venue.place_id || i}
             ref={el => { venueRefs.current[venue.place_id] = el; }}
             style={{ background: `linear-gradient(135deg, ${color.surfaceRaised}, ${color.surface})`, border: `1px solid ${isSelected ? `${color.gold}55` : color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
@@ -568,7 +569,7 @@ export default function Venues() {
                 </div>
               </div>
             )}
-          </div>
+          </ClickableRow>
         );
       })}
     </div>

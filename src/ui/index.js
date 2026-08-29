@@ -7,3 +7,5 @@ export { default as Toggle } from "./Toggle";
 export { default as Notice } from "./Notice";
 export { default as Pill } from "./Pill";
 export { default as Button } from "./Button";
+export { default as Pressable } from "./Pressable";
+export { default as ClickableRow } from "./ClickableRow";

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame } from "./theme";
+import { ClickableRow } from "./ui";
 import { supabase } from "./supabase";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -168,9 +169,10 @@ export default function Feed({ user }) {
         const [avatarFrom, avatarTo] = avatarColor(item.users?.username || "");
 
         return (
-          <div
+          <ClickableRow
             key={item.id}
-            style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer", fontFamily: SANS, display: "flex" }}
+            label="Open this check-in"
+            style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", display: "flex" }}
             onClick={() => setSelectedCheckin(item)}
           >
             {/* Rating-based left accent bar */}
@@ -240,7 +242,7 @@ export default function Feed({ user }) {
 
               </div>
             </div>
-          </div>
+          </ClickableRow>
         );
       })}
 

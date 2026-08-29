@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Pressable } from "./ui";
 import { fetchUserBadges } from "./badgeEngine";
 
 const CATEGORY_LABELS = {
@@ -77,9 +78,9 @@ export default function Badges({ userId }) {
         return (
           <div key={cat} style={{ marginBottom: 12 }}>
             {/* Category header */}
-            <div
+            <Pressable
               onClick={() => toggleCategory(cat)}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", cursor: "pointer" }}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}
             >
               <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -88,7 +89,7 @@ export default function Badges({ userId }) {
                 </span>
                 <span style={{ color: color.faint, fontSize: 12 }}>{isOpen ? "−" : "+"}</span>
               </div>
-            </div>
+            </Pressable>
 
             {isOpen && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>

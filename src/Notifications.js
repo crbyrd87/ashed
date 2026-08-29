@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { Screen } from "./ui";
+import { ClickableRow, Screen } from "./ui";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
 
@@ -208,8 +208,9 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
         const tappable = !!destinationFor(n);
 
         return (
-          <div
+          <ClickableRow
             key={n.id}
+            label="Open this notification"
             style={s.card(!n.is_read, tappable)}
             onClick={() => tappable && handleTap(n)}
           >
@@ -235,7 +236,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
             {tappable && (
               <div style={{ fontSize: 14, color: color.lineInput, flexShrink: 0, marginTop: 2 }}>›</div>
             )}
-          </div>
+          </ClickableRow>
         );
       })}
     </Screen>
