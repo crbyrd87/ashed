@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { CloseButton } from "./ui";
+import { CloseButton, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
@@ -51,7 +51,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
     : "No venue linked";
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 500, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 900, margin: "0 auto" }}>
+    <Screen zIndex={500} maxWidth={900}>
 
       {/* Header */}
       <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
@@ -80,7 +80,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
         {section === "listing"   && <ListingSection placeId={placeId} venue={venue} onVenueUpdate={setVenue} />}
         {section === "announce"  && <AnnounceSection placeId={placeId} user={user} />}
       </div>
-    </div>
+    </Screen>
   );
 }
 

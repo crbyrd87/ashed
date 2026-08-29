@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { CloseButton } from "./ui";
+import { CloseButton, Screen } from "./ui";
 import { supabase } from "./supabase";
 
 const SECTIONS = [
@@ -36,7 +36,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
     : SECTIONS;
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 650, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 900, margin: "0 auto" }}>
+    <Screen zIndex={650} maxWidth={900}>
       <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
@@ -66,7 +66,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
         {section === "dedup"      && <DedupSection currentUserId={user?.id} />}
         {section === "audit"      && <AuditSection />}
       </div>
-    </div>
+    </Screen>
   );
 }
 
