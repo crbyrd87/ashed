@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { ClickableRow, Screen } from "./ui";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
@@ -119,7 +119,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
       <div style={s.header}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>Notifications</div>
-          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
+          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
             {notifications.length === 0 ? "All caught up" : `${notifications.length} recent`}
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
                   {subtitle}
                 </div>
               ) : null}
-              <div style={{ fontSize: 11, color: color.faint, marginTop: 5 }}>
+              <div style={{ fontSize: type.xs, color: color.faint, marginTop: 5 }}>
                 {timeAgo(n.created_at)}
               </div>
             </div>

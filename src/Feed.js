@@ -206,7 +206,7 @@ export default function Feed({ user }) {
                   {(vitola || strength) && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       {vitola && <span style={{ fontSize: 14, fontWeight: 600, color: color.gold }}>{vitola}</span>}
-                      {vitola && strength && <span style={{ fontSize: 11, color: color.lineInput }}>·</span>}
+                      {vitola && strength && <span style={{ fontSize: type.xs, color: color.lineInput }}>·</span>}
                       {strength && <span style={{ fontSize: 14, fontWeight: 700, color: strengthColor(strength) }}>{strength}</span>}
                     </div>
                   )}
@@ -229,13 +229,13 @@ export default function Feed({ user }) {
                     <button
                       onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
                       disabled={isOwn}
-                      style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "3px 10px", color: fired ? color.green : isOwn ? color.line : color.muted, fontSize: 11, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
+                      style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "3px 10px", color: fired ? color.green : isOwn ? color.line : color.muted, fontSize: type.xs, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
                     >
                       👍 {fireCount}
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
-                      style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "3px 10px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}
+                      style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "3px 10px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                     >
                       💬
                     </button>

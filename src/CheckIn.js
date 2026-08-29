@@ -374,7 +374,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const s = {
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "16px 20px", borderBottom: `1px solid ${color.line}33` },
-    label: { fontSize: 11, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
+    label: { fontSize: type.xs, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
     tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `linear-gradient(135deg, ${color.gold}22, ${color.goldDeep}22)` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
@@ -394,7 +394,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* Header */}
       <div style={s.header}>
         <div>
-          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 2 }}>{cigar.brand?.toUpperCase()}</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>{cigar.brand?.toUpperCase()}</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>{cigar.line} — {cigar.vitola}</div>
         </div>
         <CloseButton onClose={onClose} />
@@ -414,7 +414,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               <span style={{ color: color.muted }}>{FLAME_LABELS[flames] || ""}</span>
               {" · "}
               <span style={{ color: color.gold, fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
-              <span style={{ color: color.faint, fontSize: 11, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
+              <span style={{ color: color.faint, fontSize: type.xs, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
             </>
           )}
         </div>
@@ -482,7 +482,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             {aiDescription ? (
               <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: color.green, fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
-                <div style={{ fontSize: 11, color: color.tan }}>If you tasted any of these — or more — select them below.</div>
+                <div style={{ fontSize: type.xs, color: color.tan }}>If you tasted any of these — or more — select them below.</div>
               </div>
             ) : (
               <div style={{ fontSize: 12, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
@@ -527,7 +527,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                       border: `1px solid ${isActive ? activeColor : color.line}`,
                       background: isActive ? activeBg : color.surface,
                       color: isActive ? color.heading : color.faint,
-                      fontSize: 11, fontWeight: isActive ? 700 : 400,
+                      fontSize: type.xs, fontWeight: isActive ? 700 : 400,
                       cursor: "pointer", fontFamily: SANS,
                       display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                     }}
@@ -545,7 +545,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={s.label}>Date</div>
             <input type="date" style={{ ...s.input, maxWidth: "100%", fontSize: type.md }} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
             <div style={{ ...s.label, marginTop: 14 }}>
-              Location <span style={{ color: color.faint, fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span>
+              Location <span style={{ color: color.faint, fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: type.xs }}>(optional)</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
               {savedPlaces.map(p => (
@@ -573,7 +573,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             )}
             {showVenueSearch && (
               <div style={{ background: color.bg, border: `1px solid ${color.line}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
+                <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>FIND A VENUE</div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                   <input
                     style={{ ...s.input, flex: 1 }}
@@ -591,7 +591,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   <Pressable key={v.place_id || i} onClick={() => handleSelectVenue(v)}
                     style={{ width: "100%", padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: color.surfaceRaised, border: `1px solid ${color.line}` }}>
                     <div style={{ fontSize: 13, color: color.text, fontWeight: 600 }}>{v.name}</div>
-                    <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
+                    <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
                   </Pressable>
                 ))}
                 {!venueSearching && venueResults.length === 0 && venueQuery && (

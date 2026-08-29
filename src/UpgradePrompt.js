@@ -114,7 +114,7 @@ export default function UpgradePrompt({ feature, onClose }) {
 
         {/* Full premium features summary */}
         <div style={{ borderTop: `1px solid ${color.line}`, paddingTop: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>EVERYTHING IN PREMIUM</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>EVERYTHING IN PREMIUM</div>
           {[
             "📷 Band Scanner — AI cigar identification",
             "✨ AI Recommendations — personalized picks",
@@ -136,7 +136,7 @@ export default function UpgradePrompt({ feature, onClose }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <span style={{ fontSize: 18 }}>🎖️</span>
               <span style={{ fontSize: 13, fontWeight: 700, color: color.gold }}>Founding Member Offer</span>
-              <span style={{ marginLeft: "auto", background: `${color.gold}22`, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, color: color.gold, fontWeight: 700 }}>
+              <span style={{ marginLeft: "auto", background: `${color.gold}22`, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, color: color.gold, fontWeight: 700 }}>
                 {slotsRemaining} left
               </span>
             </div>
@@ -151,14 +151,14 @@ export default function UpgradePrompt({ feature, onClose }) {
                 <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2, letterSpacing: 1 }}>/ YEAR</div>
               </div>
             </div>
-            <div style={{ fontSize: 11, color: color.dim, lineHeight: 1.5 }}>
+            <div style={{ fontSize: type.xs, color: color.dim, lineHeight: 1.5 }}>
               First {FOUNDING_MEMBER_SLOTS} members lock this rate forever — as long as your subscription stays active.
             </div>
           </div>
         )}
 
         {/* Regular Pricing */}
-        <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>
+        <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>
           {slotsRemaining !== null && slotsRemaining > 0 ? "REGULAR PRICING" : "PRICING"}
         </div>
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
@@ -184,7 +184,7 @@ export default function UpgradePrompt({ feature, onClose }) {
           ⭐ Start Free 7-Day Trial
         </button>
 
-        <div style={{ fontSize: 11, color: color.faint, textAlign: "center", marginBottom: 12, lineHeight: 1.6 }}>
+        <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", marginBottom: 12, lineHeight: 1.6 }}>
           Card required. No charge for 7 days. Cancel anytime in Settings — takes 10 seconds.
         </div>
 

@@ -154,7 +154,7 @@ export default function OnboardingTour({ onComplete }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 700, display: "flex", flexDirection: "column", fontFamily: SANS }}>
       <div style={{ padding: "16px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 11, color: color.tan, letterSpacing: 2 }}>ASHED TOUR</div>
+        <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 2 }}>ASHED TOUR</div>
         <button onClick={onComplete}
           style={{ background: "none", border: "none", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS, padding: "4px 8px" }}>
           Skip Tour

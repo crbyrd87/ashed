@@ -69,7 +69,7 @@ const StarRating = ({ rating, count }) => {
   if (!rating) return null;
   const stars = Math.round(rating);
   return (
-    <span style={{ fontSize: 11, color: color.gold }}>
+    <span style={{ fontSize: type.xs, color: color.gold }}>
       {"★".repeat(stars)}{"☆".repeat(5 - stars)} <span style={{ color: color.muted }}>{rating.toFixed(1)}{count ? ` (${count.toLocaleString()})` : ""}</span>
     </span>
   );
@@ -361,7 +361,7 @@ export default function Venues() {
           <div style={{ display: "flex", background: color.surfaceRaised, borderRadius: 20, padding: 2, border: `1px solid ${color.line}` }}>
             {[["list", "List"], ["map", "Map"]].map(([id, label]) => (
               <button key={id} onClick={() => setViewMode(id)}
-                style={{ padding: "4px 12px", borderRadius: 18, border: "none", background: viewMode === id ? color.gold : "transparent", color: viewMode === id ? color.bg : color.muted, fontSize: 11, fontWeight: viewMode === id ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
+                style={{ padding: "4px 12px", borderRadius: 18, border: "none", background: viewMode === id ? color.gold : "transparent", color: viewMode === id ? color.bg : color.muted, fontSize: type.xs, fontWeight: viewMode === id ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
                 {label}
               </button>
             ))}
@@ -487,11 +487,11 @@ export default function Venues() {
                 <Popup>
                   <div style={{ fontFamily: SANS, minWidth: 160 }}>
                     <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{venue.name}</div>
-                    <div style={{ fontSize: 11, color: "#666", marginBottom: 6 }}>{venue.vicinity || venue.formatted_address}</div>
-                    {venue.rating && <div style={{ fontSize: 11 }}>{"★".repeat(Math.round(venue.rating))} {venue.rating.toFixed(1)}</div>}
+                    <div style={{ fontSize: type.xs, color: "#666", marginBottom: 6 }}>{venue.vicinity || venue.formatted_address}</div>
+                    {venue.rating && <div style={{ fontSize: type.xs }}>{"★".repeat(Math.round(venue.rating))} {venue.rating.toFixed(1)}</div>}
                     <button
                       onClick={() => { setSelectedVenue(venue); setViewMode("list"); }}
-                      style={{ marginTop: 8, background: color.gold, border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", width: "100%" }}
+                      style={{ marginTop: 8, background: color.gold, border: "none", borderRadius: 6, padding: "4px 10px", fontSize: type.xs, fontWeight: 700, cursor: "pointer", width: "100%" }}
                     >
                       View details
                     </button>
@@ -531,14 +531,14 @@ export default function Venues() {
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     {venue.rating && <StarRating rating={venue.rating} count={venue.user_ratings_total} />}
                     {hours && (
-                      <span style={{ fontSize: 11, color: hours.color, fontWeight: 600 }}>{hours.text}</span>
+                      <span style={{ fontSize: type.xs, color: hours.color, fontWeight: 600 }}>{hours.text}</span>
                     )}
                     {!hours && venue.opening_hours && (
-                      <span style={{ fontSize: 11, color: venue.opening_hours.open_now ? color.green : color.danger, fontWeight: 600 }}>
+                      <span style={{ fontSize: type.xs, color: venue.opening_hours.open_now ? color.green : color.danger, fontWeight: 600 }}>
                         {venue.opening_hours.open_now ? "Open now" : "Closed"}
                       </span>
                     )}
-                    {distance && <span style={{ fontSize: 11, color: color.faint }}>{distance}</span>}
+                    {distance && <span style={{ fontSize: type.xs, color: color.faint }}>{distance}</span>}
                   </div>
                 </div>
               </div>

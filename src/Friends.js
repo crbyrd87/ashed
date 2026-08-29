@@ -67,8 +67,8 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             <div style={{ fontSize: 22, fontWeight: 700, color: color.text }}>{friendUser.display_name || friendUser.username}</div>
             <div style={{ fontSize: 13, color: color.muted, marginTop: 2 }}>@{friendUser.username}</div>
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>🏅 Aficionado</span>
-              <span style={{ background: `${color.green}22`, color: color.green, border: `1px solid ${color.green}44`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>✓ Friend</span>
+              <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>🏅 Aficionado</span>
+              <span style={{ background: `${color.green}22`, color: color.green, border: `1px solid ${color.green}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>✓ Friend</span>
             </div>
           </div>
         </div>
@@ -96,11 +96,11 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                 const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                 return (
                   <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <div style={{ width: 70, fontSize: 11, color: swatch, flexShrink: 0 }}>{s === "Medium-Full" ? "Med-Full" : s}</div>
+                    <div style={{ width: 70, fontSize: type.xs, color: swatch, flexShrink: 0 }}>{s === "Medium-Full" ? "Med-Full" : s}</div>
                     <div style={{ flex: 1, height: 8, background: color.surfaceRaised, borderRadius: 4, overflow: "hidden" }}>
                       <div style={{ width: `${pct}%`, height: "100%", background: swatch, borderRadius: 4 }} />
                     </div>
-                    <div style={{ width: 24, fontSize: 11, color: color.muted, textAlign: "right" }}>{count}</div>
+                    <div style={{ width: 24, fontSize: type.xs, color: color.muted, textAlign: "right" }}>{count}</div>
                   </div>
                 );
               })}
@@ -130,7 +130,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             {topBrands.map(([brand, count], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: i < topBrands.length - 1 ? 8 : 0 }}>
                 <div style={{ fontSize: 13, color: color.text }}>{brand}</div>
-                <div style={{ fontSize: 11, color: color.gold, fontWeight: 700 }}>{count} smoke{count !== 1 ? "s" : ""}</div>
+                <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 700 }}>{count} smoke{count !== 1 ? "s" : ""}</div>
               </div>
             ))}
           </div>
@@ -153,7 +153,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
                 <div style={{ flex: 1, minWidth: 0, marginRight: 12 }}>
                   <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.text, margin: "2px 0" }}>{line}</div>
-                  {vitola && <div style={{ fontSize: 11, color: color.gold }}>{vitola}</div>}
+                  {vitola && <div style={{ fontSize: type.xs, color: color.gold }}>{vitola}</div>}
                   <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                     {formatSmokeDate(c.smoke_date)}
                   </div>
@@ -323,7 +323,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             <span style={{ fontSize: 20 }}>👥</span>
             <span style={{ fontSize: 20, fontWeight: 700, color: color.text }}>Friends</span>
           </div>
-          <div style={{ fontSize: 11, color: color.gold, fontWeight: 600, marginTop: 2, opacity: 0.8 }}>
+          <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 600, marginTop: 2, opacity: 0.8 }}>
             {friends.length} friend{friends.length !== 1 ? "s" : ""}
             {pendingRequests.length > 0 && <span style={{ color: color.alert, marginLeft: 8 }}>· {pendingRequests.length} pending</span>}
           </div>
@@ -350,7 +350,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         {tab === "find" && (
           <>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>SEARCH BY USERNAME OR EMAIL</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>SEARCH BY USERNAME OR EMAIL</div>
               <div style={{ display: "flex", gap: 8 }}>
                 <input
                   style={{ ...s.input, flex: 1 }}
@@ -374,11 +374,11 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                 <div key={u.id} style={s.card}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: color.text }}>{u.display_name || u.username}</div>
-                    <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{u.username}</div>
+                    <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{u.username}</div>
                   </div>
                   {status === "none" && <button style={s.btnFilled} onClick={() => handleSendRequest(u.id)}>+ Add</button>}
-                  {status === "sent" && <span style={{ fontSize: 11, color: color.faint }}>Request sent</span>}
-                  {status === "friends" && <span style={{ fontSize: 11, color: color.green }}>✓ Friends</span>}
+                  {status === "sent" && <span style={{ fontSize: type.xs, color: color.faint }}>Request sent</span>}
+                  {status === "friends" && <span style={{ fontSize: type.xs, color: color.green }}>✓ Friends</span>}
                   {status === "incoming" && <button style={s.btnFilled} onClick={() => handleAccept(pendingRequests.find(r => r.requester?.id === u.id)?.id)}>Accept</button>}
                 </div>
               );
@@ -386,7 +386,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
 
             {/* Invite card */}
             <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>INVITE A FRIEND</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>INVITE A FRIEND</div>
               <div style={{ fontSize: 13, color: color.gold, marginBottom: 4, wordBreak: "break-all" }}>
                 ashed.app?ref={user.user_metadata?.username || user.id}
               </div>
@@ -413,7 +413,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
 
             {/* Why add friends */}
             <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 16, marginTop: 12 }}>
-              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>WHY ADD FRIENDS?</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>WHY ADD FRIENDS?</div>
               {[
                 { icon: "🔥", text: "See their check-ins in your feed" },
                 { icon: "👍", text: "Like and comment on their smokes" },
@@ -432,7 +432,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         {/* REQUESTS TAB */}
         {tab === "requests" && (
           <>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>INCOMING REQUESTS</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>INCOMING REQUESTS</div>
             {loading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
             {!loading && pendingRequests.length === 0 && (
               <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "16px 0 20px" }}>No incoming requests</div>
@@ -441,7 +441,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               <div key={req.id} style={s.card}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.text }}>{req.requester?.display_name || req.requester?.username}</div>
-                  <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{req.requester?.username}</div>
+                  <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{req.requester?.username}</div>
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button style={s.btnFilled} onClick={() => handleAccept(req.id)}>Accept</button>
@@ -450,7 +450,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               </div>
             ))}
 
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, margin: "20px 0 12px" }}>SENT REQUESTS</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, margin: "20px 0 12px" }}>SENT REQUESTS</div>
             {!loading && sentRequests.length === 0 && (
               <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "16px 0 20px" }}>No sent requests</div>
             )}
@@ -458,7 +458,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               <div key={req.id} style={s.card}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.text }}>{req.recipient?.display_name || req.recipient?.username}</div>
-                  <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{req.recipient?.username}</div>
+                  <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{req.recipient?.username}</div>
                 </div>
                 <button style={s.btn(color.danger)} onClick={() => handleCancelRequest(req.id)}>Cancel</button>
               </div>
@@ -469,7 +469,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         {/* FRIENDS LIST TAB */}
         {tab === "list" && (
           <>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>
               YOUR FRIENDS ({friends.length})
             </div>
             {loading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
@@ -484,7 +484,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               <div key={f.id} style={{ ...s.card, cursor: "pointer" }} onClick={() => setViewingFriend(f.friendUser)}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.text }}>{f.friendUser?.display_name || f.friendUser?.username}</div>
-                  <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{f.friendUser?.username}</div>
+                  <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{f.friendUser?.username}</div>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <span style={{ fontSize: 12, color: color.gold }}>View Profile ›</span>

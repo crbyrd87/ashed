@@ -37,7 +37,7 @@ function Row({ label, value, sub }) {
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
       <div>
         <div style={{ fontSize: 13, color: color.heading, fontWeight: 600 }}>{label}</div>
-        {sub && <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>{sub}</div>}
       </div>
       <div style={{ fontSize: 13, color: color.tan, textAlign: "right", maxWidth: "55%", lineHeight: 1.4 }}>{value}</div>
     </div>
@@ -122,7 +122,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
             style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.goldLegacy}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             autoFocus
           />
-          {hint && <div style={{ fontSize: 11, color: color.dim, marginTop: 4 }}>{hint}</div>}
+          {hint && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 4 }}>{hint}</div>}
           {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 4 }}>{msg.text}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button onClick={handleSave} disabled={saving}
@@ -189,17 +189,17 @@ function AccountSection({ user, displayName, username, onSignOut }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
       <Field label="DISPLAY NAME" value={displayName} onSave={saveDisplayName} />
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 14, color: color.faint }}>{username ? `@${username}` : "Not set"}</span>
-          <span style={{ fontSize: 11, color: color.faint }}>Cannot be changed</span>
+          <span style={{ fontSize: type.xs, color: color.faint }}>Cannot be changed</span>
         </div>
       </div>
       
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>SECURITY</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>SECURITY</div>
       <Field label="EMAIL ADDRESS" value={user?.email} onSave={saveEmail} hint="A confirmation will be sent to your current email address." />
 
       <div style={{ marginBottom: 16 }}>
@@ -214,7 +214,7 @@ function AccountSection({ user, displayName, username, onSignOut }) {
         {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 6 }}>{msg.text}</div>}
       </div>
 
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>ACCOUNT ACTIONS</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>ACCOUNT ACTIONS</div>
       <button onClick={onSignOut}
         style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
         Sign Out
@@ -281,7 +281,7 @@ function PrivacySection({ user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PRIVACY</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PRIVACY</div>
       {!loaded ? (
         <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>
       ) : (
@@ -316,10 +316,10 @@ function GuideSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
 
       <Section id="vitolas" title="🎋 Vitola Size Chart" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
+        <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
         <Row label="Petit Corona" value='4–4.5" × 40–42 ring' sub="~20–30 min" />
         <Row label="Corona" value='5.5" × 42 ring' sub="~30–45 min" />
         <Row label="Robusto" value='4.75–5.5" × 48–52 ring' sub="~45–60 min" />
@@ -330,11 +330,11 @@ function GuideSection() {
         <Row label="Gordo/60 Ring" value='6" × 60 ring' sub="~75–90 min, very full" />
         <Row label="Lancero/Panetela" value='7+" × 38–40 ring' sub="Slim, long — complex draw" />
         <Row label="Perfecto" value="Varies" sub="Tapered at both ends" />
-        <div style={{ fontSize: 11, color: color.faint, marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
+        <div style={{ fontSize: type.xs, color: color.faint, marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
       </Section>
 
       <Section id="strength" title="💪 Body & Strength Guide" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
+        <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
         <Row label="Mild" value="Smooth, low nicotine" sub="Good for beginners" />
         <Row label="Mild-Medium" value="Easy draw with a bit more body" sub="Great step up from mild" />
         <Row label="Medium" value="Balanced flavor and nicotine" sub="Most popular range" />
@@ -346,7 +346,7 @@ function GuideSection() {
       </Section>
 
       <Section id="wrappers" title="🍂 Wrapper Types" openSection={openSection} onToggle={toggle}>
-        <div style={{ fontSize: 11, color: color.dim, marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
+        <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
         <Row label="Claro" value="Light tan, mild and creamy" />
         <Row label="Colorado Claro" value="Medium brown, balanced" />
         <Row label="Colorado" value="Reddish-brown, full flavor" />
@@ -355,7 +355,7 @@ function GuideSection() {
         <Row label="Oscuro" value="Almost black, strongest maduro" />
         <Row label="Natural" value="Light, slightly oily — Connecticut style" />
         <Row label="Candela" value="Green, very rare, grassy/sweet" />
-        <div style={{ fontSize: 11, color: color.faint, marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
+        <div style={{ fontSize: type.xs, color: color.faint, marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
       </Section>
 
       <Section id="origins" title="🌍 Origins Guide" openSection={openSection} onToggle={toggle}>
@@ -453,7 +453,7 @@ function HelpSection({ onReplayTour, user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>REPORT A BUG / GIVE FEEDBACK</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>REPORT A BUG / GIVE FEEDBACK</div>
 
       {submitted ? (
         <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
@@ -490,7 +490,7 @@ function HelpSection({ onReplayTour, user }) {
             style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
           />
           {error && <div style={{ fontSize: 12, color: color.dangerText, marginBottom: 8 }}>{error}</div>}
-          <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
+          <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12 }}>
             {type === "bug" ? "Your session replay will be attached so we can see exactly what happened." : "Your feedback helps us build a better app."}
           </div>
           <button onClick={handleSubmit} disabled={submitting || !description.trim()}
@@ -505,11 +505,11 @@ function HelpSection({ onReplayTour, user }) {
       {/* Past feedback with replies */}
       {pastFeedback.length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 12 }}>YOUR PREVIOUS SUBMISSIONS</div>
+          <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 12 }}>YOUR PREVIOUS SUBMISSIONS</div>
           {pastFeedback.map(item => (
             <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: item.type === "bug" ? color.dangerText : color.green }}>
+                <span style={{ fontSize: type.xs, color: item.type === "bug" ? color.dangerText : color.green }}>
                   {item.type === "bug" ? "🐛 Bug Report" : "💡 Feedback"}
                 </span>
                 <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
@@ -531,7 +531,7 @@ function HelpSection({ onReplayTour, user }) {
         </div>
       )}
 
-      <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>HELP & SUPPORT</div>
 
       <button onClick={onReplayTour}
         style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.goldLegacy, fontSize: 14, cursor: "pointer", fontFamily: SANS, textAlign: "left", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
@@ -555,7 +555,7 @@ function HelpSection({ onReplayTour, user }) {
 
       <div style={{ marginTop: 24, textAlign: "center" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: color.goldLegacy, letterSpacing: 2 }}>ASHED</div>
-        <div style={{ fontSize: 11, color: color.faint, marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
+        <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>Version 0.9.2 (Alpha) · ashed.app</div>
       </div>
     </div>
   );

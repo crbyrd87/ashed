@@ -141,7 +141,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
           </button>
         </div>
 
-        <div style={{ fontSize: 11, color: color.faint, marginTop: 12, textAlign: "center" }}>
+        <div style={{ fontSize: type.xs, color: color.faint, marginTop: 12, textAlign: "center" }}>
           You can log this cigar right away while we verify it.
         </div>
     </Sheet>

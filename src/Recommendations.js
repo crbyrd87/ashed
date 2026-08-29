@@ -7,7 +7,7 @@ import { FLAVOR_TAG_NAMES } from "./flavors";
 const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s] || "#888");
 
 const Badge = ({ label, tint = color.gold }) => (
-  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
+  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>{label}</span>
 );
 
 // Flavour vocabulary is shared with the check-in screen — see src/flavors.js.
@@ -166,7 +166,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>
             {mode === "loading" ? "Finding Recommendations..." : "Recommended for You"}
           </div>
-          <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>AI POWERED · ASHED</div>
+          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>AI POWERED · ASHED</div>
         </div>
         <CloseButton onClose={onClose} />
       </div>
@@ -184,7 +184,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
 
           {/* Taste profile summary */}
           <div style={{ background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>YOUR TASTE PROFILE</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>YOUR TASTE PROFILE</div>
             {(() => {
               const rated = checkins.filter(c => c.rating != null);
               const avg = rated.length
@@ -241,7 +241,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           )}
 
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PREFERRED BODY</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PREFERRED BODY</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(str => (
                 <button key={str} style={s.strengthPill(str, prefStrength.includes(str))}
@@ -253,7 +253,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>FLAVORS YOU ENJOY</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>FLAVORS YOU ENJOY</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {FLAVOR_TAG_NAMES.map(f => (
                 <button key={f} style={s.pill(prefFlavors.includes(f))}
@@ -299,7 +299,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {/* RESULTS */}
       {mode === "results" && (
         <div style={{ padding: 16 }}>
-          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 14 }}>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 14 }}>
             {resultsBasis}
           </div>
 

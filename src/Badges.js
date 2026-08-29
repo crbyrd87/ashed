@@ -60,8 +60,8 @@ export default function Badges({ userId }) {
     <div style={{ fontFamily: SANS }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: color.faint, letterSpacing: 1 }}>BADGES & ACHIEVEMENTS</div>
-        <div style={{ fontSize: 11, color: color.gold }}>{earned}/{total} earned</div>
+        <div style={{ fontSize: type.xs, color: color.faint, letterSpacing: 1 }}>BADGES & ACHIEVEMENTS</div>
+        <div style={{ fontSize: type.xs, color: color.gold }}>{earned}/{total} earned</div>
       </div>
 
       {/* Progress bar */}
@@ -82,9 +82,9 @@ export default function Badges({ userId }) {
               onClick={() => toggleCategory(cat)}
               style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}
             >
-              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 11, color: catEarned === catBadges.length ? color.gold : color.faint }}>
+                <span style={{ fontSize: type.xs, color: catEarned === catBadges.length ? color.gold : color.faint }}>
                   {catEarned}/{catBadges.length}
                 </span>
                 <span style={{ color: color.faint, fontSize: 12 }}>{isOpen ? "−" : "+"}</span>
@@ -113,7 +113,7 @@ export default function Badges({ userId }) {
                     <div style={{ fontSize: 28, marginBottom: 6, filter: badge.earned ? "none" : "grayscale(1)" }}>
                       {badge.icon}
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? color.text : color.cream, marginBottom: 3, lineHeight: 1.3 }}>
+                    <div style={{ fontSize: type.xs, fontWeight: 700, color: badge.earned ? color.text : color.cream, marginBottom: 3, lineHeight: 1.3 }}>
                       {badge.name}
                     </div>
                     <div style={{ fontSize: type.xs, color: badge.earned ? color.muted : color.muted, lineHeight: 1.4 }}>

@@ -57,7 +57,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
       <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.partner, letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
-          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
+          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
             {venueLabel}
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
       <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9 }}>
         {SECTIONS.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.partner : "transparent"}`, color: section === s.id ? color.partner : color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.partner : "transparent"}`, color: section === s.id ? color.partner : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 16 }}>{s.icon}</span>
             <span>{s.label.toUpperCase()}</span>
           </button>
@@ -200,7 +200,7 @@ function AnalyticsSection({ placeId, venue }) {
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Top Cigars Smoked Here</div>
         {stats.topCigars.map((c, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-            <div style={{ fontSize: 11, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+            <div style={{ fontSize: type.xs, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>{c.label}</div>
               <div style={{ height: 5, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
@@ -227,7 +227,7 @@ function Field({ label, field, form, setForm, multiline }) {
   const onChange = e => setForm(p => ({ ...p, [field]: e.target.value }));
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>{label}</div>
       {multiline
         ? <textarea value={form[field]} onChange={onChange} rows={3} style={{ ...box, resize: "vertical" }} />
         : <input value={form[field]} onChange={onChange} style={box} />}
@@ -303,7 +303,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Manage Your Listing</div>
         <button onClick={fetchFromGoogle} disabled={loadingGoogle}
-          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
           {loadingGoogle ? "Loading..." : "↻ Refresh from Google"}
         </button>
       </div>
@@ -373,7 +373,7 @@ function AnnounceSection({ placeId, user }) {
   return (
     <div>
       <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 6 }}>Post Announcement</div>
-      <div style={{ fontSize: 11, color: color.faint, marginBottom: 16 }}>Visible to users viewing your venue. Keep it short — events, new stock, specials.</div>
+      <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 16 }}>Visible to users viewing your venue. Keep it short — events, new stock, specials.</div>
 
       {msg && <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: color.dangerText }}>{msg}</div>}
 
@@ -389,7 +389,7 @@ function AnnounceSection({ placeId, user }) {
         {posting ? "Posting..." : "📣 Post Announcement"}
       </button>
 
-      <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>POSTED ANNOUNCEMENTS</div>
+      <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>POSTED ANNOUNCEMENTS</div>
       {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
       {!loading && announcements.length === 0 && (
         <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "30px 0" }}>No announcements posted yet.</div>
@@ -401,7 +401,7 @@ function AnnounceSection({ placeId, user }) {
             <button onClick={() => handleDelete(a.id)}
               style={{ background: "none", border: "none", color: color.faint, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>🗑</button>
           </div>
-          <div style={{ fontSize: 11, color: color.faint, marginTop: 8 }}>
+          <div style={{ fontSize: type.xs, color: color.faint, marginTop: 8 }}>
             {new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
         </div>

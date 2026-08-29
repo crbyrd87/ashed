@@ -162,7 +162,7 @@ Return ONLY a raw JSON object, no markdown:
         <div style={{ padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: color.bg, zIndex: 1 }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>🥃 Drink Pairings</div>
-            <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
+            <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
           </div>
           <CloseButton onClose={onClose} />
         </div>
@@ -201,7 +201,7 @@ Return ONLY a raw JSON object, no markdown:
 
               {/* Seasonal pairings */}
               <div style={{ borderTop: `1px solid ${color.line}33`, paddingTop: 16, marginTop: 4 }}>
-                <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>SEASONAL PAIRING</div>
+                <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>SEASONAL PAIRING</div>
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
                   {SEASONS.map(s => (
                     <button key={s} onClick={() => { setSeason(s); setSeasonalNote(null); }}

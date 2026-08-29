@@ -198,7 +198,7 @@ Be as specific as possible with brand and line. If you can read text on the band
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${color.lineStrong}` }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
-          <div style={{ fontSize: 11, color: color.gold, letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
+          <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
       </div>
@@ -329,7 +329,7 @@ Be as specific as possible with brand and line. If you can read text on the band
                 style={{ background: color.surfaceRaised, border: `1px solid ${color.gold}44`, borderRadius: 10, padding: "12px 14px", marginBottom: 12, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: color.gold }}>Not Sure</div>
-                  <div style={{ fontSize: 11, color: color.muted, marginTop: 3 }}>Show general info for this line</div>
+                  <div style={{ fontSize: type.xs, color: color.muted, marginTop: 3 }}>Show general info for this line</div>
                 </div>
                 <span style={{ color: color.gold, fontSize: 18 }}>›</span>
               </div>
@@ -345,7 +345,7 @@ Be as specific as possible with brand and line. If you can read text on the band
                   style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: color.text }}>{v.vitola}</div>
-                    {v.strength && <div style={{ fontSize: 11, color: color.muted, marginTop: 3 }}>{v.strength}</div>}
+                    {v.strength && <div style={{ fontSize: type.xs, color: color.muted, marginTop: 3 }}>{v.strength}</div>}
                   </div>
                   <span style={{ color: color.gold, fontSize: 18 }}>›</span>
                 </div>

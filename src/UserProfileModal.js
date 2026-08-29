@@ -84,7 +84,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: color.heading }}>{displayName}</div>
                 {username && <div style={{ fontSize: 13, color: color.tan }}>{username}</div>}
-                <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>Member since {memberSince}</div>
+                <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>Member since {memberSince}</div>
               </div>
             </div>
 
@@ -109,7 +109,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
             {/* Badges */}
             {badges.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>BADGES</div>
+                <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>BADGES</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {badges.map(key => (
                     <span key={key} title={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -123,7 +123,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
 
             {/* Recent check-ins */}
             <div>
-              <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
+              <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
               {checkins.length === 0 ? (
                 <div style={{ fontSize: 13, color: color.faint }}>No public check-ins yet.</div>
               ) : checkins.map(c => (
@@ -132,7 +132,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
                     {c.cigars?.line || c.cigar_name || "Unknown"}
                     {(c.cigars?.vitola || c.cigar_vitola) ? ` · ${c.cigars?.vitola || c.cigar_vitola}` : ""}
                   </div>
-                  <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>
+                  <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>
                     {c.cigars?.brand || c.cigar_brand || ""}
                     {c.rating ? ` · ${"🔥".repeat(Math.round(c.rating / 2))}` : ""}
                   </div>

@@ -40,14 +40,14 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
       <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
-          <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
+          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
         </div>
         <CloseButton onClose={onClose} />
       </div>
       <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {visibleSections.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flexShrink: 0, minWidth: 60, padding: "10px 12px", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.gold : "transparent"}`, color: section === s.id ? color.gold : color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            style={{ flexShrink: 0, minWidth: 60, padding: "10px 12px", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.gold : "transparent"}`, color: section === s.id ? color.gold : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 16 }}>{s.icon}</span>
             <span>{s.label.toUpperCase()}</span>
           </button>
@@ -186,7 +186,7 @@ function StatsSection() {
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
           <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
-          <div style={{ fontSize: 11, color: color.dimAlt }}>Last 30 days</div>
+          <div style={{ fontSize: type.xs, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {signupsByDay.every(d => d.count === 0)
           ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No signups in this period</div>
@@ -197,7 +197,7 @@ function StatsSection() {
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
           <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
-          <div style={{ fontSize: 11, color: color.dimAlt }}>Last 30 days</div>
+          <div style={{ fontSize: type.xs, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {checkinsByDay.every(d => d.count === 0)
           ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No check-ins in this period</div>
@@ -211,7 +211,7 @@ function StatsSection() {
           ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No data yet</div>
           : topCigars.map((c, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
+              <div style={{ fontSize: type.xs, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{c.label}</div>
                 <div style={{ height: 6, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
@@ -268,7 +268,7 @@ function MiniBarChart({ data, max, color: accent }) {
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end" }}>
               {!isZero && (
-                <div style={{ fontSize: 11, color: accent, marginBottom: 3, fontWeight: 700, opacity: 0.95 }}>{d.count}</div>
+                <div style={{ fontSize: type.xs, color: accent, marginBottom: 3, fontWeight: 700, opacity: 0.95 }}>{d.count}</div>
               )}
               <div
                 title={`${d.label}: ${d.count}`}
@@ -290,9 +290,9 @@ function MiniBarChart({ data, max, color: accent }) {
 
       {/* X-axis dates */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingLeft: 22 }}>
-        <span style={{ fontSize: 11, color: color.tan }}>{data[0]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: color.tan }}>{data[Math.floor(data.length / 2)]?.label?.slice(5)}</span>
-        <span style={{ fontSize: 11, color: color.tan }}>{data[data.length - 1]?.label?.slice(5)}</span>
+        <span style={{ fontSize: type.xs, color: color.tan }}>{data[0]?.label?.slice(5)}</span>
+        <span style={{ fontSize: type.xs, color: color.tan }}>{data[Math.floor(data.length / 2)]?.label?.slice(5)}</span>
+        <span style={{ fontSize: type.xs, color: color.tan }}>{data[data.length - 1]?.label?.slice(5)}</span>
       </div>
     </div>
   );
@@ -475,7 +475,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>{selectedUser.display_name || selectedUser.username}</div>
               <div style={{ fontSize: 12, color: color.muted, marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
-              <div style={{ fontSize: 11, color: color.faint, marginTop: 4 }}>
+              <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: color.goldPale }}>👑 Super Admin</span>}
                 {selectedUser.is_admin && <span style={{ marginLeft: 8, color: color.gold }}>⚙️ Admin</span>}
@@ -490,7 +490,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           </div>
 
           {/* Recent check-ins */}
-          <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
           {userCheckins.length === 0
             ? <div style={{ fontSize: 12, color: color.faint, marginBottom: 12 }}>No check-ins yet</div>
             : userCheckins.slice(0, 5).map(c => (
@@ -503,7 +503,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
 
           {/* Partner access */}
           <div style={{ borderTop: `1px solid ${color.line}33`, marginTop: 14, paddingTop: 14 }}>
-            <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
+            <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
             {selectedUser.is_partner ? (
               <div>
                 <div style={{ fontSize: 12, color: color.partner, marginBottom: 8 }}>
@@ -579,9 +579,9 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
               {u.is_partner && <span style={{ fontSize: type.xs, color: color.partner }}>🏪</span>}
               {u.is_flagged && <span style={{ fontSize: type.xs, color: color.alert }}>🚩</span>}
             </div>
-            <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{u.username} · {u.email}</div>
+            <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{u.username} · {u.email}</div>
           </div>
-          <div style={{ fontSize: 11, color: color.faint, flexShrink: 0, marginLeft: 8 }}>
+          <div style={{ fontSize: type.xs, color: color.faint, flexShrink: 0, marginLeft: 8 }}>
             {new Date(u.member_since || u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
         </div>
@@ -650,7 +650,7 @@ function ModerationSection() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Reported Comments</div>
-        {!loading && <div style={{ fontSize: 11, color: color.dimAlt }}>{reports.length} pending</div>}
+        {!loading && <div style={{ fontSize: type.xs, color: color.dimAlt }}>{reports.length} pending</div>}
       </div>
 
       {actionMsg && (
@@ -677,17 +677,17 @@ function ModerationSection() {
             {/* Report count badge */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, color: color.dangerText, fontWeight: 700 }}>
+                <span style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, color: color.dangerText, fontWeight: 700 }}>
                   🚩 {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
                 </span>
-                <span style={{ fontSize: 11, color: color.faint }}>
+                <span style={{ fontSize: type.xs, color: color.faint }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </span>
               </div>
             </div>
 
             {/* Comment author */}
-            <div style={{ fontSize: 11, color: color.muted, marginBottom: 6 }}>
+            <div style={{ fontSize: type.xs, color: color.muted, marginBottom: 6 }}>
               by <span style={{ color: color.gold }}>@{author?.username || "unknown"}</span>
             </div>
 
@@ -812,7 +812,7 @@ function BadgesSection() {
     <div>
       {/* User search */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
+        <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>MANAGE USER BADGES</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <input
             value={userQuery}
@@ -841,7 +841,7 @@ function BadgesSection() {
         {selectedUser && (
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: color.surfaceRaised, borderRadius: 6, border: `1px solid ${color.gold}44` }}>
             <span style={{ fontSize: 13, color: color.gold }}>@{selectedUser.username}</span>
-            <span style={{ fontSize: 11, color: color.green }}>{userBadges.size} badges earned</span>
+            <span style={{ fontSize: type.xs, color: color.green }}>{userBadges.size} badges earned</span>
             <button onClick={() => { setSelectedUser(null); setUserBadges(new Set()); setUserQuery(""); }}
               style={{ background: "none", border: "none", color: color.faint, fontSize: 16, cursor: "pointer" }}>×</button>
           </div>
@@ -863,7 +863,7 @@ function BadgesSection() {
           if (!catBadges) return null;
           return (
             <div key={cat} style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>{CATEGORY_LABELS[cat].toUpperCase()}</div>
               {catBadges.map(b => {
                 const earned = userBadges.has(b.key);
                 const count = earnedCounts[b.key] || 0;
@@ -872,13 +872,13 @@ function BadgesSection() {
                     <div style={{ fontSize: 24, flexShrink: 0, filter: earned ? "none" : "grayscale(1)", opacity: earned ? 1 : 0.5 }}>{b.icon}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: earned ? color.text : color.muted }}>{b.name}</div>
-                      <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>{b.description}</div>
+                      <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>{b.description}</div>
                       <div style={{ fontSize: type.xs, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
                     </div>
                     {selectedUser && (
                       <button
                         onClick={() => earned ? handleRevoke(b.key) : handleAward(b.key)}
-                        style={{ background: earned ? "none" : `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: earned ? `1px solid ${color.danger}55` : "none", borderRadius: 8, padding: "6px 12px", color: earned ? color.danger : color.bg, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
+                        style={{ background: earned ? "none" : `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: earned ? `1px solid ${color.danger}55` : "none", borderRadius: 8, padding: "6px 12px", color: earned ? color.danger : color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
                         {earned ? "Revoke" : "Award"}
                       </button>
                     )}
@@ -949,7 +949,7 @@ function DatabaseSection() {
       <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         {["all", "manual", "ai_generated", "user_submitted", "admin_approved"].map(s => (
           <button key={s} onClick={() => setSourceFilter(s)}
-            style={{ background: sourceFilter === s ? `${color.gold}22` : "none", border: `1px solid ${sourceFilter === s ? color.gold : color.line}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? color.gold : color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: sourceFilter === s ? `${color.gold}22` : "none", border: `1px solid ${sourceFilter === s ? color.gold : color.line}`, borderRadius: 20, padding: "4px 12px", color: sourceFilter === s ? color.gold : color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {s === "all" ? "All" : s.replace("_", " ")}
           </button>
         ))}
@@ -963,7 +963,7 @@ function DatabaseSection() {
         style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
       />
 
-      <div style={{ fontSize: 11, color: color.faint, marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
+      <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
 
       {filtered.map(c => (
         <div key={c.id} style={{ background: color.surface, border: `1px solid ${confirmDeleteId === c.id ? color.danger : color.line}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
@@ -981,12 +981,12 @@ function DatabaseSection() {
             </div>
             {confirmDeleteId === c.id ? (
               <button onClick={() => { setConfirmDeleteId(null); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 6, padding: "4px 10px", color: color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 6, padding: "4px 10px", color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
                 Cancel
               </button>
             ) : (
               <button onClick={() => { setConfirmDeleteId(c.id); setDeleteConfirmText(""); }}
-                style={{ background: "none", border: `1px solid ${color.danger}44`, borderRadius: 6, padding: "4px 10px", color: color.danger, fontSize: 11, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
+                style={{ background: "none", border: `1px solid ${color.danger}44`, borderRadius: 6, padding: "4px 10px", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, flexShrink: 0 }}>
                 Delete
               </button>
             )}
@@ -995,7 +995,7 @@ function DatabaseSection() {
           {/* Type DELETE confirmation */}
           {confirmDeleteId === c.id && (
             <div style={{ marginTop: 10, borderTop: `1px solid ${color.line}`, paddingTop: 10 }}>
-              <div style={{ fontSize: 11, color: color.danger, marginBottom: 6 }}>
+              <div style={{ fontSize: type.xs, color: color.danger, marginBottom: 6 }}>
                 Type <strong>DELETE</strong> to confirm deletion of {c.brand} {c.line} {c.vitola}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
@@ -1078,7 +1078,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
 
   return (
     <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
-      <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
+      <div style={{ fontSize: type.xs, color: color.goldLegacy, letterSpacing: 1, marginBottom: 10 }}>ADD TO DATABASE</div>
       <TextField label="BRAND" field="brand" placeholder="Brand name" form={form} setForm={setForm} />
       <TextField label="LINE" field="line" placeholder="Line name" form={form} setForm={setForm} />
       <TextField label="VITOLA" field="vitola" placeholder="e.g. Robusto, Toro" form={form} setForm={setForm} />
@@ -1091,7 +1091,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
         {TASTING_NOTE_OPTIONS.map(note => (
           <button key={note} onClick={() => toggleNote(note)}
-            style={{ background: selectedNotes.includes(note) ? `${color.goldLegacy}22` : "none", border: `1px solid ${selectedNotes.includes(note) ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: selectedNotes.includes(note) ? `${color.goldLegacy}22` : "none", border: `1px solid ${selectedNotes.includes(note) ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "4px 10px", color: selectedNotes.includes(note) ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {note}
           </button>
         ))}
@@ -1200,12 +1200,12 @@ function MissingCigarsSection({ currentUserId }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Missing Cigars</div>
         <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
         </button>
       </div>
 
-      <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
+      <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12 }}>
         {showResolved ? "Cigars already added to the DB." : "Cigars scanned by users that aren't in the DB yet."}
       </div>
 
@@ -1229,8 +1229,8 @@ function MissingCigarsSection({ currentUserId }) {
           <div style={{ fontSize: 13, fontWeight: 700, color: color.text, marginBottom: 4 }}>
             {item.brand} · {item.line}
           </div>
-          {item.vitola && <div style={{ fontSize: 11, color: color.muted, marginBottom: 4 }}>Vitola: {item.vitola}</div>}
-          <div style={{ fontSize: 11, color: color.faint, marginBottom: 10 }}>
+          {item.vitola && <div style={{ fontSize: type.xs, color: color.muted, marginBottom: 4 }}>Vitola: {item.vitola}</div>}
+          <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 10 }}>
             Reported by @{item.users?.username || "unknown"} · {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
 
@@ -1271,7 +1271,7 @@ function MissingCigarsSection({ currentUserId }) {
             </div>
           )}
           {dismissConfirmId === item.id && (
-            <div style={{ fontSize: 11, color: color.dangerText, marginTop: 6, textAlign: "center" }}>
+            <div style={{ fontSize: type.xs, color: color.dangerText, marginTop: 6, textAlign: "center" }}>
               Are you sure you want to dismiss this cigar addition?
             </div>
           )}
@@ -1351,7 +1351,7 @@ function FeedbackSection({ currentUser }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Bug Reports & Feedback</div>
         <button onClick={() => setShowResolved(v => !v)}
-          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
         </button>
       </div>
@@ -1360,7 +1360,7 @@ function FeedbackSection({ currentUser }) {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["all", "All"], ["bug", "🐛 Bugs"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
@@ -1378,10 +1378,10 @@ function FeedbackSection({ currentUser }) {
       {items.map(item => (
         <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 11, background: item.type === "bug" ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${item.type === "bug" ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? color.dangerText : color.green }}>
+            <span style={{ fontSize: type.xs, background: item.type === "bug" ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${item.type === "bug" ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? color.dangerText : color.green }}>
               {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
             </span>
-            <span style={{ fontSize: 11, color: color.faint, marginLeft: "auto" }}>
+            <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
               {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
           </div>
@@ -1493,10 +1493,10 @@ function DbRefreshSection() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>DB Refresh Candidates</div>
-        <div style={{ fontSize: 11, color: color.faint }}>Runs 1st of each month</div>
+        <div style={{ fontSize: type.xs, color: color.faint }}>Runs 1st of each month</div>
       </div>
 
-      <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>
+      <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12 }}>
         Searches Halfwheel for new releases from brands in our DB. Runs automatically via Vercel Cron. Manual triggering now requires the CRON_SECRET, which is deliberately not available in the browser — run it from a terminal: <span style={{ color: color.tan, fontFamily: "monospace" }}>curl -H "Authorization: Bearer $CRON_SECRET" https://ashed.app/api/db-refresh</span>
       </div>
 
@@ -1504,7 +1504,7 @@ function DbRefreshSection() {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["pending", "Pending"], ["approved", "✓ Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
@@ -1524,11 +1524,11 @@ function DbRefreshSection() {
           <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 4 }}>
             {item.brand} · {item.line}
           </div>
-          {item.vitolas && <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
+          {item.vitolas && <div style={{ fontSize: type.xs, color: color.tan, marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
           {item.notes && <div style={{ fontSize: 12, color: color.dim, lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
           {item.source_url && (
             <a href={item.source_url} target="_blank" rel="noreferrer"
-              style={{ fontSize: 11, color: color.goldLegacy, textDecoration: "none", display: "block", marginBottom: 10 }}>
+              style={{ fontSize: type.xs, color: color.goldLegacy, textDecoration: "none", display: "block", marginBottom: 10 }}>
               📰 View on Halfwheel
             </a>
           )}
@@ -1639,7 +1639,7 @@ function QASection({ currentUserId }) {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[["pending", "Pending"], ["approved", "✓ Approved"], ["rejected", "Rejected"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
@@ -1658,14 +1658,14 @@ function QASection({ currentUserId }) {
           <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 2 }}>
             {item.brand} · {item.line}
           </div>
-          <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>
+          <div style={{ fontSize: type.xs, color: color.tan, marginBottom: 4 }}>
             {item.vitola}{item.strength ? ` · ${item.strength}` : ""}
           </div>
-          <div style={{ fontSize: 11, color: color.faint, marginBottom: item.rejection_reason ? 6 : 10 }}>
+          <div style={{ fontSize: type.xs, color: color.faint, marginBottom: item.rejection_reason ? 6 : 10 }}>
             Submitted by @{item.users?.username || "unknown"}
           </div>
           {item.rejection_reason && (
-            <div style={{ fontSize: 11, color: color.dangerText, marginBottom: 10, background: `${color.danger}11`, borderRadius: 6, padding: "6px 8px" }}>
+            <div style={{ fontSize: type.xs, color: color.dangerText, marginBottom: 10, background: `${color.danger}11`, borderRadius: 6, padding: "6px 8px" }}>
               Rejected: {item.rejection_reason}
             </div>
           )}
@@ -1673,7 +1673,7 @@ function QASection({ currentUserId }) {
           {/* Edit form */}
           {editingId === item.id && (
             <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 8 }}>EDIT DETAILS</div>
+              <div style={{ fontSize: type.xs, color: color.goldLegacy, letterSpacing: 1, marginBottom: 8 }}>EDIT DETAILS</div>
               {[["BRAND", "brand", item.brand], ["LINE", "line", item.line], ["VITOLA", "vitola", item.vitola], ["ORIGIN", "origin", item.origin || ""], ["WRAPPER", "wrapper", item.wrapper || ""]].map(([label, field, def]) => (
                 <div key={field} style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
@@ -1695,7 +1695,7 @@ function QASection({ currentUserId }) {
           {/* Reject form */}
           {rejectingId === item.id && (
             <div style={{ borderTop: `1px solid ${color.lineStrong}`, paddingTop: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: color.dangerText, letterSpacing: 1, marginBottom: 8 }}>REJECTION REASON (shown to user)</div>
+              <div style={{ fontSize: type.xs, color: color.dangerText, letterSpacing: 1, marginBottom: 8 }}>REJECTION REASON (shown to user)</div>
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="e.g. This cigar could not be verified. Please check the brand and line name and try again."
                 rows={3}
@@ -1844,12 +1844,12 @@ function DedupSection({ currentUserId }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Duplicate Finder</div>
         <button onClick={handleScan} disabled={scanning}
-          style={{ background: scanning ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: 11, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
+          style={{ background: scanning ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: type.xs, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
           {scanning ? "Scanning..." : "▶ Find Duplicates"}
         </button>
       </div>
 
-      <div style={{ fontSize: 11, color: color.faint, marginBottom: 14, lineHeight: 1.6 }}>
+      <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 14, lineHeight: 1.6 }}>
         Finds cigars with the same brand, line, and vitola. Review each group before merging. The oldest record is kept and all check-ins, humidor, and wishlist entries are updated automatically.
       </div>
 
@@ -1861,7 +1861,7 @@ function DedupSection({ currentUserId }) {
 
       {merged.length > 0 && (
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
+          <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
           {merged.map(key => (
             <div key={key} style={{ fontSize: 12, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>✓ {key}</div>
           ))}
@@ -1885,7 +1885,7 @@ function DedupSection({ currentUserId }) {
           <div style={{ marginBottom: 8 }}>
             <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
             <div style={{ background: color.bg, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px" }}>
-              <div style={{ fontSize: 11, color: color.soft }}>
+              <div style={{ fontSize: type.xs, color: color.soft }}>
                 ID: <span style={{ color: color.dim }}>{String(group.keep.id).substring(0, 8)}</span>
                 {" · "}Source: <span style={{ color: color.tan }}>{group.keep.source}</span>
                 {" · "}Check-ins: <span style={{ color: color.tan }}>{group.keep.total_checkins || 0}</span>
@@ -1899,7 +1899,7 @@ function DedupSection({ currentUserId }) {
             <div key={dup.id} style={{ marginBottom: 8 }}>
               <div style={{ fontSize: type.xs, color: color.danger, letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
               <div style={{ background: color.bg, border: `1px solid ${color.danger}33`, borderRadius: 8, padding: "8px 10px" }}>
-                <div style={{ fontSize: 11, color: color.soft }}>
+                <div style={{ fontSize: type.xs, color: color.soft }}>
                   ID: <span style={{ color: color.dim }}>{String(dup.id).substring(0, 8)}</span>
                   {" · "}Source: <span style={{ color: color.tan }}>{dup.source}</span>
                   {" · "}Check-ins: <span style={{ color: color.tan }}>{dup.total_checkins || 0}</span>
@@ -1924,7 +1924,7 @@ function DedupSection({ currentUserId }) {
 
       {skipped.size > 0 && (
         <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 11, color: color.faint }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
+          <div style={{ fontSize: type.xs, color: color.faint }}>{skipped.size} group{skipped.size > 1 ? "s" : ""} skipped.</div>
         </div>
       )}
     </div>
@@ -1982,7 +1982,7 @@ function AuditSection() {
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {FILTERS.map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
           </button>
         ))}
@@ -2010,7 +2010,7 @@ function AuditSection() {
                 </span>
               </div>
               {log.notes && <div style={{ fontSize: 12, color: color.tan, marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
-              <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>
+              <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>
                 by @{log.users?.username || "unknown"}
               </div>
             </div>

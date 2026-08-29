@@ -139,7 +139,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             <div style={{ flex: 1, marginRight: 12 }}>
               <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 4px" }}>{cigarName}{vitola ? ` · ${vitola}` : ""}</div>
-              <div style={{ fontSize: 11, color: color.muted }}>
+              <div style={{ fontSize: type.xs, color: color.muted }}>
                 {smokerHandle && <span style={{ color: color.gold }}>{smokerHandle}</span>}
                 {smokerHandle && " · "}
                 {checkin.rating && <span style={{ color: color.gold, fontWeight: 700 }}>{(checkin.rating / 2).toFixed(1)}</span>}
@@ -147,7 +147,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                 {smokeDate}
               </div>
               {checkin.smoke_location && (
-                <div style={{ fontSize: 11, color: color.faint, marginTop: 3 }}>📍 {checkin.smoke_location}</div>
+                <div style={{ fontSize: type.xs, color: color.faint, marginTop: 3 }}>📍 {checkin.smoke_location}</div>
               )}
             </div>
             {/* Like + Wishlist buttons */}
@@ -193,7 +193,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
                   <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: type.xs, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
                     {(name[0] || "?").toUpperCase()}
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: isMe ? color.gold : color.text }}>{handle}</span>
+                  <span style={{ fontSize: type.xs, fontWeight: 700, color: isMe ? color.gold : color.text }}>{handle}</span>
                   <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>

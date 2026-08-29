@@ -7,7 +7,7 @@ import { supabase } from "./supabase";
 const strengthColor = s => ({ "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s] || "#888");
 
 const Badge = ({ label, tint = color.gold }) => (
-  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{label}</span>
+  <span style={{ background: tint + "22", color: tint, border: `1px solid ${tint}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>{label}</span>
 );
 
 export default function Humidor({ user, onSmokeOne, onSearchToAdd }) {
@@ -287,7 +287,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once.</div>
           </div>
           <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
+            <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
             {["Photograph up to 3 cigars at a time", "Bands should face the camera directly", "Good lighting makes a big difference", "You can edit brand and line on the confirm screen"].map((tip, i) => (
               <div key={i} style={{ fontSize: 12, color: color.muted, marginBottom: 4, display: "flex", gap: 6 }}>
                 <span style={{ color: color.gold }}>→</span>{tip}
@@ -411,7 +411,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1 }}>WHAT'S IN MY HUMIDOR?</div>
-          {items.length > 0 && <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
+          {items.length > 0 && <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
         </div>
         <button onClick={() => setShowAddOptions(true)}
           style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: "8px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
@@ -438,9 +438,9 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               {addSearchResults.map(c => (
                 <Pressable key={c.id} onClick={() => handleAddFromSearch(c)}
                   style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "10px 14px", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: color.tan }}>{c.brand}</div>
+                  <div style={{ fontSize: type.xs, color: color.tan }}>{c.brand}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.heading }}>{c.line}</div>
-                  {c.vitola && <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>{c.vitola}</div>}
+                  {c.vitola && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>{c.vitola}</div>}
                 </Pressable>
               ))}
             </div>
@@ -462,14 +462,14 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             const swatch = { "Mild": "#a8c5a0", "Mild-Medium": "#b8d4a0", "Medium": "#d4b483", "Medium-Full": "#c4894a", "Full": color.danger }[s];
             return (
               <button key={s} onClick={() => setFilterStrength(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
-                style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? swatch : color.lineStrong}`, background: active ? swatch + "22" : "transparent", color: active ? swatch : color.dim, fontSize: 11, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }}>
+                style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${active ? swatch : color.lineStrong}`, background: active ? swatch + "22" : "transparent", color: active ? swatch : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }}>
                 {s}
               </button>
             );
           })}
           {filterStrength.length > 0 && (
             <button onClick={() => setFilterStrength([])}
-              style={{ padding: "5px 10px", borderRadius: 20, border: `1px solid ${color.lineStrong}`, background: "transparent", color: color.faint, fontSize: 11, cursor: "pointer", fontFamily: SANS }}>
+              style={{ padding: "5px 10px", borderRadius: 20, border: `1px solid ${color.lineStrong}`, background: "transparent", color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
               Clear ×
             </button>
           )}
@@ -514,7 +514,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div key={brand} style={{ marginBottom: 16 }}>
               {/* Brand header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingLeft: 2 }}>
-                <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 2 }}>{brand.toUpperCase()}</div>
+                <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 700, letterSpacing: 2 }}>{brand.toUpperCase()}</div>
                 <div style={{ fontSize: type.xs, color: color.muted }}>{brandTotal} cigars</div>
               </div>
 
@@ -546,10 +546,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                                 {vitola
-                                  ? <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{vitola}</span>
-                                  : <span style={{ color: color.faint, fontSize: 11, fontStyle: "italic" }}>No vitola</span>
+                                  ? <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>{vitola}</span>
+                                  : <span style={{ color: color.faint, fontSize: type.xs, fontStyle: "italic" }}>No vitola</span>
                                 }
-                                {strength && <span style={{ background: swatch + "22", color: swatch, border: `1px solid ${swatch}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600 }}>{strength}</span>}
+                                {strength && <span style={{ background: swatch + "22", color: swatch, border: `1px solid ${swatch}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>{strength}</span>}
                               </div>
                               {/* Qty stepper */}
                               {isEditingQty ? (
@@ -638,7 +638,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                   style={{ width: "100%", background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}22` : color.surface, border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}55` : color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: color.text }}>{v.vitola}</div>
-                    {v.strength && <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.strength}</div>}
+                    {v.strength && <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{v.strength}</div>}
                   </div>
                   {(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola && (
                     <span style={{ color: color.gold, fontSize: 16 }}>✓</span>
