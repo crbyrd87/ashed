@@ -1,18 +1,17 @@
-import { SANS } from "../theme";
+import { font, color, TAP } from "../theme";
 
-// A real <button> with the browser's default styling stripped, so a clickable
-// div can become a button without changing how it looks. Use this when the
-// control contains no other interactive elements.
+// Wraps everything tappable. A real <button> with the browser's styling
+// stripped, so a clickable div becomes a button without changing how it looks.
 //
-// minHeight defaults to 48, which satisfies both Apple's and Android's minimum
-// (design review recs 10, 11, 12). Pass minHeight={0} for a control inside a
-// dense row, where forcing 48 would break the layout — the Feed row is the
-// case that matters, and it is only safe to raise once the row is thinned.
+// minHeight/minWidth default to TAP (48), which satisfies both Apple and
+// Material. Pass minHeight={0} for a control inside a dense row where forcing
+// 48 would break the layout.
 export default function Pressable({
   onClick,
   label,
   disabled = false,
-  minHeight = 48,
+  minHeight = TAP,
+  minWidth,
   style,
   children,
   ...rest
@@ -27,12 +26,17 @@ export default function Pressable({
         // Reset: a button brings its own background, border, padding, font
         // and centred text, none of which the original div had.
         background: "none", border: "none", padding: 0, margin: 0,
-        font: "inherit", fontFamily: SANS, color: "inherit",
+        font: "inherit", fontFamily: font.sans, color: "inherit",
         textAlign: "left", appearance: "none",
+        WebkitTapHighlightColor: "transparent",
         cursor: disabled ? "default" : "pointer",
         minHeight,
+        ...(minWidth !== undefined ? { minWidth } : null),
         ...style,
       }}
+      onPointerDown={(e) => { if (!disabled) e.currentTarget.style.background = color.surfaceRaised; }}
+      onPointerUp={(e) => { e.currentTarget.style.background = style?.background ?? "none"; }}
+      onPointerLeave={(e) => { e.currentTarget.style.background = style?.background ?? "none"; }}
       {...rest}
     >
       {children}

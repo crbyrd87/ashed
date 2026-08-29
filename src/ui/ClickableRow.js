@@ -1,28 +1,69 @@
-import { SANS } from "../theme";
+import { font, color, type } from "../theme";
+import Pressable from "./Pressable";
 
-// A row that is clickable as a whole but contains its own buttons — a feed
-// card with fire and comment actions, a notification with a dismiss control.
-// HTML forbids nesting a button inside a button, so this stays a div and takes
-// on the keyboard behaviour a button would have given it for free: focusable,
-// activated by Enter or Space, and announced as a button.
-export default function ClickableRow({ onClick, label, style, children, ...rest }) {
+// The home screen row, reused everywhere: a 60px tappable line with an
+// optional leading icon, a label, an optional sub-label, and a trailing slot
+// holding a chevron, a mono count or a gold label.
+//
+// The divider between rows is the parent's responsibility, not the row's —
+// otherwise every list ends with a trailing rule it did not ask for.
+export default function ClickableRow({
+  icon,
+  label,
+  sublabel,
+  trailing,
+  onClick,
+  ariaLabel,
+  style,
+  children,
+  ...rest
+}) {
+  // A row that wraps its own interactive children cannot be a <button>: HTML
+  // forbids nesting them. Those keep the div-with-role treatment.
+  if (children) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={ariaLabel || label}
+        onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(e); }
+        }}
+        style={{ cursor: "pointer", fontFamily: font.sans, ...style }}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  }
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-label={label}
+    <Pressable
       onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          // Space scrolls the page by default; a button must not.
-          e.preventDefault();
-          onClick(e);
-        }
+      label={ariaLabel}
+      minHeight={60}
+      style={{
+        width: "100%",
+        display: "flex", alignItems: "center", gap: 14,
+        ...style,
       }}
-      style={{ cursor: "pointer", fontFamily: SANS, ...style }}
       {...rest}
     >
-      {children}
-    </div>
+      {icon && <span style={{ display: "flex", flexShrink: 0 }}>{icon}</span>}
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{
+          display: "block", fontSize: type.md, color: color.textBody,
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {label}
+        </span>
+        {sublabel && (
+          <span style={{ display: "block", fontSize: type.sm, color: color.textMuted, marginTop: 1 }}>
+            {sublabel}
+          </span>
+        )}
+      </span>
+      {trailing && <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>{trailing}</span>}
+    </Pressable>
   );
 }

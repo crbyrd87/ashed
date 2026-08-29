@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
 import { Pill, SectionLabel, Sheet } from "./ui";
 import { supabase } from "./supabase";
@@ -105,7 +105,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
                 <SectionLabel style={{ marginBottom: 10 }}>Badges</SectionLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {badges.map(key => (
-                    <Pill key={key}>{key.replace(/_/g, " ").replace(/w/g, c => c.toUpperCase())}</Pill>
+                    <Pill key={key}>{key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</Pill>
                   ))}
                 </div>
               </div>
@@ -120,11 +120,11 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
                 <div key={c.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", marginBottom: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: color.heading }}>
                     {c.cigars?.line || c.cigar_name || "Unknown"}
-                    {(c.cigars?.vitola || c.cigar_vitola) ? ` · ${c.cigars?.vitola || c.cigar_vitola}` : ""}
+                    {(c.cigars?.vitola || c.cigar_vitola) ? ` Â· ${c.cigars?.vitola || c.cigar_vitola}` : ""}
                   </div>
                   <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>
                     {c.cigars?.brand || c.cigar_brand || ""}
-                    {c.rating ? ` · ${(c.rating / 2).toFixed(1)}` : ""}
+                    {c.rating ? ` Â· ${(c.rating / 2).toFixed(1)}` : ""}
                   </div>
                   <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}

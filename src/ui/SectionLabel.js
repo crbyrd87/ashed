@@ -1,15 +1,26 @@
-import { color, type, weight } from "../theme";
+import { font, color, type, weight, TRACK_LABEL } from "../theme";
 
-// The small uppercase label above a group. 73 near-identical copies across 15
-// files, varying only in size and tone — design review rec 8.
-export default function SectionLabel({ children, tone = color.muted, size = type.xs, style }) {
+// The small uppercase label above a group. Previously varied between 10 and
+// 11px, letterSpacing 1 and 2, and three different colours.
+//
+// `rule` draws a hairline filling the remaining width; `action` puts a gold
+// text link at the far right.
+export default function SectionLabel({ children, tone = color.textFaint, rule = false, action, style }) {
   return (
-    <div style={{
-      fontSize: size, color: tone, letterSpacing: 1,
-      fontWeight: weight.bodyMed, textTransform: "uppercase",
-      ...style,
-    }}>
-      {children}
+    <div style={{ display: "flex", alignItems: "center", gap: 10, ...style }}>
+      <span style={{
+        fontFamily: font.sans,
+        fontSize: type.xs,
+        letterSpacing: TRACK_LABEL,
+        textTransform: "uppercase",
+        fontWeight: weight.bodyMed,
+        color: tone,
+        whiteSpace: "nowrap",
+      }}>
+        {children}
+      </span>
+      {(rule || action) && <span style={{ flex: 1, height: 1, background: color.border }} />}
+      {action}
     </div>
   );
 }

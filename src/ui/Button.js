@@ -1,42 +1,42 @@
-import { SANS, color, radius, type, weight } from "../theme";
+import { font, color, radius, type, weight } from "../theme";
 
-// Variants named for their job, not their colour, so a redesign can restyle
-// them without every call site having to change.
+// Four variants named for their job, not their colour.
+// primary is the ONE filled button on a screen — never two.
 const VARIANTS = {
-  primary:   { bg: `linear-gradient(135deg, ${color.greenBright}, ${color.greenDeep})`, fg: color.white,   border: "none" },
-  gold:      { bg: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`,         fg: color.bg,      border: "none" },
-  secondary: { bg: color.surfaceRaised,  fg: color.text,   border: `1px solid ${color.lineStrong}` },
-  ghost:     { bg: "none",               fg: color.muted,  border: `1px solid ${color.line}` },
-  danger:    { bg: "none",               fg: color.dangerText, border: `1px solid ${color.danger}` },
+  primary:   { bg: color.gold,  fg: color.bg,         border: "none" },
+  secondary: { bg: "none",      fg: color.textBody,   border: `1px solid ${color.borderStrong}` },
+  ghost:     { bg: "none",      fg: color.textMuted,  border: "none" },
+  danger:    { bg: "none",      fg: color.danger,     border: `1px solid ${color.danger}` },
 };
 
 export default function Button({
   variant = "primary",
-  size = "md",                 // "md" full-height action, "sm" inline control
   disabled = false,
-  full = false,
+  full = true,
   style,
   children,
   ...rest
 }) {
   const v = VARIANTS[variant] || VARIANTS.primary;
-  const small = size === "sm";
   return (
     <button
+      type="button"
       disabled={disabled}
       style={{
         width: full ? "100%" : undefined,
-        background: disabled ? color.line : v.bg,
-        color: disabled ? color.faint : v.fg,
+        height: 52,
+        background: disabled ? color.surfaceRaised : v.bg,
+        color: disabled ? color.textFaint : v.fg,
         border: v.border,
-        borderRadius: small ? radius.pill : radius.lg,
-        padding: small ? "8px 14px" : 14,
-        // 48px satisfies both Apple's and Android's minimum (Session 12).
-        minHeight: small ? 36 : 48,
-        fontSize: small ? type.xs : type.md,
+        borderRadius: radius.md,
+        padding: "0 18px",
+        fontSize: type.md,
         fontWeight: weight.bodyBold,
-        fontFamily: SANS,
+        fontFamily: font.sans,
         cursor: disabled ? "default" : "pointer",
+        WebkitTapHighlightColor: "transparent",
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        // No hover states: this is a touch app.
         ...style,
       }}
       {...rest}

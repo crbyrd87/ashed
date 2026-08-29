@@ -1,24 +1,30 @@
-import { color, radius, type, weight } from "../theme";
+import { font, color, radius, type } from "../theme";
 
-// The small rounded tag used for strength, wrapper, origin and status. Five
-// near-identical treatments across three files before this.
-export default function Pill({ children, tone = color.muted, filled = false, size = "md", style }) {
-  const small = size === "sm";
+// Chip. Used for flavour tags, pairing chips, filters and badge names.
+// No fill until selected; the border carries it.
+export default function Pill({ children, selected = false, onClick, style, ...rest }) {
+  const Tag = onClick ? "button" : "span";
   return (
-    <span style={{
-      display: "inline-block",
-      borderRadius: radius.pill,
-      padding: small ? "2px 8px" : "4px 10px",
-      fontSize: type.xs,
-      fontWeight: weight.bodyMed,
-      lineHeight: 1.4,
-      color: filled ? color.bg : tone,
-      background: filled ? tone : `${tone}1a`,
-      border: `1px solid ${tone}${filled ? "" : "44"}`,
-      whiteSpace: "nowrap",
-      ...style,
-    }}>
+    <Tag
+      {...(onClick ? { type: "button", onClick } : null)}
+      style={{
+        display: "inline-flex", alignItems: "center",
+        height: 36,
+        padding: "0 14px",
+        borderRadius: radius.pill,
+        border: `1px solid ${selected ? color.gold : color.borderStrong}`,
+        background: selected ? color.surfaceRaised : "none",
+        color: color.textBody,
+        fontFamily: font.sans,
+        fontSize: type.sm,
+        whiteSpace: "nowrap",
+        cursor: onClick ? "pointer" : "default",
+        WebkitTapHighlightColor: "transparent",
+        ...style,
+      }}
+      {...rest}
+    >
       {children}
-    </span>
+    </Tag>
   );
 }

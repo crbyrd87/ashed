@@ -1,14 +1,15 @@
-import { SANS, color, radius, layout } from "../theme";
+import { font, color, radius, layout } from "../theme";
 
-// Design review rec 27: the app had five different ways of centring an overlay,
-// with scrim opacities of 0.7 / 0.75 / 0.85 and panel widths of 380 / 420 / 480.
-// Centring, scrim and radius are settled here.
+// Bottom sheet and centred dialog.
 //
-// zIndex stays a required-ish prop rather than a constant. Several overlays open
-// on top of other overlays — UpgradePrompt over a screen, CigarSubmitModal over
-// CheckIn — so the existing values are load-bearing and are passed in, not
-// unified away.
-const SCRIM = "rgba(0,0,0,0.8)";
+// The app had two incompatible centring approaches — maxWidth + margin auto in
+// CheckIn, Friends, Notifications, Recommendations and FeedModal, versus
+// left:50% + translateX in Settings and the nav — so on a wide window sheets
+// jumped horizontally between screens. Settled here, in one place.
+//
+// zIndex stays a prop: several overlays deliberately layer over other
+// overlays, so the existing values are load-bearing.
+const SCRIM = "rgba(10,8,6,0.72)";
 
 export default function Sheet({
   onClose,
@@ -17,7 +18,7 @@ export default function Sheet({
   maxWidth = layout.maxWidth,
   maxHeight,
   padding,
-  handle = false,                // the little grab bar on bottom sheets
+  handle = false,
   dismissOnScrim = true,
   panelStyle,
   children,
@@ -31,26 +32,30 @@ export default function Sheet({
         display: "flex", justifyContent: "center",
         alignItems: bottom ? "flex-end" : "center",
         padding: bottom ? 0 : 24,
-        fontFamily: SANS,
+        fontFamily: font.sans,
       }}
     >
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth,
-          background: color.bg,
-          border: `1px solid ${color.lineStrong}`,
-          ...(bottom ? { borderBottom: "none" } : null),
+          width: "100%", maxWidth, margin: "0 auto",
+          background: color.surface,
+          borderTop: `1px solid ${color.border}`,
+          ...(bottom ? null : { border: `1px solid ${color.border}` }),
           borderRadius: bottom ? `${radius.sheet}px ${radius.sheet}px 0 0` : radius.sheet,
           maxHeight: maxHeight || (bottom ? "85vh" : "90vh"),
           overflowY: "auto",
-          padding: padding !== undefined ? padding : (bottom ? "20px 20px 36px" : 24),
-          fontFamily: SANS,
+          padding: padding !== undefined ? padding : (bottom ? "0 20px 20px" : 24),
+          // The home indicator sits over the last 34px on a modern iPhone.
+          paddingBottom: bottom ? "calc(20px + env(safe-area-inset-bottom))" : undefined,
+          fontFamily: font.sans,
           ...panelStyle,
         }}
       >
         {handle && (
-          <div style={{ width: 40, height: 4, background: color.lineStrong, borderRadius: 2, margin: "0 auto 20px" }} />
+          <div style={{ paddingTop: 12, paddingBottom: 18, display: "flex", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 4, background: color.borderStrong, borderRadius: 2 }} />
+          </div>
         )}
         {children}
       </div>

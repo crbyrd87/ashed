@@ -1,9 +1,7 @@
 import { color, radius } from "../theme";
 
-// There were two implementations: CheckIn used a clickable div tinted with
-// `gold` and a 20px knob, Settings a real <button> tinted with `goldLegacy`
-// and an 18px knob. Settled on the button, which is keyboard reachable, on
-// `gold`, which theme.js marks canonical, and on the 20px knob.
+// One implementation. There were two — a clickable div in CheckIn and a
+// button in Settings, on different golds and different knob sizes.
 export default function Toggle({ checked, onChange, label, disabled = false, style }) {
   return (
     <button
@@ -14,18 +12,24 @@ export default function Toggle({ checked, onChange, label, disabled = false, sty
       disabled={disabled}
       onClick={() => onChange(!checked)}
       style={{
-        width: 44, height: 24, borderRadius: radius.pill,
-        background: checked ? color.gold : color.line,
-        border: "none", cursor: disabled ? "default" : "pointer",
-        position: "relative", transition: "background 0.2s",
-        flexShrink: 0, padding: 0, opacity: disabled ? 0.5 : 1,
+        width: 48, height: 28,
+        borderRadius: radius.pill,
+        background: checked ? color.gold : color.surfaceRaised,
+        border: "none", padding: 0,
+        position: "relative", flexShrink: 0,
+        cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.5 : 1,
+        WebkitTapHighlightColor: "transparent",
+        transition: "background 160ms",
         ...style,
       }}
     >
-      <div style={{
-        position: "absolute", top: 2, left: checked ? 22 : 2,
-        width: 20, height: 20, borderRadius: "50%",
-        background: color.heading, transition: "left 0.2s",
+      <span style={{
+        position: "absolute", top: 3, left: 3,
+        width: 22, height: 22, borderRadius: "50%",
+        background: color.textPrimary,
+        transform: checked ? "translateX(20px)" : "translateX(0)",
+        transition: "transform 160ms",
       }} />
     </button>
   );
