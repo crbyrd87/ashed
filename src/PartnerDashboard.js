@@ -172,7 +172,7 @@ function AnalyticsSection({ placeId, venue }) {
           <div key={label} style={{ background: color.surface, border: `1px solid ${accent}33`, borderRadius: 12, padding: "14px 12px", textAlign: "center", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
             <div style={{ fontSize: 24, fontWeight: 700, color: accent }}>{value}</div>
-            <div style={{ fontSize: 10, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
+            <div style={{ fontSize: type.xs, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
           </div>
         ))}
       </div>
@@ -186,9 +186,9 @@ function AnalyticsSection({ placeId, venue }) {
             const isZero = d.count === 0;
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
-                {!isZero && <div style={{ fontSize: 10, color: color.partner, fontWeight: 700 }}>{d.count}</div>}
+                {!isZero && <div style={{ fontSize: type.xs, color: color.partner, fontWeight: 700 }}>{d.count}</div>}
                 <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: isZero ? 2 : `${Math.max(pct, 4)}%`, background: isZero ? color.surfaceRaised : `linear-gradient(180deg, ${color.partner}ff 0%, ${color.partner}99 100%)`, opacity: isZero ? 0.3 : 1 }} />
-                <div style={{ fontSize: 10, color: color.dimAlt }}>{d.name}</div>
+                <div style={{ fontSize: type.xs, color: color.dimAlt }}>{d.name}</div>
               </div>
             );
           })}

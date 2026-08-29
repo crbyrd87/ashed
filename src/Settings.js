@@ -112,7 +112,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
       {editing ? (
         <div>
           <input
@@ -192,7 +192,7 @@ function AccountSection({ user, displayName, username, onSignOut }) {
       <div style={{ fontSize: 11, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>PROFILE</div>
       <Field label="DISPLAY NAME" value={displayName} onSave={saveDisplayName} />
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
+        <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>USERNAME</div>
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 14, color: color.faint }}>{username ? `@${username}` : "Not set"}</span>
           <span style={{ fontSize: 11, color: color.faint }}>Cannot be changed</span>
@@ -203,7 +203,7 @@ function AccountSection({ user, displayName, username, onSignOut }) {
       <Field label="EMAIL ADDRESS" value={user?.email} onSave={saveEmail} hint="A confirmation will be sent to your current email address." />
 
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>PASSWORD</div>
+        <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>PASSWORD</div>
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 14, color: color.faint }}>••••••••</span>
           <button onClick={handlePasswordReset}
@@ -477,7 +477,7 @@ function HelpSection({ onReplayTour, user }) {
             ))}
           </div>
 
-          <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 6 }}>
+          <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 6 }}>
             {type === "bug" ? "DESCRIBE THE BUG — WHAT HAPPENED?" : "WHAT'S ON YOUR MIND?"}
           </div>
           <textarea
@@ -512,7 +512,7 @@ function HelpSection({ onReplayTour, user }) {
                 <span style={{ fontSize: 11, color: item.type === "bug" ? color.dangerText : color.green }}>
                   {item.type === "bug" ? "🐛 Bug Report" : "💡 Feedback"}
                 </span>
-                <span style={{ fontSize: 10, color: color.faint, marginLeft: "auto" }}>
+                <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </div>
@@ -521,7 +521,7 @@ function HelpSection({ onReplayTour, user }) {
               </div>
               {item.reply_text && (
                 <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px", marginTop: 8 }}>
-                  <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
+                  <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
                   <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
                 </div>
               )}

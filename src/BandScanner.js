@@ -296,7 +296,7 @@ Be as specific as possible with brand and line. If you can read text on the band
             </span>
           </div>
 
-          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, marginBottom: 2 }}>{cigar.brand.toUpperCase()}</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, marginBottom: 2 }}>{cigar.brand.toUpperCase()}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: color.text, marginBottom: 4 }}>{cigar.line}</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 20 }}>Select your vitola to continue</div>
 
@@ -334,7 +334,7 @@ Be as specific as possible with brand and line. If you can read text on the band
                 <span style={{ color: color.gold, fontSize: 18 }}>›</span>
               </div>
               {/* Divider */}
-              <div style={{ fontSize: 10, color: color.faint, letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
+              <div style={{ fontSize: type.xs, color: color.faint, letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
               {vitolas.map((v, i) => (
                 <div key={i}
                   onClick={() => {
@@ -374,7 +374,7 @@ Be as specific as possible with brand and line. If you can read text on the band
             </span>
           </div>
 
-          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: color.text, margin: "4px 0 10px" }}>{cigar.line}</div>
           {cigar.vitola && <div style={{ fontSize: 14, color: color.gold, marginBottom: 12, fontWeight: 600 }}>{cigar.vitola}</div>}
 
@@ -382,7 +382,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
             {[["Wrapper", cigar.wrapper], ["Strength", cigar.strength], ["Origin", cigar.origin]].map(([k, v]) => v && (
               <div key={k} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px" }}>
-                <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
+                <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
                 <div style={{ fontSize: 14, color: color.text, marginTop: 3 }}>{v}</div>
               </div>
             ))}
@@ -390,7 +390,7 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {cigar.tasting_notes && (
             <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, marginBottom: 6 }}>TASTING NOTES</div>
               <div style={{ fontSize: 13, color: color.cream, lineHeight: 1.6 }}>{cigar.tasting_notes}</div>
             </div>
           )}

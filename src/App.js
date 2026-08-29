@@ -216,9 +216,9 @@ function AdvancedStats({ checkins }) {
             const pct = Math.round((m.count / maxMonth) * 100);
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
-                {m.count > 0 && <div style={{ fontSize: 10, color: color.goldLegacy, fontWeight: 700 }}>{m.count}</div>}
+                {m.count > 0 && <div style={{ fontSize: type.xs, color: color.goldLegacy, fontWeight: 700 }}>{m.count}</div>}
                 <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: m.count === 0 ? 2 : `${Math.max(pct, 4)}%`, background: m.count === 0 ? color.surfaceRaised : `linear-gradient(180deg, ${color.goldLegacy}ff 0%, ${color.goldLegacy}99 100%)`, opacity: m.count === 0 ? 0.3 : 1 }} />
-                <div style={{ fontSize: 9, color: color.dimAlt }}>{m.label}</div>
+                <div style={{ fontSize: type.xs, color: color.dimAlt }}>{m.label}</div>
               </div>
             );
           })}
@@ -235,7 +235,7 @@ function AdvancedStats({ checkins }) {
                 <div style={{ fontSize: 14, fontWeight: 700, color: monthlyRatings[i] ? color.goldLegacy : color.lineStrong }}>
                   {monthlyRatings[i] ?? "—"}
                 </div>
-                <div style={{ fontSize: 9, color: color.dimAlt, marginTop: 4 }}>{m.label}</div>
+                <div style={{ fontSize: type.xs, color: color.dimAlt, marginTop: 4 }}>{m.label}</div>
               </div>
             ))}
           </div>
@@ -250,7 +250,7 @@ function AdvancedStats({ checkins }) {
             const pct = Math.round((count / totalStrength) * 100);
             return (
               <div key={s} style={{ flex: count || 1, height: 28, background: count > 0 ? strengthColors[s] + "88" : color.surfaceRaised, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", transition: "flex 0.3s" }}>
-                {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: strengthColors[s] }}>{pct}%</span>}
+                {count > 0 && <span style={{ fontSize: type.xs, fontWeight: 700, color: strengthColors[s] }}>{pct}%</span>}
               </div>
             );
           })}
@@ -258,7 +258,7 @@ function AdvancedStats({ checkins }) {
         <div style={{ display: "flex", gap: 6 }}>
           {Object.entries(strengthCounts).map(([s, count]) => (
             <div key={s} style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontSize: 10, color: strengthColors[s], fontWeight: count > 0 ? 700 : 400 }}>{s.replace("Medium-Full", "Med-Full")}</div>
+              <div style={{ fontSize: type.xs, color: strengthColors[s], fontWeight: count > 0 ? 700 : 400 }}>{s.replace("Medium-Full", "Med-Full")}</div>
               <div style={{ fontSize: 11, color: color.dim }}>{count}</div>
             </div>
           ))}
@@ -849,7 +849,7 @@ export default function App() {
     app: { fontFamily: SANS, background: color.bg, minHeight: "100vh", color: color.heading, maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "20px 20px 12px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: color.bg, borderTop: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
-    navBtn: a => ({ flex: 1, padding: "8px 0", background: "none", border: "none", borderTop: a ? `2px solid ${color.gold}` : "2px solid transparent", color: color.gold, fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: 700, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
+    navBtn: a => ({ flex: 1, padding: "8px 0", background: "none", border: "none", borderTop: a ? `2px solid ${color.gold}` : "2px solid transparent", color: color.gold, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: 700, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surfaceCard} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
@@ -956,7 +956,7 @@ export default function App() {
                         <div style={{ width: `${v.avg * 10}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
                       </div>
                       <span style={{ fontSize: 13, fontWeight: 700, color: color.green, width: 32, textAlign: "right" }}>{v.avg}</span>
-                      <span style={{ fontSize: 10, color: color.faintAlt, width: 24, textAlign: "right" }}>×{v.count}</span>
+                      <span style={{ fontSize: type.xs, color: color.faintAlt, width: 24, textAlign: "right" }}>×{v.count}</span>
                     </div>
                   ))}
                 </div>
@@ -986,7 +986,7 @@ export default function App() {
                   <span style={{ fontWeight: 600 }}>Drink Pairings</span>
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {!isPremium && <span style={{ fontSize: 10, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                  {!isPremium && <span style={{ fontSize: type.xs, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
                   <span style={{ fontSize: 16, color: color.dim }}>›</span>
                 </span>
               </button>
@@ -1056,7 +1056,7 @@ export default function App() {
                   onClick={() => { if (isPremium) { setPairingsCigar(c); setShowPairings(true); } else { setUpgradeFeature("pairings"); } }}
                   style={{ width: "100%", background: "none", border: `1px solid ${color.partner}55`, borderRadius: 10, padding: 12, color: color.partner, fontSize: 13, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  🥃 Drink Pairings {!isPremium && <span style={{ fontSize: 10, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
+                  🥃 Drink Pairings {!isPremium && <span style={{ fontSize: type.xs, background: `${color.partner}22`, border: `1px solid ${color.partner}55`, borderRadius: 8, padding: "1px 6px" }}>PRO</span>}
                 </button>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
@@ -1170,13 +1170,13 @@ export default function App() {
                   onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
                   style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  📷 Scan a Band {!isPremium && <span style={{ fontSize: 10, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                  📷 Scan a Band {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
                 </button>
                 <button
                   onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
                   style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                 >
-                  ✨ Recommendation {!isPremium && <span style={{ fontSize: 10, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
+                  ✨ Recommendation {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
                 </button>
               </div>
             </div>
@@ -1217,7 +1217,7 @@ export default function App() {
             >
               👥 Friends
               {pendingFriendCount > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
+                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
                   {pendingFriendCount}
                 </span>
               )}
@@ -1228,7 +1228,7 @@ export default function App() {
             >
               🔔
               {unreadNotifCount > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
+                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
                   {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
                 </span>
               )}
@@ -1268,7 +1268,7 @@ export default function App() {
             ].map(([k, v]) => (
               <div key={k} style={{ ...s.statBox, padding: "10px 8px" }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: color.goldLegacy }}>{v}</div>
-                <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginTop: 1 }}>{k.toUpperCase()}</div>
+                <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginTop: 1 }}>{k.toUpperCase()}</div>
               </div>
             ))}
           </div>
@@ -1351,12 +1351,12 @@ export default function App() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>MINIMUM: <span style={{ color: color.goldLegacy, fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
                         <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ fontSize: type.md, width: "100%", accentColor: color.goldLegacy }} />
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: type.xs, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>MAXIMUM: <span style={{ color: color.goldLegacy, fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
                         <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ fontSize: type.md, width: "100%", accentColor: color.goldLegacy }} />
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: type.xs, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
                     </div>
                   </div>
@@ -1443,7 +1443,7 @@ export default function App() {
                                     if (isActive) return;
                                     const { data } = await supabase.from("checkins").update({ visibility: opt.value }).eq("id", c.id).select().single();
                                     if (data) { setSelectedCheckin(data); setCheckins(prev => prev.map(x => x.id === data.id ? { ...x, visibility: data.visibility } : x)); }
-                                  }} style={{ fontSize: 10, color: isActive ? color.gold : color.faint, background: isActive ? `${color.gold}22` : color.line, border: `0.5px solid ${isActive ? `${color.gold}55` : "transparent"}`, borderRadius: 20, padding: "2px 7px", cursor: "pointer", fontFamily: SANS, fontWeight: isActive ? 700 : 400 }}>
+                                  }} style={{ fontSize: type.xs, color: isActive ? color.gold : color.faint, background: isActive ? `${color.gold}22` : color.line, border: `0.5px solid ${isActive ? `${color.gold}55` : "transparent"}`, borderRadius: 20, padding: "2px 7px", cursor: "pointer", fontFamily: SANS, fontWeight: isActive ? 700 : 400 }}>
                                     {opt.icon} {opt.label}
                                   </button>
                                 );
@@ -1483,11 +1483,11 @@ export default function App() {
 
                         {/* Verification badges */}
                         {c.cigars && !c.cigars.verified && !c.cigars.rejection_reason && (
-                          <span style={{ fontSize: 10, background: `${color.gold}22`, border: `1px solid ${color.gold}55`, borderRadius: 6, padding: "1px 6px", color: color.gold, marginTop: 8, display: "inline-block" }}>⏳ Pending verification</span>
+                          <span style={{ fontSize: type.xs, background: `${color.gold}22`, border: `1px solid ${color.gold}55`, borderRadius: 6, padding: "1px 6px", color: color.gold, marginTop: 8, display: "inline-block" }}>⏳ Pending verification</span>
                         )}
                         {c.cigars?.rejection_reason && (
                           <div style={{ marginTop: 6 }}>
-                            <span style={{ fontSize: 10, background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "1px 6px", color: color.dangerText }}>⚠️ Not verified</span>
+                            <span style={{ fontSize: type.xs, background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "1px 6px", color: color.dangerText }}>⚠️ Not verified</span>
                             <div style={{ fontSize: 11, color: color.dangerText, marginTop: 4, lineHeight: 1.5 }}>{c.cigars.rejection_reason}</div>
                           </div>
                         )}
@@ -1691,7 +1691,7 @@ export default function App() {
                 <div style={{ display: "flex", gap: 6 }}>
                   {["Mild", "Mild-Medium", "Medium", "Medium-Full", "Full"].map(str => (
                     <button key={str} onClick={() => setWishlistFilterStrength(prev => prev.includes(str) ? prev.filter(x => x !== str) : [...prev, str])}
-                      style={{ flex: 1, padding: "7px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : color.faintDim}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "33" : color.surfaceRaised, color: wishlistFilterStrength.includes(str) ? strengthColor(str) : color.tan, fontSize: 10, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 500 }}>
+                      style={{ flex: 1, padding: "7px 0", borderRadius: 20, border: `1px solid ${wishlistFilterStrength.includes(str) ? strengthColor(str) : color.faintDim}`, background: wishlistFilterStrength.includes(str) ? strengthColor(str) + "33" : color.surfaceRaised, color: wishlistFilterStrength.includes(str) ? strengthColor(str) : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: wishlistFilterStrength.includes(str) ? 700 : 500 }}>
                       {str}
                     </button>
                   ))}
@@ -2051,7 +2051,7 @@ export default function App() {
               <div style={{ width: 36, height: 4, background: color.lineStrong, borderRadius: 2 }} />
             </div>
             <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.lineStrong}`, flexShrink: 0 }}>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2 }}>{wishlistVitolaPicker.brand.toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>{wishlistVitolaPicker.brand.toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 2px" }}>{wishlistVitolaPicker.line}</div>
               <div style={{ fontSize: 12, color: color.muted }}>Select a vitola to add to your wishlist — or skip to add the line</div>
             </div>
@@ -2071,7 +2071,7 @@ export default function App() {
               )}
 
               {!wishlistVitolaLoading && wishlistVitolaOptions.length > 0 && (
-                <div style={{ fontSize: 10, color: color.faint, letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
+                <div style={{ fontSize: type.xs, color: color.faint, letterSpacing: 1, marginBottom: 10 }}>OR SELECT A SIZE</div>
               )}
 
               {wishlistVitolaOptions.map((v, i) => (
@@ -2107,7 +2107,7 @@ export default function App() {
               onClick={e => e.stopPropagation()}>
               <div style={{ width: 40, height: 4, background: color.lineStrong, borderRadius: 2, margin: "0 auto 16px" }} />
               <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ADD TO HUMIDOR</div>
-              <div style={{ fontSize: 10, color: color.muted, marginBottom: 4 }}>{brand.toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, marginBottom: 4 }}>{brand.toUpperCase()}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: color.text, marginBottom: 16 }}>{line}</div>
 
               {/* Vitola */}

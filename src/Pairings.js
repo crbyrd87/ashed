@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { CloseButton, Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -205,7 +205,7 @@ Return ONLY a raw JSON object, no markdown:
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
                   {SEASONS.map(s => (
                     <button key={s} onClick={() => { setSeason(s); setSeasonalNote(null); }}
-                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${season === s ? color.gold : color.line}`, background: season === s ? `${color.gold}22` : "transparent", color: season === s ? color.gold : color.faint, fontSize: 10, cursor: "pointer", fontFamily: SANS }}>
+                      style={{ flex: 1, padding: "6px 0", borderRadius: 20, border: `1px solid ${season === s ? color.gold : color.line}`, background: season === s ? `${color.gold}22` : "transparent", color: season === s ? color.gold : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                       {s}
                     </button>
                   ))}

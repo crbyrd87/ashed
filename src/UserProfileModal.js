@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 
@@ -136,7 +136,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
                     {c.cigars?.brand || c.cigar_brand || ""}
                     {c.rating ? ` · ${"🔥".repeat(Math.round(c.rating / 2))}` : ""}
                   </div>
-                  <div style={{ fontSize: 10, color: color.faint, marginTop: 4 }}>
+                  <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </div>
                 </div>

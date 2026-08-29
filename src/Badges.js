@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Pressable } from "./ui";
 import { fetchUserBadges } from "./badgeEngine";
 
@@ -116,16 +116,16 @@ export default function Badges({ userId }) {
                     <div style={{ fontSize: 11, fontWeight: 700, color: badge.earned ? color.text : color.cream, marginBottom: 3, lineHeight: 1.3 }}>
                       {badge.name}
                     </div>
-                    <div style={{ fontSize: 10, color: badge.earned ? color.muted : color.muted, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: type.xs, color: badge.earned ? color.muted : color.muted, lineHeight: 1.4 }}>
                       {badge.description}
                     </div>
                     {badge.earned && badge.awarded_at && (
-                      <div style={{ fontSize: 9, color: `${color.gold}88`, marginTop: 6 }}>
+                      <div style={{ fontSize: type.xs, color: `${color.gold}88`, marginTop: 6 }}>
                         {new Date(badge.awarded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </div>
                     )}
                     {!badge.earned && (
-                      <div style={{ fontSize: 9, color: color.muted, marginTop: 6 }}>🔒 Locked</div>
+                      <div style={{ fontSize: type.xs, color: color.muted, marginTop: 6 }}>🔒 Locked</div>
                     )}
                   </div>
                 ))}

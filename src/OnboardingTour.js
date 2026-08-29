@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 
 const CigarIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -173,7 +173,7 @@ export default function OnboardingTour({ onComplete }) {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: color.heading }}>{screen.title}</div>
             {screen.pro && (
-              <span style={{ fontSize: 10, background: `${color.goldLegacy}22`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "2px 8px", color: color.goldLegacy, fontWeight: 700 }}>PRO</span>
+              <span style={{ fontSize: type.xs, background: `${color.goldLegacy}22`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "2px 8px", color: color.goldLegacy, fontWeight: 700 }}>PRO</span>
             )}
           </div>
           <div style={{ fontSize: 14, color: color.tan, lineHeight: 1.7 }}>{screen.description}</div>

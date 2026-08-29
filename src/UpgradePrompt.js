@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 
@@ -143,12 +143,12 @@ export default function UpgradePrompt({ feature, onClose }) {
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               <div style={{ flex: 1, background: color.bg, border: `1px solid ${color.gold}33`, borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: color.gold }}>$4.99</div>
-                <div style={{ fontSize: 10, color: color.dim, marginTop: 2, letterSpacing: 1 }}>/ MONTH</div>
+                <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2, letterSpacing: 1 }}>/ MONTH</div>
               </div>
               <div style={{ flex: 1, background: color.bg, border: `1px solid ${color.gold}55`, borderRadius: 8, padding: "10px 8px", textAlign: "center", position: "relative" }}>
-                <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: color.gold, color: color.bg, fontSize: 8, fontWeight: 700, padding: "2px 6px", borderRadius: 8, letterSpacing: 1, whiteSpace: "nowrap" }}>BEST DEAL</div>
+                <div style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: color.gold, color: color.bg, fontSize: type.xs, fontWeight: 700, padding: "2px 6px", borderRadius: 8, letterSpacing: 1, whiteSpace: "nowrap" }}>BEST DEAL</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: color.gold }}>$39.99</div>
-                <div style={{ fontSize: 10, color: color.dim, marginTop: 2, letterSpacing: 1 }}>/ YEAR</div>
+                <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2, letterSpacing: 1 }}>/ YEAR</div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: color.dim, lineHeight: 1.5 }}>
@@ -164,12 +164,12 @@ export default function UpgradePrompt({ feature, onClose }) {
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
           <div style={{ flex: 1, background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, padding: "12px 10px", textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: color.gold }}>$7.99</div>
-            <div style={{ fontSize: 10, color: color.muted, marginTop: 3, letterSpacing: 1 }}>PER MONTH</div>
+            <div style={{ fontSize: type.xs, color: color.muted, marginTop: 3, letterSpacing: 1 }}>PER MONTH</div>
           </div>
           <div style={{ flex: 1, background: color.surface, border: `1px solid ${color.gold}55`, borderRadius: 10, padding: "12px 10px", textAlign: "center", position: "relative" }}>
-            <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: color.gold, color: color.bg, fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 10, letterSpacing: 1, whiteSpace: "nowrap" }}>BEST VALUE</div>
+            <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: color.gold, color: color.bg, fontSize: type.xs, fontWeight: 700, padding: "2px 8px", borderRadius: 10, letterSpacing: 1, whiteSpace: "nowrap" }}>BEST VALUE</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: color.gold }}>$59.99</div>
-            <div style={{ fontSize: 10, color: color.muted, marginTop: 3, letterSpacing: 1 }}>PER YEAR</div>
+            <div style={{ fontSize: type.xs, color: color.muted, marginTop: 3, letterSpacing: 1 }}>PER YEAR</div>
           </div>
         </div>
 

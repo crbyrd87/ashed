@@ -78,18 +78,18 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
 
         {/* Smoking profile card */}
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 12 }}>
-          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2, marginBottom: 12 }}>SMOKING PROFILE</div>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, marginBottom: 12 }}>SMOKING PROFILE</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
             {[["Smoked", checkins.length], ["Avg Rating", avgRating ?? "—"], ["This Year", checkins.filter(c => parseLocalDate(c.smoke_date)?.getFullYear() === new Date().getFullYear()).length]].map(([k, v], i, arr) => (
               <div key={k} style={{ flex: 1, textAlign: "center", borderRight: i < arr.length - 1 ? `1px solid ${color.lineStrong}` : "none" }}>
                 <div style={{ fontSize: 26, fontWeight: 700, color: color.gold, lineHeight: 1 }}>{v}</div>
-                <div style={{ fontSize: 10, color: color.muted, marginTop: 5 }}>{k.toUpperCase()}</div>
+                <div style={{ fontSize: type.xs, color: color.muted, marginTop: 5 }}>{k.toUpperCase()}</div>
               </div>
             ))}
           </div>
           {Object.keys(strengthCounts).length > 0 && (
             <div style={{ borderTop: `1px solid ${color.lineStrong}44`, paddingTop: 12 }}>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>STRENGTH DISTRIBUTION</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>STRENGTH DISTRIBUTION</div>
               {[["Mild", "#a8c5a0"], ["Mild-Medium", "#b8d4a0"], ["Medium", "#d4b483"], ["Medium-Full", "#c4894a"], ["Full", color.danger]].map(([s, swatch]) => {
                 const count = strengthCounts[s] || 0;
                 const total = Object.values(strengthCounts).reduce((a, b) => a + b, 0);
@@ -116,7 +116,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
               {earnedBadges.map(b => (
                 <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: 52 }}>
                   <span style={{ fontSize: 28 }}>{b.icon}</span>
-                  <span style={{ fontSize: 10, color: color.gold, textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
+                  <span style={{ fontSize: type.xs, color: color.gold, textAlign: "center", lineHeight: 1.3 }}>{b.name}</span>
                 </div>
               ))}
             </div>
@@ -151,10 +151,10 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             <div key={c.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ flex: 1, minWidth: 0, marginRight: 12 }}>
-                  <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1 }}>{brand.toUpperCase()}</div>
+                  <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.text, margin: "2px 0" }}>{line}</div>
                   {vitola && <div style={{ fontSize: 11, color: color.gold }}>{vitola}</div>}
-                  <div style={{ fontSize: 10, color: color.faint, marginTop: 4 }}>
+                  <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                     {formatSmokeDate(c.smoke_date)}
                   </div>
                 </div>

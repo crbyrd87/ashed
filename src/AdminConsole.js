@@ -177,7 +177,7 @@ function StatsSection() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
             <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
             <div style={{ fontSize: 24, fontWeight: 700, color: accent, letterSpacing: -0.5 }}>{value.toLocaleString()}</div>
-            <div style={{ fontSize: 10, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
+            <div style={{ fontSize: type.xs, color: "#6a5540", letterSpacing: 1, marginTop: 5 }}>{label.toUpperCase()}</div>
           </div>
         ))}
       </div>
@@ -255,7 +255,7 @@ function MiniBarChart({ data, max, color: accent }) {
       <div style={{ position: "absolute", inset: "0 0 24px 0", pointerEvents: "none" }}>
         {ticks.map(val => (
           <div key={val} style={{ position: "absolute", left: 0, right: 0, bottom: `${Math.round((val / axisTop) * 100)}%`, borderTop: `1px solid ${color.faint}`, display: "flex", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 10, color: "#8a7060", paddingRight: 3, lineHeight: 1, transform: "translateY(50%)" }}>{val}</span>
+            <span style={{ fontSize: type.xs, color: "#8a7060", paddingRight: 3, lineHeight: 1, transform: "translateY(50%)" }}>{val}</span>
           </div>
         ))}
       </div>
@@ -575,9 +575,9 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: color.text, display: "flex", alignItems: "center", gap: 6 }}>
               {u.display_name || u.username}
-              {u.is_admin && <span style={{ fontSize: 10, color: color.gold }}>⚙️</span>}
-              {u.is_partner && <span style={{ fontSize: 10, color: color.partner }}>🏪</span>}
-              {u.is_flagged && <span style={{ fontSize: 10, color: color.alert }}>🚩</span>}
+              {u.is_admin && <span style={{ fontSize: type.xs, color: color.gold }}>⚙️</span>}
+              {u.is_partner && <span style={{ fontSize: type.xs, color: color.partner }}>🏪</span>}
+              {u.is_flagged && <span style={{ fontSize: type.xs, color: color.alert }}>🚩</span>}
             </div>
             <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>@{u.username} · {u.email}</div>
           </div>
@@ -873,7 +873,7 @@ function BadgesSection() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: earned ? color.text : color.muted }}>{b.name}</div>
                       <div style={{ fontSize: 11, color: color.faint, marginTop: 2 }}>{b.description}</div>
-                      <div style={{ fontSize: 10, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
+                      <div style={{ fontSize: type.xs, color: "#4a3525", marginTop: 3 }}>{count} user{count !== 1 ? "s" : ""} earned</div>
                     </div>
                     {selectedUser && (
                       <button
@@ -883,7 +883,7 @@ function BadgesSection() {
                       </button>
                     )}
                     {!selectedUser && earned !== undefined && (
-                      <div style={{ fontSize: 10, color: "#4a3525", flexShrink: 0 }}>Search user to manage</div>
+                      <div style={{ fontSize: type.xs, color: "#4a3525", flexShrink: 0 }}>Search user to manage</div>
                     )}
                   </div>
                 );
@@ -973,10 +973,10 @@ function DatabaseSection() {
                 {c.brand} · {c.line} · {c.vitola}
               </div>
               <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
-                <span style={{ fontSize: 10, color: SOURCE_COLORS[c.source] || color.muted, background: (SOURCE_COLORS[c.source] || color.muted) + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || color.muted)}55`, borderRadius: 8, padding: "1px 6px" }}>
+                <span style={{ fontSize: type.xs, color: SOURCE_COLORS[c.source] || color.muted, background: (SOURCE_COLORS[c.source] || color.muted) + "22", border: `1px solid ${(SOURCE_COLORS[c.source] || color.muted)}55`, borderRadius: 8, padding: "1px 6px" }}>
                   {c.source || "manual"}
                 </span>
-                {c.strength && <span style={{ fontSize: 10, color: color.faint }}>{c.strength}</span>}
+                {c.strength && <span style={{ fontSize: type.xs, color: color.faint }}>{c.strength}</span>}
               </div>
             </div>
             {confirmDeleteId === c.id ? (
@@ -1033,7 +1033,7 @@ const TASTING_NOTE_OPTIONS = [
 function SelectField({ label, field, options, form, setForm }) {
   return (
     <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
         style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
         <option value="">Select {label.toLowerCase()}...</option>
@@ -1046,7 +1046,7 @@ function SelectField({ label, field, options, form, setForm }) {
 function TextField({ label, field, placeholder, form, setForm }) {
   return (
     <div style={{ marginBottom: 8 }}>
-      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
         placeholder={placeholder}
         style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
@@ -1087,7 +1087,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
       <SelectField label="WRAPPER" field="wrapper" options={wrapperOptions} form={form} setForm={setForm} />
 
       {/* Tasting notes bubbles */}
-      <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
+      <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>TASTING NOTES</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
         {TASTING_NOTE_OPTIONS.map(note => (
           <button key={note} onClick={() => toggleNote(note)}
@@ -1390,7 +1390,7 @@ function FeedbackSection({ currentUser }) {
           {/* Existing reply */}
           {item.reply_text && (
             <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
-              <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
+              <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
               <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
             </div>
           )}
@@ -1532,7 +1532,7 @@ function DbRefreshSection() {
               📰 View on Halfwheel
             </a>
           )}
-          <div style={{ fontSize: 10, color: color.faint, marginBottom: item.status === "pending" ? 10 : 0 }}>
+          <div style={{ fontSize: type.xs, color: color.faint, marginBottom: item.status === "pending" ? 10 : 0 }}>
             Found: {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
           {filter === "pending" && (
@@ -1676,13 +1676,13 @@ function QASection({ currentUserId }) {
               <div style={{ fontSize: 11, color: color.goldLegacy, letterSpacing: 1, marginBottom: 8 }}>EDIT DETAILS</div>
               {[["BRAND", "brand", item.brand], ["LINE", "line", item.line], ["VITOLA", "vitola", item.vitola], ["ORIGIN", "origin", item.origin || ""], ["WRAPPER", "wrapper", item.wrapper || ""]].map(([label, field, def]) => (
                 <div key={field} style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
+                  <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
                   <input value={editForm[field] ?? def} onChange={e => setEditForm(p => ({ ...p, [field]: e.target.value }))}
                     style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
                 </div>
               ))}
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>STRENGTH</div>
+                <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>STRENGTH</div>
                 <select value={editForm.strength ?? item.strength ?? ""} onChange={e => setEditForm(p => ({ ...p, strength: e.target.value }))}
                   style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
                   <option value="">Select...</option>
@@ -1883,7 +1883,7 @@ function DedupSection({ currentUserId }) {
 
           {/* Keep record */}
           <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 10, color: color.green, letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
+            <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>KEEP (oldest)</div>
             <div style={{ background: color.bg, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px" }}>
               <div style={{ fontSize: 11, color: color.soft }}>
                 ID: <span style={{ color: color.dim }}>{String(group.keep.id).substring(0, 8)}</span>
@@ -1897,7 +1897,7 @@ function DedupSection({ currentUserId }) {
           {/* Duplicate records */}
           {group.duplicates.map(dup => (
             <div key={dup.id} style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 10, color: color.danger, letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
+              <div style={{ fontSize: type.xs, color: color.danger, letterSpacing: 1, marginBottom: 4 }}>DUPLICATE</div>
               <div style={{ background: color.bg, border: `1px solid ${color.danger}33`, borderRadius: 8, padding: "8px 10px" }}>
                 <div style={{ fontSize: 11, color: color.soft }}>
                   ID: <span style={{ color: color.dim }}>{String(dup.id).substring(0, 8)}</span>
@@ -2005,7 +2005,7 @@ function AuditSection() {
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: meta.color }}>{meta.label}</span>
-                <span style={{ fontSize: 10, color: color.faint }}>
+                <span style={{ fontSize: type.xs, color: color.faint }}>
                   {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                 </span>
               </div>

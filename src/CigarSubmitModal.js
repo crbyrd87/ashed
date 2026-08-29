@@ -105,7 +105,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
           { label: "VITOLA", field: "vitola", placeholder: "e.g. Robusto, Toro, Churchill" },
         ].map(({ label, field, placeholder }) => (
           <div key={field} style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>{label}</div>
             <input
               value={form[field]}
               onChange={e => set(field, e.target.value)}
@@ -116,7 +116,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
         ))}
 
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>STRENGTH (optional)</div>
+          <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>STRENGTH (optional)</div>
           <select value={form.strength} onChange={e => set("strength", e.target.value)}
             style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: form.strength ? color.heading : color.faint, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
             <option value="">Select strength...</option>

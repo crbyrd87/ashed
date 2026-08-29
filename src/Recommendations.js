@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { CloseButton, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
@@ -311,7 +311,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
                 <div style={{ padding: "14px 16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1 }}>{rec.brand?.toUpperCase()}</div>
+                      <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{rec.brand?.toUpperCase()}</div>
                       <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "2px 0 6px" }}>{rec.line}</div>
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         {rec.vitola && <Badge label={rec.vitola} />}
@@ -330,7 +330,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
 
                   {/* Why this cigar */}
                   <div style={{ background: color.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
-                    <div style={{ fontSize: 10, color: color.gold, letterSpacing: 1, marginBottom: 4 }}>WHY THIS CIGAR</div>
+                    <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 1, marginBottom: 4 }}>WHY THIS CIGAR</div>
                     <div style={{ fontSize: 12, color: color.cream, lineHeight: 1.5, fontStyle: "italic" }}>{rec.why}</div>
                   </div>
 

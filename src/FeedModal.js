@@ -137,7 +137,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
         <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.line}`, flexShrink: 0 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div style={{ flex: 1, marginRight: 12 }}>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1 }}>{cigarBrand.toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 4px" }}>{cigarName}{vitola ? ` · ${vitola}` : ""}</div>
               <div style={{ fontSize: 11, color: color.muted }}>
                 {smokerHandle && <span style={{ color: color.gold }}>{smokerHandle}</span>}
@@ -174,7 +174,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
 
         {/* Comments list — scrollable */}
         <div style={{ flex: 1, overflowY: "auto", padding: "12px 18px 12px" }}>
-          <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>
+          <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
           </div>
           {commentsLoading && (
@@ -190,11 +190,11 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             return (
               <div key={c.id} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: type.xs, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
                     {(name[0] || "?").toUpperCase()}
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: isMe ? color.gold : color.text }}>{handle}</span>
-                  <span style={{ fontSize: 9, color: color.faint, marginLeft: "auto" }}>
+                  <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 </div>

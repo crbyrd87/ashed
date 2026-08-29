@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color, flame } from "./theme";
+import { SANS, color, flame, type } from "./theme";
 import { ClickableRow } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
@@ -187,12 +187,12 @@ export default function Feed({ user }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {/* User row */}
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: color.heading, fontWeight: 700, flexShrink: 0 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: `linear-gradient(135deg, ${avatarFrom}, ${avatarTo})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: type.xs, color: color.heading, fontWeight: 700, flexShrink: 0 }}>
                       {((item.users?.display_name || item.users?.username || "?")[0]).toUpperCase()}
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 700, color: isCommunity ? color.green : color.gold }}>{handle}</span>
-                    {isCommunity && <span style={{ fontSize: 9, background: `${color.green}18`, color: color.green, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "1px 5px" }}>Community</span>}
-                    <span style={{ fontSize: 10, color: color.faint }}>· {timeAgo}</span>
+                    {isCommunity && <span style={{ fontSize: type.xs, background: `${color.green}18`, color: color.green, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "1px 5px" }}>Community</span>}
+                    <span style={{ fontSize: type.xs, color: color.faint }}>· {timeAgo}</span>
                   </div>
 
                   {/* Brand — Cigar Name */}

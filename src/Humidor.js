@@ -340,16 +340,16 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div key={i} style={{ background: color.surface, border: `1px solid ${cigar.confidence === "high" ? `${color.green}44` : cigar.confidence === "medium" ? `${color.gold}44` : `${color.danger}88`}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: cigar.confidence === "high" ? color.greenBright : cigar.confidence === "medium" ? color.gold : color.danger }} />
-                <span style={{ fontSize: 10, color: cigar.confidence === "high" ? color.greenBright : cigar.confidence === "medium" ? color.gold : color.dangerText, letterSpacing: 1 }}>
+                <span style={{ fontSize: type.xs, color: cigar.confidence === "high" ? color.greenBright : cigar.confidence === "medium" ? color.gold : color.dangerText, letterSpacing: 1 }}>
                   {cigar.confidence === "high" && "HIGH CONFIDENCE"}
                   {cigar.confidence === "medium" && "MEDIUM — PLEASE VERIFY"}
                   {cigar.confidence === "low" && "LOW — PLEASE CORRECT BELOW"}
                 </span>
               </div>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
               <input value={cigar.brand || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
                 style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>LINE</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>LINE</div>
               <input value={cigar.line || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
                 style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
@@ -515,7 +515,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               {/* Brand header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingLeft: 2 }}>
                 <div style={{ fontSize: 11, color: color.gold, fontWeight: 700, letterSpacing: 2 }}>{brand.toUpperCase()}</div>
-                <div style={{ fontSize: 10, color: color.muted }}>{brandTotal} cigars</div>
+                <div style={{ fontSize: type.xs, color: color.muted }}>{brandTotal} cigars</div>
               </div>
 
               {/* Lines under this brand */}
@@ -529,7 +529,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                       {/* Line name + total */}
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                         <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>{line}</div>
-                        {lineItems.length > 1 && <div style={{ fontSize: 10, color: color.muted }}>{lineTotal} total</div>}
+                        {lineItems.length > 1 && <div style={{ fontSize: type.xs, color: color.muted }}>{lineTotal} total</div>}
                       </div>
 
                       {/* Vitola rows */}
@@ -621,7 +621,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               <div style={{ width: 36, height: 4, background: color.lineStrong, borderRadius: 2 }} />
             </div>
             <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.lineStrong}`, flexShrink: 0 }}>
-              <div style={{ fontSize: 10, color: color.muted, letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 2px" }}>{vitolaPickerItem.cigars?.line || vitolaPickerItem.cigar_name}</div>
               <div style={{ fontSize: 12, color: color.muted }}>Select a vitola</div>
             </div>
