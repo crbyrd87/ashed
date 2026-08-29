@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Screen } from "./ui";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
 
@@ -89,11 +90,6 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
   };
 
   const s = {
-    overlay: {
-      position: "fixed", inset: 0, background: color.bg, zIndex: 300,
-      overflowY: "auto", fontFamily: SANS, color: color.text,
-      maxWidth: 420, margin: "0 auto",
-    },
     header: {
       background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)",
       padding: "16px 20px", borderBottom: `1px solid ${color.line}`,
@@ -119,7 +115,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
   };
 
   return (
-    <div style={s.overlay}>
+    <Screen>
       <div style={s.header}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>Notifications</div>
@@ -242,6 +238,6 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
           </div>
         );
       })}
-    </div>
+    </Screen>
   );
 }

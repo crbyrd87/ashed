@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame } from "./theme";
+import { Screen } from "./ui";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
@@ -53,7 +54,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
   const initial = (friendUser.display_name || friendUser.username || "?")[0].toUpperCase();
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: color.bg, zIndex: 400, overflowY: "auto", fontFamily: SANS, maxWidth: 420, margin: "0 auto" }}>
+    <Screen zIndex={400}>
 
       {/* Hero header */}
       <div style={{ background: `linear-gradient(135deg, ${color.surfaceWarm}, ${color.bg}, #0f0804)`, padding: "20px 20px 24px", borderBottom: `1px solid ${color.lineStrong}` }}>
@@ -176,7 +177,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
           );
         })}
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -302,7 +303,6 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   };
 
   const s = {
-    overlay: { position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 420, margin: "0 auto" },
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     tab: active => ({ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${active ? color.gold : "transparent"}`, color: active ? color.gold : color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: active ? 700 : 400 }),
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
@@ -316,7 +316,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   }
 
   return (
-    <div style={s.overlay}>
+    <Screen>
       <div style={s.header}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -501,6 +501,6 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         )}
 
       </div>
-    </div>
+    </Screen>
   );
 }

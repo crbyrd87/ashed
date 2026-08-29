@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 
@@ -152,7 +153,6 @@ Recommend a variety of well-known, widely available cigars that match the prefer
   };
 
   const s = {
-    overlay: { position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 420, margin: "0 auto" },
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "20px 20px", borderBottom: `1px solid ${color.line}33` },
     pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
@@ -160,7 +160,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
   };
 
   return (
-    <div style={s.overlay}>
+    <Screen>
       <div style={s.header}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>
@@ -360,6 +360,6 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           </button>
         </div>
       )}
-    </div>
+    </Screen>
   );
 }

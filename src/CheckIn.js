@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -371,7 +372,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   const s = {
-    overlay: { position: "fixed", inset: 0, background: color.bg, zIndex: 300, overflowY: "auto", fontFamily: SANS, color: color.text, maxWidth: 420, margin: "0 auto" },
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "16px 20px", borderBottom: `1px solid ${color.line}33` },
     label: { fontSize: 11, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
@@ -384,7 +384,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   return (
-    <div style={s.overlay}>
+    <Screen>
       {success && (
         <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: color.green, color: "#fff", padding: "12px 24px", borderRadius: 30, fontSize: 14, fontWeight: 600, zIndex: 999, fontFamily: SANS, whiteSpace: "nowrap" }}>
           ✓ Smoke logged successfully!
@@ -634,6 +634,6 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           {saving ? "Saving..." : "Log This Smoke 🔥"}
         </button>
       </div>
-    </div>
+    </Screen>
   );
 }
