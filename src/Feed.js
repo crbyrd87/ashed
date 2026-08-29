@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { SANS, color, flame } from "./theme";
 import { ClickableRow } from "./ui";
 import { supabase } from "./supabase";
+import { useBackDismiss } from "./useBackDismiss";
 import FeedModal from "./FeedModal";
 import { checkAndAwardBadges } from "./badgeEngine";
 
@@ -46,6 +47,7 @@ export default function Feed({ user }) {
   const [fireCounts, setFireCounts] = useState({});
   const [firedIds, setFiredIds] = useState(new Set());
   const [selectedCheckin, setSelectedCheckin] = useState(null);
+  useBackDismiss(!!selectedCheckin, () => setSelectedCheckin(null));
   const [refreshCount] = useState(0);
 
   useEffect(() => {

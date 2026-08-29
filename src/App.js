@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { SANS, color } from "./theme";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
+import { useBackDismiss } from "./useBackDismiss";
 import { searchCigarLines, getVitolas } from "./cigarAI";
 import CheckIn from "./CheckIn";
 import BandScanner from "./BandScanner";
@@ -388,6 +389,28 @@ export default function App() {
   const [wishlistVitolaPicker, setWishlistVitolaPicker] = useState(null);
   const [wishlistVitolaOptions, setWishlistVitolaOptions] = useState([]);
   const [wishlistVitolaLoading, setWishlistVitolaLoading] = useState(false);
+
+  // Back closes whatever is on top rather than leaving the app. Registered
+  // here, at the component's top level, because hooks cannot be called from
+  // inside the conditional blocks that render these overlays.
+  //
+  // Deliberately excluded: the disclaimer, the welcome screen and the tour,
+  // which are gates the user is meant to complete rather than escape; and the
+  // filter drawer, which expands inline rather than covering the screen.
+  useBackDismiss(showBandScanner, () => setShowBandScanner(false));
+  useBackDismiss(showRecommendations, () => setShowRecommendations(false));
+  useBackDismiss(showPairings, () => { setShowPairings(false); setPairingsCigar(null); });
+  useBackDismiss(showFriends, () => setShowFriends(false));
+  useBackDismiss(showNotifications, () => setShowNotifications(false));
+  useBackDismiss(showAdmin, () => setShowAdmin(false));
+  useBackDismiss(showPartner, () => setShowPartner(false));
+  useBackDismiss(showSettings, () => setShowSettings(false));
+  useBackDismiss(showWhatsNew, () => setShowWhatsNew(false));
+  useBackDismiss(showCigarSubmit, () => setShowCigarSubmit(false));
+  useBackDismiss(!!upgradeFeature, () => setUpgradeFeature(null));
+  useBackDismiss(!!purchasedItem, () => setPurchasedItem(null));
+  useBackDismiss(!!wishlistVitolaPicker, () => setWishlistVitolaPicker(null));
+  useBackDismiss(!!checkingIn, () => setCheckingIn(null));
 
   const activeFilterCount = [
     filterName, filterBrand,
