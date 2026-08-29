@@ -1,4 +1,4 @@
-import { font, color, type, weight, space, radius } from "./theme";
+import { font, color, type, weight, space, radius, TRACK_LABEL } from "./theme";
 import { Button, ClickableRow, Icon, Pressable, SectionLabel, Skeleton } from "./ui";
 import { checkinDate, formatSmokeDate } from "./dateUtils";
 
@@ -65,12 +65,19 @@ export default function Home({
     }}>
       {/* Masthead */}
       <div style={{ display: "flex", alignItems: "center", padding: "14px 20px 0" }}>
-        <div style={{
-          flex: 1,
-          fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed,
-          letterSpacing: "0.06em", color: color.textPrimary,
-        }}>
-          Ashed
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed,
+            letterSpacing: "0.06em", color: color.textPrimary, lineHeight: 1.1,
+          }}>
+            Ashed
+          </div>
+          <div style={{
+            fontSize: type.xs, color: color.textFaint,
+            letterSpacing: TRACK_LABEL, textTransform: "uppercase", marginTop: 3,
+          }}>
+            Cigar concierge and community
+          </div>
         </div>
         <Pressable onClick={onNotifications} label="Notifications" minWidth={44}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
