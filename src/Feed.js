@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame, font, type, weight } from "./theme";
-import { ClickableRow, Icon } from "./ui";
+import { Button, ClickableRow, Icon } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
 import FeedModal from "./FeedModal";
@@ -170,10 +170,10 @@ export default function Feed({ user }) {
         const [avatarFrom, avatarTo] = avatarColor(item.users?.username || "");
 
         return (
+          <div key={item.id} style={{ borderBottom: `1px solid ${color.border}` }}>
           <ClickableRow
-            key={item.id}
             label="Open this check-in"
-            style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", display: "flex" }}
+            style={{ display: "flex", width: "100%" }}
             onClick={() => setSelectedCheckin(item)}
           >
             {/* Rating-based left accent bar */}
@@ -216,39 +216,40 @@ export default function Feed({ user }) {
                   )}
                 </div>
 
-                {/* Right: rating + like stacked */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                  {flames && (
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, lineHeight: 1 }}>{flames.toFixed(1)}</div>
-                      <div style={{ display: "flex", gap: 2, marginTop: 3, justifyContent: "center" }}>
-                        {[1, 2, 3, 4, 5].map(i => {
-                          const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
-                          return <FlameIcon key={i} fill={fill} size={18} />;
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  <div style={{ display: "flex", flexDirection: "row", gap: 6 }}>
-                    <button
-                      onClick={e => { e.stopPropagation(); handleFireToggle(item.id); }}
-                      disabled={isOwn}
-                      style={{ background: fired ? `${color.greenDeep}22` : "none", border: `1px solid ${fired ? `${color.greenDeep}66` : color.line}`, borderRadius: 20, padding: "3px 10px", color: fired ? color.green : isOwn ? color.line : color.muted, fontSize: type.xs, cursor: isOwn ? "default" : "pointer", fontFamily: SANS }}
-                    >
-                      <Icon.Flame size={15} filled={fired} color={fired ? color.positive : color.textMuted} /> {fireCount}
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); setSelectedCheckin(item); }}
-                      style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "3px 10px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
-                    >
-                      <Icon.Feed size={15} color={color.textMuted} />
-                    </button>
+                {/* The rating, once. Five small flames plus a numeral said
+                    the same thing twice, and at 18px they were not countable. */}
+                {flames && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+                    <FlameIcon fill="full" size={17} />
+                    <span style={{ fontFamily: font.mono, fontSize: type.md, color: color.textBody }}>
+                      {flames.toFixed(1)}
+                    </span>
                   </div>
-                </div>
+                )}
 
               </div>
             </div>
           </ClickableRow>
+
+          {/* Outside the tappable row on purpose: a button inside a button is
+              invalid, and it is why taps used to land on the wrong target. */}
+          <div style={{ display: "flex", gap: 8, padding: "0 14px 12px 18px" }}>
+            <Button variant="secondary" full={false} disabled={isOwn}
+              onClick={() => handleFireToggle(item.id)}
+              style={{ height: 44, padding: "0 14px", gap: 6, borderColor: fired ? color.positive : color.borderStrong, color: fired ? color.positive : color.textMuted }}>
+              <Icon.Flame size={17} filled={fired} color={fired ? color.positive : color.textMuted} />
+              <span style={{ fontFamily: font.mono, fontSize: type.sm }}>{fireCount}</span>
+            </Button>
+            <Button variant="secondary" full={false}
+              onClick={() => setSelectedCheckin(item)}
+              style={{ height: 44, padding: "0 14px", gap: 6 }}>
+              <Icon.Feed size={17} color={color.textMuted} />
+              {item.comment_count > 0 && (
+                <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.textMuted }}>{item.comment_count}</span>
+              )}
+            </Button>
+          </div>
+          </div>
         );
       })}
 
