@@ -185,7 +185,7 @@ function StatsSection() {
       {/* Signups chart */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
+          <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>New Signups</div>
           <div style={{ fontSize: type.xs, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {signupsByDay.every(d => d.count === 0)
@@ -196,7 +196,7 @@ function StatsSection() {
       {/* Check-ins chart */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: "16px 16px 12px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
+          <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, letterSpacing: 0.5 }}>Check-ins per Day</div>
           <div style={{ fontSize: type.xs, color: color.dimAlt }}>Last 30 days</div>
         </div>
         {checkinsByDay.every(d => d.count === 0)
@@ -206,7 +206,7 @@ function StatsSection() {
 
       {/* Top cigars */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, letterSpacing: 0.5, marginBottom: 16 }}>Top Cigars by Check-ins</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, letterSpacing: 0.5, marginBottom: 16 }}>Top Cigars by Check-ins</div>
         {topCigars.length === 0
           ? <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No data yet</div>
           : topCigars.map((c, i) => (
@@ -474,7 +474,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>{selectedUser.display_name || selectedUser.username}</div>
-              <div style={{ fontSize: 12, color: color.muted, marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
+              <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
               <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: color.goldPale }}>👑 Super Admin</span>}
@@ -492,9 +492,9 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           {/* Recent check-ins */}
           <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>RECENT CHECK-INS ({userCheckins.length})</div>
           {userCheckins.length === 0
-            ? <div style={{ fontSize: 12, color: color.faint, marginBottom: 12 }}>No check-ins yet</div>
+            ? <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12 }}>No check-ins yet</div>
             : userCheckins.slice(0, 5).map(c => (
-              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${color.line}22`, fontSize: 12 }}>
+              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${color.line}22`, fontSize: type.xs }}>
                 <span style={{ color: color.cream }}>{c.cigars ? `${c.cigars.brand} ${c.cigars.line}` : `${c.cigar_brand || ""} ${c.cigar_name || ""}`}</span>
                 <span style={{ color: color.gold, flexShrink: 0, marginLeft: 8 }}>{c.rating ?? "—"}</span>
               </div>
@@ -506,11 +506,11 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>PARTNER ACCESS</div>
             {selectedUser.is_partner ? (
               <div>
-                <div style={{ fontSize: 12, color: color.partner, marginBottom: 8 }}>
+                <div style={{ fontSize: type.xs, color: color.partner, marginBottom: 8 }}>
                   🏪 Active partner · Place ID: <span style={{ color: color.cream, fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
                 </div>
                 <button onClick={() => handleRevokePartner(selectedUser)}
-                  style={{ background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "7px 14px", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "7px 14px", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                   Revoke Partner Access
                 </button>
               </div>
@@ -523,7 +523,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                   style={{ flex: 1, background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "7px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
                 />
                 <button onClick={() => handleGrantPartner(selectedUser)}
-                  style={{ background: `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                  style={{ background: `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
                   🏪 Grant Partner
                 </button>
               </div>
@@ -535,28 +535,28 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             {/* Flag — blocked on admin accounts unless super admin, blocked on self */}
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => handleFlag(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? `${color.green}55` : `${color.alert}55`}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? color.green : color.alert, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? `${color.green}55` : `${color.alert}55`}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? color.green : color.alert, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
               </button>
             )}
             {/* Delete — blocked on admin accounts unless super admin, blocked on self */}
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => setConfirmDelete(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 🗑 Delete Account
               </button>
             )}
             {/* Super admin only — Grant/Revoke Admin */}
             {isSuperAdmin && selectedUser.id !== currentUserId && (
               <button onClick={() => handleToggleAdmin(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.gold}44`, borderRadius: 8, padding: "8px 0", color: color.gold, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.gold}44`, borderRadius: 8, padding: "8px 0", color: color.gold, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_admin ? "Revoke Admin" : "Grant Admin"}
               </button>
             )}
             {/* Super admin only — Grant/Revoke Moderator */}
             {isSuperAdmin && selectedUser.id !== currentUserId && !selectedUser.is_admin && (
               <button onClick={() => handleToggleModerator(selectedUser)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.partner}44`, borderRadius: 8, padding: "8px 0", color: color.partner, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.partner}44`, borderRadius: 8, padding: "8px 0", color: color.partner, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 {selectedUser.is_moderator ? "Revoke Mod" : "Grant Mod"}
               </button>
             )}
@@ -649,7 +649,7 @@ function ModerationSection() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Reported Comments</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Reported Comments</div>
         {!loading && <div style={{ fontSize: type.xs, color: color.dimAlt }}>{reports.length} pending</div>}
       </div>
 
@@ -699,11 +699,11 @@ function ModerationSection() {
             {/* Actions */}
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleRemoveComment(item)}
-                style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 🗑 Remove Comment
               </button>
               <button onClick={() => handleDismiss(item)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 Dismiss
               </button>
             </div>
@@ -828,7 +828,7 @@ function BadgesSection() {
         </div>
 
         {/* Search results dropdown */}
-        {searching && <div style={{ fontSize: 12, color: color.faint, padding: "6px 0" }}>Searching...</div>}
+        {searching && <div style={{ fontSize: type.xs, color: color.faint, padding: "6px 0" }}>Searching...</div>}
         {userResults.map(u => (
           <div key={u.id} onClick={() => loadUserBadges(u)}
             style={{ padding: "8px 10px", background: color.surfaceRaised, borderRadius: 6, marginBottom: 4, cursor: "pointer", fontSize: 13, color: color.text }}>
@@ -941,7 +941,7 @@ function DatabaseSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
+      <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Cigar Database</div>
 
       {msg && <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: color.green }}>{msg}</div>}
 
@@ -969,7 +969,7 @@ function DatabaseSection() {
         <div key={c.id} style={{ background: color.surface, border: `1px solid ${confirmDeleteId === c.id ? color.danger : color.line}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: type.xs, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {c.brand} · {c.line} · {c.vitola}
               </div>
               <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
@@ -1008,7 +1008,7 @@ function DatabaseSection() {
                 <button
                   onClick={() => { if (deleteConfirmText === "DELETE") { handleDelete(c); setConfirmDeleteId(null); setDeleteConfirmText(""); } }}
                   disabled={deleteConfirmText !== "DELETE" || deleting === c.id}
-                  style={{ background: deleteConfirmText === "DELETE" ? color.danger : color.surfaceRaised, border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? color.text : color.faint, fontSize: 12, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
+                  style={{ background: deleteConfirmText === "DELETE" ? color.danger : color.surfaceRaised, border: "none", borderRadius: 6, padding: "6px 14px", color: deleteConfirmText === "DELETE" ? color.text : color.faint, fontSize: type.xs, fontWeight: 700, cursor: deleteConfirmText === "DELETE" ? "pointer" : "default", fontFamily: SANS, flexShrink: 0 }}>
                   {deleting === c.id ? "..." : "Confirm"}
                 </button>
               </div>
@@ -1103,7 +1103,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
           {saving ? "Saving..." : "✓ Save to DB"}
         </button>
         <button onClick={onCancel}
-          style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
           Cancel
         </button>
       </div>
@@ -1198,7 +1198,7 @@ function MissingCigarsSection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Missing Cigars</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Missing Cigars</div>
         <button onClick={() => setShowResolved(v => !v)}
           style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
@@ -1248,23 +1248,23 @@ function MissingCigarsSection({ currentUserId }) {
           {!showResolved && addingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setAddingId(item.id)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}22, ${color.goldLegacy}11)`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}22, ${color.goldLegacy}11)`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 + Add to DB
               </button>
               {dismissConfirmId === item.id ? (
                 <>
                   <button onClick={() => handleDismiss(item.id)}
-                    style={{ flex: 1, background: `${color.danger}22`, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "7px 0", color: color.dangerText, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                    style={{ flex: 1, background: `${color.danger}22`, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "7px 0", color: color.dangerText, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                     Yes
                   </button>
                   <button onClick={() => setDismissConfirmId(null)}
-                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                     Cancel
                   </button>
                 </>
               ) : (
                 <button onClick={() => setDismissConfirmId(item.id)}
-                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                   Dismiss
                 </button>
               )}
@@ -1349,7 +1349,7 @@ function FeedbackSection({ currentUser }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Bug Reports & Feedback</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Bug Reports & Feedback</div>
         <button onClick={() => setShowResolved(v => !v)}
           style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
           {showResolved ? "Show Pending" : "Show Resolved"}
@@ -1391,7 +1391,7 @@ function FeedbackSection({ currentUser }) {
           {item.reply_text && (
             <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "10px 12px", marginBottom: 10 }}>
               <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>YOUR REPLY</div>
-              <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
+              <div style={{ fontSize: type.xs, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
             </div>
           )}
 
@@ -1404,11 +1404,11 @@ function FeedbackSection({ currentUser }) {
                 style={{ width: "100%", background: color.bg, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReply(item)} disabled={saving || !replyText.trim()}
-                  style={{ flex: 2, background: replyText.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: 12, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  style={{ flex: 2, background: replyText.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: type.xs, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
                   {saving ? "Sending..." : "Send Reply"}
                 </button>
                 <button onClick={() => { setReplyingId(null); setReplyText(""); }}
-                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                   Cancel
                 </button>
               </div>
@@ -1418,18 +1418,18 @@ function FeedbackSection({ currentUser }) {
           <div style={{ display: "flex", gap: 8 }}>
             {item.posthog_session_id && (
               <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
-                style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
+                style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
                 📹 Watch Session
               </a>
             )}
             {!showResolved && replyingId !== item.id && (
               <>
                 <button onClick={() => { setReplyingId(item.id); setReplyText(""); }}
-                  style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                   Reply
                 </button>
                 <button onClick={() => handleResolve(item.id)}
-                  style={{ flex: 1, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   ✓ Resolve
                 </button>
               </>
@@ -1492,7 +1492,7 @@ function DbRefreshSection() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>DB Refresh Candidates</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>DB Refresh Candidates</div>
         <div style={{ fontSize: type.xs, color: color.faint }}>Runs 1st of each month</div>
       </div>
 
@@ -1525,7 +1525,7 @@ function DbRefreshSection() {
             {item.brand} · {item.line}
           </div>
           {item.vitolas && <div style={{ fontSize: type.xs, color: color.tan, marginBottom: 4 }}>Vitolas: {item.vitolas}</div>}
-          {item.notes && <div style={{ fontSize: 12, color: color.dim, lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
+          {item.notes && <div style={{ fontSize: type.xs, color: color.dim, lineHeight: 1.5, marginBottom: 6 }}>{item.notes}</div>}
           {item.source_url && (
             <a href={item.source_url} target="_blank" rel="noreferrer"
               style={{ fontSize: type.xs, color: color.goldLegacy, textDecoration: "none", display: "block", marginBottom: 10 }}>
@@ -1538,11 +1538,11 @@ function DbRefreshSection() {
           {filter === "pending" && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "7px 0", color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "7px 0", color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 Dismiss
               </button>
             </div>
@@ -1627,11 +1627,11 @@ function QASection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>User-Submitted Cigars</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>User-Submitted Cigars</div>
       </div>
 
       {msg && (
-        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 12, color: msg.isError ? color.dangerText : color.green }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: type.xs, color: msg.isError ? color.dangerText : color.green }}>
           {msg.text}
         </div>
       )}
@@ -1702,11 +1702,11 @@ function QASection({ currentUserId }) {
                 style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "8px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReject(item)} disabled={!rejectReason.trim()}
-                  style={{ flex: 1, background: rejectReason.trim() ? color.danger : color.line, border: "none", borderRadius: 8, padding: "8px 0", color: rejectReason.trim() ? color.heading : color.faint, fontSize: 12, fontWeight: 700, cursor: rejectReason.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  style={{ flex: 1, background: rejectReason.trim() ? color.danger : color.line, border: "none", borderRadius: 8, padding: "8px 0", color: rejectReason.trim() ? color.heading : color.faint, fontSize: type.xs, fontWeight: 700, cursor: rejectReason.trim() ? "pointer" : "default", fontFamily: SANS }}>
                   Confirm Reject
                 </button>
                 <button onClick={() => { setRejectingId(null); setRejectReason(""); }}
-                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                   Cancel
                 </button>
               </div>
@@ -1716,15 +1716,15 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId !== item.id && rejectingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Approve
               </button>
               <button onClick={() => { setEditingId(item.id); setEditForm({}); }}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "8px 0", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "8px 0", color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 Edit
               </button>
               <button onClick={() => { setRejectingId(item.id); setRejectReason(""); }}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}44`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.danger}44`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 Reject
               </button>
             </div>
@@ -1732,11 +1732,11 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId === item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Save & Approve
               </button>
               <button onClick={() => setEditingId(null)}
-                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                 Cancel
               </button>
             </div>
@@ -1842,7 +1842,7 @@ function DedupSection({ currentUserId }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Duplicate Finder</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Duplicate Finder</div>
         <button onClick={handleScan} disabled={scanning}
           style={{ background: scanning ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: type.xs, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
           {scanning ? "Scanning..." : "▶ Find Duplicates"}
@@ -1854,7 +1854,7 @@ function DedupSection({ currentUserId }) {
       </div>
 
       {msg && (
-        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12, color: msg.isError ? color.dangerText : color.green }}>
+        <div style={{ background: msg.isError ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${msg.isError ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: type.xs, color: msg.isError ? color.dangerText : color.green }}>
           {msg.text}
         </div>
       )}
@@ -1863,7 +1863,7 @@ function DedupSection({ currentUserId }) {
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
           {merged.map(key => (
-            <div key={key} style={{ fontSize: 12, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>✓ {key}</div>
+            <div key={key} style={{ fontSize: type.xs, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>✓ {key}</div>
           ))}
         </div>
       )}
@@ -1877,7 +1877,7 @@ function DedupSection({ currentUserId }) {
 
       {pending.map(group => (
         <div key={group.key} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 12 }}>
-          <div style={{ fontSize: 12, color: color.goldLegacy, fontWeight: 700, marginBottom: 10 }}>
+          <div style={{ fontSize: type.xs, color: color.goldLegacy, fontWeight: 700, marginBottom: 10 }}>
             {group.key}
           </div>
 
@@ -1911,11 +1911,11 @@ function DedupSection({ currentUserId }) {
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <button onClick={() => handleMerge(group)} disabled={merging === group.key}
-              style={{ flex: 2, background: merging === group.key ? color.line : `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? color.faint : color.heading, fontSize: 12, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
+              style={{ flex: 2, background: merging === group.key ? color.line : `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? color.faint : color.heading, fontSize: type.xs, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
               {merging === group.key ? "Merging..." : "⟶ Merge into Keep"}
             </button>
             <button onClick={() => handleSkip(group.key)}
-              style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
               Skip
             </button>
           </div>
@@ -1977,7 +1977,7 @@ function AuditSection() {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 12 }}>Audit Log</div>
+      <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, marginBottom: 12 }}>Audit Log</div>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {FILTERS.map(([val, label]) => (
@@ -2009,7 +2009,7 @@ function AuditSection() {
                   {new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} {new Date(log.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
                 </span>
               </div>
-              {log.notes && <div style={{ fontSize: 12, color: color.tan, marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
+              {log.notes && <div style={{ fontSize: type.xs, color: color.tan, marginTop: 2, lineHeight: 1.5 }}>{log.notes}</div>}
               <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>
                 by @{log.users?.username || "unknown"}
               </div>

@@ -8,7 +8,7 @@ function Toggle({ label, sublabel, value, onChange, disabled }) {
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
       <div>
         <div style={{ fontSize: 14, color: color.heading }}>{label}</div>
-        {sublabel && <div style={{ fontSize: 12, color: color.dim, marginTop: 2 }}>{sublabel}</div>}
+        {sublabel && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>{sublabel}</div>}
       </div>
       <Switch checked={value} onChange={onChange} disabled={disabled} label={label} />
     </div>
@@ -48,7 +48,7 @@ function Term({ word, def }) {
   return (
     <div style={{ padding: "8px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
       <div style={{ fontSize: 13, color: color.goldLegacy, fontWeight: 600, marginBottom: 2 }}>{word}</div>
-      <div style={{ fontSize: 12, color: color.tan, lineHeight: 1.5 }}>{def}</div>
+      <div style={{ fontSize: type.xs, color: color.tan, lineHeight: 1.5 }}>{def}</div>
     </div>
   );
 }
@@ -123,7 +123,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
             autoFocus
           />
           {hint && <div style={{ fontSize: type.xs, color: color.dim, marginTop: 4 }}>{hint}</div>}
-          {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 4 }}>{msg.text}</div>}
+          {msg && <div style={{ fontSize: type.xs, color: msg.isError ? color.dangerText : color.green, marginTop: 4 }}>{msg.text}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button onClick={handleSave} disabled={saving}
               style={{ flex: 1, background: saving ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: saving ? color.dim : color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
@@ -139,7 +139,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px" }}>
           <span style={{ fontSize: 14, color: value ? color.heading : color.faint }}>{value || "Not set"}</span>
           <button onClick={() => setEditing(true)}
-            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             Edit
           </button>
         </div>
@@ -207,11 +207,11 @@ function AccountSection({ user, displayName, username, onSignOut }) {
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 14, color: color.faint }}>••••••••</span>
           <button onClick={handlePasswordReset}
-            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: "none", border: "none", color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             Reset via Email
           </button>
         </div>
-        {msg && <div style={{ fontSize: 12, color: msg.isError ? color.dangerText : color.green, marginTop: 6 }}>{msg.text}</div>}
+        {msg && <div style={{ fontSize: type.xs, color: msg.isError ? color.dangerText : color.green, marginTop: 6 }}>{msg.text}</div>}
       </div>
 
       <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16, marginTop: 24 }}>ACCOUNT ACTIONS</div>
@@ -302,7 +302,7 @@ function PrivacySection({ user }) {
           />
         </>
       )}
-      <div style={{ fontSize: 12, color: color.faint, marginTop: 16, lineHeight: 1.6 }}>
+      <div style={{ fontSize: type.xs, color: color.faint, marginTop: 16, lineHeight: 1.6 }}>
         Individual check-in visibility can always be changed from your journal.
       </div>
     </div>
@@ -340,7 +340,7 @@ function GuideSection() {
         <Row label="Medium" value="Balanced flavor and nicotine" sub="Most popular range" />
         <Row label="Medium-Full" value="More complexity, noticeable nicotine" sub="For experienced smokers" />
         <Row label="Full" value="Bold, rich, strong nicotine hit" sub="Smoke after a meal" />
-        <div style={{ fontSize: 12, color: color.tan, marginTop: 10, lineHeight: 1.6 }}>
+        <div style={{ fontSize: type.xs, color: color.tan, marginTop: 10, lineHeight: 1.6 }}>
           💡 A cigar can be full-bodied (complex flavor) but medium strength (low nicotine) — like a Padron 1964. Don't confuse the two.
         </div>
       </Section>
@@ -459,9 +459,9 @@ function HelpSection({ onReplayTour, user }) {
         <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
           <div style={{ fontSize: 14, color: color.green, fontWeight: 700, marginBottom: 4 }}>Thanks for the report!</div>
-          <div style={{ fontSize: 12, color: color.faint }}>We'll look into it and follow up if needed.</div>
+          <div style={{ fontSize: type.xs, color: color.faint }}>We'll look into it and follow up if needed.</div>
           <button onClick={() => setSubmitted(false)}
-            style={{ marginTop: 14, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 16px", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+            style={{ marginTop: 14, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 16px", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             Submit Another
           </button>
         </div>
@@ -489,7 +489,7 @@ function HelpSection({ onReplayTour, user }) {
             rows={5}
             style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
           />
-          {error && <div style={{ fontSize: 12, color: color.dangerText, marginBottom: 8 }}>{error}</div>}
+          {error && <div style={{ fontSize: type.xs, color: color.dangerText, marginBottom: 8 }}>{error}</div>}
           <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12 }}>
             {type === "bug" ? "Your session replay will be attached so we can see exactly what happened." : "Your feedback helps us build a better app."}
           </div>
@@ -516,13 +516,13 @@ function HelpSection({ onReplayTour, user }) {
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: color.tan, lineHeight: 1.5, marginBottom: item.reply_text ? 8 : 0 }}>
+              <div style={{ fontSize: type.xs, color: color.tan, lineHeight: 1.5, marginBottom: item.reply_text ? 8 : 0 }}>
                 {item.description}
               </div>
               {item.reply_text && (
                 <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 8, padding: "8px 10px", marginTop: 8 }}>
                   <div style={{ fontSize: type.xs, color: color.green, letterSpacing: 1, marginBottom: 4 }}>REPLY FROM ASHED</div>
-                  <div style={{ fontSize: 12, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
+                  <div style={{ fontSize: type.xs, color: color.soft, lineHeight: 1.5 }}>{item.reply_text}</div>
                 </div>
               )}
             </div>

@@ -95,7 +95,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
   return (
     <Sheet align="center" zIndex={800} maxWidth={380} dismissOnScrim={false}>
         <div style={{ fontSize: 16, fontWeight: 700, color: color.heading, marginBottom: 4 }}>Can't Find Your Cigar?</div>
-        <div style={{ fontSize: 12, color: color.dim, marginBottom: 20, lineHeight: 1.5 }}>
+        <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 20, lineHeight: 1.5 }}>
           Submit it and you can log it right away. Our team will review and verify it.
         </div>
 
@@ -125,7 +125,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
         </div>
 
         {error && (
-          <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 12, color: color.dangerText, lineHeight: 1.5 }}>
+          <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: type.xs, color: color.dangerText, lineHeight: 1.5 }}>
             {error}
           </div>
         )}

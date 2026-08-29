@@ -291,7 +291,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {/* Confidence indicator */}
           <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
-            <span style={{ fontSize: 12, color: confidence === "high" ? color.green : color.gold }}>
+            <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
           </div>
@@ -369,7 +369,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {/* Confidence indicator */}
           <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 14 }}>{confidence === "high" ? "✓" : "~"}</span>
-            <span style={{ fontSize: 12, color: confidence === "high" ? color.green : color.gold }}>
+            <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
               {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
             </span>
           </div>
@@ -413,11 +413,11 @@ Be as specific as possible with brand and line. If you can read text on the band
           </button>
 
           {!flagged ? (
-            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: `1px solid ${color.line}44`, borderRadius: 10, padding: 10, color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
+            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: `1px solid ${color.line}44`, borderRadius: 10, padding: 10, color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
               {flagging ? "Flagging..." : "⚑ Flag incorrect info"}
             </button>
           ) : (
-            <div style={{ textAlign: "center", fontSize: 12, color: color.green, padding: 10 }}>✓ Thanks — flagged for review</div>
+            <div style={{ textAlign: "center", fontSize: type.xs, color: color.green, padding: 10 }}>✓ Thanks — flagged for review</div>
           )}
 
           {toast && (

@@ -155,8 +155,8 @@ Recommend a variety of well-known, widely available cigars that match the prefer
   const s = {
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "20px 20px", borderBottom: `1px solid ${color.line}33` },
-    pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
-    strengthPill: (s, active) => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? strengthColor(s) : color.line}`, background: active ? strengthColor(s) + "22" : "transparent", color: active ? strengthColor(s) : color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
+    pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
+    strengthPill: (s, active) => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? strengthColor(s) : color.line}`, background: active ? strengthColor(s) + "22" : "transparent", color: active ? strengthColor(s) : color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
   };
 
   return (
@@ -196,16 +196,16 @@ Recommend a variety of well-known, widely available cigars that match the prefer
               return (
                 <>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: color.muted }}>Avg rating</span>
-                    <span style={{ fontSize: 12, color: color.gold, fontWeight: 700 }}>{avg}</span>
+                    <span style={{ fontSize: type.xs, color: color.muted }}>Avg rating</span>
+                    <span style={{ fontSize: type.xs, color: color.gold, fontWeight: 700 }}>{avg}</span>
                   </div>
                   {topStrength && <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: color.muted }}>Preferred body</span>
-                    <span style={{ fontSize: 12, color: color.text }}>{topStrength[0]}</span>
+                    <span style={{ fontSize: type.xs, color: color.muted }}>Preferred body</span>
+                    <span style={{ fontSize: type.xs, color: color.text }}>{topStrength[0]}</span>
                   </div>}
                   {top && <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: color.muted }}>Top rated</span>
-                    <span style={{ fontSize: 12, color: color.text }}>{top.cigars?.brand || top.cigar_brand} {top.cigars?.line || top.cigar_name}</span>
+                    <span style={{ fontSize: type.xs, color: color.muted }}>Top rated</span>
+                    <span style={{ fontSize: type.xs, color: color.text }}>{top.cigars?.brand || top.cigar_brand} {top.cigars?.line || top.cigar_name}</span>
                   </div>}
                 </>
               );
@@ -319,25 +319,25 @@ Recommend a variety of well-known, widely available cigars that match the prefer
                         {rec.origin && <Badge label={rec.origin} color={color.green} />}
                       </div>
                     </div>
-                    <div style={{ background: `${color.gold}22`, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: 12, color: color.gold, fontWeight: 700, marginLeft: 8, whiteSpace: "nowrap" }}>
+                    <div style={{ background: `${color.gold}22`, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, color: color.gold, fontWeight: 700, marginLeft: 8, whiteSpace: "nowrap" }}>
                       #{i + 1}
                     </div>
                   </div>
 
                   {rec.tasting_notes && (
-                    <div style={{ fontSize: 12, color: color.muted, marginBottom: 8 }}>{rec.tasting_notes}</div>
+                    <div style={{ fontSize: type.xs, color: color.muted, marginBottom: 8 }}>{rec.tasting_notes}</div>
                   )}
 
                   {/* Why this cigar */}
                   <div style={{ background: color.bg, borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
                     <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 1, marginBottom: 4 }}>WHY THIS CIGAR</div>
-                    <div style={{ fontSize: 12, color: color.cream, lineHeight: 1.5, fontStyle: "italic" }}>{rec.why}</div>
+                    <div style={{ fontSize: type.xs, color: color.cream, lineHeight: 1.5, fontStyle: "italic" }}>{rec.why}</div>
                   </div>
 
                   <button
                     onClick={() => handleAddToWishlist(rec)}
                     disabled={added}
-                    style={{ width: "100%", background: added ? `${color.gold}22` : "none", border: `1px solid ${added ? color.gold : color.line}`, borderRadius: 8, padding: "8px 0", color: added ? color.gold : color.muted, fontSize: 12, cursor: added ? "default" : "pointer", fontFamily: SANS }}
+                    style={{ width: "100%", background: added ? `${color.gold}22` : "none", border: `1px solid ${added ? color.gold : color.line}`, borderRadius: 8, padding: "8px 0", color: added ? color.gold : color.muted, fontSize: type.xs, cursor: added ? "default" : "pointer", fontFamily: SANS }}
                   >
                     {added ? "✓ Added to Wishlist" : "+ Add to Wishlist"}
                   </button>

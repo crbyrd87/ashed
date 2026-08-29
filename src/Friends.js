@@ -138,7 +138,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
 
         {/* Recent smokes */}
         <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
-        {loading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+        {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
         {!loading && checkins.length === 0 && (
           <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: 20 }}>No public smokes yet</div>
         )}
@@ -304,11 +304,11 @@ export default function Friends({ user, onClose, onRequestHandled }) {
 
   const s = {
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
-    tab: active => ({ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${active ? color.gold : "transparent"}`, color: active ? color.gold : color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: active ? 700 : 400 }),
+    tab: active => ({ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${active ? color.gold : "transparent"}`, color: active ? color.gold : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: active ? 700 : 400 }),
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     card: { background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" },
-    btn: (accent) => ({ background: "none", border: `1px solid ${accent}55`, borderRadius: 8, padding: "6px 14px", color: accent, fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
-    btnFilled: { background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "6px 14px", color: color.bg, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS },
+    btn: (accent) => ({ background: "none", border: `1px solid ${accent}55`, borderRadius: 8, padding: "6px 14px", color: accent, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
+    btnFilled: { background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "6px 14px", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS },
   };
 
   if (viewingFriend) {
@@ -363,7 +363,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               </div>
             </div>
 
-            {searching && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Searching...</div>}
+            {searching && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Searching...</div>}
             {!searching && searchResults.length === 0 && searchQuery && (
               <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: 20 }}>No users found matching "{searchQuery}"</div>
             )}
@@ -390,7 +390,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
               <div style={{ fontSize: 13, color: color.gold, marginBottom: 4, wordBreak: "break-all" }}>
                 ashed.app?ref={user.user_metadata?.username || user.id}
               </div>
-              <div style={{ fontSize: 12, color: color.faint, marginBottom: 14 }}>
+              <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 14 }}>
                 Share your link — friends who sign up get credited to you
               </div>
               <button
@@ -433,7 +433,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         {tab === "requests" && (
           <>
             <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>INCOMING REQUESTS</div>
-            {loading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+            {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
             {!loading && pendingRequests.length === 0 && (
               <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "16px 0 20px" }}>No incoming requests</div>
             )}
@@ -472,7 +472,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>
               YOUR FRIENDS ({friends.length})
             </div>
-            {loading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+            {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
             {!loading && friends.length === 0 && (
               <div style={{ textAlign: "center", padding: 40 }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>🤝</div>
@@ -487,7 +487,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                   <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{f.friendUser?.username}</div>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 12, color: color.gold }}>View Profile ›</span>
+                  <span style={{ fontSize: type.xs, color: color.gold }}>View Profile ›</span>
                   <button
                     style={s.btn(color.faint)}
                     onClick={e => { e.stopPropagation(); handleRemoveFriend(f); }}

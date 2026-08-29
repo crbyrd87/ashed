@@ -289,7 +289,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TIPS FOR BEST RESULTS</div>
             {["Photograph up to 3 cigars at a time", "Bands should face the camera directly", "Good lighting makes a big difference", "You can edit brand and line on the confirm screen"].map((tip, i) => (
-              <div key={i} style={{ fontSize: 12, color: color.muted, marginBottom: 4, display: "flex", gap: 6 }}>
+              <div key={i} style={{ fontSize: type.xs, color: color.muted, marginBottom: 4, display: "flex", gap: 6 }}>
                 <span style={{ color: color.gold }}>→</span>{tip}
               </div>
             ))}
@@ -315,7 +315,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 12, maxHeight: 220, objectFit: "cover", marginBottom: 20 }} />}
           <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Analyzing your cigars...</div>
-          <div style={{ fontSize: 12, color: color.muted }}>Ashed is reading the band(s)</div>
+          <div style={{ fontSize: type.xs, color: color.muted }}>Ashed is reading the band(s)</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginTop: 20 }}>
             <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
@@ -331,7 +331,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           {photoPreview && <img src={photoPreview} alt="scan" style={{ width: "100%", borderRadius: 10, maxHeight: 160, objectFit: "cover", marginBottom: 14 }} />}
           {scanResult.some(c => c.confidence === "low") && (
             <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: color.dangerText, lineHeight: 1.5 }}>
+              <div style={{ fontSize: type.xs, color: color.dangerText, lineHeight: 1.5 }}>
                 ⚠️ {scanResult.filter(c => c.confidence === "low").length} cigar{scanResult.filter(c => c.confidence === "low").length > 1 ? "s" : ""} could not be identified confidently. Please review before saving.
               </div>
             </div>
@@ -358,7 +358,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 {cigar.origin && <Badge label={cigar.origin} color={color.greenBright} />}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: color.muted }}>Quantity:</span>
+                <span style={{ fontSize: type.xs, color: color.muted }}>Quantity:</span>
                 <button onClick={() => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, qty: Math.max(1, c.qty - 1) } : c))}
                   style={{ width: 28, height: 28, borderRadius: "50%", border: `1px solid ${color.lineStrong}`, background: "none", color: color.gold, fontSize: 16, cursor: "pointer", fontFamily: SANS }}>-</button>
                 <span style={{ fontSize: 15, fontWeight: 700, color: color.gold, minWidth: 24, textAlign: "center" }}>{cigar.qty}</span>
@@ -434,7 +434,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "11px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
             />
             <div style={{ overflowY: "auto", maxHeight: "30vh", flexShrink: 1 }}>
-              {addSearching && <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: 8 }}>Searching...</div>}
+              {addSearching && <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", padding: 8 }}>Searching...</div>}
               {addSearchResults.map(c => (
                 <Pressable key={c.id} onClick={() => handleAddFromSearch(c)}
                   style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "10px 14px", marginBottom: 8 }}>
@@ -579,23 +579,23 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                                 🔥 Smoke One
                               </button>
                               <button onClick={() => openVitolaPicker(item)}
-                                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                                 ✎ Vitola
                               </button>
                               {isConfirmingRemove ? (
                                 <>
                                   <button onClick={() => handleRemoveAll(item.id)}
-                                    style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                                    style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                                     Confirm
                                   </button>
                                   <button onClick={() => setConfirmRemoveAll(null)}
-                                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                    style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                                     Cancel
                                   </button>
                                 </>
                               ) : (
                                 <button onClick={() => setConfirmRemoveAll(item.id)}
-                                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>
+                                  style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
                                   Remove All
                                 </button>
                               )}
@@ -623,7 +623,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.lineStrong}`, flexShrink: 0 }}>
               <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>{(vitolaPickerItem.cigars?.brand || vitolaPickerItem.cigar_brand || "").toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 2px" }}>{vitolaPickerItem.cigars?.line || vitolaPickerItem.cigar_name}</div>
-              <div style={{ fontSize: 12, color: color.muted }}>Select a vitola</div>
+              <div style={{ fontSize: type.xs, color: color.muted }}>Select a vitola</div>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 32px" }}>
               {vitolaPickerLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>Loading sizes...</div>}

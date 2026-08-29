@@ -471,7 +471,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 <button
                   onClick={handleGetSuggestions}
                   disabled={loadingSuggestions}
-                  style={{ background: loadingSuggestions ? color.surfaceRaised : `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? color.faint : color.green, fontSize: 12, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                  style={{ background: loadingSuggestions ? color.surfaceRaised : `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? color.faint : color.green, fontSize: type.xs, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
                   {loadingSuggestions ? "Thinking..." : "✨ Suggest"}
                 </button>
@@ -481,11 +481,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             {/* AI description */}
             {aiDescription ? (
               <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: color.green, fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
+                <div style={{ fontSize: type.xs, color: color.green, fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
                 <div style={{ fontSize: type.xs, color: color.tan }}>If you tasted any of these — or more — select them below.</div>
               </div>
             ) : (
-              <div style={{ fontSize: 12, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
+              <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
                 Tap ✨ Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
               </div>
             )}
@@ -555,7 +555,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               <button style={s.tag(false)} onClick={() => setShowVenueSearch(!showVenueSearch)}>🏪 Find venue</button>
             </div>
             {location !== "" && (
-              <div style={{ fontSize: 12, color: color.gold, marginBottom: 8 }}>
+              <div style={{ fontSize: type.xs, color: color.gold, marginBottom: 8 }}>
                 📍 {location} <span onClick={() => setLocation("")} style={{ color: color.faint, cursor: "pointer", marginLeft: 6 }}>×</span>
               </div>
             )}
@@ -595,10 +595,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   </Pressable>
                 ))}
                 {!venueSearching && venueResults.length === 0 && venueQuery && (
-                  <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
+                  <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
                 )}
                 <button onClick={() => { setShowVenueSearch(false); setVenueResults([]); setVenueQuery(""); }}
-                  style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: 12, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}>
+                  style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, marginTop: 4 }}>
                   Cancel
                 </button>
               </div>
@@ -610,7 +610,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <div style={{ fontSize: 14, color: color.text }}>Private check-in</div>
-                <div style={{ fontSize: 12, color: color.faint, marginTop: 2 }}>Only visible to you</div>
+                <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>Only visible to you</div>
               </div>
               <Toggle
                 checked={isPrivate}

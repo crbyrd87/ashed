@@ -127,7 +127,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
           {notifications.length > 0 && !confirmClear && (
             <button
               onClick={() => setConfirmClear(true)}
-              style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+              style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
             >
               Clear all
             </button>
@@ -136,13 +136,13 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
                 onClick={handleClearAll}
-                style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}66`, borderRadius: 20, padding: "6px 12px", color: color.dangerText, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}66`, borderRadius: 20, padding: "6px 12px", color: color.dangerText, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
               >
                 Clear all?
               </button>
               <button
                 onClick={() => { setConfirmClear(false); setClearError(null); }}
-                style={{ background: "none", border: "none", color: color.muted, fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                style={{ background: "none", border: "none", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
               >
                 Cancel
               </button>
@@ -222,7 +222,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
                 {title}
               </div>
               {subtitle ? (
-                <div style={{ fontSize: 12, color: color.muted, marginTop: 3, lineHeight: 1.4 }}>
+                <div style={{ fontSize: type.xs, color: color.muted, marginTop: 3, lineHeight: 1.4 }}>
                   {subtitle}
                 </div>
               ) : null}

@@ -146,7 +146,7 @@ Return ONLY a raw JSON object, no markdown:
         <div style={{ background: color.bg, borderRadius: 8, padding: "10px 12px" }}>
           {lines.map((line, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: i < lines.length - 1 ? 8 : 0, alignItems: "flex-start" }}>
-              <span style={{ color: color.gold, fontSize: 12, flexShrink: 0, marginTop: 2 }}>•</span>
+              <span style={{ color: color.gold, fontSize: type.xs, flexShrink: 0, marginTop: 2 }}>•</span>
               <span style={{ fontSize: 13, color: color.cream, lineHeight: 1.5 }}>{line}{!line.endsWith(".") ? "." : ""}</span>
             </div>
           ))}
@@ -212,7 +212,7 @@ Return ONLY a raw JSON object, no markdown:
                 </div>
                 {!seasonalNote ? (
                   <button onClick={handleSeasonalNote} disabled={loadingSeasonalNote}
-                    style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: 10, color: loadingSeasonalNote ? color.faint : color.muted, fontSize: 12, cursor: loadingSeasonalNote ? "default" : "pointer", fontFamily: SANS }}>
+                    style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: 10, color: loadingSeasonalNote ? color.faint : color.muted, fontSize: type.xs, cursor: loadingSeasonalNote ? "default" : "pointer", fontFamily: SANS }}>
                     {loadingSeasonalNote ? "Loading..." : `✨ Get ${season} pairing suggestion`}
                   </button>
                 ) : (
@@ -220,7 +220,7 @@ Return ONLY a raw JSON object, no markdown:
                     {typeof seasonalNote === "object" && seasonalNote.pairings ? (
                       <>
                         {seasonalNote.context && (
-                          <div style={{ fontSize: 12, color: color.dim, fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>{seasonalNote.context}</div>
+                          <div style={{ fontSize: type.xs, color: color.dim, fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>{seasonalNote.context}</div>
                         )}
                         {seasonalNote.pairings.map((p, i) => (
                           <div key={i} style={{ marginBottom: i < seasonalNote.pairings.length - 1 ? 8 : 0 }}>

@@ -29,7 +29,7 @@ export default function Badges({ userId }) {
   }, [userId]);
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "20px 0", fontSize: 12, color: color.faint, fontFamily: SANS }}>
+    <div style={{ textAlign: "center", padding: "20px 0", fontSize: type.xs, color: color.faint, fontFamily: SANS }}>
       Loading badges...
     </div>
   );
@@ -41,7 +41,7 @@ export default function Badges({ userId }) {
   if (total === 0) return (
     <div style={{ background: color.bg, border: `1px solid ${color.surfaceRaised}`, borderRadius: 10, padding: "24px 16px", textAlign: "center", fontFamily: SANS }}>
       <div style={{ fontSize: 24, marginBottom: 8, filter: "grayscale(1)" }}>🏅</div>
-      <div style={{ fontSize: 12, color: color.muted, lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
+      <div style={{ fontSize: type.xs, color: color.muted, lineHeight: 1.5 }}>No badges yet — log a check-in to start earning them.</div>
     </div>
   );
 
@@ -87,7 +87,7 @@ export default function Badges({ userId }) {
                 <span style={{ fontSize: type.xs, color: catEarned === catBadges.length ? color.gold : color.faint }}>
                   {catEarned}/{catBadges.length}
                 </span>
-                <span style={{ color: color.faint, fontSize: 12 }}>{isOpen ? "−" : "+"}</span>
+                <span style={{ color: color.faint, fontSize: type.xs }}>{isOpen ? "−" : "+"}</span>
               </div>
             </Pressable>
 

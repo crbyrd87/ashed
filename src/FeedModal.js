@@ -178,7 +178,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             COMMENTS {comments.length > 0 ? `(${comments.length})` : ""}
           </div>
           {commentsLoading && (
-            <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: "16px 0" }}>Loading...</div>
+            <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", padding: "16px 0" }}>Loading...</div>
           )}
           {!commentsLoading && comments.length === 0 && (
             <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>No comments yet. Be the first!</div>

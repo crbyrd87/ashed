@@ -356,7 +356,7 @@ export default function Venues() {
   return (
     <div style={{ padding: 16, fontFamily: SANS, color: color.text }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <div style={{ fontSize: 12, color: color.muted, letterSpacing: 2 }}>FIND A CIGAR SHOP</div>
+        <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>FIND A CIGAR SHOP</div>
         {hasSearched && venues.length > 0 && (
           <div style={{ display: "flex", background: color.surfaceRaised, borderRadius: 20, padding: 2, border: `1px solid ${color.line}` }}>
             {[["list", "List"], ["map", "Map"]].map(([id, label]) => (
@@ -399,7 +399,7 @@ export default function Venues() {
                 onMouseDown={() => { setSearchQuery(s.description); doSearch(s.description); }}
                 style={{ padding: "10px 14px", fontSize: 13, color: color.text, cursor: "pointer", borderBottom: `1px solid ${color.line}33`, display: "flex", alignItems: "center", gap: 8 }}
               >
-                <span style={{ fontSize: 12, color: color.gold }}>📍</span>
+                <span style={{ fontSize: type.xs, color: color.gold }}>📍</span>
                 <span>{s.description}</span>
               </div>
             ))}
@@ -525,7 +525,7 @@ export default function Venues() {
                     <ShopIcon size={16} color={color.gold} />
                     <div style={{ fontSize: 15, fontWeight: 700, color: color.text }}>{venue.name}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: color.muted, marginBottom: 4 }}>
+                  <div style={{ fontSize: type.xs, color: color.muted, marginBottom: 4 }}>
                     {venue.vicinity || venue.formatted_address}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

@@ -179,7 +179,7 @@ function AnalyticsSection({ placeId, venue }) {
 
       {/* Busiest days */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Busiest Days</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Busiest Days</div>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
           {stats.byDay.map((d, i) => {
             const pct = Math.round((d.count / maxDay) * 100);
@@ -197,7 +197,7 @@ function AnalyticsSection({ placeId, venue }) {
 
       {/* Top cigars */}
       <div style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Top Cigars Smoked Here</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, marginBottom: 16 }}>Top Cigars Smoked Here</div>
         {stats.topCigars.map((c, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
             <div style={{ fontSize: type.xs, color: color.faint, width: 16, textAlign: "right", flexShrink: 0 }}>{i + 1}</div>
@@ -301,7 +301,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: color.cream, fontWeight: 600 }}>Manage Your Listing</div>
+        <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Manage Your Listing</div>
         <button onClick={fetchFromGoogle} disabled={loadingGoogle}
           style={{ background: "none", border: `1px solid ${color.line}`, borderRadius: 20, padding: "4px 12px", color: color.muted, fontSize: type.xs, cursor: loadingGoogle ? "default" : "pointer", fontFamily: SANS }}>
           {loadingGoogle ? "Loading..." : "↻ Refresh from Google"}
@@ -372,7 +372,7 @@ function AnnounceSection({ placeId, user }) {
 
   return (
     <div>
-      <div style={{ fontSize: 12, color: color.cream, fontWeight: 600, marginBottom: 6 }}>Post Announcement</div>
+      <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600, marginBottom: 6 }}>Post Announcement</div>
       <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 16 }}>Visible to users viewing your venue. Keep it short — events, new stock, specials.</div>
 
       {msg && <div style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "10px 14px", marginBottom: 12, fontSize: 13, color: color.dangerText }}>{msg}</div>}

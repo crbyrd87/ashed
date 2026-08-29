@@ -203,7 +203,7 @@ function AdvancedStats({ checkins }) {
   });
 
   const cardStyle = { background: color.surfaceCard, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 16, marginBottom: 16 };
-  const titleStyle = { fontSize: 12, color: color.soft, fontWeight: 600, marginBottom: 16 };
+  const titleStyle = { fontSize: type.xs, color: color.soft, fontWeight: 600, marginBottom: 16 };
 
   return (
     <div style={{ fontFamily: SANS }}>
@@ -278,7 +278,7 @@ function AdvancedStats({ checkins }) {
                   <div style={{ width: `${Math.round((count / maxBrand) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.goldLegacy}, ${color.goldPale})`, borderRadius: 3 }} />
                 </div>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: color.goldLegacy, flexShrink: 0 }}>{count}</div>
+              <div style={{ fontSize: type.xs, fontWeight: 700, color: color.goldLegacy, flexShrink: 0 }}>{count}</div>
             </div>
           ))}
         </div>
@@ -296,7 +296,7 @@ function AdvancedStats({ checkins }) {
                   <div style={{ width: `${Math.round((count / maxOrigin) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
                 </div>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: color.green, flexShrink: 0 }}>{count}</div>
+              <div style={{ fontSize: type.xs, fontWeight: 700, color: color.green, flexShrink: 0 }}>{count}</div>
             </div>
           ))}
         </div>
@@ -897,7 +897,7 @@ export default function App() {
         <div style={{ position: "relative", height: 140 }}>
           <div style={{ width: "100%", height: "100%" }}><LoungeScene /></div>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${color.bg}44 0%, ${color.bg} 100%)` }} />
-          <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: `${color.bg}bb`, border: `1px solid ${color.lineStrong}`, color: color.goldLegacy, fontSize: 12, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
+          <button onClick={handleBack} style={{ position: "absolute", top: 16, left: 16, background: `${color.bg}bb`, border: `1px solid ${color.lineStrong}`, color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", padding: "6px 12px", borderRadius: 20, fontFamily: SANS }}>← Back</button>
           {!isLine && c.smoked && <div style={{ position: "absolute", top: 16, right: 16, background: `${color.goldLegacy}dd`, color: color.bg, fontSize: type.xs, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>✓ SMOKED</div>}
           {/* Brand + Line overlapping image at bottom */}
           <div style={{ position: "absolute", bottom: 12, left: 20, right: 20 }}>
@@ -935,11 +935,11 @@ export default function App() {
                       <span style={{ color: color.green, fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12, color: color.faintAlt, fontStyle: "italic" }}>No ratings yet</div>
+                    <div style={{ fontSize: type.xs, color: color.faintAlt, fontStyle: "italic" }}>No ratings yet</div>
                   )}
                 </div>
                 <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-                  <div style={{ fontSize: 12, color: color.soft }}>{communityRating.count} {communityRating.count === 1 ? "rating" : "ratings"}</div>
+                  <div style={{ fontSize: type.xs, color: color.soft }}>{communityRating.count} {communityRating.count === 1 ? "rating" : "ratings"}</div>
                   {communityRating.ready && (
                     <span style={{ fontSize: type.xs, color: color.tan }}>{showVitolaBreakdown ? "▲" : "▼"} by vitola</span>
                   )}
@@ -951,7 +951,7 @@ export default function App() {
                 <div style={{ borderTop: `1px solid ${color.lineStrong}33`, padding: "10px 16px 14px" }}>
                   {communityRating.vitolas.map((v, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < communityRating.vitolas.length - 1 ? 10 : 0 }}>
-                      <div style={{ fontSize: 12, color: color.soft, width: 110, flexShrink: 0 }}>{v.vitola}</div>
+                      <div style={{ fontSize: type.xs, color: color.soft, width: 110, flexShrink: 0 }}>{v.vitola}</div>
                       <div style={{ flex: 1, height: 5, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
                         <div style={{ width: `${v.avg * 10}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
                       </div>
@@ -993,7 +993,7 @@ export default function App() {
 
               <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 10 }}>SELECT A VITOLA</div>
               {violasLoading && vitolas.length === 0 && (
-                <div style={{ fontSize: 12, color: color.green, marginBottom: 10 }}>Loading sizes...</div>
+                <div style={{ fontSize: type.xs, color: color.green, marginBottom: 10 }}>Loading sizes...</div>
               )}
               {vitolas.map((v, i) => {
                 const mixedStrengths = strengthValues.length > 1;
@@ -1061,13 +1061,13 @@ export default function App() {
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => handleAddToWishlist(c)}
-                    style={{ flex: 1, background: isOnWishlist(c) ? `${color.goldLegacy}22` : "none", border: `1px solid ${isOnWishlist(c) ? color.goldLegacy : color.lineStrong}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? color.goldLegacy : color.tan, fontSize: 12, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
+                    style={{ flex: 1, background: isOnWishlist(c) ? `${color.goldLegacy}22` : "none", border: `1px solid ${isOnWishlist(c) ? color.goldLegacy : color.lineStrong}`, borderRadius: 10, padding: 12, color: isOnWishlist(c) ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: isOnWishlist(c) ? "default" : "pointer", fontFamily: SANS }}
                   >
                     {isOnWishlist(c) ? "✓ Wishlisted" : "+ Wishlist"}
                   </button>
                   <button
                     onClick={() => handleAddToHumidor(c)}
-                    style={{ flex: 1, background: isInHumidor(c) ? `${color.green}22` : "none", border: `1px solid ${isInHumidor(c) ? color.green : color.lineStrong}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? color.green : color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS }}
+                    style={{ flex: 1, background: isInHumidor(c) ? `${color.green}22` : "none", border: `1px solid ${isInHumidor(c) ? color.green : color.lineStrong}`, borderRadius: 10, padding: 12, color: isInHumidor(c) ? color.green : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}
                   >
                     {isInHumidor(c) ? "✓ In Humidor" : "+ Humidor"}
                   </button>
@@ -1107,7 +1107,7 @@ export default function App() {
             <span style={{ fontSize: 22 }}>🔥</span>
             <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
           </div>
-          <div style={{ fontSize: 12, color: color.gold, letterSpacing: 3, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>CIGAR JOURNAL & COMMUNITY</div>
+          <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 3, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>CIGAR JOURNAL & COMMUNITY</div>
         </div>
         <button onClick={() => setShowSettings(true)}
           style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.tan, fontSize: 20, cursor: "pointer", fontFamily: SANS }}>
@@ -1135,14 +1135,14 @@ export default function App() {
             {showDropdown && (
               <div style={s.dropdown}>
                 {searching && searchResults.length === 0 && (
-                  <div style={{ padding: "12px 14px", fontSize: 12, color: color.green }}>Searching...</div>
+                  <div style={{ padding: "12px 14px", fontSize: type.xs, color: color.green }}>Searching...</div>
                 )}
                 {!searching && searchResults.length === 0 && query.length >= 2 && (
                   <div style={{ padding: "10px 14px" }}>
-                    <div style={{ fontSize: 12, color: color.dim, marginBottom: 8 }}>No results found</div>
+                    <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 8 }}>No results found</div>
                     <button
                       onMouseDown={() => { setShowDropdown(false); setShowCigarSubmit(true); }}
-                      style={{ width: "100%", background: `${color.goldLegacy}22`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 12px", color: color.goldLegacy, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, textAlign: "left" }}>
+                      style={{ width: "100%", background: `${color.goldLegacy}22`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 12px", color: color.goldLegacy, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, textAlign: "left" }}>
                       + Can't find your cigar? Submit it →
                     </button>
                   </div>
@@ -1200,7 +1200,7 @@ export default function App() {
             <div style={{ width: 64, height: 64, flex: "0 0 64px", borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.cedar})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>👤</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: color.heading }}>{displayName}</div>
-              <div style={{ fontSize: 12, color: color.tan }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
+              <div style={{ fontSize: type.xs, color: color.tan }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
             </div>
           </div>
 
@@ -1213,7 +1213,7 @@ export default function App() {
             </div>
             <button
               onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
-              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? color.goldLegacy : color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative", flex: "0 0 auto" }}
+              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative", flex: "0 0 auto" }}
             >
               👥 Friends
               {pendingFriendCount > 0 && (
@@ -1277,7 +1277,7 @@ export default function App() {
           <div style={{ display: "flex", borderBottom: `1px solid ${color.lineStrong}`, marginBottom: 16 }}>
             {[["journal", "Journal"], ["stats", "Stats"], ["badges", "Badges"], ["advanced", isPremium ? "Advanced" : "⭐ Advanced"]].map(([id, label]) => (
               <button key={id} onClick={() => setProfileTab(id)}
-                style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? color.goldLegacy : "transparent"}`, color: profileTab === id ? color.goldLegacy : color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
+                style={{ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${profileTab === id ? color.goldLegacy : "transparent"}`, color: profileTab === id ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: profileTab === id ? 700 : 400 }}>
                 {label.toUpperCase()}
               </button>
             ))}
@@ -1290,7 +1290,7 @@ export default function App() {
                 <div style={{ marginBottom: 12 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <button onClick={() => setShowFilterDrawer(true)}
-                      style={{ background: activeFilterCount > 0 ? `${color.goldLegacy}22` : "none", border: `1px solid ${activeFilterCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? color.goldLegacy : color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}>
+                      style={{ background: activeFilterCount > 0 ? `${color.goldLegacy}22` : "none", border: `1px solid ${activeFilterCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: activeFilterCount > 0 ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", gap: 6 }}>
                       🔧 Filter {activeFilterCount > 0 ? `(${activeFilterCount} active)` : ""}
                     </button>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1309,7 +1309,7 @@ export default function App() {
 
               {showFilterDrawer && (
                 <div style={{ background: color.surfaceCard, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, color: color.tan, letterSpacing: 2, marginBottom: 16 }}>FILTER SMOKES</div>
+                  <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 2, marginBottom: 16 }}>FILTER SMOKES</div>
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
                     <input style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
@@ -1318,7 +1318,7 @@ export default function App() {
                       onFocus={() => setFilterNameOpen(true)} onBlur={() => setTimeout(() => setFilterNameOpen(false), 150)} />
                     {filterNameOpen && (
                       <div style={{ background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
-                        {filteredNames.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: color.dim }}>No logged smokes found</div>
+                        {filteredNames.length === 0 ? <div style={{ padding: "10px 12px", fontSize: type.xs, color: color.dim }}>No logged smokes found</div>
                           : filteredNames.map(n => <div key={n} style={{ padding: "10px 12px", fontSize: 13, color: color.heading, cursor: "pointer", borderBottom: `1px solid ${color.lineStrong}33` }} onMouseDown={() => { setFilterName(n); setFilterNameOpen(false); }}>{n}</div>)}
                       </div>
                     )}
@@ -1331,7 +1331,7 @@ export default function App() {
                       onFocus={() => setFilterBrandOpen(true)} onBlur={() => setTimeout(() => setFilterBrandOpen(false), 150)} />
                     {filterBrandOpen && (
                       <div style={{ background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderTop: "none", borderRadius: "0 0 8px 8px", maxHeight: 150, overflowY: "auto" }}>
-                        {filteredBrands.length === 0 ? <div style={{ padding: "10px 12px", fontSize: 12, color: color.dim }}>No logged smokes found</div>
+                        {filteredBrands.length === 0 ? <div style={{ padding: "10px 12px", fontSize: type.xs, color: color.dim }}>No logged smokes found</div>
                           : filteredBrands.map(b => <div key={b} style={{ padding: "10px 12px", fontSize: 13, color: color.heading, cursor: "pointer", borderBottom: `1px solid ${color.lineStrong}33` }} onMouseDown={() => { setFilterBrand(b); setFilterBrandOpen(false); }}>{b}</div>)}
                       </div>
                     )}
@@ -1341,7 +1341,7 @@ export default function App() {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {FLAVOR_TAGS.map(tag => (
                         <button key={tag} onClick={() => setFilterNoteTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}
-                          style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? color.goldLegacy : color.lineStrong}`, background: filterNoteTags.includes(tag) ? `${color.goldLegacy}22` : "transparent", color: filterNoteTags.includes(tag) ? color.goldLegacy : color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
+                          style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${filterNoteTags.includes(tag) ? color.goldLegacy : color.lineStrong}`, background: filterNoteTags.includes(tag) ? `${color.goldLegacy}22` : "transparent", color: filterNoteTags.includes(tag) ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>{tag}</button>
                       ))}
                     </div>
                   </div>
@@ -1374,7 +1374,7 @@ export default function App() {
                     <div style={{ display: "flex", gap: 8 }}>
                       {["Yes", "Maybe", "No"].map(opt => (
                         <button key={opt} onClick={() => setFilterWouldSmoke(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
-                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? color.goldLegacy : color.lineStrong}`, background: filterWouldSmoke.includes(opt) ? `${color.goldLegacy}22` : "transparent", color: filterWouldSmoke.includes(opt) ? color.goldLegacy : color.tan, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
+                          style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${filterWouldSmoke.includes(opt) ? color.goldLegacy : color.lineStrong}`, background: filterWouldSmoke.includes(opt) ? `${color.goldLegacy}22` : "transparent", color: filterWouldSmoke.includes(opt) ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>{opt}</button>
                       ))}
                     </div>
                   </div>
@@ -1384,7 +1384,7 @@ export default function App() {
                 </div>
               )}
 
-              {profileLoading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+              {profileLoading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
               {!profileLoading && checkins.length === 0 && (
                 <div style={{ fontSize: 13, color: color.dim, textAlign: "center", padding: 30 }}>No smokes logged yet — find a cigar and tap Log This Smoke!</div>
               )}
@@ -1429,7 +1429,7 @@ export default function App() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: color.tan, letterSpacing: 1 }}>{brand.toUpperCase()}</div>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
-                            <span style={{ fontSize: 12, color: color.dim }}>{formatSmokeDate(c.smoke_date)}</span>
+                            <span style={{ fontSize: type.xs, color: color.dim }}>{formatSmokeDate(c.smoke_date)}</span>
                             <div style={{ display: "flex", gap: 4 }} onClick={e => e.stopPropagation()}>
                               {[
                                 { value: "public", icon: "🌍", label: "Public" },
@@ -1455,7 +1455,7 @@ export default function App() {
                         {/* Cigar name + vitola/strength */}
                         <div style={{ fontSize: 16, fontWeight: 700, color: color.heading, marginBottom: 10 }}>
                           {line}
-                          {(vitola || strength) && <span style={{ fontSize: 12, color: color.dim, fontWeight: 400 }}> · {[vitola, strength].filter(Boolean).join(" · ")}</span>}
+                          {(vitola || strength) && <span style={{ fontSize: type.xs, color: color.dim, fontWeight: 400 }}> · {[vitola, strength].filter(Boolean).join(" · ")}</span>}
                         </div>
 
                         {/* Flames + rating */}
@@ -1663,7 +1663,7 @@ export default function App() {
                       <div style={{ fontSize: 14, fontWeight: 600, color: color.text }}>{r.line}</div>
                       <div style={{ fontSize: type.xs, color: color.gold, marginTop: 2 }}>{r.brand}</div>
                     </div>
-                    <span style={{ fontSize: 12, color: color.greenBright, fontWeight: 600 }}>+ Add</span>
+                    <span style={{ fontSize: type.xs, color: color.greenBright, fontWeight: 600 }}>+ Add</span>
                   </div>
                 ))}
               </div>
@@ -1685,7 +1685,7 @@ export default function App() {
                     {uniqueWishlistBrands.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                   {wishlistFilterBrand && (
-                    <button onClick={() => setWishlistFilterBrand("")} style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 12px", color: color.dim, fontSize: 12, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
+                    <button onClick={() => setWishlistFilterBrand("")} style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 12px", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>Clear ×</button>
                   )}
                 </div>
                 <div style={{ display: "flex", gap: 6 }}>
@@ -1705,7 +1705,7 @@ export default function App() {
             );
           })()}
 
-          {wishlistLoading && <div style={{ fontSize: 12, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+          {wishlistLoading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
           {!wishlistLoading && wishlist.length === 0 && (
             <div style={{ textAlign: "center", padding: 40 }}>
               <div style={{ fontSize: 32, marginBottom: 12 }}>🔖</div>
@@ -1941,7 +1941,7 @@ export default function App() {
                 <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 2 }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: color.tan, lineHeight: 1.5 }}>{item.desc}</div>
+                  <div style={{ fontSize: type.xs, color: color.tan, lineHeight: 1.5 }}>{item.desc}</div>
                 </div>
               </div>
             ))}
@@ -2053,7 +2053,7 @@ export default function App() {
             <div style={{ padding: "12px 18px 14px", borderBottom: `1px solid ${color.lineStrong}`, flexShrink: 0 }}>
               <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2 }}>{wishlistVitolaPicker.brand.toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: color.text, margin: "3px 0 2px" }}>{wishlistVitolaPicker.line}</div>
-              <div style={{ fontSize: 12, color: color.muted }}>Select a vitola to add to your wishlist — or skip to add the line</div>
+              <div style={{ fontSize: type.xs, color: color.muted }}>Select a vitola to add to your wishlist — or skip to add the line</div>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: "10px 18px 32px" }}>
               {wishlistVitolaLoading && <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>Loading sizes...</div>}

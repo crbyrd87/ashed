@@ -124,7 +124,7 @@ export default function UpgradePrompt({ feature, onClose }) {
             "🎯 Personal fit score on every cigar",
             "⭐ Premium badge on your profile",
           ].map((item, i) => (
-            <div key={i} style={{ fontSize: 12, color: color.muted, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+            <div key={i} style={{ fontSize: type.xs, color: color.muted, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
               <span>{item}</span>
             </div>
           ))}
