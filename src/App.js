@@ -296,7 +296,7 @@ function AdvancedStats({ checkins }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: color.heading, marginBottom: 4 }}>{origin}</div>
                 <div style={{ height: 5, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${Math.round((count / maxOrigin) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
+                  <div style={{ width: `${Math.round((count / maxOrigin) * 100)}%`, height: "100%", background: color.positive, borderRadius: 3 }} />
                 </div>
               </div>
               <div style={{ fontSize: type.xs, fontWeight: 700, color: color.green, flexShrink: 0 }}>{count}</div>
@@ -861,7 +861,7 @@ export default function App() {
 
   const s = {
     app: { fontFamily: SANS, background: color.bg, minHeight: "100vh", color: color.heading, maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
-    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "20px 20px 12px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    header: { background: color.bg, padding: "20px 20px 12px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     card: { background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surfaceCard} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
@@ -942,7 +942,7 @@ export default function App() {
                   {communityRating.ready ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
+                        <div style={{ width: `${communityRating.avg * 10}%`, height: "100%", background: color.positive, borderRadius: 3 }} />
                       </div>
                       <span style={{ color: color.green, fontSize: 18, fontWeight: 700 }}>{communityRating.avg}</span>
                     </div>
@@ -965,7 +965,7 @@ export default function App() {
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < communityRating.vitolas.length - 1 ? 10 : 0 }}>
                       <div style={{ fontSize: type.xs, color: color.soft, width: 110, flexShrink: 0 }}>{v.vitola}</div>
                       <div style={{ flex: 1, height: 5, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ width: `${v.avg * 10}%`, height: "100%", background: `linear-gradient(90deg, ${color.green}, ${color.greenPale})`, borderRadius: 3 }} />
+                        <div style={{ width: `${v.avg * 10}%`, height: "100%", background: color.positive, borderRadius: 3 }} />
                       </div>
                       <span style={{ fontSize: 13, fontWeight: 700, color: color.green, width: 32, textAlign: "right" }}>{v.avg}</span>
                       <span style={{ fontSize: type.xs, color: color.faintAlt, width: 24, textAlign: "right" }}>×{v.count}</span>
@@ -1022,7 +1022,7 @@ export default function App() {
                       </div>
                       <button
                         onClick={() => setCheckingIn(v)}
-                        style={{ background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 22px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+                        style={{ background: color.gold, border: "none", borderRadius: 8, padding: "8px 22px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                       >
                         Log this smoke
                       </button>
@@ -1061,7 +1061,7 @@ export default function App() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <button style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
+                <button style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, fontFamily: SANS }} onClick={() => setCheckingIn(c)}>
                   + LOG THIS SMOKE
                 </button>
                 <button
@@ -1374,7 +1374,7 @@ export default function App() {
                       ))}
                     </div>
                   </div>
-                  <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  <button onClick={() => setShowFilterDrawer(false)} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                     Apply Filters
                   </button>
                 </div>
@@ -1494,13 +1494,13 @@ export default function App() {
                         <div style={{ padding: "10px 14px", display: "flex", gap: 7, flexWrap: "wrap", borderBottom: `1px solid ${color.lineStrong}33` }}>
                           {checkinRating.would_smoke_again && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
-                              background: checkinRating.would_smoke_again === "Yes" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.would_smoke_again === "Maybe" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` }}>
+                              background: checkinRating.would_smoke_again === "Yes" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.would_smoke_again === "Maybe" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : color.danger }}>
                               {checkinRating.would_smoke_again}
                             </span>
                           )}
                           {checkinRating.value_for_price && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
-                              background: checkinRating.value_for_price === "Good value" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.value_for_price === "OK value" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` }}>
+                              background: checkinRating.value_for_price === "Good value" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.value_for_price === "OK value" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : color.danger }}>
                               {checkinRating.value_for_price}
                             </span>
                           )}
@@ -1618,7 +1618,7 @@ export default function App() {
                 <div style={{ fontSize: 15, fontWeight: 700, color: color.heading, marginBottom: 8 }}>Advanced Stats is Premium</div>
                 <div style={{ fontSize: 13, color: color.dim, lineHeight: 1.6, marginBottom: 20 }}>Monthly trends, flavor profile, brand breakdown and more.</div>
                 <button onClick={() => setUpgradeFeature("advanced_stats")}
-                  style={{ background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: "12px 28px", color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ background: color.gold, border: "none", borderRadius: 12, padding: "12px 28px", color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   Upgrade to Premium
                 </button>
               </div>
@@ -1880,7 +1880,7 @@ export default function App() {
             </div>
             <button
               onClick={handleAcceptDisclaimer}
-              style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+              style={{ width: "100%", background: color.gold, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
             >
               I Understand, Let's Go
             </button>
@@ -1918,7 +1918,7 @@ export default function App() {
               ))}
             </div>
             <button onClick={handleAcceptWelcome}
-              style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              style={{ width: "100%", background: color.gold, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
               Let's Get Started
             </button>
           </div>
@@ -1959,7 +1959,7 @@ export default function App() {
             ))}
 
             <button onClick={handleDismissWhatsNew}
-              style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginTop: 8 }}>
+              style={{ width: "100%", background: color.gold, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginTop: 8 }}>
               Got It
             </button>
           </div>
@@ -2156,7 +2156,7 @@ export default function App() {
                 setPurchasedItem(null);
                 showToast(`${purchasedQty} × ${line} added to humidor`);
               }}
-                style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+                style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
                 Add {purchasedQty} to Humidor
               </button>
               <button onClick={() => setPurchasedItem(null)}

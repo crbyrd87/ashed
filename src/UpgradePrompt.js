@@ -104,7 +104,7 @@ export default function UpgradePrompt({ feature, onClose }) {
   return (
     <Sheet onClose={onClose} zIndex={600} maxHeight="90vh" padding="24px 24px 36px">
         {/* Gold top accent */}
-        <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: "0 0 3px 3px" }} />
+        <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: color.gold, borderRadius: "0 0 3px 3px" }} />
 
         {/* Handle */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>

@@ -37,7 +37,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
 
   return (
     <Screen zIndex={650} maxWidth={900}>
-      <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
           <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
@@ -215,7 +215,7 @@ function StatsSection() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 5 }}>{c.label}</div>
                 <div style={{ height: 6, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${Math.round((c.count / maxTopCount) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 3, transition: "width 0.3s" }} />
+                  <div style={{ width: `${Math.round((c.count / maxTopCount) * 100)}%`, height: "100%", background: color.gold, borderRadius: 3, transition: "width 0.3s" }} />
                 </div>
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: color.gold, flexShrink: 0, minWidth: 20, textAlign: "right" }}>{c.count}</div>
@@ -435,7 +435,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
         />
         <button onClick={searchUsers}
-          style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 18px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: color.gold, border: "none", borderRadius: 8, padding: "10px 18px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           Search
         </button>
       </div>
@@ -822,7 +822,7 @@ function BadgesSection() {
             style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "9px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
           />
           <button onClick={searchUsers}
-            style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+            style={{ background: color.gold, border: "none", borderRadius: 8, padding: "9px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
             Find
           </button>
         </div>
@@ -878,7 +878,7 @@ function BadgesSection() {
                     {selectedUser && (
                       <button
                         onClick={() => earned ? handleRevoke(b.key) : handleAward(b.key)}
-                        style={{ background: earned ? "none" : `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: earned ? `1px solid ${color.danger}55` : "none", borderRadius: 8, padding: "6px 12px", color: earned ? color.danger : color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
+                        style={{ background: earned ? "none" : color.gold, border: earned ? `1px solid ${color.danger}55` : "none", borderRadius: 8, padding: "6px 12px", color: earned ? color.danger : color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", flexShrink: 0 }}>
                         {earned ? "Revoke" : "Award"}
                       </button>
                     )}
@@ -1099,7 +1099,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
 
       <div style={{ display: "flex", gap: 8 }}>
         <button onClick={handleSave} disabled={saving || !form.brand || !form.line || !form.vitola}
-          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? color.bg : color.dim, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? color.gold : color.surfaceRaised, border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? color.bg : color.dim, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           {saving ? "Saving..." : "✓ Save to DB"}
         </button>
         <button onClick={onCancel}
@@ -1404,7 +1404,7 @@ function FeedbackSection({ currentUser }) {
                 style={{ width: "100%", background: color.bg, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReply(item)} disabled={saving || !replyText.trim()}
-                  style={{ flex: 2, background: replyText.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: type.xs, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
+                  style={{ flex: 2, background: replyText.trim() ? color.gold : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: type.xs, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
                   {saving ? "Sending..." : "Send Reply"}
                 </button>
                 <button onClick={() => { setReplyingId(null); setReplyText(""); }}
@@ -1429,7 +1429,7 @@ function FeedbackSection({ currentUser }) {
                   Reply
                 </button>
                 <button onClick={() => handleResolve(item.id)}
-                  style={{ flex: 1, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                  style={{ flex: 1, background: color.positive, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                   ✓ Resolve
                 </button>
               </>
@@ -1538,7 +1538,7 @@ function DbRefreshSection() {
           {filter === "pending" && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: color.positive, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
@@ -1716,7 +1716,7 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId !== item.id && rejectingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: color.positive, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Approve
               </button>
               <button onClick={() => { setEditingId(item.id); setEditForm({}); }}
@@ -1732,7 +1732,7 @@ function QASection({ currentUserId }) {
           {filter === "pending" && editingId === item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: color.gold, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 ✓ Save & Approve
               </button>
               <button onClick={() => setEditingId(null)}
@@ -1844,7 +1844,7 @@ function DedupSection({ currentUserId }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
         <div style={{ fontSize: type.xs, color: color.cream, fontWeight: 600 }}>Duplicate Finder</div>
         <button onClick={handleScan} disabled={scanning}
-          style={{ background: scanning ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: type.xs, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
+          style={{ background: scanning ? color.line : color.gold, border: "none", borderRadius: 20, padding: "5px 14px", color: scanning ? color.dim : color.bg, fontSize: type.xs, fontWeight: 700, cursor: scanning ? "default" : "pointer", fontFamily: SANS }}>
           {scanning ? "Scanning..." : "▶ Find Duplicates"}
         </button>
       </div>
@@ -1911,7 +1911,7 @@ function DedupSection({ currentUserId }) {
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <button onClick={() => handleMerge(group)} disabled={merging === group.key}
-              style={{ flex: 2, background: merging === group.key ? color.line : `linear-gradient(135deg, ${color.green}, ${color.greenDim})`, border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? color.faint : color.heading, fontSize: type.xs, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
+              style={{ flex: 2, background: merging === group.key ? color.line : color.positive, border: "none", borderRadius: 8, padding: "8px 0", color: merging === group.key ? color.faint : color.heading, fontSize: type.xs, fontWeight: 700, cursor: merging === group.key ? "default" : "pointer", fontFamily: SANS }}>
               {merging === group.key ? "Merging..." : "⟶ Merge into Keep"}
             </button>
             <button onClick={() => handleSkip(group.key)}

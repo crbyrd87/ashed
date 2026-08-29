@@ -279,7 +279,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Analyzing your cigar band...</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is reading the band label</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+            <div style={{ height: "100%", background: color.gold, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>
@@ -306,7 +306,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {!violasLoading && vitolas.length === 0 && (
             <div style={{ textAlign: "center", padding: 24 }}>
               <div style={{ fontSize: 13, color: color.muted, marginBottom: 16 }}>No vitolas found in the database for this cigar.</div>
-              <button onClick={() => setStage("result")} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+              <button onClick={() => setStage("result")} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
                 Continue Anyway
               </button>
               <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
@@ -399,7 +399,7 @@ Be as specific as possible with brand and line. If you can read text on the band
             <div style={{ fontSize: 13, color: color.muted, fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
           )}
 
-          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Log this smoke
           </button>
           <button onClick={() => { onAddToWishlist(cigar); showToast("Added to wishlist"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
@@ -437,7 +437,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Close size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Couldn't identify this band</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24, lineHeight: 1.6 }}>{errorMsg}</div>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             Try Again
           </button>
           <button onClick={() => { onClose(); if (onSearchManually) onSearchManually(); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>

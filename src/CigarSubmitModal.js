@@ -132,7 +132,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
 
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={handleSubmit} disabled={verifying}
-            style={{ flex: 2, background: verifying ? color.surfaceRaised : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 13, color: verifying ? color.faint : color.bg, fontSize: 14, fontWeight: 700, cursor: verifying ? "default" : "pointer", fontFamily: SANS }}>
+            style={{ flex: 2, background: verifying ? color.surfaceRaised : color.gold, border: "none", borderRadius: 10, padding: 13, color: verifying ? color.faint : color.bg, fontSize: 14, fontWeight: 700, cursor: verifying ? "default" : "pointer", fontFamily: SANS }}>
             {verifying ? "Verifying..." : "Submit Cigar"}
           </button>
           <button onClick={onClose}

@@ -54,7 +54,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
     <Screen zIndex={500} maxWidth={900}>
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.partner, letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
           <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>

@@ -303,12 +303,12 @@ export default function Friends({ user, onClose, onRequestHandled }) {
   };
 
   const s = {
-    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    header: { background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     tab: active => ({ flex: 1, padding: "10px 0", background: "none", border: "none", borderBottom: `2px solid ${active ? color.gold : "transparent"}`, color: active ? color.gold : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, fontWeight: active ? 700 : 400 }),
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     card: { background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" },
     btn: (accent) => ({ background: "none", border: `1px solid ${accent}55`, borderRadius: 8, padding: "6px 14px", color: accent, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }),
-    btnFilled: { background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "6px 14px", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS },
+    btnFilled: { background: color.gold, border: "none", borderRadius: 8, padding: "6px 14px", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS },
   };
 
   if (viewingFriend) {
@@ -405,7 +405,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                     setActionMsg("Link copied to clipboard!");
                   }
                 }}
-                style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+                style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
               >
                 Share invite link
               </button>

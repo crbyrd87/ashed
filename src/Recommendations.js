@@ -153,7 +153,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
   };
 
   const s = {
-    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    header: { background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "20px 20px", borderBottom: `1px solid ${color.line}33` },
     pill: active => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
     strengthPill: (s, active) => ({ padding: "6px 14px", borderRadius: 20, border: `1px solid ${active ? strengthColor(s) : color.line}`, background: active ? strengthColor(s) + "22" : "transparent", color: active ? strengthColor(s) : color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, fontWeight: active ? 700 : 400 }),
@@ -216,7 +216,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
 
           <button
             onClick={handleAutoRecommend}
-            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
+            style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
           >
             Recommend for me
           </button>
@@ -268,7 +268,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
 
           <button
             onClick={handleSurveySubmit}
-            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
+            style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
           >
             Find My Cigars
           </button>
@@ -290,7 +290,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Finding your perfect cigars...</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is analyzing your taste profile</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+            <div style={{ height: "100%", background: color.gold, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>

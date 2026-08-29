@@ -140,7 +140,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
           {msg && <div style={{ fontSize: type.xs, color: msg.isError ? color.dangerText : color.green, marginTop: 4 }}>{msg.text}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button onClick={handleSave} disabled={saving}
-              style={{ flex: 1, background: saving ? color.line : `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: saving ? color.dim : color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+              style={{ flex: 1, background: saving ? color.line : color.gold, border: "none", borderRadius: 8, padding: "9px 0", color: saving ? color.dim : color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
               {saving ? "Saving..." : "Save"}
             </button>
             <button onClick={() => { setEditing(false); setVal(value || ""); }}
@@ -508,7 +508,7 @@ function HelpSection({ onReplayTour, user }) {
             {type === "bug" ? "Your session replay will be attached so we can see exactly what happened." : "Your feedback helps us build a better app."}
           </div>
           <button onClick={handleSubmit} disabled={submitting || !description.trim()}
-            style={{ width: "100%", background: description.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 10, padding: 14, color: description.trim() ? color.bg : color.faint, fontSize: 14, fontWeight: 700, cursor: description.trim() ? "pointer" : "default", fontFamily: SANS }}>
+            style={{ width: "100%", background: description.trim() ? color.gold : color.surfaceRaised, border: "none", borderRadius: 10, padding: 14, color: description.trim() ? color.bg : color.faint, fontSize: 14, fontWeight: 700, cursor: description.trim() ? "pointer" : "default", fontFamily: SANS }}>
             {submitting ? "Submitting..." : "Submit"}
           </button>
         </>

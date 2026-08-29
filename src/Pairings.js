@@ -172,7 +172,7 @@ Return ONLY a raw JSON object, no markdown:
             <div style={{ textAlign: "center", padding: 30 }}>
               <div style={{ fontSize: 13, color: color.muted, marginBottom: 12 }}>Finding perfect pairings...</div>
               <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+                <div style={{ height: "100%", background: color.gold, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
               </div>
               <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
             </div>
@@ -181,7 +181,7 @@ Return ONLY a raw JSON object, no markdown:
           {error && (
             <div style={{ textAlign: "center", padding: 20 }}>
               <div style={{ fontSize: 13, color: color.dangerText, marginBottom: 16 }}>{error}</div>
-              <button onClick={() => setRetryCount(c => c + 1)} style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 20px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Try Again</button>
+              <button onClick={() => setRetryCount(c => c + 1)} style={{ background: color.gold, border: "none", borderRadius: 8, padding: "10px 20px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Try Again</button>
             </div>
           )}
 

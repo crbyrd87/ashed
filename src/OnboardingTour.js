@@ -196,7 +196,7 @@ export default function OnboardingTour({ onComplete }) {
           </button>
         )}
         <button onClick={() => isLast ? onComplete() : setStep(s => s + 1)}
-          style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ flex: 2, background: color.gold, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           {isLast ? "Start smoking" : "Next"}
         </button>
       </div>

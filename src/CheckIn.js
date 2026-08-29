@@ -372,14 +372,14 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   };
 
   const s = {
-    header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+    header: { background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "16px 20px", borderBottom: `1px solid ${color.line}33` },
     label: { fontSize: type.xs, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
     tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `linear-gradient(135deg, ${color.gold}22, ${color.goldDeep}22)` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
     optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
-    saveBtn: { width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
+    saveBtn: { width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
     detailsToggle: { width: "100%", background: showDetails ? color.surfaceRaised : "none", border: `1px solid ${showDetails ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? color.gold : color.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
   };
 
@@ -427,7 +427,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           {[
             { label: "Yes", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
             { label: "Maybe", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
-            { label: "No", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
+            { label: "No", activeColor: "#7a3a2a", activeBg: color.danger },
           ].map(({ label, activeColor, activeBg }) => {
             const isActive = wouldSmokeAgain === label;
             return (
@@ -511,7 +511,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               {[
                 { label: "Good value", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
                 { label: "OK value", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
-                { label: "Poor value", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
+                { label: "Poor value", activeColor: "#7a3a2a", activeBg: color.danger },
               ].map(({ label, activeColor, activeBg }) => {
                 const isActive = valueForPrice === label;
                 return (
@@ -564,7 +564,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   onChange={e => setNewPlaceName(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleAddPlace()}
                 />
-                <button onClick={handleAddPlace} style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "0 16px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
+                <button onClick={handleAddPlace} style={{ background: color.gold, border: "none", borderRadius: 8, padding: "0 16px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>Save</button>
               </div>
             )}
             {showVenueSearch && (
@@ -579,7 +579,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                     onKeyDown={e => e.key === "Enter" && handleVenueSearch()}
                   />
                   <button onClick={handleVenueSearch} disabled={venueSearching}
-                    style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "0 14px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                    style={{ background: color.gold, border: "none", borderRadius: 8, padding: "0 14px", color: color.bg, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
                     {venueSearching ? "..." : "Search"}
                   </button>
                 </div>

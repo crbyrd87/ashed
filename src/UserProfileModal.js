@@ -71,7 +71,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
           <>
             {/* Profile header */}
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: color.bg, fontWeight: 700, flexShrink: 0 }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: color.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: color.bg, fontWeight: 700, flexShrink: 0 }}>
                 {displayName[0].toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
@@ -84,7 +84,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
             {/* Friend button */}
             {friendStatus === null && (
               <button onClick={handleAddFriend} disabled={actionLoading}
-                style={{ width: "100%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 20 }}>
+                style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 20 }}>
                 {actionLoading ? "Sending..." : "+ Add Friend"}
               </button>
             )}

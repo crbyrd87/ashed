@@ -317,7 +317,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Analyzing your cigars...</div>
           <div style={{ fontSize: type.xs, color: color.muted }}>Ashed is reading the band(s)</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden", marginTop: 20 }}>
-            <div style={{ height: "100%", background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
+            <div style={{ height: "100%", background: color.gold, borderRadius: 2, animation: "scan 1.5s ease-in-out infinite", width: "40%" }} />
           </div>
           <style>{`@keyframes scan { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
         </div>
@@ -374,7 +374,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             </div>
           ))}
           <button onClick={handleConfirmScan}
-            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+            style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
             Add {scanResult.length === 1 ? "to Humidor" : `${scanResult.length} Cigars to Humidor`}
           </button>
           <button onClick={resetScan}
@@ -391,7 +391,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Could not identify</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 20, lineHeight: 1.6 }}>{scanError}</div>
           <button onClick={() => setScanStage("idle")}
-            style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
+            style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10 }}>
             Try Again
           </button>
           <button onClick={resetScan}
@@ -414,7 +414,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           {items.length > 0 && <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{items.reduce((a, i) => a + i.quantity, 0)} cigars · {items.length} {items.length === 1 ? "line" : "lines"}</div>}
         </div>
         <button onClick={() => setShowAddOptions(true)}
-          style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: "8px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+          style={{ background: color.gold, border: "none", borderRadius: 10, padding: "8px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
           + Add a Cigar
         </button>
       </div>
@@ -575,7 +575,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                             {/* Action buttons */}
                             <div style={{ display: "flex", gap: 8 }}>
                               <button onClick={() => handleSmokeOne(item)}
-                                style={{ flex: 2, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                                style={{ flex: 2, background: color.gold, border: "none", borderRadius: 8, padding: "9px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                                 Smoke one
                               </button>
                               <button onClick={() => openVitolaPicker(item)}

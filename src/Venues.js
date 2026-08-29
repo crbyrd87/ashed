@@ -384,7 +384,7 @@ export default function Venues() {
           <button
             onClick={() => searchQuery.trim() && doSearch(searchQuery.trim())}
             disabled={loading}
-            style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
+            style={{ background: color.gold, border: "none", borderRadius: 8, padding: "10px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
           >
             {loading ? "..." : "Search"}
           </button>
@@ -554,7 +554,7 @@ export default function Venues() {
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={(e) => { e.stopPropagation(); openDirections(venue); }}
-                    style={{ flex: 1, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
+                    style={{ flex: 1, background: color.gold, border: "none", borderRadius: 8, padding: "10px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
                   >
                     Directions
                   </button>
