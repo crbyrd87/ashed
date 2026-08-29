@@ -47,6 +47,7 @@ export default function Feed({ user }) {
   const [firedIds, setFiredIds] = useState(new Set());
   const [selectedCheckin, setSelectedCheckin] = useState(null);
   useBackDismiss(!!selectedCheckin, () => setSelectedCheckin(null));
+  const [commentCounts, setCommentCounts] = useState({});
   const [refreshCount] = useState(0);
 
   useEffect(() => {
@@ -111,15 +112,23 @@ export default function Feed({ user }) {
   };
 
   const loadFireData = async (ids) => {
-    const { data: allFires } = await supabase.from("fires").select("checkin_id, user_id").in("checkin_id", ids);
+    // Comments are counted the same way and in the same round trip, so the
+    // button can show how many there are rather than only that it exists.
+    const [{ data: allFires }, { data: allComments }] = await Promise.all([
+      supabase.from("fires").select("checkin_id, user_id").in("checkin_id", ids),
+      supabase.from("comments").select("checkin_id").in("checkin_id", ids),
+    ]);
     const counts = {};
     const myFires = new Set();
     for (const f of (allFires || [])) {
       counts[f.checkin_id] = (counts[f.checkin_id] || 0) + 1;
       if (f.user_id === user.id) myFires.add(f.checkin_id);
     }
+    const cc = {};
+    for (const c of (allComments || [])) cc[c.checkin_id] = (cc[c.checkin_id] || 0) + 1;
     setFireCounts(counts);
     setFiredIds(myFires);
+    setCommentCounts(cc);
   };
 
   const handleFireToggle = async (checkinId) => {
@@ -244,8 +253,8 @@ export default function Feed({ user }) {
               onClick={() => setSelectedCheckin(item)}
               style={{ height: 44, padding: "0 14px", gap: 6 }}>
               <Icon.Feed size={17} color={color.textMuted} />
-              {item.comment_count > 0 && (
-                <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.textMuted }}>{item.comment_count}</span>
+              {commentCounts[item.id] > 0 && (
+                <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.textMuted }}>{commentCounts[item.id]}</span>
               )}
             </Button>
           </div>
