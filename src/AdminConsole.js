@@ -99,16 +99,22 @@ function StatsSection() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Distinct users who checked in at least once in the last 30 days.
-    // NOTE: this counts check-ins only. Somebody who opens the app daily,
-    // browses the feed and comments but logs no smoke is not counted, so
-    // this understates engagement and is not a general "active users" figure.
-    const { data: mauData } = await supabase
-      .from("checkins")
-      .select("user_id")
-      .gte("created_at", thirtyDaysAgo);
-    const mauCount = new Set((mauData || []).map(r => r.user_id)).size;
-    setTotals(prev => ({ ...prev, mau: mauCount }));
+    // Distinct users who did ANYTHING in the last 30 days — logged a smoke,
+    // liked a check-in, or commented. Counting check-ins alone missed people
+    // who read the feed and engage with it without logging their own smokes.
+    //
+    // Union in JS rather than SQL: the three tables have no shared view, and
+    // a user active in all three must still count once.
+    const [mauCheckins, mauFires, mauComments] = await Promise.all([
+      supabase.from("checkins").select("user_id").gte("created_at", thirtyDaysAgo),
+      supabase.from("fires").select("user_id").gte("created_at", thirtyDaysAgo),
+      supabase.from("comments").select("user_id").gte("created_at", thirtyDaysAgo),
+    ]);
+    const activeIds = new Set();
+    for (const res of [mauCheckins, mauFires, mauComments]) {
+      for (const r of res.data || []) if (r.user_id) activeIds.add(r.user_id);
+    }
+    setTotals(prev => ({ ...prev, mau: activeIds.size }));
 
     const { data: recentUsers } = await supabase
       .from("users")
