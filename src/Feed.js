@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color, flame, type } from "./theme";
+import { SANS, color, flame, font, type, weight } from "./theme";
 import { ClickableRow } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
@@ -9,7 +9,6 @@ import { checkAndAwardBadges } from "./badgeEngine";
 const COMMUNITY_LIMIT = 10;
 const FRIEND_LIMIT = 20;
 
-const strengthColor = s => ({ "Mild": color.green, "Mild-Medium": "#8ab88a", "Medium": color.gold, "Medium-Full": "#cc7a2a", "Full": "#cc4400" }[s] || color.muted);
 
 const avatarColor = (str) => {
   const colors = [
@@ -195,19 +194,24 @@ export default function Feed({ user }) {
                     <span style={{ fontSize: type.xs, color: color.faint }}>· {timeAgo}</span>
                   </div>
 
-                  {/* Brand — Cigar Name */}
-                  <div style={{ fontSize: 13, fontWeight: 700, color: color.heading, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    <span style={{ color: "#8a6040" }}>{cigarBrand}</span>
-                    {cigarBrand && cigarName && <span style={{ color: color.faint }}> — </span>}
+                  {/* Brand — Cigar Name. The largest thing in the row: it is
+                      what the row is about, and it used to be 13px while the
+                      vitola beneath it was 14px and bold. */}
+                  <div style={{ fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed, color: color.textPrimary, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span style={{ color: color.textMuted }}>{cigarBrand}</span>
+                    {cigarBrand && cigarName && <span style={{ color: color.textFaint }}> — </span>}
                     {cigarName}
                   </div>
 
-                  {/* Vitola + strength — larger */}
+                  {/* Vitola and strength: one quiet line beneath. Strength no
+                      longer carries its own colour — the left accent bar
+                      already encodes the rating, and two competing colours in
+                      a row this dense was one too many. */}
                   {(vitola || strength) && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      {vitola && <span style={{ fontSize: 14, fontWeight: 600, color: color.gold }}>{vitola}</span>}
-                      {vitola && strength && <span style={{ fontSize: type.xs, color: color.lineInput }}>·</span>}
-                      {strength && <span style={{ fontSize: 14, fontWeight: 700, color: strengthColor(strength) }}>{strength}</span>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {vitola && <span style={{ fontSize: type.xs, color: color.textMuted }}>{vitola}</span>}
+                      {vitola && strength && <span style={{ fontSize: type.xs, color: color.textFaint }}>·</span>}
+                      {strength && <span style={{ fontSize: type.xs, color: color.textMuted }}>{strength}</span>}
                     </div>
                   )}
                 </div>
