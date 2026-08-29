@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { ClickableRow } from "./ui";
+import { ClickableRow, Icon } from "./ui";
 import { authedFetch } from "./apiClient";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -399,7 +399,7 @@ export default function Venues() {
                 onMouseDown={() => { setSearchQuery(s.description); doSearch(s.description); }}
                 style={{ padding: "10px 14px", fontSize: 13, color: color.text, cursor: "pointer", borderBottom: `1px solid ${color.line}33`, display: "flex", alignItems: "center", gap: 8 }}
               >
-                <span style={{ fontSize: type.xs, color: color.gold }}>📍</span>
+                <span style={{ fontSize: type.xs, color: color.gold }}></span>
                 <span>{s.description}</span>
               </div>
             ))}
@@ -412,7 +412,7 @@ export default function Venues() {
         onClick={requestLocation}
         style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "10px 14px", color: color.muted, fontSize: 13, cursor: "pointer", fontFamily: SANS, marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
       >
-        📍 Use my current location
+        Use my current location
       </button>
 
       {/* Error */}
@@ -443,7 +443,7 @@ export default function Venues() {
       {/* No results */}
       {!loading && hasSearched && venues.length === 0 && !error && (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Search size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>No cigar shops found</div>
           <div style={{ fontSize: 13, color: color.faint }}>Try a different city or zip code.</div>
         </div>
@@ -548,7 +548,7 @@ export default function Venues() {
               <div style={{ borderTop: `1px solid ${color.line}`, padding: "12px 14px" }}>
                 {phone && (
                   <div style={{ fontSize: 13, color: color.muted, marginBottom: 12 }}>
-                    📞 <span style={{ color: color.cream }}>{phone}</span>
+                    <span style={{ color: color.cream }}>{phone}</span>
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 8 }}>
@@ -556,14 +556,14 @@ export default function Venues() {
                     onClick={(e) => { e.stopPropagation(); openDirections(venue); }}
                     style={{ flex: 1, background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 0", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
                   >
-                    📍 Directions
+                    Directions
                   </button>
                   {phone && (
                     <button
                       onClick={(e) => { e.stopPropagation(); openCall({ ...venue, formatted_phone_number: phone }); }}
                       style={{ flex: 1, background: "none", border: `1px solid ${color.gold}55`, borderRadius: 8, padding: "10px 0", color: color.gold, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS }}
                     >
-                      📞 Call
+                      Call
                     </button>
                   )}
                 </div>

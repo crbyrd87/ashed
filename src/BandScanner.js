@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { SANS, color, type } from "./theme";
-import { Screen } from "./ui";
+import { Icon, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -217,7 +217,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               { icon: "🚬", text: "Log it, add to your humidor, or save to your wishlist" },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
-                <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                <span style={{ flexShrink: 0, display: "flex" }}><item.Glyph size={20} color={color.textMuted} /></span>
                 <span style={{ fontSize: 13, color: color.cream, lineHeight: 1.5 }}>{item.text}</span>
               </div>
             ))}
@@ -241,7 +241,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {/* Camera button */}
           <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
             <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
-              📷 Open Camera
+              Open camera
             </div>
             <input
               ref={cameraInputRef}
@@ -275,7 +275,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {photoPreview && (
             <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 240, objectFit: "cover", marginBottom: 24 }} />
           )}
-          <div style={{ fontSize: 32, marginBottom: 16 }}>🔍</div>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Search size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Analyzing your cigar band...</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is reading the band label</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
@@ -400,10 +400,10 @@ Be as specific as possible with brand and line. If you can read text on the band
           )}
 
           <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            🚬 Log This Smoke
+            Log this smoke
           </button>
           <button onClick={() => { onAddToWishlist(cigar); showToast("Added to Wishlist ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            ♡ Add to Wishlist
+            Add to wishlist
           </button>
           <button onClick={() => { onAddToHumidor(cigar); showToast("Added to Humidor ✓"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
@@ -414,7 +414,7 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {!flagged ? (
             <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: `1px solid ${color.line}44`, borderRadius: 10, padding: 10, color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
-              {flagging ? "Flagging..." : "⚑ Flag incorrect info"}
+              {flagging ? "Flagging..." : "Flag incorrect info"}
             </button>
           ) : (
             <div style={{ textAlign: "center", fontSize: type.xs, color: color.green, padding: 10 }}>✓ Thanks — flagged for review</div>
@@ -434,7 +434,7 @@ Be as specific as possible with brand and line. If you can read text on the band
           {photoPreview && (
             <img src={photoPreview} alt="Band" style={{ width: "100%", borderRadius: 12, maxHeight: 200, objectFit: "cover", marginBottom: 20 }} />
           )}
-          <div style={{ fontSize: 32, marginBottom: 12 }}>🚫</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Close size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Couldn't identify this band</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24, lineHeight: 1.6 }}>{errorMsg}</div>
           <button onClick={() => { setStage("capture"); setPhotoPreview(null); setErrorMsg(""); }} style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>

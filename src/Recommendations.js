@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { CloseButton, Screen } from "./ui";
+import { CloseButton, Icon, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 
@@ -218,7 +218,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
             onClick={handleAutoRecommend}
             style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 12 }}
           >
-            ✨ Recommend for Me
+            Recommend for me
           </button>
           <button
             onClick={() => { setMode("survey"); setLastMode("survey"); setError(null); }}
@@ -286,7 +286,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
       {/* LOADING */}
       {mode === "loading" && (
         <div style={{ padding: 40, textAlign: "center" }}>
-          <div style={{ fontSize: 32, marginBottom: 16 }}>✨</div>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Recommend size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8 }}>Finding your perfect cigars...</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 24 }}>Ashed is analyzing your taste profile</div>
           <div style={{ width: "100%", height: 4, background: color.surfaceRaised, borderRadius: 2, overflow: "hidden" }}>
@@ -339,7 +339,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
                     disabled={added}
                     style={{ width: "100%", background: added ? `${color.gold}22` : "none", border: `1px solid ${added ? color.gold : color.line}`, borderRadius: 8, padding: "8px 0", color: added ? color.gold : color.muted, fontSize: type.xs, cursor: added ? "default" : "pointer", fontFamily: SANS }}
                   >
-                    {added ? "✓ Added to Wishlist" : "+ Add to Wishlist"}
+                    {added ? "Added to wishlist" : "Add to wishlist"}
                   </button>
                 </div>
               </div>

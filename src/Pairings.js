@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { CloseButton, Sheet } from "./ui";
+import { SANS, color, font, type, weight } from "./theme";
+import { CloseButton, SectionLabel, Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -136,13 +136,13 @@ Return ONLY a raw JSON object, no markdown:
     setLoadingSeasonalNote(false);
   };
 
-  const PairingSection = ({ title, icon, content }) => {
+  const PairingSection = ({ title, content }) => {
     if (!content) return null;
     // Split on semicolons, newlines, or numbered list patterns
     const lines = content.split(/;\s*|\n+|\d+\.\s+/).map(l => l.trim()).filter(l => l.length > 5);
     return (
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: color.gold, letterSpacing: 0.5, marginBottom: 8 }}>{icon} {title}</div>
+        <SectionLabel tone={color.gold} style={{ marginBottom: 8 }}>{title}</SectionLabel>
         <div style={{ background: color.bg, borderRadius: 8, padding: "10px 12px" }}>
           {lines.map((line, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: i < lines.length - 1 ? 8 : 0, alignItems: "flex-start" }}>
@@ -161,7 +161,7 @@ Return ONLY a raw JSON object, no markdown:
         {/* Header */}
         <div style={{ padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: color.bg, zIndex: 1 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>🥃 Drink Pairings</div>
+            <div style={{ fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed, color: color.textPrimary }}>Drink pairings</div>
             <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
           </div>
           <CloseButton onClose={onClose} />
@@ -193,11 +193,11 @@ Return ONLY a raw JSON object, no markdown:
                 </div>
               )}
 
-              <PairingSection title="Spirits" icon="🥃" content={pairings.spirits} />
-              <PairingSection title="Beer" icon="🍺" content={pairings.beer} />
-              <PairingSection title="Cocktails" icon="🍹" content={pairings.cocktails} />
-              <PairingSection title="Coffee" icon="☕" content={pairings.coffee} />
-              <PairingSection title="Non-Alcoholic" icon="🥤" content={pairings.non_alcoholic} />
+              <PairingSection title="Spirits" content={pairings.spirits} />
+              <PairingSection title="Beer" content={pairings.beer} />
+              <PairingSection title="Cocktails" content={pairings.cocktails} />
+              <PairingSection title="Coffee" content={pairings.coffee} />
+              <PairingSection title="Non-Alcoholic" content={pairings.non_alcoholic} />
 
               {/* Seasonal pairings */}
               <div style={{ borderTop: `1px solid ${color.line}33`, paddingTop: 16, marginTop: 4 }}>
@@ -213,7 +213,7 @@ Return ONLY a raw JSON object, no markdown:
                 {!seasonalNote ? (
                   <button onClick={handleSeasonalNote} disabled={loadingSeasonalNote}
                     style={{ width: "100%", background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: 10, color: loadingSeasonalNote ? color.faint : color.muted, fontSize: type.xs, cursor: loadingSeasonalNote ? "default" : "pointer", fontFamily: SANS }}>
-                    {loadingSeasonalNote ? "Loading..." : `✨ Get ${season} pairing suggestion`}
+                    {loadingSeasonalNote ? "Loading..." : `Get ${season} pairing suggestion`}
                   </button>
                 ) : (
                   <div style={{ background: color.surfaceRaised, borderRadius: 8, padding: "10px 12px" }}>
