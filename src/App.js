@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SANS, color, font, type, weight } from "./theme";
-import { Button, Icon, Notice, Pressable } from "./ui";
+import { Button, Icon, Notice, Pill, Pressable } from "./ui";
 import Auth from "./Auth";
 import Home from "./Home";
 import { supabase } from "./supabase";
@@ -1145,11 +1145,6 @@ export default function App() {
 
       {tab === "search" && (
         <div style={{ padding: 16, position: "sticky", top: 0, background: color.bg, zIndex: 20 }}>
-          {!query && !selectedLine && (
-            <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 8, textAlign: "center" }}>
-              Search below to find a cigar or log a smoke
-            </div>
-          )}
           <div style={{ position: "relative" }}>
             <input
               id="cigar-search-input"
@@ -1190,25 +1185,6 @@ export default function App() {
             )}
           </div>
 
-          {/* Scan Band and Recommendations buttons — shown when no search active */}
-          {!query && !selectedLine && (
-            <div style={{ marginTop: 10 }}>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button
-                  onClick={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
-                  style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                >
-                  Scan a band {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
-                </button>
-                <button
-                  onClick={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
-                  style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.greenBright}55`, borderRadius: 10, padding: 14, color: color.greenBright, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                >
-                  Recommendation {!isPremium && <span style={{ fontSize: type.xs, background: `${color.greenBright}22`, border: `1px solid ${color.greenBright}55`, borderRadius: 8, padding: "1px 6px", marginLeft: 4 }}>PRO</span>}
-                </button>
-              </div>
-            </div>
-          )}
 
           {!selectedLine && !query && (
             <Feed user={user} />
@@ -1218,49 +1194,41 @@ export default function App() {
 
       {tab === "profile" && (
         <div style={{ padding: 16 }}>
-          {/* User header, two rows.
-              Row 1 is identity only. With the avatar, both buttons and three
-              gaps sharing one row, the name column was down to ~130px on a
-              420px screen — narrower than the handle line needs, so anything
-              in it wrapped. Nothing competes with the name here now.
-              Row 2 carries the badges and the two quick actions. */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 0 12px" }}>
-            <div style={{ width: 64, height: 64, flex: "0 0 64px", borderRadius: "50%", background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.cedar})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}><Icon.Friends size={28} color={color.bg} /></div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: color.heading }}>{displayName}</div>
-              <div style={{ fontSize: type.xs, color: color.tan }}>{username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}</div>
+          {/* Identity on its own line, then the badges as a scrolling strip.
+              Photo, name, handle, member-since and badges used to compete in
+              one row and badge names wrapped onto two lines on a phone.
+              Friends and notifications moved to the home screen, so nothing
+              competes with the name here now. */}
+          <div style={{ padding: "8px 0 20px" }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: "50%",
+              border: `1px solid ${color.borderStrong}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontFamily: font.display, fontSize: type.xl, color: color.textBody,
+              marginBottom: 14,
+            }}>
+              {(displayName[0] || "?").toUpperCase()}
             </div>
-          </div>
+            <div style={{
+              fontFamily: font.display, fontSize: type.xl, fontWeight: weight.displayMed,
+              color: color.textPrimary, lineHeight: 1.2,
+            }}>
+              {displayName}
+            </div>
+            <div style={{ fontSize: type.sm, color: color.textMuted, marginTop: 4 }}>
+              {username ? `@${username} · ` : ""}Member since {new Date(user.created_at).getFullYear()}
+            </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, paddingBottom: 16, borderBottom: `1px solid ${color.lineStrong}` }}>
-            <div style={{ flex: 1, minWidth: 0, display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {earnedBadges.slice(0, 1).map(b => (
-                <Badge key={b.key} label={b.name} color={color.goldLegacy} />
-              ))}
-              {isPremium && <Badge label="Premium" color={color.goldPale} />}
-            </div>
-            <button
-              onClick={() => { setShowFriends(true); setPendingFriendCount(0); }}
-              style={{ background: "none", border: `1px solid ${pendingFriendCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 14px", color: pendingFriendCount > 0 ? color.goldLegacy : color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap", position: "relative", flex: "0 0 auto" }}
-            >
-              Friends
-              {pendingFriendCount > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
-                  {pendingFriendCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
-              style={{ background: "none", border: `1px solid ${unreadNotifCount > 0 ? color.goldLegacy : color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: unreadNotifCount > 0 ? color.goldLegacy : color.tan, fontSize: 16, cursor: "pointer", fontFamily: SANS, position: "relative", lineHeight: 1, flex: "0 0 auto" }}
-            >
-              <Icon.Bell size={17} color={color.textMuted} />
-              {unreadNotifCount > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -6, background: color.alert, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: type.xs, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SANS }}>
-                  {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
-                </span>
-              )}
-            </button>
+            {(earnedBadges.length > 0 || isPremium) && (
+              <div style={{
+                display: "flex", gap: 8, marginTop: 16,
+                overflowX: "auto", paddingBottom: 2,
+                scrollbarWidth: "none",
+              }}>
+                {isPremium && <Pill>Premium</Pill>}
+                {earnedBadges.map(b => <Pill key={b.key}>{b.name}</Pill>)}
+              </div>
+            )}
           </div>
 
           {/* Admin/Moderator console button */}
@@ -2057,7 +2025,8 @@ export default function App() {
           onHumidor={() => setTab("humidor")}
           onWishlist={() => setTab("wishlist")}
           onVenues={() => setTab("venues")}
-          onFriends={() => setShowFriends(true)}
+          pendingFriends={pendingFriendCount}
+          onFriends={() => { setShowFriends(true); setPendingFriendCount(0); }}
           onFeed={() => setTab("search")}
           onNotifications={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
           onProfile={() => setTab("profile")}

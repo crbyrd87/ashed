@@ -46,6 +46,7 @@ export default function Home({
   onWishlist,
   onVenues,
   onFriends,
+  pendingFriends = 0,
   onFeed,
   onNotifications,
   onProfile,
@@ -157,7 +158,10 @@ export default function Home({
         <ClickableRow icon={<Icon.Venue size={21} />} label="Shops & lounges"
           trailing={<Chevron />} onClick={onVenues} style={divider} />
         <ClickableRow icon={<Icon.Friends size={21} />} label="Friends"
-          trailing={<Chevron />} onClick={onFriends} style={divider} />
+          trailing={pendingFriends > 0
+            ? <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.gold }}>{pendingFriends} pending</span>
+            : <Chevron />}
+          onClick={onFriends} style={divider} />
       </div>
 
       {/* A two-row tail: the feed is one option among many, but a returning
