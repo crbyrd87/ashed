@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
@@ -851,7 +851,7 @@ export default function App() {
     nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: color.bg, borderTop: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
     navBtn: a => ({ flex: 1, padding: "8px 0", background: "none", border: "none", borderTop: a ? `2px solid ${color.gold}` : "2px solid transparent", color: color.gold, fontSize: 10, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: 700, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surfaceCard} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
-    input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
+    input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
     logoutBtn: { background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "4px 12px", color: color.tan, fontSize: 11, cursor: "pointer", fontFamily: SANS },
     dropdown: { position: "absolute", top: "100%", left: 0, right: 0, background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderTop: "none", borderRadius: "0 0 10px 10px", zIndex: 50, overflow: "hidden", maxHeight: 300, overflowY: "auto" },
@@ -1312,7 +1312,7 @@ export default function App() {
                   <div style={{ fontSize: 12, color: color.tan, letterSpacing: 2, marginBottom: 16 }}>FILTER SMOKES</div>
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 11, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>CIGAR NAME</div>
-                    <input style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                    <input style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderRadius: filterNameOpen && filteredNames.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
                       placeholder="Search your smokes..." value={filterName}
                       onChange={e => { setFilterName(e.target.value); setFilterNameOpen(true); }}
                       onFocus={() => setFilterNameOpen(true)} onBlur={() => setTimeout(() => setFilterNameOpen(false), 150)} />
@@ -1325,7 +1325,7 @@ export default function App() {
                   </div>
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 11, color: color.tan, letterSpacing: 1, marginBottom: 6 }}>BRAND</div>
-                    <input style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderRadius: filterBrandOpen && filteredBrands.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+                    <input style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.faintAlt}`, borderRadius: filterBrandOpen && filteredBrands.length > 0 ? "8px 8px 0 0" : "8px", padding: "8px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
                       placeholder="Search your brands..." value={filterBrand}
                       onChange={e => { setFilterBrand(e.target.value); setFilterBrandOpen(true); }}
                       onFocus={() => setFilterBrandOpen(true)} onBlur={() => setTimeout(() => setFilterBrandOpen(false), 150)} />
@@ -1350,12 +1350,12 @@ export default function App() {
                     <div style={{ display: "flex", gap: 16 }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>MINIMUM: <span style={{ color: color.goldLegacy, fontWeight: 700 }}>{filterScoreMin.toFixed(1)}</span></div>
-                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ width: "100%", accentColor: color.goldLegacy }} />
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMin} onChange={e => setFilterScoreMin(Math.min(parseFloat(e.target.value), filterScoreMax - 0.5))} style={{ fontSize: type.md, width: "100%", accentColor: color.goldLegacy }} />
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 11, color: color.tan, marginBottom: 4 }}>MAXIMUM: <span style={{ color: color.goldLegacy, fontWeight: 700 }}>{filterScoreMax.toFixed(1)}</span></div>
-                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ width: "100%", accentColor: color.goldLegacy }} />
+                        <input type="range" min={0} max={10} step={0.5} value={filterScoreMax} onChange={e => setFilterScoreMax(Math.max(parseFloat(e.target.value), filterScoreMin + 0.5))} style={{ fontSize: type.md, width: "100%", accentColor: color.goldLegacy }} />
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: color.dim, marginTop: 2 }}><span>0</span><span>10</span></div>
                       </div>
                     </div>
@@ -1638,7 +1638,7 @@ export default function App() {
               }}
               onBlur={() => setTimeout(() => { setWishlistSearchResults([]); setWishlistSearchQuery(""); }, 150)}
               placeholder="Search cigars to add to wishlist..."
-              style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: wishlistSearchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             />
             {wishlistSearching && (
               <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 11, color: color.green }}>Searching...</div>
@@ -1679,7 +1679,7 @@ export default function App() {
                   <select
                     value={wishlistFilterBrand}
                     onChange={e => setWishlistFilterBrand(e.target.value)}
-                    style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${wishlistFilterBrand ? color.gold : color.lineStrong}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? color.gold : color.muted, fontSize: 12, fontFamily: SANS, outline: "none" }}
+                    style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${wishlistFilterBrand ? color.gold : color.lineStrong}`, borderRadius: 8, padding: "8px 12px", color: wishlistFilterBrand ? color.gold : color.muted, fontSize: type.md, fontFamily: SANS, outline: "none" }}
                   >
                     <option value="">Filter by Brand</option>
                     {uniqueWishlistBrands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -2115,14 +2115,14 @@ export default function App() {
                 <div style={{ fontSize: 11, color: color.muted, letterSpacing: 1, marginBottom: 6 }}>VITOLA</div>
                 {wishlistVitolaOptions.length > 0 ? (
                   <select value={purchasedVitola} onChange={e => setPurchasedVitola(e.target.value)}
-                    style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px", color: purchasedVitola ? color.text : color.muted, fontSize: 16, fontFamily: SANS, outline: "none" }}>
+                    style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px", color: purchasedVitola ? color.text : color.muted, fontSize: type.md, fontFamily: SANS, outline: "none" }}>
                     <option value="">Select a vitola...</option>
                     {wishlistVitolaOptions.map((v, i) => <option key={i} value={v.vitola}>{v.vitola}{v.strength ? ` — ${v.strength}` : ""}</option>)}
                   </select>
                 ) : (
                   <input value={purchasedVitola} onChange={e => setPurchasedVitola(e.target.value)}
                     placeholder="e.g. Robusto, Toro, Churchill..."
-                    style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+                    style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
                 )}
               </div>
 

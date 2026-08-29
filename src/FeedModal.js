@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -213,7 +213,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             onChange={e => setCommentInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handlePostComment()}
             placeholder="Add a comment..."
-            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 20, padding: "8px 14px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.line}`, borderRadius: 20, padding: "8px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
           />
           <button
             onClick={handlePostComment}

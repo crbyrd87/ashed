@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Toggle as Switch } from "./ui";
 import { supabase } from "./supabase";
 
@@ -119,7 +119,7 @@ function Field({ label, value, onSave, type = "text", hint }) {
             type={type}
             value={val}
             onChange={e => setVal(e.target.value)}
-            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.goldLegacy}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+            style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.goldLegacy}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             autoFocus
           />
           {hint && <div style={{ fontSize: 11, color: color.dim, marginTop: 4 }}>{hint}</div>}
@@ -232,7 +232,7 @@ function AccountSection({ user, displayName, username, onSignOut }) {
           </div>
           <input value={deleteInput} onChange={e => setDeleteInput(e.target.value)}
             placeholder="Type DELETE"
-            style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }} />
+            style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10 }} />
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={handleDeleteAccount} disabled={deleteInput !== "DELETE"}
               style={{ flex: 1, background: deleteInput === "DELETE" ? color.danger : color.line, border: "none", borderRadius: 8, padding: 10, color: deleteInput === "DELETE" ? color.heading : color.faint, fontSize: 13, fontWeight: 700, cursor: deleteInput === "DELETE" ? "pointer" : "default", fontFamily: SANS }}>
@@ -487,7 +487,7 @@ function HelpSection({ onReplayTour, user }) {
               ? "e.g. When I tap the like button on a check-in, the count doesn't update..."
               : "e.g. It would be great if I could filter my journal by brand..."}
             rows={5}
-            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 13, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
+            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}
           />
           {error && <div style={{ fontSize: 12, color: color.dangerText, marginBottom: 8 }}>{error}</div>}
           <div style={{ fontSize: 11, color: color.faint, marginBottom: 12 }}>

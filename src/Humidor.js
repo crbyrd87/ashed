@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Pressable } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -298,13 +298,13 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               📷 Open Camera
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ display: "none" }} />
+            <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ fontSize: type.md, display: "none" }} />
           </label>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
             <div style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.cream, fontSize: 14, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               Choose from Library
             </div>
-            <input type="file" accept="image/*" onChange={handleScanPhoto} style={{ display: "none" }} />
+            <input type="file" accept="image/*" onChange={handleScanPhoto} style={{ fontSize: type.md, display: "none" }} />
           </label>
           <button onClick={resetScan} style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: 13, cursor: "pointer", fontFamily: SANS, padding: 10 }}>Cancel</button>
         </>
@@ -348,10 +348,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               </div>
               <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>BRAND</div>
               <input value={cigar.brand || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, brand: e.target.value } : c))}
-                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ fontSize: 10, color: color.muted, letterSpacing: 1, marginBottom: 4 }}>LINE</div>
               <input value={cigar.line || ""} onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, line: e.target.value } : c))}
-                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 {cigar.vitola && cigar.vitola !== "Unknown" && <Badge label={cigar.vitola} />}
                 {cigar.strength && <Badge label={cigar.strength} color={strengthColor(cigar.strength)} />}
@@ -367,10 +367,10 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               </div>
               {cigar.vitola === "Unknown" && (
                 <input placeholder="Size/vitola (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, vitola: e.target.value } : c))}
-                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
+                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
               )}
               <input placeholder="Notes (optional)" onChange={e => setScanResult(prev => prev.map((c, j) => j === i ? { ...c, notes: e.target.value } : c))}
-                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
             </div>
           ))}
           <button onClick={handleConfirmScan}
@@ -431,7 +431,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
               value={addSearchQuery}
               onChange={e => handleAddSearch(e.target.value)}
               placeholder="Search by cigar name or brand..."
-              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "11px 14px", color: color.heading, fontSize: 16, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
+              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "11px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 10, flexShrink: 0 }}
             />
             <div style={{ overflowY: "auto", maxHeight: "30vh", flexShrink: 1 }}>
               {addSearching && <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: 8 }}>Searching...</div>}
@@ -556,7 +556,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                                 <input type="number" min="1" defaultValue={item.quantity} autoFocus
                                   onBlur={e => handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
                                   onKeyDown={e => e.key === "Enter" && handleUpdateQty(item.id, parseInt(e.target.value) || 1)}
-                                  style={{ width: 48, textAlign: "center", background: color.surfaceRaised, border: `1px solid ${color.gold}`, borderRadius: 6, padding: "4px 0", color: color.gold, fontSize: 16, fontWeight: 700, fontFamily: SANS, outline: "none" }}
+                                  style={{ width: 48, textAlign: "center", background: color.surfaceRaised, border: `1px solid ${color.gold}`, borderRadius: 6, padding: "4px 0", color: color.gold, fontSize: type.md, fontWeight: 700, fontFamily: SANS, outline: "none" }}
                                 />
                               ) : (
                                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>

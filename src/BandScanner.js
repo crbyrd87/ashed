@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -249,7 +249,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               accept="image/jpeg,image/png,image/webp,image/heic"
               capture="environment"
               onChange={handlePhotoChange}
-              style={{ display: "none" }}
+              style={{ fontSize: type.md, display: "none" }}
             />
           </label>
 
@@ -263,7 +263,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic"
               onChange={handlePhotoChange}
-              style={{ display: "none" }}
+              style={{ fontSize: type.md, display: "none" }}
             />
           </label>
         </div>

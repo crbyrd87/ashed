@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { ClickableRow } from "./ui";
 import { authedFetch } from "./apiClient";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -373,7 +373,7 @@ export default function Venues() {
       <div style={{ position: "relative", marginBottom: 10 }}>
         <div style={{ display: "flex", gap: 8 }}>
           <input
-            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: showSuggestions && suggestions.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: showSuggestions && suggestions.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
             placeholder="Search by city or zip..."
             value={searchQuery}
             onChange={e => handleQueryChange(e.target.value)}

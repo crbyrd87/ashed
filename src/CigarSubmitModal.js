@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -110,7 +110,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
               value={form[field]}
               onChange={e => set(field, e.target.value)}
               placeholder={placeholder}
-              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}
             />
           </div>
         ))}
@@ -118,7 +118,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 4 }}>STRENGTH (optional)</div>
           <select value={form.strength} onChange={e => set("strength", e.target.value)}
-            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: form.strength ? color.heading : color.faint, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+            style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: form.strength ? color.heading : color.faint, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
             <option value="">Select strength...</option>
             {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>

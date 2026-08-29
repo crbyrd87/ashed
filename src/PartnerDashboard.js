@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { CloseButton, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -223,7 +223,7 @@ function AnalyticsSection({ placeId, venue }) {
 // DOM node is destroyed and rebuilt on each keystroke, which is why typing a
 // single character dropped focus and the field appeared to freeze.
 function Field({ label, field, form, setForm, multiline }) {
-  const box = { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box" };
+  const box = { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" };
   const onChange = e => setForm(p => ({ ...p, [field]: e.target.value }));
   return (
     <div style={{ marginBottom: 16 }}>
@@ -382,7 +382,7 @@ function AnnounceSection({ placeId, user }) {
         onChange={e => setText(e.target.value)}
         placeholder="e.g. Herf night this Friday 7pm. New Padron 1964 shipment just arrived!"
         rows={3}
-        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical", marginBottom: 10 }}
+        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical", marginBottom: 10 }}
       />
       <button onClick={handlePost} disabled={posting || !text.trim()}
         style={{ width: "100%", background: text.trim() ? `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})` : color.surfaceRaised, border: "none", borderRadius: 10, padding: 12, color: text.trim() ? color.text : color.faint, fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>

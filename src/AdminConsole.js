@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { CloseButton, Screen } from "./ui";
 import { supabase } from "./supabase";
 
@@ -432,7 +432,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === "Enter" && searchUsers()}
           placeholder="Search by username, email, or name..."
-          style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none" }}
+          style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
         />
         <button onClick={searchUsers}
           style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "10px 18px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
@@ -520,7 +520,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                   value={partnerPlaceId}
                   onChange={e => setPartnerPlaceId(e.target.value)}
                   placeholder="Google Place ID..."
-                  style={{ flex: 1, background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "7px 12px", color: color.text, fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  style={{ flex: 1, background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "7px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
                 />
                 <button onClick={() => handleGrantPartner(selectedUser)}
                   style={{ background: `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
@@ -819,7 +819,7 @@ function BadgesSection() {
             onChange={e => setUserQuery(e.target.value)}
             onKeyDown={e => e.key === "Enter" && searchUsers()}
             placeholder="Search by username or display name..."
-            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "9px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none" }}
+            style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "9px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
           />
           <button onClick={searchUsers}
             style={{ background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 8, padding: "9px 16px", color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
@@ -960,7 +960,7 @@ function DatabaseSection() {
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
         placeholder="Search brand, line, vitola..."
-        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: 13, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
+        style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "8px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 12 }}
       />
 
       <div style={{ fontSize: 11, color: color.faint, marginBottom: 10 }}>{loading ? "Loading..." : `${filtered.length} cigars`}</div>
@@ -1003,7 +1003,7 @@ function DatabaseSection() {
                   value={deleteConfirmText}
                   onChange={e => setDeleteConfirmText(e.target.value)}
                   placeholder="Type DELETE"
-                  style={{ flex: 1, background: color.bg, border: `1px solid ${deleteConfirmText === "DELETE" ? color.danger : color.line}`, borderRadius: 6, padding: "6px 10px", color: color.text, fontSize: 12, fontFamily: SANS, outline: "none" }}
+                  style={{ flex: 1, background: color.bg, border: `1px solid ${deleteConfirmText === "DELETE" ? color.danger : color.line}`, borderRadius: 6, padding: "6px 10px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
                 />
                 <button
                   onClick={() => { if (deleteConfirmText === "DELETE") { handleDelete(c); setConfirmDeleteId(null); setDeleteConfirmText(""); } }}
@@ -1035,7 +1035,7 @@ function SelectField({ label, field, options, form, setForm }) {
     <div style={{ marginBottom: 8 }}>
       <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <select value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
-        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: form[field] ? color.heading : color.dim, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
         <option value="">Select {label.toLowerCase()}...</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -1049,7 +1049,7 @@ function TextField({ label, field, placeholder, form, setForm }) {
       <div style={{ fontSize: 10, color: color.tan, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
       <input value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
         placeholder={placeholder}
-        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+        style={{ width: "100%", background: color.bg, border: `1px solid ${color.faintAlt}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
     </div>
   );
 }
@@ -1401,7 +1401,7 @@ function FeedbackSection({ currentUser }) {
               <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
                 placeholder="Write a reply to the user..."
                 rows={3}
-                style={{ width: "100%", background: color.bg, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "8px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReply(item)} disabled={saving || !replyText.trim()}
                   style={{ flex: 2, background: replyText.trim() ? `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})` : color.surfaceRaised, border: "none", borderRadius: 8, padding: "8px 0", color: replyText.trim() ? color.bg : color.faint, fontSize: 12, fontWeight: 700, cursor: replyText.trim() ? "pointer" : "default", fontFamily: SANS }}>
@@ -1678,13 +1678,13 @@ function QASection({ currentUserId }) {
                 <div key={field} style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>{label}</div>
                   <input value={editForm[field] ?? def} onChange={e => setEditForm(p => ({ ...p, [field]: e.target.value }))}
-                    style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
+                    style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }} />
                 </div>
               ))}
               <div style={{ marginBottom: 10 }}>
                 <div style={{ fontSize: 10, color: color.dim, letterSpacing: 1, marginBottom: 3 }}>STRENGTH</div>
                 <select value={editForm.strength ?? item.strength ?? ""} onChange={e => setEditForm(p => ({ ...p, strength: e.target.value }))}
-                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
+                  style={{ width: "100%", background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 6, padding: "7px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" }}>
                   <option value="">Select...</option>
                   {STRENGTHS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -1699,7 +1699,7 @@ function QASection({ currentUserId }) {
               <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                 placeholder="e.g. This cigar could not be verified. Please check the brand and line name and try again."
                 rows={3}
-                style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "8px 10px", color: color.heading, fontSize: 12, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
+                style={{ width: "100%", background: color.bg, border: `1px solid ${color.danger}55`, borderRadius: 6, padding: "8px 10px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => handleReject(item)} disabled={!rejectReason.trim()}
                   style={{ flex: 1, background: rejectReason.trim() ? color.danger : color.line, border: "none", borderRadius: 8, padding: "8px 0", color: rejectReason.trim() ? color.heading : color.faint, fontSize: 12, fontWeight: 700, cursor: rejectReason.trim() ? "pointer" : "default", fontFamily: SANS }}>

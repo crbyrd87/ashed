@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { SANS, color } from "./theme";
+import { SANS, color, type } from "./theme";
 import { CloseButton, Pressable, Screen, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
@@ -375,7 +375,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
     section: { padding: "16px 20px", borderBottom: `1px solid ${color.line}33` },
     label: { fontSize: 11, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
-    input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
+    input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
     tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `linear-gradient(135deg, ${color.gold}22, ${color.goldDeep}22)` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
     optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
@@ -543,7 +543,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           {/* Date & Location */}
           <div style={s.section}>
             <div style={s.label}>Date</div>
-            <input type="date" style={{ ...s.input, maxWidth: "100%", fontSize: 16 }} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
+            <input type="date" style={{ ...s.input, maxWidth: "100%", fontSize: type.md }} value={smokeDate} onChange={e => setSmokeDate(e.target.value)} />
             <div style={{ ...s.label, marginTop: 14 }}>
               Location <span style={{ color: color.faint, fontWeight: 400, letterSpacing: 0, textTransform: "none", fontSize: 11 }}>(optional)</span>
             </div>
