@@ -132,6 +132,7 @@ export const radius = {
   md:   8,
   lg:   10,
   xl:   12,
+  xxl:  16,  // overlay panels
   pill: 20,
 };
 
