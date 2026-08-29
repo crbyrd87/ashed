@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
-import { Icon, Pressable } from "./ui";
+import { Icon, Pressable, SkeletonRow } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -272,7 +272,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
     setScanning(false);
   };
 
-  if (loading) return <div style={{ fontFamily: SANS, color: color.muted, textAlign: "center", padding: 40 }}>Loading...</div>;
+  if (loading) return <div style={{ fontFamily: SANS, padding: "8px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>;
 
   // SCAN FLOW
   if (scanning) return (

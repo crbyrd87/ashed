@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Pill, SectionLabel, Sheet } from "./ui";
+import { Pill, SectionLabel, Sheet, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 
 
@@ -64,7 +64,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
     <Sheet onClose={onClose} zIndex={600} handle>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading...</div>
+          <div style={{ padding: "4px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>
         ) : !profile ? (
           <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Profile not found.</div>
         ) : (

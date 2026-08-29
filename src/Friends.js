@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame, type } from "./theme";
-import { CloseButton, Icon, Screen } from "./ui";
+import { CloseButton, Icon, Screen, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
@@ -138,7 +138,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
 
         {/* Recent smokes */}
         <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RECENT SMOKES</div>
-        {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+        {loading && <div style={{ padding: "4px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>}
         {!loading && checkins.length === 0 && (
           <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: 20 }}>No public smokes yet</div>
         )}
@@ -433,7 +433,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
         {tab === "requests" && (
           <>
             <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>INCOMING REQUESTS</div>
-            {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+            {loading && <div style={{ padding: "4px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>}
             {!loading && pendingRequests.length === 0 && (
               <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "16px 0 20px" }}>No incoming requests</div>
             )}
@@ -472,7 +472,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>
               YOUR FRIENDS ({friends.length})
             </div>
-            {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
+            {loading && <div style={{ padding: "4px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>}
             {!loading && friends.length === 0 && (
               <div style={{ textAlign: "center", padding: 40 }}>
                 <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Friends size={32} color={color.borderStrong} /></div>

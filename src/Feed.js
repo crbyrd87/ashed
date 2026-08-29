@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame, font, type, weight } from "./theme";
-import { Button, ClickableRow, Icon } from "./ui";
+import { Button, ClickableRow, Icon, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
 import FeedModal from "./FeedModal";
@@ -149,7 +149,7 @@ export default function Feed({ user }) {
   };
 
   if (loading) return (
-    <div style={{ textAlign: "center", padding: "30px 0", fontSize: 13, color: color.faint, fontFamily: SANS }}>Loading feed...</div>
+    <div style={{ fontFamily: font.sans }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>
   );
 
   if (feedItems.length === 0) return (

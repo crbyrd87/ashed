@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { ClickableRow, Icon, Screen } from "./ui";
+import { ClickableRow, Icon, Screen, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
 
@@ -164,9 +164,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
       )}
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>
-          Loading...
-        </div>
+        <div style={{ padding: "4px 0" }}><div><SkeletonRow /><SkeletonRow /><SkeletonRow /></div></div>
       )}
 
       {!loading && notifications.length === 0 && (
