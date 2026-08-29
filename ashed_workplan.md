@@ -454,6 +454,69 @@ the first things to address:
 
 ---
 
+## Home screen: task-led, not feed-led
+
+**Set by the owner 29 Aug 2026.** The app should open on a screen that asks
+"What do you want to do?" and offers the functions directly, rather than
+dropping the user into an activity feed. The owner's list, verbatim:
+
+- Search for a cigar
+- Scan a cigar band
+- Get a recommendation
+- Find a drink pairing for my cigar
+- Find a cigar pairing for my drink
+- See the activity feed
+
+"Etc." — the list is illustrative, not exhaustive. Every area must remain
+reachable; this re-thinks the route to them, it does not remove any.
+
+### What exists today
+
+The app opens on the tab whose id is `search`, which the bottom bar labels
+**"Feed"**. That one screen carries a search box, quick-action buttons for the
+band scanner and recommendations, and the activity feed beneath them. The
+bottom bar has five entries: Feed, Me, Wishlist, Humidor, Venues.
+
+So the functions are not missing, they are stacked on one screen and ranked by
+layout rather than offered as choices.
+
+### Two things that are more than a rearrangement
+
+**1. "Find a cigar pairing for my drink" does not exist.** `Pairings.js` only
+runs cigar -> drink, and its prompt is written that way. The reverse direction
+needs its own prompt, a way to name or pick a drink, and a result format that
+returns cigars. It is a new feature, not a new route to an old one.
+
+**2. Pairings is currently reachable only from a cigar you have already
+found** — from a search result or a humidor item. Promoting it to a top-level
+action means it must work with no cigar chosen yet, so it needs its own cigar
+picker as an entry step.
+
+### The blocker to solve first
+
+**There is no router.** Screens are a `tab` state variable and overlays are
+booleans, so there is no history and no back. A hub-and-spoke home screen makes
+this much worse than it is today: every choice drills the user into a screen
+they must then find their own way out of, and on Android the hardware back
+button will not return them. A tabbed app tolerates this because every screen
+is one tap from every other; a task-led hub does not.
+
+Routing therefore has to be settled as part of this work rather than after it.
+It is already noted in CLAUDE.md as a known gap for the native build.
+
+### Open questions for the design
+
+- Does the home screen replace the bottom bar, or sit above it?
+- Where do Humidor, Wishlist, Venues, Friends and Badges appear? They are
+  places rather than tasks, so they do not fit "what do you want to do?"
+  cleanly.
+- Is the feed one option among many, or still the default destination for a
+  returning user who just wants to see what friends smoked?
+- What does a premium-locked action look like in a list of choices? Three of
+  the six — scan, recommend, pair — are premium today.
+
+---
+
 # Deferred — native only
 
 Not buildable until the React Native app exists (tracker Week 31).
