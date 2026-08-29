@@ -393,6 +393,25 @@ Do not start these without an answer.
 
 Do these **after** Session 9, so alternatives are built from tokens.
 
+**Direction, set by the owner 29 Aug 2026.** The app should read as modern,
+elegant and sophisticated — deliberately *less cartoonish* than it is today.
+This is the governing brief: it outranks the individual items in the table
+below, and any alternative that does not move in this direction is wrong even
+if it satisfies the specific finding.
+
+Concretely, the current design leans cartoonish in these places, and they are
+the first things to address:
+
+- Emoji used as interface iconography throughout (recs `13`, `68`) — the
+  single largest contributor to the cartoonish read.
+- The flame gradient (`#cc2200` -> `#ff6600` -> `#ffcc00`) used at full
+  saturation for ratings. The flame is the product's identity and should stay,
+  but it does not have to be this literal or this bright.
+- Heavy borders, large corner radii and high-contrast gold on near-black,
+  which together read as a game interface rather than a journal.
+- No display typeface (recs `7`, `69`); everything is system sans, which caps
+  how sophisticated the app can look no matter what else changes.
+
 | Item | Brief |
 |------|-------|
 | `FR-2` | Me tab header composition; where Friends and Notifications belong; Settings visual treatment (too many transparent outline buttons); Help & Support layout (`11-G`) |
