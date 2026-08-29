@@ -91,7 +91,7 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
 
   const s = {
     header: {
-      background: "linear-gradient(180deg, #2d1810 0%, #1a0f08 100%)",
+      background: color.bg,
       padding: "16px 20px", borderBottom: `1px solid ${color.line}`,
       display: "flex", justifyContent: "space-between", alignItems: "center",
       position: "sticky", top: 0, zIndex: 10,
@@ -107,8 +107,8 @@ export default function Notifications({ user, onClose, onOpenCheckin, onOpenBadg
     avatar: (isBadge) => ({
       width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
       background: isBadge
-        ? "linear-gradient(135deg, #c9a84c, #a07830)"
-        : "linear-gradient(135deg, #3a2510, #2a1508)",
+        ? color.gold
+        : color.surface,
       display: "flex", alignItems: "center", justifyContent: "center",
       fontSize: isBadge ? 18 : 14,
     }),

@@ -45,7 +45,7 @@ const Badge = ({ label, tint = color.goldLegacy }) => (
 const ScoreBar = ({ rating }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
     <div style={{ width: 60, height: 6, background: "#3a2a1a", borderRadius: 3, overflow: "hidden" }}>
-      <div style={{ width: `${rating}%`, height: "100%", background: `linear-gradient(90deg, ${color.goldLegacy}, ${color.goldPale})`, borderRadius: 3 }} />
+      <div style={{ width: `${rating}%`, height: "100%", background: color.gold, borderRadius: 3 }} />
     </div>
     <span style={{ color: color.goldLegacy, fontSize: 14, fontWeight: 700 }}>{rating}</span>
   </div>
@@ -220,7 +220,7 @@ function AdvancedStats({ checkins }) {
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
                 {m.count > 0 && <div style={{ fontSize: type.xs, color: color.goldLegacy, fontWeight: 700 }}>{m.count}</div>}
-                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: m.count === 0 ? 2 : `${Math.max(pct, 4)}%`, background: m.count === 0 ? color.surfaceRaised : `linear-gradient(180deg, ${color.goldLegacy}ff 0%, ${color.goldLegacy}99 100%)`, opacity: m.count === 0 ? 0.3 : 1 }} />
+                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: m.count === 0 ? 2 : `${Math.max(pct, 4)}%`, background: m.count === 0 ? color.surfaceRaised : color.gold, opacity: m.count === 0 ? 0.3 : 1 }} />
                 <div style={{ fontSize: type.xs, color: color.dimAlt }}>{m.label}</div>
               </div>
             );
@@ -278,7 +278,7 @@ function AdvancedStats({ checkins }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: color.heading, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{brand}</div>
                 <div style={{ height: 5, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ width: `${Math.round((count / maxBrand) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.goldLegacy}, ${color.goldPale})`, borderRadius: 3 }} />
+                  <div style={{ width: `${Math.round((count / maxBrand) * 100)}%`, height: "100%", background: color.gold, borderRadius: 3 }} />
                 </div>
               </div>
               <div style={{ fontSize: type.xs, fontWeight: 700, color: color.goldLegacy, flexShrink: 0 }}>{count}</div>
@@ -862,7 +862,7 @@ export default function App() {
   const s = {
     app: { fontFamily: SANS, background: color.bg, minHeight: "100vh", color: color.heading, maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: color.bg, padding: "20px 20px 12px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
-    card: { background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surfaceCard} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
+    card: { background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
     logoutBtn: { background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "4px 12px", color: color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS },
@@ -1419,7 +1419,7 @@ export default function App() {
                     <div key={c.id} style={{ ...s.card, borderColor: isSelected ? `${color.gold}44` : color.lineStrong, overflow: "hidden" }} onClick={() => isSelected ? setSelectedCheckin(null) : handleSelectCheckin(c)}>
 
                       {/* Dark header */}
-                      <div style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.bg} 100%)`, padding: "14px 14px" }}>
+                      <div style={{ background: color.surface, padding: "14px 14px" }}>
 
                         {/* Brand + date + visibility */}
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
@@ -1494,13 +1494,13 @@ export default function App() {
                         <div style={{ padding: "10px 14px", display: "flex", gap: 7, flexWrap: "wrap", borderBottom: `1px solid ${color.lineStrong}33` }}>
                           {checkinRating.would_smoke_again && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
-                              background: checkinRating.would_smoke_again === "Yes" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.would_smoke_again === "Maybe" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : color.danger }}>
+                              background: checkinRating.would_smoke_again === "Yes" ? color.positive : checkinRating.would_smoke_again === "Maybe" ? color.goldDim : color.danger }}>
                               {checkinRating.would_smoke_again}
                             </span>
                           )}
                           {checkinRating.value_for_price && (
                             <span style={{ fontSize: type.xs, padding: "3px 10px", borderRadius: 20, fontWeight: 700, color: color.heading,
-                              background: checkinRating.value_for_price === "Good value" ? `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` : checkinRating.value_for_price === "OK value" ? `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` : color.danger }}>
+                              background: checkinRating.value_for_price === "Good value" ? color.positive : checkinRating.value_for_price === "OK value" ? color.goldDim : color.danger }}>
                               {checkinRating.value_for_price}
                             </span>
                           )}
@@ -1756,7 +1756,7 @@ export default function App() {
 
                 {/* Lines under brand */}
                 {Object.entries(lines).sort(([a], [b]) => a.localeCompare(b)).map(([line, items]) => (
-                  <div key={line} style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surface} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
+                  <div key={line} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
                     <div style={{ padding: "14px 14px 12px" }}>
                       {/* Line name */}
                       <div style={{ fontSize: 16, fontWeight: 700, color: color.text, marginBottom: 8, cursor: items[0].cigars ? "pointer" : "default" }}

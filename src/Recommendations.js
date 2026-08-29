@@ -307,7 +307,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
             const key = `${rec.brand}|${rec.line}`;
             const added = addedToWishlist[key];
             return (
-              <div key={i} style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surface} 100%)`, border: `1px solid ${color.line}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+              <div key={i} style={{ background: color.surface, border: `1px solid ${color.line}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
                 <div style={{ padding: "14px 16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <div style={{ flex: 1 }}>

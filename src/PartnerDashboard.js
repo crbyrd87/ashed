@@ -187,7 +187,7 @@ function AnalyticsSection({ placeId, venue }) {
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", gap: 4 }}>
                 {!isZero && <div style={{ fontSize: type.xs, color: color.partner, fontWeight: 700 }}>{d.count}</div>}
-                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: isZero ? 2 : `${Math.max(pct, 4)}%`, background: isZero ? color.surfaceRaised : `linear-gradient(180deg, ${color.partner}ff 0%, ${color.partner}99 100%)`, opacity: isZero ? 0.3 : 1 }} />
+                <div style={{ width: "100%", borderRadius: "3px 3px 0 0", height: isZero ? 2 : `${Math.max(pct, 4)}%`, background: isZero ? color.surfaceRaised : color.partner, opacity: isZero ? 0.3 : 1 }} />
                 <div style={{ fontSize: type.xs, color: color.dimAlt }}>{d.name}</div>
               </div>
             );
@@ -204,7 +204,7 @@ function AnalyticsSection({ placeId, venue }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, color: color.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>{c.label}</div>
               <div style={{ height: 5, background: color.surfaceRaised, borderRadius: 3, overflow: "hidden" }}>
-                <div style={{ width: `${Math.round((c.count / maxCigar) * 100)}%`, height: "100%", background: `linear-gradient(90deg, ${color.partner}, ${color.partnerPale})`, borderRadius: 3 }} />
+                <div style={{ width: `${Math.round((c.count / maxCigar) * 100)}%`, height: "100%", background: color.partner, borderRadius: 3 }} />
               </div>
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: color.partner, flexShrink: 0 }}>{c.count}</div>
@@ -318,7 +318,7 @@ function ListingSection({ placeId, venue, onVenueUpdate }) {
       <Field label="HOURS" field="hours" form={form} setForm={setForm} />
       <Field label="DESCRIPTION" field="description" form={form} setForm={setForm} multiline />
       <button onClick={handleSave} disabled={saving}
-        style={{ width: "100%", background: saving ? color.line : `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 10, padding: 14, color: saving ? color.faint : color.text, fontSize: 14, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
+        style={{ width: "100%", background: saving ? color.line : color.partner, border: "none", borderRadius: 10, padding: 14, color: saving ? color.faint : color.text, fontSize: 14, fontWeight: 700, cursor: saving ? "default" : "pointer", fontFamily: SANS }}>
         {saving ? "Saving..." : "Save Listing"}
       </button>
     </div>
@@ -385,7 +385,7 @@ function AnnounceSection({ placeId, user }) {
         style={{ width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", resize: "vertical", marginBottom: 10 }}
       />
       <button onClick={handlePost} disabled={posting || !text.trim()}
-        style={{ width: "100%", background: text.trim() ? `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})` : color.surfaceRaised, border: "none", borderRadius: 10, padding: 12, color: text.trim() ? color.text : color.faint, fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>
+        style={{ width: "100%", background: text.trim() ? color.partner : color.surfaceRaised, border: "none", borderRadius: 10, padding: 12, color: text.trim() ? color.text : color.faint, fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>
         {posting ? "Posting..." : "📣 Post Announcement"}
       </button>
 

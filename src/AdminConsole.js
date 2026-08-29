@@ -278,7 +278,7 @@ function MiniBarChart({ data, max, color: accent }) {
                   height: isZero ? 2 : `${Math.max(pct, 3)}%`,
                   background: isZero
                     ? color.surfaceRaised
-                    : `linear-gradient(180deg, ${accent}ff 0%, ${accent}99 100%)`,
+                    : accent,
                   opacity: isZero ? 0.3 : 1,
                   transition: "height 0.2s",
                 }}
@@ -523,7 +523,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                   style={{ flex: 1, background: color.bg, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "7px 12px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none" }}
                 />
                 <button onClick={() => handleGrantPartner(selectedUser)}
-                  style={{ background: `linear-gradient(135deg, ${color.partner}, ${color.partnerDeep})`, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
+                  style={{ background: color.partner, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
                   🏪 Grant Partner
                 </button>
               </div>
@@ -1248,7 +1248,7 @@ function MissingCigarsSection({ currentUserId }) {
           {!showResolved && addingId !== item.id && (
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => setAddingId(item.id)}
-                style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}22, ${color.goldLegacy}11)`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
+                style={{ flex: 2, background: `${color.gold}14`, border: `1px solid ${color.goldLegacy}55`, borderRadius: 8, padding: "7px 0", color: color.goldLegacy, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
                 + Add to DB
               </button>
               {dismissConfirmId === item.id ? (

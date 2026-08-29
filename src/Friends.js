@@ -57,7 +57,7 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
     <Screen zIndex={400}>
 
       {/* Hero header */}
-      <div style={{ background: `linear-gradient(135deg, ${color.surfaceWarm}, ${color.bg}, #0f0804)`, padding: "20px 20px 24px", borderBottom: `1px solid ${color.lineStrong}` }}>
+      <div style={{ background: color.surface, padding: "20px 20px 24px", borderBottom: `1px solid ${color.lineStrong}` }}>
         <button onClick={onClose} style={{ background: "none", border: "none", color: color.gold, fontSize: 13, cursor: "pointer", padding: 0, marginBottom: 20, fontFamily: SANS }}>← Back</button>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 64, height: 64, borderRadius: "50%", background: `linear-gradient(135deg, ${color.gold}, ${color.cedar})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: color.bg, flexShrink: 0, border: `2px solid ${color.gold}44` }}>

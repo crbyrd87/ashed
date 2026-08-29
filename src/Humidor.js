@@ -295,7 +295,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             ))}
           </div>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
-            <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: color.positive, border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
               Open camera
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ fontSize: type.md, display: "none" }} />
@@ -523,7 +523,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 const lineTotal = lineItems.reduce((a, i) => a + i.quantity, 0);
 
                 return (
-                  <div key={line} style={{ background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surface} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
+                  <div key={line} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, marginBottom: 10, overflow: "hidden" }}>
                     <div style={{ padding: "12px 14px 12px" }}>
 
                       {/* Line name + total */}

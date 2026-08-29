@@ -190,7 +190,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             return (
               <div key={c.id} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? "linear-gradient(135deg,#c9a84c,#7a4a20)" : "linear-gradient(135deg,#3a5a3a,#1a2a1a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: type.xs, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: isMe ? color.gold : color.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: type.xs, color: isMe ? color.bg : color.green, fontWeight: 700, flexShrink: 0 }}>
                     {(name[0] || "?").toUpperCase()}
                   </div>
                   <span style={{ fontSize: type.xs, fontWeight: 700, color: isMe ? color.gold : color.text }}>{handle}</span>
@@ -218,7 +218,7 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
           <button
             onClick={handlePostComment}
             disabled={!commentInput.trim() || posting}
-            style={{ background: commentInput.trim() ? "linear-gradient(135deg,#c9a84c,#a07830)" : color.surfaceRaised, border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? color.bg : color.faint, fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS }}
+            style={{ background: commentInput.trim() ? color.gold : color.surfaceRaised, border: "none", borderRadius: 20, padding: "8px 16px", color: commentInput.trim() ? color.bg : color.faint, fontSize: 13, fontWeight: 700, cursor: commentInput.trim() ? "pointer" : "default", fontFamily: SANS }}
           >
             {posting ? "..." : "Post"}
           </button>

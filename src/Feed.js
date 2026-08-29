@@ -21,11 +21,11 @@ const avatarColor = (str) => {
 };
 
 const ratingBarColor = (flames) => {
-  if (!flames) return color.line;
-  if (flames >= 4.5) return `linear-gradient(to bottom, ${flame.tip}, ${flame.mid})`;
-  if (flames >= 3.5) return "linear-gradient(to bottom, #ffaa00, #cc4400)";
-  if (flames >= 2.5) return "linear-gradient(to bottom, #cc7a2a, #8a4a1a)";
-  return "linear-gradient(to bottom, #8a5a3a, #5a3a2a)";
+  if (!flames) return color.border;
+  if (flames >= 4.5) return color.emberHigh;
+  if (flames >= 3.5) return color.emberMid;
+  if (flames >= 2.5) return color.emberLow;
+  return color.borderStrong;
 };
 
 function FlameIcon({ fill, size = 13 }) {

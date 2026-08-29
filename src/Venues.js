@@ -515,7 +515,7 @@ export default function Venues() {
           <ClickableRow
             key={venue.place_id || i}
             ref={el => { venueRefs.current[venue.place_id] = el; }}
-            style={{ background: `linear-gradient(135deg, ${color.surfaceRaised}, ${color.surface})`, border: `1px solid ${isSelected ? `${color.gold}55` : color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
+            style={{ background: color.surface, border: `1px solid ${isSelected ? `${color.gold}55` : color.line}`, borderRadius: 10, marginBottom: 10, overflow: "hidden", cursor: "pointer" }}
             onClick={() => handleVenueTap(venue)}
           >
             <div style={{ padding: "12px 14px" }}>

@@ -197,7 +197,7 @@ Be as specific as possible with brand and line. If you can read text on the band
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${color.lineStrong}` }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: `linear-gradient(to right, ${color.emberLow}, ${color.emberMid}, ${color.emberHigh})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
           <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
         </div>
         <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
@@ -240,7 +240,7 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {/* Camera button */}
           <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
-            <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
+            <div style={{ width: "100%", background: color.positive, borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
               Open camera
             </div>
             <input

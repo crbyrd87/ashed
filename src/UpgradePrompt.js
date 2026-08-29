@@ -150,7 +150,7 @@ export default function UpgradePrompt({ feature, onClose }) {
 
         {/* Founding Member Banner */}
         {slotsRemaining !== null && slotsRemaining > 0 && (
-          <div style={{ background: `linear-gradient(135deg, ${color.surfaceRaised}, ${color.bg})`, border: `1px solid ${color.gold}55`, borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+          <div style={{ background: color.surface, border: `1px solid ${color.gold}55`, borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Icon.Check size={18} color={color.gold} />
               <span style={{ fontSize: 13, fontWeight: 700, color: color.gold }}>Founding Member Offer</span>

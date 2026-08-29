@@ -130,13 +130,13 @@ function FlameRating({ value, onChange }) {
           {/* Track background */}
           <div style={{ position: "absolute", left: 0, right: 0, height: 6, borderRadius: 3, background: color.line }} />
           {/* Filled track */}
-          {value && <div style={{ position: "absolute", left: 0, height: 6, width: `${fillPct}%`, borderRadius: 3, background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)" }} />}
+          {value && <div style={{ position: "absolute", left: 0, height: 6, width: `${fillPct}%`, borderRadius: 3, background: `linear-gradient(to right, ${color.emberLow}, ${color.emberMid}, ${color.emberHigh})` }} />}
           {/* Thumb */}
           <div style={{
             position: "absolute",
             left: value ? `calc(${fillPct}% - 12px)` : "-12px",
             width: 24, height: 24, borderRadius: "50%",
-            background: value ? "linear-gradient(135deg, #ff6600, #ffcc00)" : color.line,
+            background: value ? color.emberMid : color.line,
             border: `2px solid ${value ? color.bg : color.faint}`,
             boxShadow: value ? "0 2px 6px rgba(0,0,0,0.5)" : "none",
             transition: "left 0.05s",
@@ -377,7 +377,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     label: { fontSize: type.xs, color: color.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box" },
     textarea: { width: "100%", background: color.surfaceRaised, border: `1px solid ${color.lineInput}`, borderRadius: 8, padding: "10px 14px", color: color.text, fontSize: 14, fontFamily: SANS, outline: "none", boxSizing: "border-box", minHeight: 80, resize: "vertical" },
-    tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `linear-gradient(135deg, ${color.gold}22, ${color.goldDeep}22)` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
+    tag: active => ({ padding: "7px 14px", borderRadius: 20, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}14` : color.surface, color: active ? color.gold : color.dim, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS, boxShadow: active ? `0 0 8px ${color.gold}33` : "none" }),
     optBtn: active => ({ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${active ? color.gold : color.line}`, background: active ? `${color.gold}22` : "transparent", color: active ? color.gold : color.muted, fontSize: 13, fontWeight: active ? 700 : 400, cursor: "pointer", fontFamily: SANS }),
     saveBtn: { width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS },
     detailsToggle: { width: "100%", background: showDetails ? color.surfaceRaised : "none", border: `1px solid ${showDetails ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "14px 16px", color: showDetails ? color.gold : color.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: SANS, display: "flex", justifyContent: "space-between", alignItems: "center" },
@@ -425,8 +425,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <div style={s.label}>Would you smoke this again?</div>
         <div style={{ display: "flex", gap: 10 }}>
           {[
-            { label: "Yes", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
-            { label: "Maybe", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+            { label: "Yes", activeColor: color.greenDeep, activeBg: color.positive },
+            { label: "Maybe", activeColor: color.goldMuted, activeBg: color.goldDim },
             { label: "No", activeColor: "#7a3a2a", activeBg: color.danger },
           ].map(({ label, activeColor, activeBg }) => {
             const isActive = wouldSmokeAgain === label;
@@ -509,8 +509,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={s.label}>Value for Price</div>
             <div style={{ display: "flex", gap: 10 }}>
               {[
-                { label: "Good value", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
-                { label: "OK value", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+                { label: "Good value", activeColor: color.greenDeep, activeBg: color.positive },
+                { label: "OK value", activeColor: color.goldMuted, activeBg: color.goldDim },
                 { label: "Poor value", activeColor: "#7a3a2a", activeBg: color.danger },
               ].map(({ label, activeColor, activeBg }) => {
                 const isActive = valueForPrice === label;
