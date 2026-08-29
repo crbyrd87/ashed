@@ -387,7 +387,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     <Screen>
       {success && (
         <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: color.green, color: "#fff", padding: "12px 24px", borderRadius: 30, fontSize: 14, fontWeight: 600, zIndex: 999, fontFamily: SANS, whiteSpace: "nowrap" }}>
-          ✓ Smoke logged successfully!
+          Smoke logged
         </div>
       )}
 
@@ -408,7 +408,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <FlameRating value={flames} onChange={setFlames} />
         <div style={{ textAlign: "center", marginTop: 10, fontSize: 13 }}>
           {flames === null ? (
-            <span style={{ color: color.danger }}>👆 Slide the scale to rate</span>
+            <span style={{ color: color.danger }}>Slide the scale to rate</span>
           ) : (
             <>
               <span style={{ color: color.muted }}>{FLAME_LABELS[flames] || ""}</span>
@@ -425,10 +425,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <div style={s.label}>Would you smoke this again?</div>
         <div style={{ display: "flex", gap: 10 }}>
           {[
-            { label: "Yes", icon: "👍", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
-            { label: "Maybe", icon: "🤔", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
-            { label: "No", icon: "👎", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
-          ].map(({ label, icon, activeColor, activeBg }) => {
+            { label: "Yes", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
+            { label: "Maybe", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+            { label: "No", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
+          ].map(({ label, activeColor, activeBg }) => {
             const isActive = wouldSmokeAgain === label;
             return (
               <button
@@ -444,7 +444,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                 }}
               >
-                <span style={{ fontSize: 20 }}>{icon}</span>
+                
                 <span>{label}</span>
               </button>
             );
@@ -455,7 +455,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* ── ADD DETAILS TOGGLE ── */}
       <div style={{ padding: "12px 20px", borderBottom: `1px solid ${color.line}33` }}>
         <button style={s.detailsToggle} onClick={() => setShowDetails(!showDetails)}>
-          <span>📝 {showDetails ? "Hide details" : "Add details"}</span>
+          <span>{showDetails ? "Hide details" : "Add details"}</span>
           <span style={{ fontSize: 14, transition: "transform 0.2s", display: "inline-block", transform: showDetails ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
         </button>
       </div>
@@ -473,7 +473,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   disabled={loadingSuggestions}
                   style={{ background: loadingSuggestions ? color.surfaceRaised : `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? color.faint : color.green, fontSize: type.xs, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
                 >
-                  {loadingSuggestions ? "Thinking..." : "✨ Suggest"}
+                  {loadingSuggestions ? "Thinking..." : "Suggest"}
                 </button>
               )}
             </div>
@@ -486,7 +486,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               </div>
             ) : (
               <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
-                Tap ✨ Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
+                Tap Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
               </div>
             )}
 
@@ -509,10 +509,10 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
             <div style={s.label}>Value for Price</div>
             <div style={{ display: "flex", gap: 10 }}>
               {[
-                { label: "Good value", icon: "💰", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
-                { label: "OK value", icon: "🤷", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
-                { label: "Poor value", icon: "📉", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
-              ].map(({ label, icon, activeColor, activeBg }) => {
+                { label: "Good value", activeColor: color.greenDeep, activeBg: `linear-gradient(135deg, ${color.greenDeep}, #2a5a2a)` },
+                { label: "OK value", activeColor: color.goldMuted, activeBg: `linear-gradient(135deg, ${color.goldMuted}, #6a5a2a)` },
+                { label: "Poor value", activeColor: "#7a3a2a", activeBg: `linear-gradient(135deg, ${color.ember}, ${color.emberDeep})` },
+              ].map(({ label, activeColor, activeBg }) => {
                 const isActive = valueForPrice === label;
                 return (
                   <button
@@ -528,7 +528,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                       display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                     }}
                   >
-                    <span style={{ fontSize: 18 }}>{icon}</span>
+                    
                     <span>{label}</span>
                   </button>
                 );
@@ -548,11 +548,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 <button key={p.id} style={s.tag(location === p.name)} onClick={() => setLocation(location === p.name ? "" : p.name)}>{p.name}</button>
               ))}
               <button style={s.tag(false)} onClick={() => setShowNewPlace(!showNewPlace)}>+ Add place</button>
-              <button style={s.tag(false)} onClick={() => setShowVenueSearch(!showVenueSearch)}>🏪 Find venue</button>
+              <button style={s.tag(false)} onClick={() => setShowVenueSearch(!showVenueSearch)}>Find venue</button>
             </div>
             {location !== "" && (
               <div style={{ fontSize: type.xs, color: color.gold, marginBottom: 8 }}>
-                📍 {location} <span onClick={() => setLocation("")} style={{ color: color.faint, cursor: "pointer", marginLeft: 6 }}>×</span>
+                {location} <span onClick={() => setLocation("")} style={{ color: color.faint, cursor: "pointer", marginLeft: 6 }}>×</span>
               </div>
             )}
             {showNewPlace && (
@@ -626,7 +626,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           onClick={handleSave}
           disabled={saving || flames === null}
         >
-          {saving ? "Saving..." : "Log This Smoke 🔥"}
+          {saving ? "Saving..." : "Log this smoke"}
         </button>
       </div>
     </Screen>

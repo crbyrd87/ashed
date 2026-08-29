@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
-import { Pressable } from "./ui";
+import { Icon, Pressable } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -282,7 +282,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
         <>
           <div style={{ fontSize: 13, color: color.gold, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>ADD TO HUMIDOR</div>
           <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 16 }}>
-            <div style={{ fontSize: 32, marginBottom: 10 }}>📷</div>
+            <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Camera size={32} color={color.borderStrong} /></div>
             <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 6 }}>Scan cigar band(s)</div>
             <div style={{ fontSize: 13, color: color.muted, lineHeight: 1.6 }}>Take one photo of a single band or multiple bands at once.</div>
           </div>
@@ -296,7 +296,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
           </div>
           <label style={{ display: "block", cursor: "pointer", marginBottom: 10 }}>
             <div style={{ width: "100%", background: `linear-gradient(135deg, ${color.greenBright}, #2e8b4a)`, border: "none", borderRadius: 10, padding: 14, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: SANS, textAlign: "center", boxSizing: "border-box" }}>
-              📷 Open Camera
+              Open camera
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleScanPhoto} style={{ fontSize: type.md, display: "none" }} />
           </label>

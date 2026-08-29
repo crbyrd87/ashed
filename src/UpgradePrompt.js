@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Sheet } from "./ui";
+import { Icon, Sheet } from "./ui";
 import { supabase } from "./supabase";
 
 const FOUNDING_MEMBER_SLOTS = 100;
 
 const FEATURE_COPY = {
   band_scanner: {
-    icon: "📷",
+    Glyph: Icon.Camera,
     title: "Band Scanner is Premium",
     description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin.",
     perks: [
@@ -18,7 +18,7 @@ const FEATURE_COPY = {
     ],
   },
   recommendations: {
-    icon: "✨",
+    Glyph: Icon.Recommend,
     title: "AI Recommendations is Premium",
     description: "Get personalized cigar picks based on everything you've smoked and rated — your own AI sommelier.",
     perks: [
@@ -29,7 +29,7 @@ const FEATURE_COPY = {
     ],
   },
   pairings: {
-    icon: "🥃",
+    Glyph: Icon.Drink,
     title: "Drink Pairings is Premium",
     description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options.",
     perks: [
@@ -40,7 +40,7 @@ const FEATURE_COPY = {
     ],
   },
   wishlist_cap: {
-    icon: "🔖",
+    Glyph: Icon.Wishlist,
     title: "Wishlist Limit Reached",
     description: "Free accounts can save up to 20 cigars on their wishlist. Upgrade for unlimited everything.",
     perks: [
@@ -51,7 +51,7 @@ const FEATURE_COPY = {
     ],
   },
   advanced_stats: {
-    icon: "📊",
+    Glyph: Icon.Feed,
     title: "Advanced Stats is Premium",
     description: "Deep insights into your entire smoking history — trends, flavors, brands, and more.",
     perks: [
@@ -77,7 +77,7 @@ export default function UpgradePrompt({ feature, onClose }) {
   const slotsRemaining = foundingCount !== null ? Math.max(0, FOUNDING_MEMBER_SLOTS - foundingCount) : null;
 
   const copy = FEATURE_COPY[feature] || {
-    icon: "⭐",
+    Glyph: Icon.Check,
     title: "Premium Feature",
     description: "This feature is available to Premium members.",
     perks: [],
@@ -95,7 +95,7 @@ export default function UpgradePrompt({ feature, onClose }) {
 
         {/* Icon + title */}
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 44, marginBottom: 12 }}>{copy.icon}</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><copy.Glyph size={40} color={color.gold} /></div>
           <div style={{ fontSize: 20, fontWeight: 700, color: color.text, marginBottom: 8 }}>{copy.title}</div>
           <div style={{ fontSize: 14, color: color.muted, lineHeight: 1.6 }}>{copy.description}</div>
         </div>
@@ -116,13 +116,13 @@ export default function UpgradePrompt({ feature, onClose }) {
         <div style={{ borderTop: `1px solid ${color.line}`, paddingTop: 16, marginBottom: 16 }}>
           <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 10 }}>EVERYTHING IN PREMIUM</div>
           {[
-            "📷 Band Scanner — AI cigar identification",
-            "✨ AI Recommendations — personalized picks",
-            "🥃 Drink Pairings — spirits, beer, coffee & more",
-            "📊 Advanced Stats — trends & flavor profile",
-            "🔖 Unlimited wishlist & humidor",
-            "🎯 Personal fit score on every cigar",
-            "⭐ Premium badge on your profile",
+            "Band scanner — AI cigar identification",
+            "AI recommendations — personalized picks",
+            "Drink pairings — spirits, beer, coffee & more",
+            "Advanced stats — trends & flavor profile",
+            "Unlimited wishlist & humidor",
+            "Personal fit score on every cigar",
+            "Premium badge on your profile",
           ].map((item, i) => (
             <div key={i} style={{ fontSize: type.xs, color: color.muted, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
               <span>{item}</span>
@@ -134,7 +134,7 @@ export default function UpgradePrompt({ feature, onClose }) {
         {slotsRemaining !== null && slotsRemaining > 0 && (
           <div style={{ background: `linear-gradient(135deg, ${color.surfaceRaised}, ${color.bg})`, border: `1px solid ${color.gold}55`, borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 18 }}>🎖️</span>
+              <Icon.Check size={18} color={color.gold} />
               <span style={{ fontSize: 13, fontWeight: 700, color: color.gold }}>Founding Member Offer</span>
               <span style={{ marginLeft: "auto", background: `${color.gold}22`, border: `1px solid ${color.gold}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, color: color.gold, fontWeight: 700 }}>
                 {slotsRemaining} left
@@ -181,7 +181,7 @@ export default function UpgradePrompt({ feature, onClose }) {
           }}
           style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 8 }}
         >
-          ⭐ Start Free 7-Day Trial
+          Notify me when Premium launches
         </button>
 
         <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", marginBottom: 12, lineHeight: 1.6 }}>

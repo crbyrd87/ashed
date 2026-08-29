@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Toggle as Switch } from "./ui";
+import { Icon, Toggle as Switch } from "./ui";
 import { supabase } from "./supabase";
 
 function Toggle({ label, sublabel, value, onChange, disabled }) {
@@ -318,7 +318,7 @@ function GuideSection() {
     <div>
       <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 16 }}>CIGAR GUIDE</div>
 
-      <Section id="vitolas" title="🎋 Vitola Size Chart" openSection={openSection} onToggle={toggle}>
+      <Section id="vitolas" title="Vitola size chart" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>Size affects burn time, draw, and smoke temperature.</div>
         <Row label="Petit Corona" value='4–4.5" × 40–42 ring' sub="~20–30 min" />
         <Row label="Corona" value='5.5" × 42 ring' sub="~30–45 min" />
@@ -333,7 +333,7 @@ function GuideSection() {
         <div style={{ fontSize: type.xs, color: color.faint, marginTop: 10 }}>Ring gauge = diameter in 64ths of an inch. A 52 ring = 52/64" wide.</div>
       </Section>
 
-      <Section id="strength" title="💪 Body & Strength Guide" openSection={openSection} onToggle={toggle}>
+      <Section id="strength" title="Body & strength guide" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>Strength = nicotine hit. Body = complexity and flavor intensity. They don't always match.</div>
         <Row label="Mild" value="Smooth, low nicotine" sub="Good for beginners" />
         <Row label="Mild-Medium" value="Easy draw with a bit more body" sub="Great step up from mild" />
@@ -341,11 +341,11 @@ function GuideSection() {
         <Row label="Medium-Full" value="More complexity, noticeable nicotine" sub="For experienced smokers" />
         <Row label="Full" value="Bold, rich, strong nicotine hit" sub="Smoke after a meal" />
         <div style={{ fontSize: type.xs, color: color.tan, marginTop: 10, lineHeight: 1.6 }}>
-          💡 A cigar can be full-bodied (complex flavor) but medium strength (low nicotine) — like a Padron 1964. Don't confuse the two.
+          A cigar can be full-bodied (complex flavor) but medium strength (low nicotine) — like a Padron 1964. Don't confuse the two.
         </div>
       </Section>
 
-      <Section id="wrappers" title="🍂 Wrapper Types" openSection={openSection} onToggle={toggle}>
+      <Section id="wrappers" title="Wrapper types" openSection={openSection} onToggle={toggle}>
         <div style={{ fontSize: type.xs, color: color.dim, marginBottom: 10 }}>The wrapper leaf covers ~60% of what you taste.</div>
         <Row label="Claro" value="Light tan, mild and creamy" />
         <Row label="Colorado Claro" value="Medium brown, balanced" />
@@ -358,7 +358,7 @@ function GuideSection() {
         <div style={{ fontSize: type.xs, color: color.faint, marginTop: 10 }}>Common origins: Connecticut (mild), Ecuadorian Habano (spicy), Nicaraguan (bold), Cameroon (complex), San Andrés (maduro).</div>
       </Section>
 
-      <Section id="origins" title="🌍 Origins Guide" openSection={openSection} onToggle={toggle}>
+      <Section id="origins" title="Origins guide" openSection={openSection} onToggle={toggle}>
         <Row label="Nicaragua" value="Spicy, complex, full-bodied. Jalapa and Estelí valleys." />
         <Row label="Dominican Republic" value="Smooth, creamy, medium body. Long tradition of quality." />
         <Row label="Honduras" value="Earthy, woody, medium-full. Often blended." />
@@ -370,7 +370,7 @@ function GuideSection() {
         <Row label="Cameroon" value="African wrapper leaf. Unique spice and wood notes." />
       </Section>
 
-      <Section id="tasting" title="👅 Tasting Terms Glossary" openSection={openSection} onToggle={toggle}>
+      <Section id="tasting" title="Tasting terms glossary" openSection={openSection} onToggle={toggle}>
         <Term word="Retrohale" def="Exhaling smoke through your nose to intensify flavor. Practice slowly — it's an acquired technique." />
         <Term word="Draw" def="The resistance when pulling air through the cigar. Should feel like sipping through a slightly restricted straw." />
         <Term word="Burn" def="How evenly the cigar burns. A good cigar burns evenly without needing constant touch-ups." />
@@ -385,7 +385,7 @@ function GuideSection() {
         <Term word="Plug" def="A blockage in the cigar that restricts draw. Sometimes resolved by gently squeezing the cigar." />
       </Section>
 
-      <Section id="etiquette" title="🎩 Lounge & Smoking Etiquette" openSection={openSection} onToggle={toggle}>
+      <Section id="etiquette" title="Lounge & smoking etiquette" openSection={openSection} onToggle={toggle}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {[
             "Never cut someone else's cigar without asking.",
@@ -457,7 +457,7 @@ function HelpSection({ onReplayTour, user }) {
 
       {submitted ? (
         <div style={{ background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 20, textAlign: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
+          <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><Icon.Check size={24} color={color.positive} /></div>
           <div style={{ fontSize: 14, color: color.green, fontWeight: 700, marginBottom: 4 }}>Thanks for the report!</div>
           <div style={{ fontSize: type.xs, color: color.faint }}>We'll look into it and follow up if needed.</div>
           <button onClick={() => setSubmitted(false)}
@@ -469,7 +469,7 @@ function HelpSection({ onReplayTour, user }) {
         <>
           {/* Type selector */}
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-            {[["bug", "🐛 Bug Report"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
+            {[["bug", "Bug report"], ["feedback", "Feedback"]].map(([val, label]) => (
               <button key={val} onClick={() => setType(val)}
                 style={{ flex: 1, background: type === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${type === val ? color.goldLegacy : color.lineStrong}`, borderRadius: 8, padding: "10px 0", color: type === val ? color.goldLegacy : color.dim, fontSize: 13, fontWeight: type === val ? 700 : 400, cursor: "pointer", fontFamily: SANS }}>
                 {label}
@@ -510,7 +510,7 @@ function HelpSection({ onReplayTour, user }) {
             <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                 <span style={{ fontSize: type.xs, color: item.type === "bug" ? color.dangerText : color.green }}>
-                  {item.type === "bug" ? "🐛 Bug Report" : "💡 Feedback"}
+                  {item.type === "bug" ? "Bug report" : "Feedback"}
                 </span>
                 <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -535,22 +535,22 @@ function HelpSection({ onReplayTour, user }) {
 
       <button onClick={onReplayTour}
         style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.goldLegacy, fontSize: 14, cursor: "pointer", fontFamily: SANS, textAlign: "left", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
-        <span>🎯</span> Replay Onboarding Tour
+        Replay onboarding tour
       </button>
 
       <a href="mailto:support@ashed.app"
         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        <span>✉️</span> Contact Support
+        Contact support
       </a>
 
       <a href="https://ashed.app/privacy" target="_blank" rel="noreferrer"
         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        <span>🔒</span> Privacy Policy
+        Privacy policy
       </a>
 
       <a href="https://ashed.app/terms" target="_blank" rel="noreferrer"
         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.tan, fontSize: 14, cursor: "pointer", fontFamily: SANS, textDecoration: "none", marginBottom: 10, boxSizing: "border-box" }}>
-        <span>📄</span> Terms of Service
+        Terms of service
       </a>
 
       <div style={{ marginTop: 24, textAlign: "center" }}>
