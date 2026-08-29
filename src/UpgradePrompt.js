@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Icon, Sheet } from "./ui";
+import { Button, Icon, Notice, Sheet } from "./ui";
 import { supabase } from "./supabase";
 
 const FOUNDING_MEMBER_SLOTS = 100;
@@ -65,6 +65,24 @@ const FEATURE_COPY = {
 
 export default function UpgradePrompt({ feature, onClose }) {
   const [foundingCount, setFoundingCount] = useState(null);
+  // The sheet used to be a dead end at the moment of highest intent: it
+  // promised a trial that does not exist, then fired a platform alert. It now
+  // records who asked, and which feature they were reaching for.
+  const [notifying, setNotifying] = useState(false);
+  const [notified, setNotified] = useState(false);
+  const [notifyError, setNotifyError] = useState(null);
+
+  const handleNotify = async () => {
+    setNotifying(true);
+    setNotifyError(null);
+    const { data: auth } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from("premium_waitlist")
+      .upsert({ user_id: auth?.user?.id, feature: feature || null }, { onConflict: "user_id" });
+    if (error) setNotifyError("Could not add you to the list. Please try again.");
+    else setNotified(true);
+    setNotifying(false);
+  };
 
   useEffect(() => {
     supabase
@@ -174,15 +192,14 @@ export default function UpgradePrompt({ feature, onClose }) {
         </div>
 
         {/* CTA */}
-        <button
-          onClick={() => {
-            alert("Premium subscriptions are coming soon! You'll be among the first to know when they launch.");
-            onClose();
-          }}
-          style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 8 }}
-        >
-          Notify me when Premium launches
-        </button>
+        {notified
+          ? <Notice text="You're on the list. We'll email you when Premium launches." style={{ marginBottom: 8 }} />
+          : (
+            <Button onClick={handleNotify} disabled={notifying} style={{ marginBottom: 8 }}>
+              {notifying ? "Adding you..." : "Notify me when Premium launches"}
+            </Button>
+          )}
+        {notifyError && <Notice isError text={notifyError} style={{ marginBottom: 8 }} />}
 
         <div style={{ fontSize: type.xs, color: color.faint, textAlign: "center", marginBottom: 12, lineHeight: 1.6 }}>
           Card required. No charge for 7 days. Cancel anytime in Settings — takes 10 seconds.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SANS, color, type } from "./theme";
-import { Icon } from "./ui";
+import { Button, Icon, Notice } from "./ui";
 import Auth from "./Auth";
 import { supabase } from "./supabase";
 import { FLAVOR_TAG_NAMES } from "./flavors";
@@ -390,6 +390,9 @@ export default function App() {
   const [wishlistVitolaPicker, setWishlistVitolaPicker] = useState(null);
   const [wishlistVitolaOptions, setWishlistVitolaOptions] = useState([]);
   const [wishlistVitolaLoading, setWishlistVitolaLoading] = useState(false);
+  // Inline confirmations, replacing window.confirm and alert.
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [exportNotice, setExportNotice] = useState(null);
 
   // Back closes whatever is on top rather than leaving the app. Registered
   // here, at the component's top level, because hooks cannot be called from
@@ -747,7 +750,6 @@ export default function App() {
   };
 
   const handleDeleteCheckin = async (checkin) => {
-    if (!window.confirm("Delete this check-in? This cannot be undone.")) return;
     await supabase.from("ratings").delete().eq("checkin_id", checkin.id);
     await supabase.from("checkins").delete().eq("id", checkin.id);
     setSelectedCheckin(null);
@@ -763,7 +765,8 @@ export default function App() {
       .order("smoke_date", { ascending: false });
 
     if (!data || data.length === 0) {
-      alert("No check-ins to export yet.");
+      setExportNotice("No check-ins to export yet.");
+      setTimeout(() => setExportNotice(null), 4000);
       return;
     }
 
@@ -1532,10 +1535,25 @@ export default function App() {
                       {/* Delete */}
                       {isSelected && (
                         <div style={{ padding: "12px 14px" }}>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteCheckin(c); }}
-                            style={{ width: "100%", background: "linear-gradient(135deg, #8a2a1a, #6a1a0a)", border: `1px solid ${color.danger}`, borderRadius: 10, padding: 12, color: color.heading, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                            Delete this check-in
-                          </button>
+                          {confirmDeleteId === c.id ? (
+                            <Notice isError text="Delete this check-in? This cannot be undone.">
+                              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                                <Button variant="danger" full={false} style={{ flex: 1, height: 44 }}
+                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); handleDeleteCheckin(c); }}>
+                                  Delete
+                                </Button>
+                                <Button variant="secondary" full={false} style={{ flex: 1, height: 44 }}
+                                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}>
+                                  Cancel
+                                </Button>
+                              </div>
+                            </Notice>
+                          ) : (
+                            <Button variant="danger"
+                              onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(c.id); }}>
+                              Delete this check-in
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1553,6 +1571,7 @@ export default function App() {
               Export my journal (CSV)
             </button>
           )}
+          {exportNotice && <Notice isError text={exportNotice} style={{ marginTop: 10 }} />}
 
           {/* STATS SUB-TAB */}
           {profileTab === "stats" && (
