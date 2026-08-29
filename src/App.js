@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SANS, color, type } from "./theme";
-import { Button, Icon, Notice } from "./ui";
+import { SANS, color, font, type, weight } from "./theme";
+import { Button, Icon, Notice, Pressable } from "./ui";
 import Auth from "./Auth";
+import Home from "./Home";
 import { supabase } from "./supabase";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 import { useBackDismiss } from "./useBackDismiss";
@@ -313,7 +314,9 @@ const APP_VERSION = "0.9.2";
 export default function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [tab, setTab] = useState("search");
+  // "home" is the root. The bottom bar is gone: five destinations became
+  // eleven, so the tasks moved onto a screen of their own.
+  const [tab, setTab] = useState("home");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
@@ -415,6 +418,11 @@ export default function App() {
   useBackDismiss(!!purchasedItem, () => setPurchasedItem(null));
   useBackDismiss(!!wishlistVitolaPicker, () => setWishlistVitolaPicker(null));
   useBackDismiss(!!checkingIn, () => setCheckingIn(null));
+
+  // With the bar gone, a tab is a place you navigated INTO, so Back should
+  // return to home rather than leave the app. Registered like any other
+  // overlay, so it unwinds in the order things were opened.
+  useBackDismiss(tab !== "home", () => setTab("home"));
 
   // The cigar detail view. selectedLine is set at the same moment as selected
   // in handleLineSelect, so this is one navigation step rather than two — the
@@ -846,14 +854,14 @@ export default function App() {
   };
 
 
+  const TAB_TITLES = { search: "Search", profile: "Me", wishlist: "Wishlist", humidor: "Humidor", venues: "Shops & lounges" };
+
   const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Profile";
   const username = user?.user_metadata?.username ? user.user_metadata.username.replace(/^@/, "") : null;
 
   const s = {
     app: { fontFamily: SANS, background: color.bg, minHeight: "100vh", color: color.heading, maxWidth: 420, margin: "0 auto", paddingBottom: 70 },
     header: { background: `linear-gradient(180deg, ${color.surfaceWarm} 0%, ${color.bg} 100%)`, padding: "20px 20px 12px", borderBottom: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
-    nav: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 420, background: color.bg, borderTop: `1px solid ${color.lineStrong}`, display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 100, padding: "0 4px" },
-    navBtn: a => ({ flex: 1, padding: "8px 0", background: "none", border: "none", borderTop: a ? `2px solid ${color.gold}` : "2px solid transparent", color: color.gold, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, textTransform: "uppercase", fontWeight: 700, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, letterSpacing: 0 }),
     card: { background: `linear-gradient(135deg, ${color.surfaceRaised} 0%, ${color.surfaceCard} 100%)`, border: `1px solid ${color.lineStrong}`, borderRadius: 10, marginBottom: 10, cursor: "pointer", overflow: "hidden" },
     input: { width: "100%", background: color.surfaceRaised, border: `1px solid ${searching ? color.green : color.faintAlt}`, borderRadius: showDropdown && searchResults.length > 0 ? "8px 8px 0 0" : "8px", padding: "10px 14px", color: color.heading, fontSize: type.md, fontFamily: SANS, outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" },
     statBox: { background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "14px 18px", flex: 1, textAlign: "center" },
@@ -1105,19 +1113,35 @@ export default function App() {
 
   return (
     <div style={s.app}>
-      <div style={s.header}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Icon.Flame size={22} />
-            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200 0%, #ff6600 50%, #ffcc00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
+      {/* Home draws its own masthead. Every other screen gets a back
+          affordance, because the bottom bar that used to carry the way out
+          is gone. */}
+      {tab !== "home" && (
+        <div style={{
+          position: "sticky", top: 0, zIndex: 30,
+          height: 56, display: "flex", alignItems: "center", gap: 4,
+          padding: "0 8px", background: color.bg,
+          borderBottom: `1px solid ${color.border}`,
+        }}>
+          <Pressable onClick={() => setTab("home")} label="Back to home" minWidth={48}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon.Back size={21} color={color.textBody} />
+          </Pressable>
+          <div style={{
+            flex: 1, minWidth: 0,
+            fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed,
+            color: color.textPrimary,
+          }}>
+            {TAB_TITLES[tab] || "Ashed"}
           </div>
-          <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 3, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>CIGAR JOURNAL & COMMUNITY</div>
+          {tab === "profile" && (
+            <Pressable onClick={() => setShowSettings(true)} label="Settings" minWidth={48}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon.Settings size={19} color={color.textMuted} />
+            </Pressable>
+          )}
         </div>
-        <button onClick={() => setShowSettings(true)}
-          style={{ background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 20, padding: "6px 12px", color: color.tan, fontSize: 20, cursor: "pointer", fontFamily: SANS }}>
-          <Icon.Settings size={17} color={color.textMuted} />
-        </button>
-      </div>
+      )}
 
       {tab === "search" && (
         <div style={{ padding: 16, position: "sticky", top: 0, background: color.bg, zIndex: 20 }}>
@@ -2016,43 +2040,29 @@ export default function App() {
         />
       )}
       {tab === "venues" && <Venues />}
-      <nav style={s.nav}>
-        {[["search", "🔍", "Feed"], ["profile", "👤", "Me"], ["wishlist", "🔖", "Wishlist"]].map(([id, icon, label]) => (
-          <button key={id} style={s.navBtn(tab === id)} onClick={() => setTab(id)}>
-            <span style={{ fontSize: 18 }}>{icon}</span>
-            <span>{label}</span>
-          </button>
-        ))}
-        <button style={s.navBtn(tab === "humidor")} onClick={() => setTab("humidor")}>
-          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="10" width="20" height="11" rx="1.5" stroke={tab === "humidor" ? "#d4844a" : color.faintDim} strokeWidth="1.5"/>
-              <path d="M2 10 L4 6 L20 6 L22 10 Z" stroke={tab === "humidor" ? "#d4844a" : color.faintDim} strokeWidth="1.5" fill={tab === "humidor" ? "#d4844a22" : `${color.faintDim}11`} strokeLinejoin="round"/>
-              <line x1="7" y1="6" x2="7" y2="10" stroke={tab === "humidor" ? color.gold : color.faintDim} strokeWidth="1.5"/>
-              <line x1="12" y1="6" x2="12" y2="10" stroke={tab === "humidor" ? color.gold : color.faintDim} strokeWidth="1.5"/>
-              <line x1="17" y1="6" x2="17" y2="10" stroke={tab === "humidor" ? color.gold : color.faintDim} strokeWidth="1.5"/>
-              <rect x="10" y="14" width="4" height="2" rx="1" fill={tab === "humidor" ? color.gold : color.faintDim}/>
-            </svg>
-          </span>
-          <span>Humidor</span>
-        </button>
-        <button style={s.navBtn(tab === "venues")} onClick={() => setTab("venues")}>
-          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="9" width="18" height="13" rx="1" fill={tab === "venues" ? color.goldLegacy : color.dim}/>
-              <polygon points="1,9 23,9 21,5 3,5" fill={tab === "venues" ? color.goldLegacy : color.dim}/>
-              <line x1="7" y1="5" x2="6" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
-              <line x1="11" y1="5" x2="10" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
-              <line x1="15" y1="5" x2="14" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
-              <line x1="19" y1="5" x2="18" y2="9" stroke={color.goldDeep} strokeWidth="0.8"/>
-              <rect x="9" y="15" width="6" height="7" rx="0.5" fill={color.bg}/>
-              <rect x="3" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
-              <rect x="17" y="11" width="4" height="3" rx="0.5" fill={color.bg}/>
-            </svg>
-          </span>
-          <span>Venues</span>
-        </button>
-      </nav>
+      {tab === "home" && (
+        <Home
+          displayName={displayName}
+          unreadCount={unreadNotifCount}
+          humidorCount={humidor.length || undefined}
+          wishlistCount={wishlist.length || undefined}
+          recent={checkins.slice(0, 2)}
+          recentLoading={profileLoading}
+          onLogSmoke={() => setTab("search")}
+          onSearch={() => setTab("search")}
+          onScan={() => isPremium ? setShowBandScanner(true) : setUpgradeFeature("band_scanner")}
+          onRecommend={() => isPremium ? setShowRecommendations(true) : setUpgradeFeature("recommendations")}
+          onPairDrink={() => isPremium ? setTab("search") : setUpgradeFeature("pairings")}
+          onPairCigar={() => isPremium ? setTab("search") : setUpgradeFeature("pairings")}
+          onHumidor={() => setTab("humidor")}
+          onWishlist={() => setTab("wishlist")}
+          onVenues={() => setTab("venues")}
+          onFriends={() => setShowFriends(true)}
+          onFeed={() => setTab("search")}
+          onNotifications={() => { setShowNotifications(true); setUnreadNotifCount(0); }}
+          onProfile={() => setTab("profile")}
+        />
+      )}
 
       {/* Toast */}
       {toast && (
