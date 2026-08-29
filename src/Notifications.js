@@ -5,7 +5,7 @@ import { supabase } from "./supabase";
 import { markAllRead } from "./notificationHelpers";
 
 const TYPE_META = {
-  fire:             { icon: "🔥", label: "fired your check-in" },
+  fire:             { icon: "👍", label: "liked your check-in" },
   comment:          { icon: "💬", label: "commented on your check-in" },
   badge:            { icon: "🏅", label: "You earned a badge" },
   friend_accepted:  { icon: "🤝", label: "accepted your friend request" },

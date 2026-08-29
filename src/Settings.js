@@ -484,7 +484,7 @@ function HelpSection({ onReplayTour, user }) {
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder={type === "bug"
-              ? "e.g. When I tap the fire button on a check-in, the count doesn't update..."
+              ? "e.g. When I tap the like button on a check-in, the count doesn't update..."
               : "e.g. It would be great if I could filter my journal by brand..."}
             rows={5}
             style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "10px 12px", color: color.heading, fontSize: 13, fontFamily: SANS, outline: "none", resize: "none", boxSizing: "border-box", marginBottom: 8 }}

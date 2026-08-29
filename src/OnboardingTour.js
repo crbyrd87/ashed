@@ -104,8 +104,8 @@ const SCREENS = [
   {
     Icon: FeedIcon,
     title: "The Feed",
-    description: "See what your friends are smoking in real time. Fire check-ins you love, leave comments, and discover cigars through the people you trust.",
-    features: ["Friends' check-ins first", "Fire button to show appreciation", "Community check-ins when feed is quiet"],
+    description: "See what your friends are smoking in real time. Like check-ins you love, leave comments, and discover cigars through the people you trust.",
+    features: ["Friends' check-ins first", "Like button to show appreciation", "Community check-ins when feed is quiet"],
     pro: false,
   },
   {

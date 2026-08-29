@@ -99,7 +99,10 @@ function StatsSection() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    // MAU — distinct users who checked in at least once in last 30 days
+    // Distinct users who checked in at least once in the last 30 days.
+    // NOTE: this counts check-ins only. Somebody who opens the app daily,
+    // browses the feed and comments but logs no smoke is not counted, so
+    // this understates engagement and is not a general "active users" figure.
     const { data: mauData } = await supabase
       .from("checkins")
       .select("user_id")
@@ -158,10 +161,10 @@ function StatsSection() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 28 }}>
         {[
           ["Users",        totals.users,    color.gold, "👤"],
-          ["MAU",          totals.mau,      color.goldLegacy, "📈"],
+          ["Active (30d)", totals.mau,      color.gold,       "📈"],
           ["Check-ins",    totals.checkins, color.green, "📖"],
           ["Cigars in DB", totals.cigars,   color.partner, "📋"],
-          ["Fires",        totals.fires,    color.alert, "🔥"],
+          ["Likes",        totals.fires,    color.alert, "👍"],
           ["Comments",     totals.comments, color.plum, "💬"],
         ].map(([label, value, accent, icon]) => (
           <div key={label} style={{ background: color.surface, border: `1px solid ${accent}33`, borderRadius: 12, padding: "16px 10px", textAlign: "center", position: "relative", overflow: "hidden" }}>
