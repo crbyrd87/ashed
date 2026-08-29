@@ -1,15 +1,8 @@
 import { useState, useEffect } from "react";
 import { SANS, color, type } from "./theme";
-import { Sheet } from "./ui";
+import { Pill, SectionLabel, Sheet } from "./ui";
 import { supabase } from "./supabase";
 
-const BADGE_ICONS = {
-  first_ash: "🔥", smoke_10: "🔟", smoke_25: "💨", smoke_50: "⭐", smoke_100: "💯",
-  smoke_250: "🏆", smoke_500: "👑", founding_member: "🎖️", ambassador: "🤝",
-  recruiter: "📣", legend_maker: "🌟", globe_trotter: "🌍", variety_seeker: "🎨",
-  connoisseur: "🧐", well_traveled: "✈️", well_loved: "❤️", fan_favorite: "⚡",
-  smoke_circle: "⭕", regular: "📍",
-};
 
 export default function UserProfileModal({ userId, currentUser, onClose }) {
   const [profile, setProfile] = useState(null);
@@ -102,20 +95,17 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
             )}
             {friendStatus === "friends" && (
               <div style={{ width: "100%", background: `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 10, padding: 12, color: color.green, fontSize: 14, fontWeight: 700, textAlign: "center", marginBottom: 20 }}>
-                ✓ Friends
+                Friends
               </div>
             )}
 
             {/* Badges */}
             {badges.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 10 }}>BADGES</div>
+                <SectionLabel style={{ marginBottom: 10 }}>Badges</SectionLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {badges.map(key => (
-                    <span key={key} title={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                      style={{ fontSize: 22 }}>
-                      {BADGE_ICONS[key] || "🏅"}
-                    </span>
+                    <Pill key={key}>{key.replace(/_/g, " ").replace(/w/g, c => c.toUpperCase())}</Pill>
                   ))}
                 </div>
               </div>
@@ -134,7 +124,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
                   </div>
                   <div style={{ fontSize: type.xs, color: color.dim, marginTop: 2 }}>
                     {c.cigars?.brand || c.cigar_brand || ""}
-                    {c.rating ? ` · ${"🔥".repeat(Math.round(c.rating / 2))}` : ""}
+                    {c.rating ? ` · ${(c.rating / 2).toFixed(1)}` : ""}
                   </div>
                   <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                     {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame, type } from "./theme";
-import { CloseButton, Screen } from "./ui";
+import { CloseButton, Icon, Screen } from "./ui";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
@@ -320,7 +320,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
       <div style={s.header}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 20 }}>👥</span>
+            <Icon.Friends size={20} color={color.textMuted} />
             <span style={{ fontSize: 20, fontWeight: 700, color: color.text }}>Friends</span>
           </div>
           <div style={{ fontSize: type.xs, color: color.gold, fontWeight: 600, marginTop: 2, opacity: 0.8 }}>
@@ -378,7 +378,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                   </div>
                   {status === "none" && <button style={s.btnFilled} onClick={() => handleSendRequest(u.id)}>+ Add</button>}
                   {status === "sent" && <span style={{ fontSize: type.xs, color: color.faint }}>Request sent</span>}
-                  {status === "friends" && <span style={{ fontSize: type.xs, color: color.green }}>✓ Friends</span>}
+                  {status === "friends" && <span style={{ fontSize: type.xs, color: color.green }}>Friends</span>}
                   {status === "incoming" && <button style={s.btnFilled} onClick={() => handleAccept(pendingRequests.find(r => r.requester?.id === u.id)?.id)}>Accept</button>}
                 </div>
               );
@@ -398,7 +398,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                   const username = user.user_metadata?.username || user.id;
                   const url = `${window.location.origin}?ref=${username}`;
                   if (navigator.share) {
-                    try { await navigator.share({ title: "Join me on Ashed", text: `I've been logging my cigars on Ashed — a cigar journal app. Join me! 🚬`, url }); }
+                    try { await navigator.share({ title: "Join me on Ashed", text: `I've been logging my cigars on Ashed — a cigar journal app. Join me!`, url }); }
                     catch (e) { if (e.name !== "AbortError") navigator.clipboard?.writeText(url); }
                   } else {
                     navigator.clipboard?.writeText(url);
@@ -407,7 +407,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
                 }}
                 style={{ width: "100%", background: `linear-gradient(135deg, ${color.gold}, ${color.goldDeep})`, border: "none", borderRadius: 10, padding: 12, color: color.bg, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}
               >
-                📲 Share Invite Link
+                Share invite link
               </button>
             </div>
 
@@ -415,13 +415,13 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 16, marginTop: 12 }}>
               <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>WHY ADD FRIENDS?</div>
               {[
-                { icon: "🔥", text: "See their check-ins in your feed" },
-                { icon: "👍", text: "Like and comment on their smokes" },
-                { icon: "🚬", text: "Discover new cigars through their reviews" },
-                { icon: "📊", text: "View their stats, top brands and recent smokes" },
+                { Glyph: Icon.Flame, text: "See their check-ins in your feed" },
+                { Glyph: Icon.Feed, text: "Like and comment on their smokes" },
+                { Glyph: Icon.Cigar, text: "Discover new cigars through their reviews" },
+                { Glyph: Icon.Feed, text: "View their stats, top brands and recent smokes" },
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 10 : 0 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ flexShrink: 0, display: "flex" }}><item.Glyph size={18} color={color.textMuted} /></span>
                   <span style={{ fontSize: 13, color: color.cream }}>{item.text}</span>
                 </div>
               ))}
@@ -475,7 +475,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             {loading && <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: 20 }}>Loading...</div>}
             {!loading && friends.length === 0 && (
               <div style={{ textAlign: "center", padding: 40 }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>🤝</div>
+                <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><Icon.Friends size={32} color={color.borderStrong} /></div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>No friends yet</div>
                 <div style={{ fontSize: 13, color: color.faint }}>Search for friends by username or email to get started</div>
               </div>

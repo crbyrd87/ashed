@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SANS, color, type } from "./theme";
+import { Icon } from "./ui";
 
 const CigarIcon = () => (
   <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -81,21 +82,21 @@ const SCREENS = [
     pro: false,
   },
   {
-    icon: "📷",
+    icon: null,
     title: "Band Scanner",
     description: "Point your camera at any cigar band and AI instantly identifies the brand, line, vitola, strength, and origin. No typing required.",
     features: ["AI-powered band identification", "Auto-fills your check-in", "Add directly to humidor or wishlist"],
     pro: true,
   },
   {
-    icon: "✨",
+    icon: null,
     title: "AI Recommendations",
     description: "After 5 check-ins, Ashed learns your palate and recommends cigars you'll actually love — with an explanation of why each one fits your taste.",
     features: ["Tailored to your exact taste profile", "Updates as you smoke more", "Explains why each cigar matches you"],
     pro: true,
   },
   {
-    icon: "🥃",
+    icon: null,
     title: "Drink Pairings",
     description: "AI-generated drink pairings for every cigar — spirits, beer, coffee, and non-alcoholic options, with seasonal suggestions.",
     features: ["Spirits, beer, coffee & non-alcoholic", "Seasonal suggestions", "Instant load after first fetch"],
@@ -130,14 +131,14 @@ const SCREENS = [
     pro: false,
   },
   {
-    icon: "🏅",
+    icon: null,
     title: "Badges & Achievements",
     description: "Earn badges as you smoke, explore, and connect. From First Ash to Legend, there's always something to work toward.",
     features: ["Milestone badges for check-in counts", "Social badges for community activity", "Variety badges for exploring new cigars"],
     pro: false,
   },
   {
-    icon: "🤝",
+    icon: null,
     title: "Refer Friends",
     description: "Share your personal referral link and earn exclusive badges as your friends join. The more you bring in, the higher you climb.",
     features: ["Unique referral link per user", "Ambassador → Recruiter → Legend Maker", "Badges auto-awarded when friends join"],
@@ -181,7 +182,7 @@ export default function OnboardingTour({ onComplete }) {
         <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: "16px 18px", marginBottom: 28 }}>
           {screen.features.map((f, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: i < screen.features.length - 1 ? 10 : 0 }}>
-              <span style={{ color: color.goldLegacy, fontSize: 14, flexShrink: 0 }}>✓</span>
+              <span style={{ flexShrink: 0, display: "flex" }}><Icon.Check size={14} color={color.gold} /></span>
               <span style={{ fontSize: 13, color: color.soft }}>{f}</span>
             </div>
           ))}
@@ -196,7 +197,7 @@ export default function OnboardingTour({ onComplete }) {
         )}
         <button onClick={() => isLast ? onComplete() : setStep(s => s + 1)}
           style={{ flex: 2, background: `linear-gradient(135deg, ${color.goldLegacy}, ${color.goldDeep})`, border: "none", borderRadius: 12, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-          {isLast ? "Start Smoking 🔥" : "Next"}
+          {isLast ? "Start smoking" : "Next"}
         </button>
       </div>
     </div>
