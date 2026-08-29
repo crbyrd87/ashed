@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 
 const BADGE_ICONS = {
@@ -67,13 +68,7 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
   const memberSince = profile?.member_since ? new Date(profile.member_since).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 600, display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: SANS }}
-      onClick={onClose}>
-      <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", padding: "20px 20px 36px" }}
-        onClick={e => e.stopPropagation()}>
-
-        {/* Handle bar */}
-        <div style={{ width: 40, height: 4, background: color.lineStrong, borderRadius: 2, margin: "0 auto 20px" }} />
+    <Sheet onClose={onClose} zIndex={600} handle>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px 0", fontSize: 13, color: color.faint }}>Loading...</div>
@@ -149,7 +144,6 @@ export default function UserProfileModal({ userId, currentUser, onClose }) {
             </div>
           </>
         )}
-      </div>
-    </div>
+    </Sheet>
   );
 }

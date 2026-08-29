@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SANS, color } from "./theme";
+import { Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort } from "./sanitize";
@@ -92,8 +93,7 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: SANS }}>
-      <div style={{ background: color.bg, border: `1px solid ${color.lineStrong}`, borderRadius: 16, padding: 24, maxWidth: 380, width: "100%" }}>
+    <Sheet align="center" zIndex={800} maxWidth={380} dismissOnScrim={false}>
         <div style={{ fontSize: 16, fontWeight: 700, color: color.heading, marginBottom: 4 }}>Can't Find Your Cigar?</div>
         <div style={{ fontSize: 12, color: color.dim, marginBottom: 20, lineHeight: 1.5 }}>
           Submit it and you can log it right away. Our team will review and verify it.
@@ -144,7 +144,6 @@ export default function CigarSubmitModal({ user, onClose, onSubmitted }) {
         <div style={{ fontSize: 11, color: color.faint, marginTop: 12, textAlign: "center" }}>
           You can log this cigar right away while we verify it.
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

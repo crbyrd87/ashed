@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SANS, color } from "./theme";
+import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
 import { formatSmokeDate } from "./dateUtils";
@@ -120,14 +121,13 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
     : "";
 
   return (
-    <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", justifyContent: "center", maxWidth: 420, margin: "0 auto" }}
-      onClick={onClose}
+    <Sheet
+      onClose={onClose}
+      zIndex={400}
+      maxHeight="80vh"
+      padding={0}
+      panelStyle={{ display: "flex", flexDirection: "column", overflowY: "visible" }}
     >
-      <div
-        style={{ background: color.bg, borderRadius: "16px 16px 0 0", border: `1px solid ${color.line}`, borderBottom: "none", width: "100%", maxWidth: 420, maxHeight: "80vh", display: "flex", flexDirection: "column", fontFamily: SANS }}
-        onClick={e => e.stopPropagation()}
-      >
         {/* Handle */}
         <div style={{ padding: "12px 0 0", display: "flex", justifyContent: "center", flexShrink: 0 }}>
           <div style={{ width: 36, height: 4, background: color.line, borderRadius: 2 }} />
@@ -223,7 +223,6 @@ export default function FeedModal({ checkin, user, onClose, onFireToggle }) {
             {posting ? "..." : "Post"}
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

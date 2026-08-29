@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Sheet } from "./ui";
 import { supabase } from "./supabase";
 
 const FOUNDING_MEMBER_SLOTS = 100;
@@ -83,14 +84,7 @@ export default function UpgradePrompt({ feature, onClose }) {
   };
 
   return (
-    <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 600, display: "flex", alignItems: "flex-end", fontFamily: SANS }}
-      onClick={onClose}
-    >
-      <div
-        style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: color.bg, borderRadius: "16px 16px 0 0", border: `1px solid ${color.line}`, borderBottom: "none", padding: "24px 24px 36px", maxHeight: "90vh", overflowY: "auto" }}
-        onClick={e => e.stopPropagation()}
-      >
+    <Sheet onClose={onClose} zIndex={600} maxHeight="90vh" padding="24px 24px 36px">
         {/* Gold top accent */}
         <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: `linear-gradient(90deg, ${color.gold}, ${color.goldPale})`, borderRadius: "0 0 3px 3px" }} />
 
@@ -198,7 +192,6 @@ export default function UpgradePrompt({ feature, onClose }) {
           style={{ width: "100%", background: "none", border: "none", color: color.faint, fontSize: 13, cursor: "pointer", fontFamily: SANS }}>
           Maybe later
         </button>
-      </div>
-    </div>
+    </Sheet>
   );
 }
