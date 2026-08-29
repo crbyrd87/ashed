@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { Toggle as Switch } from "./ui";
 import { supabase } from "./supabase";
 
 function Toggle({ label, sublabel, value, onChange, disabled }) {
@@ -9,10 +10,7 @@ function Toggle({ label, sublabel, value, onChange, disabled }) {
         <div style={{ fontSize: 14, color: color.heading }}>{label}</div>
         {sublabel && <div style={{ fontSize: 12, color: color.dim, marginTop: 2 }}>{sublabel}</div>}
       </div>
-      <button onClick={() => onChange(!value)} disabled={disabled}
-        style={{ width: 44, height: 24, borderRadius: 12, background: value ? color.goldLegacy : color.line, border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
-        <div style={{ width: 18, height: 18, borderRadius: "50%", background: color.heading, position: "absolute", top: 3, left: value ? 23 : 3, transition: "left 0.2s" }} />
-      </button>
+      <Switch checked={value} onChange={onChange} disabled={disabled} label={label} />
     </div>
   );
 }

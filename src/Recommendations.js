@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { Screen } from "./ui";
+import { CloseButton, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { FLAVOR_TAG_NAMES } from "./flavors";
 
@@ -168,7 +168,7 @@ Recommend a variety of well-known, widely available cigars that match the prefer
           </div>
           <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>AI POWERED · ASHED</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
+        <CloseButton onClose={onClose} />
       </div>
 
       {/* AUTO MODE */}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { CloseButton } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
@@ -60,7 +61,7 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
             {venueLabel}
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+        <CloseButton onClose={onClose} />
       </div>
 
       {/* Section nav */}

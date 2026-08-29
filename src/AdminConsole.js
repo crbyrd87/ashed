@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { CloseButton } from "./ui";
 import { supabase } from "./supabase";
 
 const SECTIONS = [
@@ -41,7 +42,7 @@ export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose 
           <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
           <div style={{ fontSize: 11, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 26, cursor: "pointer", lineHeight: 1 }}>×</button>
+        <CloseButton onClose={onClose} />
       </div>
       <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {visibleSections.map(s => (

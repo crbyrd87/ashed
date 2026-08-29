@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
+import { CloseButton, Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -155,8 +156,7 @@ Return ONLY a raw JSON object, no markdown:
   };
 
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 400, display: "flex", alignItems: "flex-end", fontFamily: SANS }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, margin: "0 auto", background: color.bg, borderRadius: "16px 16px 0 0", maxHeight: "85vh", overflowY: "auto", border: `1px solid ${color.line}` }}>
+    <Sheet onClose={onClose} zIndex={400} padding={0}>
 
         {/* Header */}
         <div style={{ padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: color.bg, zIndex: 1 }}>
@@ -164,7 +164,7 @@ Return ONLY a raw JSON object, no markdown:
             <div style={{ fontSize: 16, fontWeight: 700, color: color.text }}>🥃 Drink Pairings</div>
             <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{cigar.brand} {cigar.line}</div>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
+          <CloseButton onClose={onClose} />
         </div>
 
         <div style={{ padding: 20 }}>
@@ -245,7 +245,6 @@ Return ONLY a raw JSON object, no markdown:
             Done
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

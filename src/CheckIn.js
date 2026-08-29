@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { Screen } from "./ui";
+import { CloseButton, Screen, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -397,7 +397,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
           <div style={{ fontSize: 11, color: color.muted, letterSpacing: 2 }}>{cigar.brand?.toUpperCase()}</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: color.text }}>{cigar.line} — {cigar.vitola}</div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
+        <CloseButton onClose={onClose} />
       </div>
 
       {/* ── QUICK CHECK-IN ── */}
@@ -612,12 +612,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                 <div style={{ fontSize: 14, color: color.text }}>Private check-in</div>
                 <div style={{ fontSize: 12, color: color.faint, marginTop: 2 }}>Only visible to you</div>
               </div>
-              <div
-                onClick={() => { privateTouched.current = true; setIsPrivate(!isPrivate); }}
-                style={{ width: 44, height: 24, borderRadius: 12, background: isPrivate ? color.gold : color.line, cursor: "pointer", position: "relative", transition: "background 0.2s" }}
-              >
-                <div style={{ position: "absolute", top: 2, left: isPrivate ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: color.text, transition: "left 0.2s" }} />
-              </div>
+              <Toggle
+                checked={isPrivate}
+                onChange={(v) => { privateTouched.current = true; setIsPrivate(v); }}
+                label="Private check-in"
+              />
             </div>
           </div>
         </>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, flame } from "./theme";
-import { Screen } from "./ui";
+import { CloseButton, Screen } from "./ui";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
 import { fetchUserBadges } from "./badgeEngine";
@@ -328,7 +328,7 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             {pendingRequests.length > 0 && <span style={{ color: color.alert, marginLeft: 8 }}>· {pendingRequests.length} pending</span>}
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 24, cursor: "pointer" }}>×</button>
+        <CloseButton onClose={onClose} />
       </div>
 
       {/* Tabs */}
