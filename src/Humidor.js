@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SANS, color } from "./theme";
+import { Pressable } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -435,12 +436,12 @@ Return ONLY raw JSON, no markdown, no explanation.` }
             <div style={{ overflowY: "auto", maxHeight: "30vh", flexShrink: 1 }}>
               {addSearching && <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: 8 }}>Searching...</div>}
               {addSearchResults.map(c => (
-                <div key={c.id} onClick={() => handleAddFromSearch(c)}
-                  style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "10px 14px", marginBottom: 8, cursor: "pointer" }}>
+                <Pressable key={c.id} onClick={() => handleAddFromSearch(c)}
+                  style={{ width: "100%", background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: "10px 14px", marginBottom: 8 }}>
                   <div style={{ fontSize: 11, color: color.tan }}>{c.brand}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: color.heading }}>{c.line}</div>
                   {c.vitola && <div style={{ fontSize: 11, color: color.dim, marginTop: 2 }}>{c.vitola}</div>}
-                </div>
+                </Pressable>
               ))}
             </div>
             {addSearchQuery.length < 2 && (
@@ -630,11 +631,11 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                 <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>No vitolas found for this cigar.</div>
               )}
               {vitolaPickerOptions.map((v, i) => (
-                <div key={i} onClick={async () => {
+                <Pressable key={i} onClick={async () => {
                   await handleUpdateVitola(vitolaPickerItem, v.vitola, v.strength, v.id);
                   setVitolaPickerItem(null);
                 }}
-                  style={{ background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}22` : color.surface, border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}55` : color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  style={{ width: "100%", background: (vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}22` : color.surface, border: `1px solid ${(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola ? `${color.gold}55` : color.lineStrong}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 600, color: color.text }}>{v.vitola}</div>
                     {v.strength && <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.strength}</div>}
@@ -642,7 +643,7 @@ Return ONLY raw JSON, no markdown, no explanation.` }
                   {(vitolaPickerItem.cigars?.vitola || vitolaPickerItem.cigar_vitola) === v.vitola && (
                     <span style={{ color: color.gold, fontSize: 16 }}>✓</span>
                   )}
-                </div>
+                </Pressable>
               ))}
             </div>
           </div>

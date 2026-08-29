@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SANS, color } from "./theme";
-import { CloseButton, Screen, Toggle } from "./ui";
+import { CloseButton, Pressable, Screen, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -588,11 +588,11 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
                   </button>
                 </div>
                 {venueResults.map((v, i) => (
-                  <div key={v.place_id || i} onClick={() => handleSelectVenue(v)}
-                    style={{ padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: color.surfaceRaised, cursor: "pointer", border: `1px solid ${color.line}` }}>
+                  <Pressable key={v.place_id || i} onClick={() => handleSelectVenue(v)}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: 6, marginBottom: 4, background: color.surfaceRaised, border: `1px solid ${color.line}` }}>
                     <div style={{ fontSize: 13, color: color.text, fontWeight: 600 }}>{v.name}</div>
                     <div style={{ fontSize: 11, color: color.muted, marginTop: 2 }}>{v.vicinity || v.formatted_address}</div>
-                  </div>
+                  </Pressable>
                 ))}
                 {!venueSearching && venueResults.length === 0 && venueQuery && (
                   <div style={{ fontSize: 12, color: color.faint, textAlign: "center", padding: "8px 0" }}>No venues found. Try a different search.</div>
