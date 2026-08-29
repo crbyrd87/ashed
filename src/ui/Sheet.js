@@ -41,7 +41,7 @@ export default function Sheet({
           background: color.bg,
           border: `1px solid ${color.lineStrong}`,
           ...(bottom ? { borderBottom: "none" } : null),
-          borderRadius: bottom ? `${radius.xxl}px ${radius.xxl}px 0 0` : radius.xxl,
+          borderRadius: bottom ? `${radius.sheet}px ${radius.sheet}px 0 0` : radius.sheet,
           maxHeight: maxHeight || (bottom ? "85vh" : "90vh"),
           overflowY: "auto",
           padding: padding !== undefined ? padding : (bottom ? "20px 20px 36px" : 24),

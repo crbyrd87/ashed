@@ -1,156 +1,187 @@
-// Ashed design tokens.
+// Ashed — design tokens
+// Direction: "members' club" — restrained, dark, gold as a hairline not a fill.
+// From the 29 Aug 2026 design handoff. See "Ashed Redesign/handoff/DESIGN.md".
 //
-// WHAT THIS IS: every colour, size and spacing value the app already uses,
-// given a name. Nothing here is new. Migrating a file to these tokens must not
-// change a single pixel — that is the check for this work.
+// ── One change from the delivered file ────────────────────────────────────
+// The handoff shipped the old token names as a separate `legacy` export. That
+// does not do what it intends: the app says `color.muted`, not `legacy.muted`,
+// so 1,406 references across 37 tokens would have resolved to `undefined` —
+// legal JavaScript, a passing build, and missing colours everywhere. The
+// aliases are therefore merged INTO `color` below, which is what makes a
+// file-by-file migration actually possible.
 //
-// WHY IT EXISTS: these values were written out by hand in ~20 files, 2,404
-// colour literals across 115 distinct colours. Changing the gold meant editing
-// twenty files and hoping none were missed. Now it is one line here.
-//
-// DUPLICATES ARE PRESERVED ON PURPOSE. The palette has real redundancy — two
-// golds, several near-identical browns for the same role. Collapsing them is a
-// visible change, so it does not belong in a rename. Each one is marked RETIRE
-// below with what it should become. That is a separate, deliberate step.
+// The old size names are deliberately NOT merged. Several collide with new
+// names at different values — old `type.md` was 13, new `type.md` is 17 — so
+// merging them would silently resize text. The handful of call sites using old
+// size names were updated instead.
 
-export const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+// ── The new palette ───────────────────────────────────────────────────────
+const base = {
+  // Grounds
+  bg:            '#14100D', // page
+  surface:       '#1C1713', // cards, sheets, selected rail row
+  surfaceRaised: '#241E19', // inputs, chips, pressed rows
+  surfaceSunken: '#100D0A', // read notification rows
 
-export const color = {
-  // ---- Grounds ---------------------------------------------------------
-  bg:            "#1a0f08",  // page background, also set in index.css
-  surface:       "#221508",  // cards
-  surfaceRaised: "#2a1a0e",  // cards that sit on other cards, inputs
-  surfaceSunken: "#1e1208",  // read notification rows
-  surfaceWarm:   "#2d1810",  // gradient top on headers
-  surfaceDeep:   "#1a0d06",  // RETIRE -> bg. 5 uses, one file.
-  surfaceAlt:    "#2a1508",  // RETIRE -> surface. 7 uses, two files.
-  surfaceCard:   "#261a0a",  // RETIRE -> surface. 3 uses, one file.
+  // Lines
+  border:       '#2E2721', // hairline dividers — the default
+  borderStrong: '#3D342C', // outlined controls, avatar rings, input borders
 
-  // ---- Lines -----------------------------------------------------------
-  line:       "#3a2510",  // default border
-  lineStrong: "#4a3520",  // border that needs to read as a divider
-  lineInput:  "#4a3020",  // RETIRE -> lineStrong. 23 uses.
+  // Text (contrast measured against bg #14100D)
+  textPrimary: '#F2EAE0', // headings                  15.9:1
+  textBody:    '#DCD2C6', // body, row labels          12.8:1
+  textMuted:   '#A2968A', // secondary, metadata        7.9:1
+  textFaint:   '#7D7168', // timestamps, legal          4.7:1  ← AA floor
 
-  // ---- Text ------------------------------------------------------------
-  heading: "#f5ead8",  // headings
-  text:    "#e8d5b7",  // body
-  soft:    "#ddc9a8",  // slightly recessed body
-  cream:   "#c8b89a",  // labels on admin surfaces
-  tan:     "#a08060",  // secondary text
-  muted:   "#8a7055",  // the standard muted label
-  dim:     "#7a6048",  // more recessed than muted
-  dimAlt:  "#7a6050",  // RETIRE -> dim. 6 uses; differs by 8 in one channel.
-  // faint fails contrast on bg at roughly 2:1 and carries loading text,
-  // timestamps and legal copy. Design review rec 9 raises this ramp; the
-  // value is unchanged here so the rename stays invisible.
-  faint:    "#5a4535",
-  faintAlt: "#5a4030",  // RETIRE -> faint. 10 uses, two files.
-  faintDim: "#6a5040",  // RETIRE -> faint. 9 uses, one file.
+  // Gold — the member-facing accent
+  gold:    '#C9A84C', // hairlines, numerals, the ONE filled button
+  goldDim: '#A8905A', // gold on gold, disabled gold
 
-  // ---- Gold ------------------------------------------------------------
-  gold:     "#c9a84c",  // canonical. 254 uses across 18 files.
-  goldDeep: "#a07830",  // the dark end of the gold gradient
-  // RETIRE -> gold. 144 uses across 6 files. The two are close but not equal,
-  // so swapping them IS a visible change and is deliberately not done here.
-  goldLegacy: "#d4b45a",
-  goldPale:   "#e8cc7a",  // premium pip
-  goldMuted:  "#8a7a4a",  // RETIRE -> goldDeep. 6 uses.
+  // Semantic
+  positive:   '#6E9B78',
+  danger:     '#B4674A', // borders, icons, non-zero flag counts
+  dangerText: '#D99B7E', // danger copy that has to be READ on dark
+  alert:      '#C87740', // unread count bubbles — the ember mid tone
 
-  // ---- Green -----------------------------------------------------------
-  green:       "#7a9a7a",  // community/verified accents. 123 uses.
-  greenBright: "#4caf6e",  // primary CTA
-  greenDeep:   "#4a7a4a",
-  greenPale:   "#a0c4a0",
-  greenDim:    "#5a7a5a",  // RETIRE -> greenDeep. 4 uses, one file.
+  // Ember — the rating flame, desaturated ~35% from #cc2200 → #ff6600 → #ffcc00
+  emberLow:  '#A8462A',
+  emberMid:  '#C87740',
+  emberHigh: '#D9A65C',
 
-  // ---- Warning and danger ----------------------------------------------
-  danger:     "#a0522d",  // also Full on the strength scale
-  dangerText: "#e8a07a",  // readable danger copy on dark
-  alert:      "#e8632a",  // unread count bubbles
-  ember:      "#8a3a2a",
-  emberDeep:  "#6a2a1a",
+  // Internal tools. One accent per surface so you always know where you are,
+  // and neither is ever a fill behind text. See ADMIN-PARTNER.md.
+  partner:     '#8C96A2', // partner dashboard — slate
+  partnerDeep: '#5F6874',
+  partnerPale: '#AEB7C2',
+  admin:       '#948AA0', // admin console — mauve
+  adminDeep:   '#655C70',
 
-  // ---- Partner dashboard ------------------------------------------------
-  // A separate identity for the venue-partner surface. The design review's
-  // palette missed these entirely.
-  partner:      "#7a8a9a",
-  partnerDeep:  "#5a6a7a",
-  partnerPale:  "#a0b0c0",
-
-  // ---- Misc -------------------------------------------------------------
-  plum:  "#9a7a9a",  // Phase 4 accent in the tracker
-  cedar: "#7a4a20",  // avatar gradient end
-  white: "#fff",
-  unknown: "#888",   // fallback when a strength is unrecognised
+  white:   '#FFFFFF',
+  unknown: '#7D7168', // fallback when a strength is unrecognised
 };
 
-// Five levels since Aug 2026. `Light` is gone — any code still using it is a
-// bug. Declared in five files today; they should all import this instead.
+// ── Migration aliases ─────────────────────────────────────────────────────
+// Old name on the left, new token on the right. Several old names collapse
+// into one new token; that collapse is the point. Delete an entry once no
+// file references it. None of these names collide with a `base` key.
+const aliases = {
+  // grounds
+  surfaceWarm: base.surface, // was #2d1810, the header gradient top
+  surfaceDeep: base.bg,
+  surfaceAlt:  base.surface,
+  surfaceCard: base.surface,
+  // lines
+  line:       base.border,
+  lineStrong: base.borderStrong,
+  lineInput:  base.borderStrong,
+  // text
+  heading:  base.textPrimary,
+  text:     base.textBody,
+  soft:     base.textBody,
+  cream:    base.textMuted,
+  tan:      base.textMuted,
+  muted:    base.textMuted,
+  dim:      base.textFaint,
+  dimAlt:   base.textFaint,
+  faint:    base.textFaint, // ← the 2:1 contrast fix
+  faintAlt: base.textFaint,
+  faintDim: base.textFaint,
+  // gold — the second ramp is gone
+  goldDeep:   base.goldDim,
+  goldLegacy: base.gold,
+  goldPale:   base.gold,
+  goldMuted:  base.goldDim,
+  // green
+  green:       base.positive,
+  greenBright: base.positive,
+  greenDeep:   base.positive,
+  greenPale:   base.positive,
+  greenDim:    base.positive,
+  // ember
+  ember:     base.emberLow,
+  emberDeep: base.emberLow,
+  // misc — pick a real token at the call site when you touch these
+  plum:  base.admin,
+  cedar: base.borderStrong,
+};
+
+export const color = { ...base, ...aliases };
+
+// Kept so the handoff's own examples resolve; `color` already includes these.
+export const legacy = aliases;
+
+// Rating flame gradient. Bottom to top. Use as an SVG linearGradient.
+export const emberStops = [
+  { offset: '0%',   color: color.emberLow  },
+  { offset: '52%',  color: color.emberMid  },
+  { offset: '100%', color: color.emberHigh },
+];
+
+// Five levels. Names are fixed; colours muted from the originals.
+// This map was previously declared in five files with two different sets of
+// values — Feed.js had its own. Import from here only.
 export const strength = {
-  "Mild":        "#a8c5a0",
-  "Mild-Medium": "#b8d4a0",
-  "Medium":      "#d4b483",
-  "Medium-Full": "#c4894a",
-  "Full":        "#a0522d",
+  'Mild':        '#9DAF93',
+  'Mild-Medium': '#AFBC8E',
+  'Medium':      '#C4A87C',
+  'Medium-Full': '#B58255',
+  'Full':        '#9A5F42',
 };
 
 export const strengthColor = (s) => strength[s] || color.unknown;
 
-// Bottom to top, as used by the rating flames and the app icon.
-export const flame = {
-  base: "#cc2200",
-  mid:  "#ff6600",
-  tip:  "#ffcc00",
+export const font = {
+  // Bundled via @fontsource — see DESIGN.md §2
+  display: "'Spectral', Georgia, 'Times New Roman', serif",
+  sans:    "'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  mono:    "'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace",
 };
 
-// 21 distinct sizes are in use across 1,000 declarations. These are the ones
-// that carry real weight. Note xs and xxs sit below the 13px floor the design
-// review asks for — 94 uses today. Named so that work has something to change.
+// Type scale. 13 is the floor — nothing renders below it.
+// Inputs use md (17) so iOS Safari never zooms on focus.
 export const type = {
-  xxs: 10,
-  xs:  11,
-  sm:  12,
-  md:  13,
-  base: 14,
-  lg:  15,
-  input: 16,  // never go below this: smaller makes iOS Safari zoom on focus
-  xl:  18,
-  h3:  20,
-  h2:  22,
-  h1:  28,
+  xs:  13, // timestamps, captions, uppercase labels
+  sm:  15, // secondary, metadata
+  md:  17, // body, row labels, buttons, ALL inputs
+  lg:  21, // section headings, cigar names in lists
+  xl:  26, // screen questions
+  xxl: 30, // home greeting, large stat numerals
 };
 
 export const weight = {
-  normal: 400,
-  medium: 600,
-  bold:   700,
+  displayLight: 300, // serif at 26px and up
+  displayMed:   500, // serif at 17–21px
+  body:         400,
+  bodyMed:      500,
+  bodyBold:     600, // buttons only
 };
 
-export const radius = {
-  xs:   4,
-  sm:   6,
-  md:   8,
-  lg:   10,
-  xl:   12,
-  xxl:  16,  // overlay panels
-  pill: 20,
-};
+export const space  = { xs: 4, sm: 8, md: 12, lg: 16, xl: 22, xxl: 30 };
+export const radius = { sm: 6, md: 12, lg: 14, pill: 20, sheet: 20 };
 
-export const space = {
-  xxs: 2,
-  xs:  4,
-  sm:  6,
-  md:  8,
-  lg:  10,
-  xl:  12,
-  xxl: 16,
-};
+// Letter-spacing for the uppercase SectionLabel treatment.
+export const TRACK_LABEL = '0.16em';
+
+// Minimum tap target. Satisfies both Apple (44) and Material (48).
+// Does NOT apply to admin/partner, which are desk tools — see ADMIN-PARTNER.md.
+export const TAP = 48;
 
 export const layout = {
-  // The app column. UserProfileModal uses 480 in three places, which design
-  // review rec 27 flags as an inconsistency to settle inside a Sheet primitive.
-  maxWidth: 420,
-  overlayZ: 300,
-  navZ:     100,
-  toastZ:   500,
+  maxWidth:     420,  // the app column
+  partnerWidth: 900,
+  adminWidth:   1140, // AdminConsole is 900 today; widen it
+  overlayZ:     300,
+  navZ:         100,
+  toastZ:       500,
+};
+
+// The old default font export. Most call sites want font.sans; this keeps the
+// 302 existing `SANS` references working until each file is migrated.
+export const SANS = font.sans;
+
+// Retired. The old flame gradient — use emberStops.
+export const flame = {
+  base: color.emberLow,
+  mid:  color.emberMid,
+  tip:  color.emberHigh,
 };

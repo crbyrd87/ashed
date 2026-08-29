@@ -14,7 +14,7 @@ export default function Toggle({ checked, onChange, label, disabled = false, sty
       disabled={disabled}
       onClick={() => onChange(!checked)}
       style={{
-        width: 44, height: 24, borderRadius: radius.xl,
+        width: 44, height: 24, borderRadius: radius.pill,
         background: checked ? color.gold : color.line,
         border: "none", cursor: disabled ? "default" : "pointer",
         position: "relative", transition: "background 0.2s",

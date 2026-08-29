@@ -6,7 +6,7 @@ export default function SectionLabel({ children, tone = color.muted, size = type
   return (
     <div style={{
       fontSize: size, color: tone, letterSpacing: 1,
-      fontWeight: weight.medium, textTransform: "uppercase",
+      fontWeight: weight.bodyMed, textTransform: "uppercase",
       ...style,
     }}>
       {children}

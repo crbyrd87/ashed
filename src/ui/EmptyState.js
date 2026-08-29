@@ -8,7 +8,7 @@ export default function EmptyState({ icon, title, body, children, style }) {
     <div style={{ textAlign: "center", padding: "60px 20px", ...style }}>
       {icon && <div style={{ fontSize: 36, marginBottom: 16 }}>{icon}</div>}
       {title && (
-        <div style={{ fontSize: type.lg, fontWeight: weight.bold, color: color.text, marginBottom: 8 }}>
+        <div style={{ fontSize: type.lg, fontWeight: weight.bodyBold, color: color.text, marginBottom: 8 }}>
           {title}
         </div>
       )}

@@ -33,8 +33,8 @@ export default function Button({
         padding: small ? "8px 14px" : 14,
         // 48px satisfies both Apple's and Android's minimum (Session 12).
         minHeight: small ? 36 : 48,
-        fontSize: small ? type.xs : type.base,
-        fontWeight: weight.bold,
+        fontSize: small ? type.xs : type.md,
+        fontWeight: weight.bodyBold,
         fontFamily: SANS,
         cursor: disabled ? "default" : "pointer",
         ...style,
