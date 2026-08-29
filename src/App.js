@@ -412,6 +412,15 @@ export default function App() {
   useBackDismiss(!!wishlistVitolaPicker, () => setWishlistVitolaPicker(null));
   useBackDismiss(!!checkingIn, () => setCheckingIn(null));
 
+  // The cigar detail view. selectedLine is set at the same moment as selected
+  // in handleLineSelect, so this is one navigation step rather than two — the
+  // line is bookkeeping for which detail is open, not a level above it. This
+  // mirrors the detail view's own handleBack exactly.
+  useBackDismiss(!!selected, () => {
+    setSelected(null);
+    if (selected?._isLine) { setSelectedLine(null); setVitolas([]); setQuery(""); }
+  });
+
   const activeFilterCount = [
     filterName, filterBrand,
     filterNoteTags.length > 0 ? "tags" : "",
