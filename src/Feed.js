@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color, flame, font, type, weight } from "./theme";
+import { SANS, color, font, type, weight } from "./theme";
 import { Button, ClickableRow, Icon, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 import { useBackDismiss } from "./useBackDismiss";
@@ -27,18 +27,6 @@ const ratingBarColor = (flames) => {
   if (flames >= 2.5) return color.emberLow;
   return color.borderStrong;
 };
-
-function FlameIcon({ fill, size = 13 }) {
-  const id = `ff-${Math.random().toString(36).slice(2)}`;
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor={flame.base}/><stop offset="40%" stopColor={flame.mid}/><stop offset="100%" stopColor={flame.tip}/></linearGradient></defs>}
-      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor={flame.mid}/><stop offset="50%" stopColor={color.line}/></linearGradient></defs>}
-      <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
-        fill={fill === "empty" ? color.line : `url(#${id})`} />
-    </svg>
-  );
-}
 
 export default function Feed({ user }) {
   const [feedItems, setFeedItems] = useState([]);
@@ -229,7 +217,7 @@ export default function Feed({ user }) {
                     the same thing twice, and at 18px they were not countable. */}
                 {flames && (
                   <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-                    <FlameIcon fill="full" size={17} />
+                    <Icon.Flame size={17} />
                     <span style={{ fontFamily: font.mono, fontSize: type.md, color: color.textBody }}>
                       {flames.toFixed(1)}
                     </span>

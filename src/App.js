@@ -1459,19 +1459,10 @@ export default function App() {
                           const flames = c.rating / 2;
                           return (
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ display: "flex", gap: 3 }}>
-                                {[1, 2, 3, 4, 5].map(i => {
-                                  const fill = flames >= i ? "full" : flames >= i - 0.5 ? "half" : "empty";
-                                  const id = `fc-${c.id}-${i}`;
-                                  return (
-                                    <svg key={i} width="18" height="18" viewBox="0 0 24 24">
-                                      {fill === "full" && <defs><linearGradient id={id} x1="0" x2="0" y1="1" y2="0"><stop offset="0%" stopColor="#cc2200"/><stop offset="40%" stopColor="#ff6600"/><stop offset="100%" stopColor="#ffcc00"/></linearGradient></defs>}
-                                      {fill === "half" && <defs><linearGradient id={id} x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stopColor="#ff6600"/><stop offset="50%" stopColor={color.line}/></linearGradient></defs>}
-                                      <path d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z" fill={fill === "empty" ? color.line : `url(#${id})`} />
-                                    </svg>
-                                  );
-                                })}
-                              </div>
+                              {/* A third copy of the flame gradient lived here,
+                                  also on the pre-redesign ramp. One flame and the
+                                  numeral, like the feed. */}
+                              <Icon.Flame size={17} />
                               <span style={{ fontSize: 15, fontWeight: 700, color: color.gold }}>{flames % 1 === 0 ? flames.toFixed(0) : flames.toFixed(1)}</span>
                             </div>
                           );

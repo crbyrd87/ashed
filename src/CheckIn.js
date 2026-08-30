@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { CloseButton, Pressable, Screen, Toggle } from "./ui";
+import { SANS, color, font, type } from "./theme";
+import { CloseButton, Icon, Pressable, Screen, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -48,42 +48,19 @@ const FLAME_LABELS = {
 };
 
 // SVG flame icon — full, half, or empty
-function FlameIcon({ fill = "full", size = 38 }) {
-  const id = `flame-${Math.random().toString(36).slice(2)}`;
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block", flexShrink: 0 }}>
-      <defs>
-        {fill === "full" && (
-          <linearGradient id={id} x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stopColor="#cc2200" />
-            <stop offset="40%" stopColor="#ff6600" />
-            <stop offset="100%" stopColor="#ffcc00" />
-          </linearGradient>
-        )}
-        {fill === "half" && (
-          <linearGradient id={`${id}-h`} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="50%" stopColor="#ff6600" />
-            <stop offset="50%" stopColor={color.line} />
-          </linearGradient>
-        )}
-      </defs>
-      <path
-        d="M12 2C12 2 6 8 6 13a6 6 0 0012 0c0-3-2-5.5-2-5.5S14 10 12 10c0 0 1-3-0-8z"
-        fill={
-          fill === "full" ? `url(#${id})` :
-          fill === "half" ? `url(#${id}-h)` :
-          color.line
-        }
-      />
-    </svg>
-  );
-}
-
-// Flame rating: flames display above a custom slider
+// The rating is the app's signature interaction, so it earns real input
+// handling: pointer events cover touch, mouse-drag and stylus alike, and
+// arrow keys make it reachable without a pointer at all.
+//
+// The local FlameIcon that used to live here is gone. It called Math.random()
+// inside the component body, minting new DOM ids for an identical gradient on
+// every repaint, and it hardcoded the original #cc2200 to #ffcc00 ramp — which
+// made check-in the one screen still showing the un-desaturated flame after
+// the redesign. Icon.Flame draws the same path against the shared ember.
 function FlameRating({ value, onChange }) {
   const trackRef = React.useRef(null);
 
-  const getValueFromClientX = (clientX) => {
+  const valueFromX = (clientX) => {
     if (!trackRef.current) return null;
     const rect = trackRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
@@ -92,53 +69,59 @@ function FlameRating({ value, onChange }) {
     return Math.min(5, Math.max(0.5, Math.round(raw * 2) / 2));
   };
 
-  const handleTouch = (e) => {
+  const onPointerDown = (e) => {
     e.preventDefault();
-    onChange(getValueFromClientX(e.touches[0].clientX));
+    e.currentTarget.setPointerCapture(e.pointerId);
+    onChange(valueFromX(e.clientX));
   };
 
-  const handleTouchMove = (e) => {
-    e.preventDefault();
-    onChange(getValueFromClientX(e.touches[0].clientX));
+  const onPointerMove = (e) => {
+    if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+    onChange(valueFromX(e.clientX));
   };
 
-  const handleClick = (e) => {
-    onChange(getValueFromClientX(e.clientX));
+  const onKeyDown = (e) => {
+    const step = e.key === "ArrowRight" || e.key === "ArrowUp" ? 0.5
+      : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -0.5 : 0;
+    if (!step) return;
+    e.preventDefault();
+    onChange(Math.min(5, Math.max(0.5, (value || 0) + step)));
   };
 
   const fillPct = value ? (value / 5) * 100 : 0;
 
   return (
     <div style={{ padding: "4px 0" }}>
-      {/* Flames */}
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 14 }}>
-        {[1, 2, 3, 4, 5].map(i => {
-          const fill = value === null ? "empty" : value >= i ? "full" : value >= i - 0.5 ? "half" : "empty";
-          return <FlameIcon key={i} fill={fill} size={40} />;
-        })}
+      <div style={{ display: "flex", gap: 7, justifyContent: "center", marginBottom: 18 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <Icon.Flame key={i} size={44} filled={value !== null && value >= i - 0.5}
+            color={value !== null && value >= i - 0.5 ? undefined : color.borderStrong} />
+        ))}
       </div>
 
-      {/* Slider track */}
       <div style={{ padding: "0 12px" }}>
         <div
           ref={trackRef}
-          onClick={handleClick}
-          onTouchStart={handleTouch}
-          onTouchMove={handleTouchMove}
+          role="slider"
+          tabIndex={0}
+          aria-label="Rating"
+          aria-valuemin={0.5}
+          aria-valuemax={5}
+          aria-valuenow={value || 0}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onKeyDown={onKeyDown}
           style={{ position: "relative", height: 28, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "none", userSelect: "none" }}
         >
-          {/* Track background */}
-          <div style={{ position: "absolute", left: 0, right: 0, height: 6, borderRadius: 3, background: color.line }} />
-          {/* Filled track */}
-          {value && <div style={{ position: "absolute", left: 0, height: 6, width: `${fillPct}%`, borderRadius: 3, background: `linear-gradient(to right, ${color.emberLow}, ${color.emberMid}, ${color.emberHigh})` }} />}
-          {/* Thumb */}
+          <div style={{ position: "absolute", left: 0, right: 0, height: 4, borderRadius: 2, background: color.border }} />
+          {/* Flat fill: at 4px tall a three-stop gradient is invisible. */}
+          {value && <div style={{ position: "absolute", left: 0, height: 4, width: `${fillPct}%`, borderRadius: 2, background: color.emberMid }} />}
           <div style={{
             position: "absolute",
-            left: value ? `calc(${fillPct}% - 12px)` : "-12px",
-            width: 24, height: 24, borderRadius: "50%",
-            background: value ? color.emberMid : color.line,
-            border: `2px solid ${value ? color.bg : color.faint}`,
-            boxShadow: value ? "0 2px 6px rgba(0,0,0,0.5)" : "none",
+            left: value ? `calc(${fillPct}% - 13px)` : "-13px",
+            width: 26, height: 26, borderRadius: "50%",
+            background: value ? color.emberMid : color.borderStrong,
+            border: `3px solid ${color.bg}`,
             transition: "left 0.05s",
           }} />
         </div>
@@ -407,15 +390,21 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
         <div style={{ ...s.label, justifyContent: "center" }}>Your Rating</div>
         <FlameRating value={flames} onChange={setFlames} />
         <div style={{ textAlign: "center", marginTop: 10, fontSize: 13 }}>
+          {/* One number. The 10-point score stays in checkins.rating and
+              ratings.score as a storage detail — showing both asked the reader
+              which of the two was theirs. Nothing has gone wrong before a
+              rating exists, so the unrated hint is faint, not danger. */}
           {flames === null ? (
-            <span style={{ color: color.danger }}>Slide the scale to rate</span>
+            <span style={{ color: color.textFaint }}>Slide to rate</span>
           ) : (
-            <>
-              <span style={{ color: color.muted }}>{FLAME_LABELS[flames] || ""}</span>
-              {" · "}
-              <span style={{ color: color.gold, fontWeight: 700 }}>{flames.toFixed(1)} / 5</span>
-              <span style={{ color: color.faint, fontSize: type.xs, marginLeft: 6 }}>({displayScore.toFixed(1)}/10)</span>
-            </>
+            <span style={{ display: "inline-flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: font.mono, fontSize: type.xxl, color: color.textPrimary }}>
+                {flames.toFixed(1)}
+              </span>
+              <span style={{ fontFamily: font.display, fontSize: type.lg, color: color.textMuted }}>
+                {FLAME_LABELS[flames] || ""}
+              </span>
+            </span>
           )}
         </div>
       </div>
