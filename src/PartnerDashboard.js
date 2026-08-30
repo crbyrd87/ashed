@@ -403,7 +403,7 @@ function AnnounceSection({ placeId, user }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
             <div style={{ fontSize: 13, color: color.text, lineHeight: 1.5, flex: 1 }}>{a.content}</div>
             <button onClick={() => handleDelete(a.id)}
-              style={{ background: "none", border: "none", color: color.faint, fontSize: 16, cursor: "pointer", flexShrink: 0 }}>🗑</button>
+              style={{ background: "none", border: "none", color: color.textFaint, fontSize: type.sm, cursor: "pointer", flexShrink: 0, minHeight: 44, minWidth: 44 }}>Delete</button>
           </div>
           <div style={{ fontSize: type.xs, color: color.faint, marginTop: 8 }}>
             {new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}

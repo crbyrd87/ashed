@@ -67,8 +67,8 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
             <div style={{ fontSize: 22, fontWeight: 700, color: color.text }}>{friendUser.display_name || friendUser.username}</div>
             <div style={{ fontSize: 13, color: color.muted, marginTop: 2 }}>@{friendUser.username}</div>
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>🏅 Aficionado</span>
-              <span style={{ background: `${color.green}22`, color: color.green, border: `1px solid ${color.green}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>✓ Friend</span>
+              <span style={{ background: `${color.gold}22`, color: color.gold, border: `1px solid ${color.gold}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>Aficionado</span>
+              <span style={{ background: `${color.green}22`, color: color.green, border: `1px solid ${color.green}44`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, fontWeight: 600 }}>Friend</span>
             </div>
           </div>
         </div>

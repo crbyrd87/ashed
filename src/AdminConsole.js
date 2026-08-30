@@ -1944,7 +1944,7 @@ function DedupSection({ currentUserId }) {
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: type.xs, color: color.dim, letterSpacing: 1, marginBottom: 8 }}>MERGED</div>
           {merged.map(key => (
-            <div key={key} style={{ fontSize: type.xs, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>✓ {key}</div>
+            <div key={key} style={{ fontSize: type.xs, color: color.green, padding: "4px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>{key}</div>
           ))}
         </div>
       )}
