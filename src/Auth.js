@@ -1,7 +1,50 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { font, color, type, weight, radius, TRACK_LABEL } from "./theme";
+import { Button, Icon, Notice, Pressable, SectionLabel } from "./ui";
 
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+// The splash and the login form, both served from here and switched on the
+// path. These are the only two pages a stranger sees.
+//
+// The gate is deliberately soft: `pathname === "/login"` means the real product
+// is one URL guess away from public, and the marketing copy cannot be edited
+// without touching auth. That is fine while the audience is people who were
+// given the URL; before a real launch it wants an env flag and a route.
+
+const WHATS_COMING = [
+  { Glyph: Icon.Feed,      text: "A journal with ratings and notes" },
+  { Glyph: Icon.Scan,      text: "Scan a band to identify a cigar" },
+  { Glyph: Icon.Recommend, text: "Recommendations from your palate" },
+  { Glyph: Icon.Drink,     text: "Drink pairings, both directions" },
+  { Glyph: Icon.Friends,   text: "A feed of what friends are smoking" },
+  { Glyph: Icon.Venue,     text: "Shops and lounges near you" },
+];
+
+function Wordmark({ size }) {
+  return (
+    <div style={{ textAlign: "center" }}>
+      <img
+        src="/ashed-icon-192.png"
+        alt=""
+        width={size}
+        height={size}
+        style={{ borderRadius: radius.md, display: "block", margin: "0 auto 16px" }}
+      />
+      <div style={{
+        fontFamily: font.display, fontSize: type.xxl, fontWeight: weight.displayMed,
+        letterSpacing: "0.1em", color: color.textPrimary, lineHeight: 1.1,
+      }}>
+        Ashed
+      </div>
+      <div style={{
+        fontSize: type.xs, color: color.textMuted,
+        letterSpacing: "0.18em", textTransform: "uppercase", marginTop: 8,
+      }}>
+        Cigar concierge and community
+      </div>
+    </div>
+  );
+}
 
 export default function Auth({ onLogin }) {
   const [mode, setMode] = useState("login");
@@ -27,24 +70,6 @@ export default function Auth({ onLogin }) {
       if (stored) setReferredBy(stored);
     }
   }, []);
-
-  const s = {
-    wrap: { fontFamily: SANS, background: "#1a0f08", minHeight: "100vh", color: "#e8d5b7", maxWidth: 420, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px" },
-    logo: { fontSize: 28, fontWeight: 700, letterSpacing: 4, color: "#c9a84c", textTransform: "uppercase", marginBottom: 6 },
-    tagline: { fontSize: 12, color: "#c9a84c", letterSpacing: 3, marginBottom: 40, fontWeight: 600, opacity: 0.8 },
-    card: { width: "100%", background: "#2a1a0e", border: "1px solid #3a2510", borderRadius: 14, padding: 24 },
-    title: { fontSize: 18, fontWeight: 700, color: "#e8d5b7", marginBottom: 20 },
-    label: { fontSize: 12, color: "#8a7055", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6, display: "block" },
-    input: { width: "100%", background: "#1a0f08", border: "1px solid #4a3020", borderRadius: 8, padding: "12px 14px", color: "#e8d5b7", fontSize: 15, fontFamily: SANS, outline: "none", boxSizing: "border-box", marginBottom: 16 },
-    btn: { width: "100%", background: "linear-gradient(135deg, #c9a84c, #a07830)", border: "none", borderRadius: 10, padding: 14, color: "#1a0f08", fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginTop: 4 },
-    btnDisabled: { width: "100%", background: "#3a2510", border: "none", borderRadius: 10, padding: 14, color: "#5a4535", fontSize: 15, fontWeight: 700, fontFamily: SANS, marginTop: 4 },
-    toggle: { textAlign: "center", marginTop: 16, fontSize: 13, color: "#8a7055" },
-    toggleLink: { color: "#c9a84c", cursor: "pointer", fontWeight: 600 },
-    error: { background: "#a0522d22", border: "1px solid #a0522d55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#e8a07a", marginBottom: 16 },
-    success: { background: "#7a9a7a22", border: "1px solid #7a9a7a55", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#a8c5a0", marginBottom: 16 },
-    forgotLink: { textAlign: "right", marginTop: -10, marginBottom: 16, fontSize: 12, color: "#c9a84c", cursor: "pointer" },
-    referralBanner: { background: "#c9a84c18", border: "1px solid #c9a84c44", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#c9a84c", marginBottom: 16, textAlign: "center" },
-  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -85,7 +110,7 @@ export default function Auth({ onLogin }) {
     // confirmation email that was never sent, and if they later try their old
     // password they are simply let in — which reads as the app being broken.
     if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-      setError("An account with that email already exists. Try logging in, or use Forgot password if you don't remember it.");
+      setError("An account with that email already exists. Try logging in, or use Forgot password if you don't remember it.")
       setLoading(false);
       return;
     }
@@ -124,116 +149,198 @@ export default function Auth({ onLogin }) {
     setMessage(null);
   };
 
-  return (
-    <div style={s.wrap}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, justifyContent: "center" }}>
-        <span style={{ fontSize: 28 }}>🔥</span>
-        <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: "linear-gradient(to right, #cc2200, #ff6600, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Ashed</span>
-      </div>
-      <div style={s.tagline}>CIGAR JOURNAL & COMMUNITY</div>
+  const wrap = {
+    minHeight: "100vh",
+    background: color.bg,
+    fontFamily: font.sans,
+    color: color.textBody,
+    maxWidth: 420,
+    margin: "0 auto",
+    padding: "48px 20px calc(40px + env(safe-area-inset-bottom))",
+  };
 
-      {!showApp ? (
-        <div style={{ textAlign: "center", padding: "0 20px" }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#e8d5b7", marginBottom: 8 }}>Coming Soon</div>
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 16 }}>
-            <span style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", fontSize: 12, color: "#8a7055" }}>🍎 iOS</span>
-            <span style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 20, padding: "4px 12px", fontSize: 12, color: "#8a7055" }}>🤖 Android</span>
+  const label = {
+    fontSize: type.xs, color: color.textFaint,
+    letterSpacing: TRACK_LABEL, textTransform: "uppercase",
+    display: "block", marginBottom: 6,
+  };
+
+  // Inputs sit ABOVE the card, not below it: the card used to be lighter than
+  // the fields inside it, which inverted the depth. 17px so iOS Safari does not
+  // zoom the page on focus — on the very first screen of the app.
+  const input = {
+    width: "100%", height: 52, boxSizing: "border-box",
+    background: color.surfaceRaised,
+    border: `1px solid ${color.borderStrong}`,
+    borderRadius: radius.md,
+    padding: "0 14px",
+    color: color.textPrimary,
+    fontSize: type.md,
+    fontFamily: font.sans,
+    outline: "none",
+    marginBottom: 16,
+  };
+
+  if (!showApp) {
+    return (
+      <div style={wrap}>
+        <Wordmark size={68} />
+
+        {/* Lead with what it is. The page used to open on "Coming Soon" — the
+            absence — and only then explain the thing that was absent. */}
+        <div style={{ marginTop: 40, marginBottom: 40 }}>
+          <div style={{
+            fontFamily: font.display, fontSize: type.xl, fontWeight: weight.displayLight,
+            color: color.textPrimary, lineHeight: 1.25, textWrap: "balance",
+          }}>
+            A record of every cigar worth remembering.
           </div>
-          <div style={{ fontSize: 14, color: "#8a7055", lineHeight: 1.7, marginBottom: 32 }}>
-            Ashed is a cigar journal and community app for enthusiasts. Log your smokes, track your favorites, connect with fellow aficionados, and discover your next perfect cigar.
-          </div>
-          <div style={{ background: "#221508", border: "1px solid #4a3520", borderRadius: 12, padding: 20, marginBottom: 32, textAlign: "left" }}>
-            <div style={{ fontSize: 11, color: "#c9a84c", fontWeight: 700, letterSpacing: 2, marginBottom: 14 }}>WHAT'S COMING</div>
-            {[
-              { icon: "📖", text: "Personal cigar journal with ratings and tasting notes" },
-              { icon: "📷", text: "AI-powered band scanner to identify any cigar instantly" },
-              { icon: "✨", text: "Personalized recommendations based on your palate" },
-              { icon: "🥃", text: "Drink pairing suggestions for every cigar" },
-              { icon: "👥", text: "Community feed and friends to share smokes with" },
-              { icon: "🏪", text: "Cigar lounge finder near you" },
-            ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 5 ? 12 : 0 }}>
-                <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
-                <span style={{ fontSize: 13, color: "#c8b89a", lineHeight: 1.5 }}>{item.text}</span>
-              </div>
-            ))}
+          <div style={{ fontSize: type.md, color: color.textMuted, lineHeight: 1.6, marginTop: 14 }}>
+            Log what you smoke, rate it, and keep the notes you'd otherwise
+            forget. Coming to iOS and Android.
           </div>
         </div>
-      ) : (
-        <div style={s.card}>
-          <div style={s.title}>
-            {mode === "login" && "Welcome back"}
-            {mode === "signup" && "Create your account"}
-            {mode === "forgot" && "Reset your password"}
+
+        <SectionLabel rule style={{ marginBottom: 4 }}>What's coming</SectionLabel>
+        {WHATS_COMING.map(({ Glyph, text }) => (
+          <div key={text} style={{
+            display: "flex", alignItems: "center", gap: 14,
+            minHeight: 54, borderBottom: `1px solid ${color.border}`,
+          }}>
+            <span style={{ flexShrink: 0, display: "flex" }}><Glyph size={19} color={color.textMuted} /></span>
+            <span style={{ fontSize: type.md, color: color.textBody }}>{text}</span>
           </div>
+        ))}
+
+        <div style={{ marginTop: 40, textAlign: "center", fontSize: type.sm, color: color.textFaint }}>
+          Ashed · 2026
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={wrap}>
+      <Wordmark size={52} />
+
+      <div style={{
+        marginTop: 36,
+        background: color.surface,
+        border: `1px solid ${color.border}`,
+        borderRadius: radius.lg,
+        padding: 26,
+      }}>
+        <div style={{
+          fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed,
+          color: color.textPrimary, marginBottom: 20,
+        }}>
+          {mode === "login" && "Welcome back"}
+          {mode === "signup" && "Create your account"}
+          {mode === "forgot" && "Reset your password"}
+        </div>
 
         {mode === "signup" && referredBy && (
-          <div style={s.referralBanner}>
-            🎉 Invited by <strong>@{referredBy}</strong> — welcome to Ashed!
-          </div>
+          <Notice style={{ marginBottom: 16 }}>
+            Invited by <strong style={{ color: color.textPrimary }}>@{referredBy}</strong> — welcome to Ashed.
+          </Notice>
         )}
 
-        {error && <div style={s.error}>{error}</div>}
-        {message && <div style={s.success}>{message}</div>}
+        {error && <Notice isError text={error} style={{ marginBottom: 16 }} />}
+        {message && <Notice text={message} style={{ marginBottom: 16 }} />}
 
         {mode === "signup" && (
           <>
-            <label style={s.label}>Username</label>
-            <input style={s.input} placeholder="Your username" value={username} onChange={e => setUsername(e.target.value)} />
-            <label style={s.label}>Display Name</label>
-            <input style={s.input} placeholder="What do you want users to see?" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+            <label style={label}>Username</label>
+            <input style={input} placeholder="Your username" value={username} onChange={e => setUsername(e.target.value)} />
+            <label style={label}>Display name</label>
+            <input style={input} placeholder="What do you want users to see?" value={displayName} onChange={e => setDisplayName(e.target.value)} />
           </>
         )}
+
+        <label style={label}>Email</label>
+        <input style={input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
 
         {mode !== "forgot" && (
           <>
-            <label style={s.label}>Email</label>
-            <input style={s.input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          </>
-        )}
-
-        {mode === "forgot" && (
-          <>
-            <label style={s.label}>Email</label>
-            <input style={s.input} placeholder="you@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            <label style={label}>Password</label>
+            <input style={input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
           </>
         )}
 
         {mode === "login" && (
-          <>
-            <label style={s.label}>Password</label>
-            <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            <div style={s.forgotLink} onClick={() => switchMode("forgot")}>Forgot password?</div>
-          </>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -8, marginBottom: 8 }}>
+            <Pressable onClick={() => switchMode("forgot")} minHeight={44}
+              style={{ display: "flex", alignItems: "center", color: color.gold, fontSize: type.sm }}>
+              Forgot password?
+            </Pressable>
+          </div>
         )}
 
-        {mode === "signup" && (
-          <>
-            <label style={s.label}>Password</label>
-            <input style={s.input} placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-          </>
-        )}
+        {/* A spinner inside the button, rather than a styled div rendered in
+            its place: a disabled-looking div reads as a dead control. */}
+        <Button
+          disabled={loading}
+          onClick={
+            mode === "login" ? handleLogin :
+            mode === "signup" ? handleSignup :
+            handleForgotPassword
+          }
+        >
+          {loading ? <Spinner /> : (
+            <>
+              {mode === "login" && "Log in"}
+              {mode === "signup" && "Create account"}
+              {mode === "forgot" && "Send reset email"}
+            </>
+          )}
+        </Button>
 
-        {loading
-          ? <div style={s.btnDisabled}>Please wait...</div>
-          : <button style={s.btn} onClick={
-              mode === "login" ? handleLogin :
-              mode === "signup" ? handleSignup :
-              handleForgotPassword
-            }>
-              {mode === "login" && "Log In"}
-              {mode === "signup" && "Create Account"}
-              {mode === "forgot" && "Send Reset Email"}
-            </button>
-        }
-
-        <div style={s.toggle}>
-          {mode === "login" && <>Don't have an account? <span style={s.toggleLink} onClick={() => switchMode("signup")}>Sign up</span></>}
-          {mode === "signup" && <>Already have an account? <span style={s.toggleLink} onClick={() => switchMode("login")}>Log in</span></>}
-          {mode === "forgot" && <><span style={s.toggleLink} onClick={() => switchMode("login")}>← Back to login</span></>}
+        <div style={{ marginTop: 20, textAlign: "center", fontSize: type.sm, color: color.textMuted }}>
+          {mode === "login" && (
+            <>Don't have an account? <Link onClick={() => switchMode("signup")}>Sign up</Link></>
+          )}
+          {mode === "signup" && (
+            <>Already have an account? <Link onClick={() => switchMode("login")}>Log in</Link></>
+          )}
+          {mode === "forgot" && (
+            <Link onClick={() => switchMode("login")}>
+              <Icon.Back size={15} color={color.gold} /> Back to login
+            </Link>
+          )}
         </div>
       </div>
-      )}
     </div>
+  );
+}
+
+function Link({ onClick, children }) {
+  return (
+    <Pressable onClick={onClick} minHeight={0}
+      style={{ display: "inline-flex", alignItems: "center", gap: 4, color: color.gold, fontSize: type.sm }}>
+      {children}
+    </Pressable>
+  );
+}
+
+const SPIN = "ashed-spin";
+if (typeof document !== "undefined" && !document.getElementById(SPIN)) {
+  const el = document.createElement("style");
+  el.id = SPIN;
+  el.textContent = `@keyframes ${SPIN}{to{transform:rotate(360deg)}}`;
+  document.head.appendChild(el);
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-label="Working"
+      style={{
+        width: 18, height: 18, borderRadius: "50%",
+        border: `2px solid ${color.bg}44`,
+        borderTopColor: color.bg,
+        animation: `${SPIN} 0.7s linear infinite`,
+        display: "inline-block",
+      }}
+    />
   );
 }

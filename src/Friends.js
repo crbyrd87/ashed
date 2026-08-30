@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SANS, color, flame, type } from "./theme";
+import { SANS, color, flame, font, type } from "./theme";
 import { CloseButton, Icon, Screen, SkeletonRow } from "./ui";
 import { supabase } from "./supabase";
 import { createNotification } from "./notificationHelpers";
@@ -182,6 +182,15 @@ function FriendProfile({ friendUser, currentUserId, onClose }) {
 }
 
 export default function Friends({ user, onClose, onRequestHandled }) {
+  // One source for the invite link, and it points at /login.
+  //
+  // It used to be built from window.location.origin, so it read
+  // "ashed.app?ref=name" — but Auth.js only shows the signup form when the
+  // path IS /login. A referred visitor landed on the coming-soon page, which
+  // links to nothing, so the form they were invited to fill in never appeared.
+  // The referral was stored in localStorage and silently stranded there.
+  const inviteUrl = `${window.location.origin}/login?ref=${user.user_metadata?.username || user.id}`;
+
   const [tab, setTab] = useState("find");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -387,16 +396,15 @@ export default function Friends({ user, onClose, onRequestHandled }) {
             {/* Invite card */}
             <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
               <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 8 }}>INVITE A FRIEND</div>
-              <div style={{ fontSize: 13, color: color.gold, marginBottom: 4, wordBreak: "break-all" }}>
-                ashed.app?ref={user.user_metadata?.username || user.id}
+              <div style={{ fontFamily: font.mono, fontSize: type.sm, color: color.gold, marginBottom: 4, wordBreak: "break-all" }}>
+                {inviteUrl.split("//")[1] || inviteUrl}
               </div>
               <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 14 }}>
                 Share your link — friends who sign up get credited to you
               </div>
               <button
                 onClick={async () => {
-                  const username = user.user_metadata?.username || user.id;
-                  const url = `${window.location.origin}?ref=${username}`;
+                  const url = inviteUrl;
                   if (navigator.share) {
                     try { await navigator.share({ title: "Join me on Ashed", text: `I've been logging my cigars on Ashed — a cigar journal app. Join me!`, url }); }
                     catch (e) { if (e.name !== "AbortError") navigator.clipboard?.writeText(url); }
