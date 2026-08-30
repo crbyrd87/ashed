@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { SANS, color, font, radius, type } from "./theme";
-import { Icon, Notice, Pressable, Screen } from "./ui";
+import { Button, ClickableRow, Icon, Notice, Pressable, Screen, SectionLabel, Sheet } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -13,6 +13,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
   const [flagError, setFlagError] = useState(null);
+  const [showAddTo, setShowAddTo] = useState(false);
   const [toast, setToast] = useState(null);
   const [vitolas, setVitolas] = useState([]);
   const [vitolasLoading, setVitolasLoading] = useState(false);
@@ -320,12 +321,13 @@ Be as specific as possible with brand and line. If you can read text on the band
       {stage === "vitola" && cigar && (
         <div style={{ padding: 20 }}>
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: type.xs }}>{confidence === "high" ? "High" : "Low"}</span>
-            <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
-              {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
-            </span>
-          </div>
+          {/* Silence is the correct signal for a successful read. This was
+              a chip reading "Low" beside text reading "Medium confidence" —
+              the two disagreed, and low confidence never reaches this stage
+              anyway: it routes to the error screen. */}
+          {confidence !== "high" && (
+            <Notice text="Check this is right before logging." style={{ borderLeftColor: color.gold, marginBottom: 12 }} />
+          )}
 
           <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, marginBottom: 2 }}>{cigar.brand.toUpperCase()}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: color.text, marginBottom: 4 }}>{cigar.line}</div>
@@ -395,12 +397,13 @@ Be as specific as possible with brand and line. If you can read text on the band
           )}
 
           {/* Confidence indicator */}
-          <div style={{ background: confidence === "high" ? `${color.green}22` : `${color.gold}22`, border: `1px solid ${confidence === "high" ? `${color.green}55` : `${color.gold}55`}`, borderRadius: 8, padding: "8px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: type.xs }}>{confidence === "high" ? "High" : "Low"}</span>
-            <span style={{ fontSize: type.xs, color: confidence === "high" ? color.green : color.gold }}>
-              {confidence === "high" ? "High confidence identification" : "Medium confidence — please verify"}
-            </span>
-          </div>
+          {/* Silence is the correct signal for a successful read. This was
+              a chip reading "Low" beside text reading "Medium confidence" —
+              the two disagreed, and low confidence never reaches this stage
+              anyway: it routes to the error screen. */}
+          {confidence !== "high" && (
+            <Notice text="Check this is right before logging." style={{ borderLeftColor: color.gold, marginBottom: 12 }} />
+          )}
 
           <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 2, textTransform: "uppercase" }}>{cigar.brand}</div>
           <div style={{ fontSize: 22, fontWeight: 700, color: color.text, margin: "4px 0 10px" }}>{cigar.line}</div>
@@ -427,15 +430,32 @@ Be as specific as possible with brand and line. If you can read text on the band
             <div style={{ fontSize: 13, color: color.muted, fontStyle: "italic", marginBottom: 20, lineHeight: 1.6 }}>{cigar.description}</div>
           )}
 
-          <button onClick={() => onCheckIn(cigar)} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 16, color: color.bg, fontSize: 15, fontWeight: 700, cursor: "pointer", letterSpacing: 1, fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
+          {/* Two actions, not five. "Scan again" is in the header now and
+              "Flag incorrect info" is a text link below, so the buttons here
+              are the two things someone actually came to do. */}
+          <Button onClick={() => onCheckIn(cigar)} style={{ marginBottom: 10 }}>
             Log this smoke
-          </button>
-          <button onClick={() => { onAddToWishlist(cigar); showToast("Added to wishlist"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.gold}55`, borderRadius: 10, padding: 14, color: color.gold, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            Add to wishlist
-          </button>
-          <button onClick={() => { onAddToHumidor(cigar); showToast("Added to humidor"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            + Add to Humidor
-          </button>
+          </Button>
+          <Button variant="secondary" onClick={() => setShowAddTo(true)}>
+            Add to…
+          </Button>
+
+          {showAddTo && (
+            <Sheet onClose={() => setShowAddTo(false)} handle>
+              <SectionLabel style={{ marginBottom: 12 }}>Add to</SectionLabel>
+              <ClickableRow
+                icon={<Icon.Humidor size={21} />}
+                label="Humidor"
+                onClick={() => { onAddToHumidor(cigar); showToast("Added to humidor"); setShowAddTo(false); }}
+                style={{ borderBottom: `1px solid ${color.border}` }}
+              />
+              <ClickableRow
+                icon={<Icon.Wishlist size={21} />}
+                label="Wishlist"
+                onClick={() => { onAddToWishlist(cigar); showToast("Added to wishlist"); setShowAddTo(false); }}
+              />
+            </Sheet>
+          )}
 
           {/* A quiet text link, not a fifth full-width button. */}
           {flagged ? (
