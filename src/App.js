@@ -324,7 +324,7 @@ export default function App() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedLine, setSelectedLine] = useState(null);
   const [vitolas, setVitolas] = useState([]);
-  const [violasLoading, setViolasLoading] = useState(false);
+  const [vitolasLoading, setVitolasLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(null);
   const [humidorItemId, setHumidorItemId] = useState(null);
   const [showBandScanner, setShowBandScanner] = useState(false);
@@ -843,14 +843,14 @@ export default function App() {
     setQuery(`${line.brand} — ${line.line}`);
     setSelectedLine(line);
     setVitolas([]);
-    setViolasLoading(true);
+    setVitolasLoading(true);
     // Open the line detail page immediately — vitolas load into it
     setSelected({ ...line, _isLine: true });
     const results = await getVitolas(line.brand, line.line, (partial) => {
       setVitolas(partial);
     });
     setVitolas(results);
-    setViolasLoading(false);
+    setVitolasLoading(false);
   };
 
 
@@ -1004,7 +1004,7 @@ export default function App() {
               </button>
 
               <div style={{ fontSize: type.xs, color: color.tan, letterSpacing: 1, marginBottom: 10 }}>SELECT A VITOLA</div>
-              {violasLoading && vitolas.length === 0 && (
+              {vitolasLoading && vitolas.length === 0 && (
                 <div style={{ fontSize: type.xs, color: color.green, marginBottom: 10 }}>Loading sizes...</div>
               )}
               {vitolas.map((v, i) => {
@@ -1045,7 +1045,7 @@ export default function App() {
                   </div>
                 );
               })}
-              {violasLoading && vitolas.length > 0 && (
+              {vitolasLoading && vitolas.length > 0 && (
                 <div style={{ fontSize: type.xs, color: color.green, textAlign: "center", padding: "8px 0" }}>Finding more sizes...</div>
               )}
             </div>

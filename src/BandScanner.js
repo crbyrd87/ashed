@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { SANS, color, font, radius, type } from "./theme";
-import { Icon, Pressable, Screen } from "./ui";
+import { Icon, Notice, Pressable, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -12,9 +12,10 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   const [confidence, setConfidence] = useState(null);
   const [flagging, setFlagging] = useState(false);
   const [flagged, setFlagged] = useState(false);
+  const [flagError, setFlagError] = useState(null);
   const [toast, setToast] = useState(null);
   const [vitolas, setVitolas] = useState([]);
-  const [violasLoading, setViolasLoading] = useState(false);
+  const [vitolasLoading, setVitolasLoading] = useState(false);
   const cameraInputRef = useRef(null);
   const libraryInputRef = useRef(null);
 
@@ -48,12 +49,32 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
     }
   };
 
+  // A flag is a report, not an edit. This used to write
+  // { verified: false, ai_generated: true } straight to the cigars table on a
+  // brand + line + vitola match, so any user could unverify a hand-checked
+  // record — and silently mark it AI-generated — with one tap and no review.
+  // It now goes to the moderation queue the admin console already reads.
   const handleFlag = async () => {
     setFlagging(true);
     try {
-      await supabase.from("cigars").update({ verified: false, ai_generated: true }).eq("brand", cigar.brand).eq("line", cigar.line).eq("vitola", cigar.vitola);
-    } catch (e) { console.error(e); }
-    setFlagged(true);
+      const { data: auth } = await supabase.auth.getUser();
+      const name = [cigar.brand, cigar.line, cigar.vitola].filter(Boolean).join(" ");
+      // feedback, not reports: reports is comment-specific — it is read joined
+      // to comments and grouped by comment_id, so a row with no comment_id
+      // would show in moderation as "Comment not found". The admin console
+      // already surfaces feedback, and this needs no migration.
+      const { error } = await supabase.from("feedback").insert({
+        user_id: auth?.user?.id || null,
+        type: "bug",
+        description: `Band scanner flagged incorrect info: ${name}${cigar.id ? ` (cigar id ${cigar.id})` : ""}`,
+      });
+      if (error) throw error;
+      setFlagged(true);
+    } catch (e) {
+      console.error("Flag error:", e);
+      // Do not claim it was recorded when it was not.
+      setFlagError("Couldn't send that. Please try again.");
+    }
     setFlagging(false);
   };
 
@@ -63,7 +84,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
   };
 
   const loadVitolas = async (brand, line) => {
-    setViolasLoading(true);
+    setVitolasLoading(true);
     const { data } = await supabase
       .from("cigars")
       .select("id, vitola, strength, wrapper, origin, tasting_notes")
@@ -72,7 +93,7 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
       .not("vitola", "is", null)
       .order("vitola");
     setVitolas(data || []);
-    setViolasLoading(false);
+    setVitolasLoading(false);
   };
 
   const reset = () => {
@@ -310,10 +331,10 @@ Be as specific as possible with brand and line. If you can read text on the band
           <div style={{ fontSize: 22, fontWeight: 700, color: color.text, marginBottom: 4 }}>{cigar.line}</div>
           <div style={{ fontSize: 13, color: color.muted, marginBottom: 20 }}>Select your vitola to continue</div>
 
-          {violasLoading && (
+          {vitolasLoading && (
             <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: color.muted }}>Loading sizes...</div>
           )}
-          {!violasLoading && vitolas.length === 0 && (
+          {!vitolasLoading && vitolas.length === 0 && (
             <div style={{ textAlign: "center", padding: 24 }}>
               <div style={{ fontSize: 13, color: color.muted, marginBottom: 16 }}>No vitolas found in the database for this cigar.</div>
               <button onClick={() => setStage("result")} style={{ width: "100%", background: color.gold, border: "none", borderRadius: 10, padding: 14, color: color.bg, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
@@ -324,7 +345,7 @@ Be as specific as possible with brand and line. If you can read text on the band
               </button>
             </div>
           )}
-          {!violasLoading && vitolas.length > 0 && (
+          {!vitolasLoading && vitolas.length > 0 && (
             <>
               {/* Not Sure option — first */}
               <div
@@ -416,12 +437,19 @@ Be as specific as possible with brand and line. If you can read text on the band
             + Add to Humidor
           </button>
 
-          {!flagged ? (
-            <button onClick={handleFlag} disabled={flagging} style={{ width: "100%", background: "none", border: `1px solid ${color.line}44`, borderRadius: 10, padding: 10, color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, boxSizing: "border-box" }}>
-              {flagging ? "Flagging..." : "Flag incorrect info"}
-            </button>
+          {/* A quiet text link, not a fifth full-width button. */}
+          {flagged ? (
+            <div style={{ textAlign: "center", fontSize: type.xs, color: color.textMuted, padding: "12px 0" }}>
+              Thanks — flagged for review
+            </div>
           ) : (
-            <div style={{ textAlign: "center", fontSize: type.xs, color: color.green, padding: 10 }}>Thanks — flagged for review</div>
+            <>
+              <Pressable onClick={handleFlag} disabled={flagging} label="Flag incorrect info"
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: color.textFaint, fontSize: type.xs }}>
+                {flagging ? "Sending…" : "Flag incorrect info"}
+              </Pressable>
+              {flagError && <Notice isError text={flagError} style={{ marginTop: 8 }} />}
+            </>
           )}
 
           {toast && (
