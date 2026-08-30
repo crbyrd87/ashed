@@ -1,21 +1,30 @@
 import { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { CloseButton, Screen } from "./ui";
+import { SANS, color, font, layout, radius, type, weight } from "./theme";
+import { CloseButton, Icon, Pressable, Screen, SectionLabel } from "./ui";
 import { supabase } from "./supabase";
 
-const SECTIONS = [
-  { id: "stats",      icon: "📊", label: "Stats" },
-  { id: "users",      icon: "👤", label: "Users" },
-  { id: "moderation", icon: "🚩", label: "Moderation" },
-  { id: "badges",     icon: "🏅", label: "Badges" },
-  { id: "database",   icon: "🗄️", label: "DB" },
-  { id: "missing",    icon: "🔍", label: "Missing" },
-  { id: "feedback",   icon: "💬", label: "Feedback" },
-  { id: "refresh",    icon: "🔄", label: "Refresh" },
-  { id: "qa",         icon: "✅", label: "QA" },
-  { id: "dedup",      icon: "🔁", label: "Dedup" },
-  { id: "audit",      icon: "📋", label: "Audit" },
+// Grouped for the rail. Eleven tabs never fit on one row — they wrapped or
+// scrolled — and the emoji beside them carried no information: a magnifying
+// glass for "Missing" and a tick for "QA" are decoration, not wayfinding.
+const GROUPS = [
+  { title: "Overview", ids: ["stats", "users", "audit"] },
+  { title: "Queues",   ids: ["moderation", "missing", "feedback", "qa", "dedup"] },
+  { title: "Data",     ids: ["database", "badges", "refresh"] },
 ];
+
+const LABELS = {
+  stats: "Stats",
+  users: "Users",
+  audit: "Audit",
+  moderation: "Moderation",
+  missing: "Missing",
+  feedback: "Feedback",
+  qa: "QA",
+  dedup: "Dedup",
+  database: "Database",
+  badges: "Badges",
+  refresh: "Refresh",
+};
 
 const logAction = async (action, targetType, targetId, performedBy, notes) => {
   await supabase.from("audit_log").insert({
@@ -29,42 +38,114 @@ const logAction = async (action, targetType, targetId, performedBy, notes) => {
 
 export default function AdminConsole({ user, isSuperAdmin, isModerator, onClose }) {
   const [section, setSection] = useState(isModerator ? "moderation" : "stats");
+  const [reportCount, setReportCount] = useState(null);
 
-  // Moderators only see the Moderation tab
-  const visibleSections = isModerator
-    ? SECTIONS.filter(s => s.id === "moderation")
-    : SECTIONS;
+  // The only rail count worth fetching. Every other section derives its list
+  // with joins and grouping, so a count beside it would mean running the query
+  // twice; this one is a single head request.
+  useEffect(() => {
+    supabase.from("reports").select("*", { count: "exact", head: true })
+      .then(({ count }) => setReportCount(count || 0));
+  }, []);
+
+  // Moderators only see the Moderation queue, and when that is all they see
+  // the other group headings would sit above nothing.
+  const groups = isModerator
+    ? [{ title: "Queues", ids: ["moderation"] }]
+    : GROUPS;
 
   return (
-    <Screen zIndex={650} maxWidth={900}>
-      <div style={{ background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: color.gold, letterSpacing: 2 }}>⚙️ ADMIN CONSOLE</div>
-          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>ASHED — {user?.user_metadata?.username || user?.email}</div>
+    <Screen zIndex={650} maxWidth={layout.adminWidth}>
+      {/* Mauve, not gold: gold belongs to the member-facing app, so the accent
+          alone tells you which surface you are looking at. */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 10,
+        display: "flex", alignItems: "center", gap: 12,
+        padding: "0 12px", height: 56,
+        background: color.bg, borderBottom: `1px solid ${color.border}`,
+      }}>
+        <Icon.Settings size={21} color={color.admin} />
+        <div style={{ flex: 1, minWidth: 0, fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed, color: color.textPrimary }}>
+          Admin console
+        </div>
+        <div style={{ fontSize: type.sm, color: color.textMuted, marginRight: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>
+          {user?.user_metadata?.username || user?.email}
         </div>
         <CloseButton onClose={onClose} />
       </div>
-      <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-        {visibleSections.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flexShrink: 0, minWidth: 60, padding: "10px 12px", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.gold : "transparent"}`, color: section === s.id ? color.gold : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 16 }}>{s.icon}</span>
-            <span>{s.label.toUpperCase()}</span>
-          </button>
-        ))}
+
+      {/* Narrow screens get a select, not a scrolling tab strip — which is
+          what eleven tabs became before. */}
+      <div className="admin-narrow" style={{ padding: "12px 16px 0" }}>
+        <select
+          value={section}
+          onChange={e => setSection(e.target.value)}
+          aria-label="Section"
+          style={{
+            width: "100%", height: 44, boxSizing: "border-box",
+            background: color.surfaceRaised, border: `1px solid ${color.borderStrong}`,
+            borderRadius: radius.sm, padding: "0 12px",
+            color: color.textPrimary, fontSize: type.md, fontFamily: font.sans,
+          }}
+        >
+          {groups.map(g => (
+            <optgroup key={g.title} label={g.title}>
+              {g.ids.map(id => <option key={id} value={id}>{LABELS[id]}</option>)}
+            </optgroup>
+          ))}
+        </select>
       </div>
-      <div style={{ padding: 20 }}>
-        {section === "stats"      && <StatsSection />}
-        {section === "users"      && <UsersSection isSuperAdmin={isSuperAdmin} currentUserId={user?.id} />}
-        {section === "moderation" && <ModerationSection />}
-        {section === "badges"     && <BadgesSection />}
-        {section === "database"   && <DatabaseSection />}
-        {section === "missing"    && <MissingCigarsSection currentUserId={user?.id} />}
-        {section === "feedback"   && <FeedbackSection currentUser={user} />}
-        {section === "refresh"    && <DbRefreshSection />}
-        {section === "qa"         && <QASection currentUserId={user?.id} />}
-        {section === "dedup"      && <DedupSection currentUserId={user?.id} />}
-        {section === "audit"      && <AuditSection />}
+
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <nav className="admin-rail" style={{
+          width: 208, flexShrink: 0,
+          borderRight: `1px solid ${color.border}`,
+          padding: "8px 12px 24px",
+          minHeight: "calc(100vh - 56px)",
+        }}>
+          {groups.map(g => (
+            <div key={g.title} style={{ marginBottom: 18 }}>
+              <SectionLabel style={{ padding: "0 10px", marginBottom: 6 }}>{g.title}</SectionLabel>
+              {g.ids.map(id => {
+                const active = section === id;
+                return (
+                  <Pressable
+                    key={id}
+                    minHeight={44}
+                    onClick={() => setSection(id)}
+                    style={{
+                      width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "0 10px", borderRadius: radius.sm,
+                      background: active ? color.surface : "none",
+                      boxShadow: active ? `inset 2px 0 0 ${color.admin}` : "none",
+                      color: active ? color.textPrimary : color.textMuted,
+                      fontSize: type.md,
+                    }}
+                  >
+                    {LABELS[id]}
+                    {id === "moderation" && reportCount > 0 && (
+                      <span style={{ fontFamily: font.mono, fontSize: type.sm, color: color.danger }}>{reportCount}</span>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div style={{ flex: 1, minWidth: 0, padding: 20 }}>
+          {section === "stats"      && <StatsSection />}
+          {section === "users"      && <UsersSection isSuperAdmin={isSuperAdmin} currentUserId={user?.id} />}
+          {section === "moderation" && <ModerationSection />}
+          {section === "badges"     && <BadgesSection />}
+          {section === "database"   && <DatabaseSection />}
+          {section === "missing"    && <MissingCigarsSection currentUserId={user?.id} />}
+          {section === "feedback"   && <FeedbackSection currentUser={user} />}
+          {section === "refresh"    && <DbRefreshSection />}
+          {section === "qa"         && <QASection currentUserId={user?.id} />}
+          {section === "dedup"      && <DedupSection currentUserId={user?.id} />}
+          {section === "audit"      && <AuditSection />}
+        </div>
       </div>
     </Screen>
   );

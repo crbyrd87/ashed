@@ -8,3 +8,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* The admin console's rail. A media query is the one thing an inline style
+   object cannot express, and the console is the only screen in the app wide
+   enough to need one: below 900px the 208px rail becomes a select. */
+.admin-narrow { display: none; }
+@media (max-width: 900px) {
+  .admin-rail { display: none; }
+  .admin-narrow { display: block; }
+}
