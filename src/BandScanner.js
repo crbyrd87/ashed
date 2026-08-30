@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { SANS, color, type } from "./theme";
-import { Icon, Screen } from "./ui";
+import { SANS, color, font, radius, type } from "./theme";
+import { Icon, Pressable, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 
@@ -73,6 +73,16 @@ export default function BandScanner({ user, onClose, onCheckIn, onAddToWishlist,
       .order("vitola");
     setVitolas(data || []);
     setViolasLoading(false);
+  };
+
+  const reset = () => {
+    setStage("capture");
+    setPhotoPreview(null);
+    setCigar(null);
+    setVitolas([]);
+    setFlagged(false);
+    setToast(null);
+    setErrorMsg("");
   };
 
   const handlePhotoChange = async (e) => {
@@ -192,56 +202,49 @@ Be as specific as possible with brand and line. If you can read text on the band
   // whatever was already on screen instead of covering it. Matches the
   // overlay CheckIn.js uses: same z-index, same 420 cap.
   return (
-    <Screen>
+    <Screen title="Scan a band" onBack={onClose}
+      action={(stage === "vitola" || stage === "result") && (
+        <Pressable onClick={reset} minHeight={0} style={{ padding: "0 12px", color: color.gold, fontSize: type.xs, whiteSpace: "nowrap" }}>
+          Scan again
+        </Pressable>
+      )}
+    >
 
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px 12px", borderBottom: `1px solid ${color.lineStrong}` }}>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", background: `linear-gradient(to right, ${color.emberLow}, ${color.emberMid}, ${color.emberHigh})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Band Scanner</div>
-          <div style={{ fontSize: type.xs, color: color.gold, letterSpacing: 2, marginTop: 2, fontWeight: 600, opacity: 0.8 }}>PREMIUM FEATURE</div>
-        </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", color: color.muted, fontSize: 22, cursor: "pointer", padding: "4px 8px", fontFamily: SANS }}>✕</button>
-      </div>
 
       {/* CAPTURE STAGE */}
       {stage === "capture" && (
         <div style={{ padding: 20 }}>
 
-          {/* Feature explanation */}
-          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: color.gold, letterSpacing: 1, fontWeight: 700, marginBottom: 12 }}>HOW IT WORKS</div>
-            {[
-              { Glyph: Icon.Camera, text: "Take a photo of any cigar band" },
-              { Glyph: Icon.Scan, text: "AI reads the label and identifies the cigar" },
-              { Glyph: Icon.Feed, text: "Get the brand, vitola, strength, tasting notes and more" },
-              { Glyph: Icon.Cigar, text: "Log it, add to your humidor, or save to your wishlist" },
-            ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
-                <span style={{ flexShrink: 0, display: "flex" }}><item.Glyph size={20} color={color.textMuted} /></span>
-                <span style={{ fontSize: 13, color: color.cream, lineHeight: 1.5 }}>{item.text}</span>
-              </div>
-            ))}
+          {/* The viewfinder is the screen. This used to open on two bordered
+              cards — four "HOW IT WORKS" rows and four "TIPS" rows, eight
+              lines of text before the button. A framing rectangle says the
+              same thing in one glance. */}
+          <div style={{
+            position: "relative", width: "100%", aspectRatio: "4 / 5",
+            background: color.surface, borderRadius: radius.md,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            marginBottom: 20, overflow: "hidden",
+          }}>
+            <div style={{ position: "relative", width: "84%", aspectRatio: "16 / 7" }}>
+              {[["top", "left"], ["top", "right"], ["bottom", "left"], ["bottom", "right"]].map(([v, h]) => (
+                <span key={v + h} style={{
+                  position: "absolute", [v]: 0, [h]: 0, width: 26, height: 26,
+                  [`border${v === "top" ? "Top" : "Bottom"}`]: `2px solid ${color.gold}`,
+                  [`border${h === "left" ? "Left" : "Right"}`]: `2px solid ${color.gold}`,
+                }} />
+              ))}
+              <span style={{
+                position: "absolute", left: 0, right: 0, bottom: -30,
+                textAlign: "center", fontSize: type.xs, color: color.textFaint,
+              }}>
+                Fill the frame with the band
+              </span>
+            </div>
           </div>
-
-          {/* Tips */}
-          <div style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
-            <div style={{ fontSize: 13, color: color.gold, letterSpacing: 1, fontWeight: 700, marginBottom: 10 }}>TIPS FOR BEST RESULTS</div>
-            {[
-              "Hold steady in good lighting",
-              "Fill the frame with the band",
-              "Keep the label sharp and in focus",
-              "Both ends of the band help",
-            ].map((tip, i) => (
-              <div key={i} style={{ fontSize: 13, color: color.cream, marginBottom: i < 3 ? 8 : 0, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <span style={{ color: color.gold, flexShrink: 0 }}>→</span>{tip}
-              </div>
-            ))}
-          </div>
-
           {/* Camera button */}
           <label style={{ display: "block", cursor: "pointer", marginBottom: 12 }}>
-            <div style={{ width: "100%", background: color.positive, borderRadius: 10, padding: 16, color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: 1, textAlign: "center", boxSizing: "border-box" }}>
-              Open camera
+            <div style={{ width: "100%", height: 52, background: color.gold, borderRadius: radius.md, color: color.bg, fontSize: type.md, fontWeight: 600, fontFamily: font.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
+              <Icon.Camera size={19} color={color.bg} /> Open camera
             </div>
             <input
               ref={cameraInputRef}
@@ -255,8 +258,8 @@ Be as specific as possible with brand and line. If you can read text on the band
 
           {/* Library button */}
           <label style={{ display: "block", cursor: "pointer" }}>
-            <div style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.cream, fontSize: 14, textAlign: "center", boxSizing: "border-box" }}>
-              Choose from Library
+            <div style={{ width: "100%", height: 52, background: "none", border: `1px solid ${color.borderStrong}`, borderRadius: radius.md, color: color.textBody, fontSize: type.md, fontFamily: font.sans, display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
+              Choose a photo
             </div>
             <input
               ref={libraryInputRef}
@@ -266,6 +269,13 @@ Be as specific as possible with brand and line. If you can read text on the band
               style={{ fontSize: type.md, display: "none" }}
             />
           </label>
+
+          {/* What the framing rectangle cannot say. Two lines, below the
+              fold, replacing eight in two bordered cards. */}
+          <div style={{ marginTop: 24, fontSize: type.xs, color: color.textFaint, lineHeight: 1.6 }}>
+            <div>Good light, band in focus, one cigar at a time.</div>
+            <div>Both ends of the band help.</div>
+          </div>
         </div>
       )}
 
@@ -353,9 +363,6 @@ Be as specific as possible with brand and line. If you can read text on the band
             </>
           )}
 
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginTop: 8, boxSizing: "border-box" }}>
-            Scan Again
-          </button>
         </div>
       )}
 
@@ -407,9 +414,6 @@ Be as specific as possible with brand and line. If you can read text on the band
           </button>
           <button onClick={() => { onAddToHumidor(cigar); showToast("Added to humidor"); }} style={{ width: "100%", background: "none", border: `1px solid ${color.green}55`, borderRadius: 10, padding: 14, color: color.green, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
             + Add to Humidor
-          </button>
-          <button onClick={() => { setStage("capture"); setPhotoPreview(null); setCigar(null); setFlagged(false); setToast(null); setVitolas([]); }} style={{ width: "100%", background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, color: color.muted, fontSize: 14, cursor: "pointer", fontFamily: SANS, marginBottom: 10, boxSizing: "border-box" }}>
-            Scan Again
           </button>
 
           {!flagged ? (
