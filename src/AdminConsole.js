@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SANS, color, font, layout, radius, type, weight } from "./theme";
-import { CloseButton, Icon, Pressable, Screen, SectionLabel } from "./ui";
+import { CloseButton, Icon, Pill, Pressable, Screen, SectionLabel } from "./ui";
 import { supabase } from "./supabase";
 
 // Grouped for the rail. Eleven tabs never fit on one row — they wrapped or
@@ -247,12 +247,12 @@ function StatsSection() {
       {/* Stat boxes */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 28 }}>
         {[
-          ["Users",        totals.users,    color.gold, "👤"],
-          ["Active (30d)", totals.mau,      color.gold,       "📈"],
-          ["Check-ins",    totals.checkins, color.green, "📖"],
-          ["Cigars in DB", totals.cigars,   color.partner, "📋"],
-          ["Likes",        totals.fires,    color.alert, "👍"],
-          ["Comments",     totals.comments, color.plum, "💬"],
+          ["Users",        totals.users,    color.textPrimary],
+          ["Active (30d)", totals.mau,      color.textPrimary],
+          ["Check-ins",    totals.checkins, color.textPrimary],
+          ["Cigars in DB", totals.cigars,   color.textPrimary],
+          ["Likes",        totals.fires,    color.textPrimary],
+          ["Comments",     totals.comments, color.textPrimary],
         ].map(([label, value, accent, icon]) => (
           <div key={label} style={{ background: color.surface, border: `1px solid ${accent}33`, borderRadius: 12, padding: "16px 10px", textAlign: "center", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: accent, opacity: 0.6, borderRadius: "12px 12px 0 0" }} />
@@ -558,12 +558,12 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
               <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{selectedUser.username} · {selectedUser.email}</div>
               <div style={{ fontSize: type.xs, color: color.faint, marginTop: 4 }}>
                 Joined {new Date(selectedUser.member_since || selectedUser.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: color.goldPale }}>👑 Super Admin</span>}
-                {selectedUser.is_admin && <span style={{ marginLeft: 8, color: color.gold }}>⚙️ Admin</span>}
-                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: color.partner }}>🛡️ Mod</span>}
-                {selectedUser.is_premium && <span style={{ marginLeft: 8, color: color.green }}>⭐ Premium</span>}
-                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: color.partner }}>🏪 Partner</span>}
-                {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: color.alert }}>🚩 Flagged</span>}
+                {selectedUser.is_super_admin && <span style={{ marginLeft: 8, color: color.goldPale }}>Super admin</span>}
+                {selectedUser.is_admin && <span style={{ marginLeft: 8, color: color.gold }}>Admin</span>}
+                {selectedUser.is_moderator && <span style={{ marginLeft: 8, color: color.partner }}>Mod</span>}
+                {selectedUser.is_premium && <span style={{ marginLeft: 8, color: color.green }}>Premium</span>}
+                {selectedUser.is_partner && <span style={{ marginLeft: 8, color: color.partner }}>Partner</span>}
+                {selectedUser.is_flagged && <span style={{ marginLeft: 8, color: color.alert }}>Flagged</span>}
               </div>
             </div>
             <button onClick={() => setSelectedUser(null)}
@@ -588,7 +588,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             {selectedUser.is_partner ? (
               <div>
                 <div style={{ fontSize: type.xs, color: color.partner, marginBottom: 8 }}>
-                  🏪 Active partner · Place ID: <span style={{ color: color.cream, fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
+                  Active partner · Place ID: <span style={{ color: color.cream, fontFamily: "monospace" }}>{selectedUser.partner_place_id || "none"}</span>
                 </div>
                 <button onClick={() => handleRevokePartner(selectedUser)}
                   style={{ background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "7px 14px", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -605,7 +605,7 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
                 />
                 <button onClick={() => handleGrantPartner(selectedUser)}
                   style={{ background: color.partner, border: "none", borderRadius: 8, padding: "7px 14px", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}>
-                  🏪 Grant Partner
+                  Grant partner
                 </button>
               </div>
             )}
@@ -617,14 +617,14 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => handleFlag(selectedUser)}
                 style={{ flex: 1, background: "none", border: `1px solid ${selectedUser.is_flagged ? `${color.green}55` : `${color.alert}55`}`, borderRadius: 8, padding: "8px 0", color: selectedUser.is_flagged ? color.green : color.alert, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
-                {selectedUser.is_flagged ? "Remove Flag" : "🚩 Flag Account"}
+                {selectedUser.is_flagged ? "Remove flag" : "Flag account"}
               </button>
             )}
             {/* Delete — blocked on admin accounts unless super admin, blocked on self */}
             {(isSuperAdmin || (!selectedUser.is_admin && selectedUser.id !== currentUserId)) && (
               <button onClick={() => setConfirmDelete(selectedUser)}
                 style={{ flex: 1, background: "none", border: `1px solid ${color.danger}55`, borderRadius: 8, padding: "8px 0", color: color.danger, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
-                🗑 Delete Account
+                Delete account
               </button>
             )}
             {/* Super admin only — Grant/Revoke Admin */}
@@ -656,9 +656,9 @@ function UsersSection({ isSuperAdmin, currentUserId }) {
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: color.text, display: "flex", alignItems: "center", gap: 6 }}>
               {u.display_name || u.username}
-              {u.is_admin && <span style={{ fontSize: type.xs, color: color.gold }}>⚙️</span>}
-              {u.is_partner && <span style={{ fontSize: type.xs, color: color.partner }}>🏪</span>}
-              {u.is_flagged && <span style={{ fontSize: type.xs, color: color.alert }}>🚩</span>}
+              {u.is_admin && <Pill size="sm">Admin</Pill>}
+              {u.is_partner && <Pill size="sm">Partner</Pill>}
+              {u.is_flagged && <Pill size="sm">Flagged</Pill>}
             </div>
             <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2 }}>@{u.username} · {u.email}</div>
           </div>
@@ -744,7 +744,7 @@ function ModerationSection() {
 
       {!loading && reports.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px" }}>
-          <div style={{ fontSize: 36, marginBottom: 16 }}>✅</div>
+          <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Check size={32} color={color.borderStrong} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>All clear</div>
           <div style={{ fontSize: 13, color: color.faint }}>No reported comments to review.</div>
         </div>
@@ -759,7 +759,7 @@ function ModerationSection() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ background: `${color.danger}22`, border: `1px solid ${color.danger}55`, borderRadius: 20, padding: "2px 10px", fontSize: type.xs, color: color.dangerText, fontWeight: 700 }}>
-                  🚩 {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
+                  {item.reportCount} {item.reportCount === 1 ? "report" : "reports"}
                 </span>
                 <span style={{ fontSize: type.xs, color: color.faint }}>
                   {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -781,7 +781,7 @@ function ModerationSection() {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleRemoveComment(item)}
                 style={{ flex: 1, background: color.danger, border: "none", borderRadius: 8, padding: "9px 0", color: "#fff", fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                🗑 Remove Comment
+                Remove comment
               </button>
               <button onClick={() => handleDismiss(item)}
                 style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "9px 0", color: color.muted, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -950,7 +950,7 @@ function BadgesSection() {
                 const count = earnedCounts[b.key] || 0;
                 return (
                   <div key={b.key} style={{ background: color.surface, border: `1px solid ${earned ? `${color.gold}44` : color.line}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ fontSize: 24, flexShrink: 0, filter: earned ? "none" : "grayscale(1)", opacity: earned ? 1 : 0.5 }}>{b.icon}</div>
+                    
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: earned ? color.text : color.muted }}>{b.name}</div>
                       <div style={{ fontSize: type.xs, color: color.faint, marginTop: 2 }}>{b.description}</div>
@@ -1181,7 +1181,7 @@ function AddCigarForm({ item, originOptions, wrapperOptions, onSave, onCancel })
       <div style={{ display: "flex", gap: 8 }}>
         <button onClick={handleSave} disabled={saving || !form.brand || !form.line || !form.vitola}
           style={{ flex: 2, background: (!saving && form.brand && form.line && form.vitola) ? color.gold : color.surfaceRaised, border: "none", borderRadius: 8, padding: "9px 0", color: (!saving && form.brand && form.line && form.vitola) ? color.bg : color.dim, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-          {saving ? "Saving..." : "✓ Save to DB"}
+          {saving ? "Saving..." : "Save to DB"}
         </button>
         <button onClick={onCancel}
           style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "9px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -1300,7 +1300,7 @@ function MissingCigarsSection({ currentUserId }) {
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Check size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>{showResolved ? "No resolved items." : "No missing cigars reported."}</div>
         </div>
       )}
@@ -1439,7 +1439,7 @@ function FeedbackSection({ currentUser }) {
 
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["all", "All"], ["bug", "🐛 Bugs"], ["feedback", "💡 Feedback"]].map(([val, label]) => (
+        {[["all", "All"], ["bug", "Bugs"], ["feedback", "Feedback"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
@@ -1451,7 +1451,7 @@ function FeedbackSection({ currentUser }) {
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Check size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>{showResolved ? "No resolved items." : "Nothing pending."}</div>
         </div>
       )}
@@ -1460,7 +1460,7 @@ function FeedbackSection({ currentUser }) {
         <div key={item.id} style={{ background: color.surface, border: `1px solid ${color.lineStrong}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: type.xs, background: item.type === "bug" ? `${color.danger}22` : `${color.green}22`, border: `1px solid ${item.type === "bug" ? `${color.danger}55` : `${color.green}55`}`, borderRadius: 6, padding: "2px 8px", color: item.type === "bug" ? color.dangerText : color.green }}>
-              {item.type === "bug" ? "🐛 Bug" : "💡 Feedback"}
+              {item.type === "bug" ? "Bug" : "Feedback"}
             </span>
             <span style={{ fontSize: type.xs, color: color.faint, marginLeft: "auto" }}>
               {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -1500,7 +1500,7 @@ function FeedbackSection({ currentUser }) {
             {item.posthog_session_id && (
               <a href={getPostHogUrl(item.posthog_session_id)} target="_blank" rel="noreferrer"
                 style={{ flex: 1, background: color.surfaceRaised, border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "7px 0", color: color.tan, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, textAlign: "center", textDecoration: "none" }}>
-                📹 Watch Session
+                Watch session
               </a>
             )}
             {!showResolved && replyingId !== item.id && (
@@ -1511,7 +1511,7 @@ function FeedbackSection({ currentUser }) {
                 </button>
                 <button onClick={() => handleResolve(item.id)}
                   style={{ flex: 1, background: color.positive, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                  ✓ Resolve
+                  Resolve
                 </button>
               </>
             )}
@@ -1583,7 +1583,7 @@ function DbRefreshSection() {
 
       {/* Filter tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["pending", "Pending"], ["approved", "✓ Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
+        {[["pending", "Pending"], ["approved", "Approved"], ["dismissed", "Dismissed"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
@@ -1595,7 +1595,7 @@ function DbRefreshSection() {
 
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Check size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>No {filter} candidates.</div>
         </div>
       )}
@@ -1610,7 +1610,7 @@ function DbRefreshSection() {
           {item.source_url && (
             <a href={item.source_url} target="_blank" rel="noreferrer"
               style={{ fontSize: type.xs, color: color.goldLegacy, textDecoration: "none", display: "block", marginBottom: 10 }}>
-              📰 View on Halfwheel
+              View on Halfwheel
             </a>
           )}
           <div style={{ fontSize: type.xs, color: color.faint, marginBottom: item.status === "pending" ? 10 : 0 }}>
@@ -1620,7 +1620,7 @@ function DbRefreshSection() {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
                 style={{ flex: 2, background: color.positive, border: "none", borderRadius: 8, padding: "7px 0", color: color.text, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Add to DB
+                Add to DB
               </button>
               <button onClick={() => handleDismiss(item.id)}
                 style={{ flex: 1, background: "none", border: `1px solid ${color.line}`, borderRadius: 8, padding: "7px 0", color: color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -1687,7 +1687,7 @@ function QASection({ currentUserId }) {
     await logAction("approve_cigar", "cigar", item.id, currentUserId, `${item.brand} ${item.line} ${item.vitola}`);
     setItems(prev => prev.filter(i => i.id !== item.id));
     setEditingId(null);
-    showMsg(`${item.brand} ${item.line} approved ✓`);
+    showMsg(`${item.brand} ${item.line} approved`);
   };
 
   const handleReject = async (item) => {
@@ -1718,7 +1718,7 @@ function QASection({ currentUserId }) {
       )}
 
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {[["pending", "Pending"], ["approved", "✓ Approved"], ["rejected", "Rejected"]].map(([val, label]) => (
+        {[["pending", "Pending"], ["approved", "Approved"], ["rejected", "Rejected"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             style={{ background: filter === val ? `${color.goldLegacy}22` : "none", border: `1px solid ${filter === val ? `${color.goldLegacy}55` : color.line}`, borderRadius: 20, padding: "4px 12px", color: filter === val ? color.goldLegacy : color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
             {label}
@@ -1729,7 +1729,7 @@ function QASection({ currentUserId }) {
       {loading && <div style={{ fontSize: 13, color: color.faint, textAlign: "center", padding: "20px 0" }}>Loading...</div>}
       {!loading && items.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>✅</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Check size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>No {filter} submissions.</div>
         </div>
       )}
@@ -1798,7 +1798,7 @@ function QASection({ currentUserId }) {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
                 style={{ flex: 2, background: color.positive, border: "none", borderRadius: 8, padding: "8px 0", color: color.heading, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Approve
+                Approve
               </button>
               <button onClick={() => { setEditingId(item.id); setEditForm({}); }}
                 style={{ flex: 1, background: "none", border: `1px solid ${color.goldLegacy}44`, borderRadius: 8, padding: "8px 0", color: color.goldLegacy, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -1814,7 +1814,7 @@ function QASection({ currentUserId }) {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => handleApprove(item)}
                 style={{ flex: 2, background: color.gold, border: "none", borderRadius: 8, padding: "8px 0", color: color.bg, fontSize: type.xs, fontWeight: 700, cursor: "pointer", fontFamily: SANS }}>
-                ✓ Save & Approve
+                Save & approve
               </button>
               <button onClick={() => setEditingId(null)}
                 style={{ flex: 1, background: "none", border: `1px solid ${color.lineStrong}`, borderRadius: 8, padding: "8px 0", color: color.dim, fontSize: type.xs, cursor: "pointer", fontFamily: SANS }}>
@@ -1885,7 +1885,7 @@ function DedupSection({ currentUserId }) {
     setHasScanned(true);
     setScanning(false);
     setMsg(dupGroups.length === 0
-      ? { text: "No duplicates found — DB is clean! ✅", isError: false }
+      ? { text: "No duplicates found — DB is clean.", isError: false }
       : { text: `Found ${dupGroups.length} duplicate group${dupGroups.length > 1 ? "s" : ""}.`, isError: false }
     );
   };
@@ -1951,7 +1951,7 @@ function DedupSection({ currentUserId }) {
 
       {hasScanned && pending.length === 0 && groups.length === 0 && merged.length === 0 && (
         <div style={{ textAlign: "center", padding: "30px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+          <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><Icon.Check size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>No duplicates found.</div>
         </div>
       )}
@@ -2018,16 +2018,16 @@ function AuditSection() {
   const [filter, setFilter] = useState("all");
 
   const ACTION_LABELS = {
-    approve_cigar: { label: "Cigar Approved", icon: "✅", color: color.green },
-    reject_cigar: { label: "Cigar Rejected", icon: "❌", color: color.danger },
-    approve_missing_cigar: { label: "Missing → Added", icon: "➕", color: color.green },
-    dismiss_missing_cigar: { label: "Missing Dismissed", icon: "🗑", color: color.faint },
-    dedup_merge: { label: "Duplicate Merged", icon: "🔁", color: color.partner },
-    delete_user: { label: "User Deleted", icon: "🗑", color: color.danger },
-    grant_admin: { label: "Admin Granted", icon: "⚙️", color: color.goldLegacy },
-    revoke_admin: { label: "Admin Revoked", icon: "⚙️", color: color.dim },
-    grant_mod: { label: "Mod Granted", icon: "🛡️", color: color.partner },
-    revoke_mod: { label: "Mod Revoked", icon: "🛡️", color: color.faint },
+    approve_cigar: { label: "Cigar Approved", color: color.green },
+    reject_cigar: { label: "Cigar Rejected", color: color.danger },
+    approve_missing_cigar: { label: "Missing → Added", color: color.green },
+    dismiss_missing_cigar: { label: "Missing Dismissed", color: color.faint },
+    dedup_merge: { label: "Duplicate Merged", color: color.partner },
+    delete_user: { label: "User Deleted", color: color.danger },
+    grant_admin: { label: "Admin Granted", color: color.goldLegacy },
+    revoke_admin: { label: "Admin Revoked", color: color.dim },
+    grant_mod: { label: "Mod Granted", color: color.partner },
+    revoke_mod: { label: "Mod Revoked", color: color.faint },
   };
 
   const FILTERS = [
@@ -2073,16 +2073,16 @@ function AuditSection() {
 
       {!loading && logs.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Icon.Feed size={28} color={color.borderStrong} /></div>
           <div style={{ fontSize: 13, color: color.faint }}>No audit entries yet.</div>
         </div>
       )}
 
       {logs.map(log => {
-        const meta = ACTION_LABELS[log.action] || { label: log.action, icon: "•", color: color.dim };
+        const meta = ACTION_LABELS[log.action] || { label: log.action, color: color.dim };
         return (
           <div key={log.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 0", borderBottom: `1px solid ${color.surfaceRaised}` }}>
-            <span style={{ fontSize: 16, flexShrink: 0 }}>{meta.icon}</span>
+            
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: meta.color }}>{meta.label}</span>

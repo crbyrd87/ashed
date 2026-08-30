@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { SANS, color, type } from "./theme";
-import { CloseButton, Screen } from "./ui";
+import { SANS, color, font, type, weight } from "./theme";
+import { CloseButton, Icon, Screen } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { sanitizeShort, sanitizeMedium, sanitizeLong } from "./sanitize";
 
 const SECTIONS = [
-  { id: "analytics", icon: "📊", label: "Analytics" },
-  { id: "listing",   icon: "📋", label: "Listing" },
-  { id: "announce",  icon: "📣", label: "Announce" },
+  { id: "analytics", label: "Analytics" },
+  { id: "listing",   label: "Listing" },
+  { id: "announce",  label: "Announcements" },
 ];
 
 export default function PartnerDashboard({ user, placeId, onClose }) {
@@ -53,13 +53,18 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
   return (
     <Screen zIndex={500} maxWidth={900}>
 
-      {/* Header */}
-      <div style={{ background: color.bg, padding: "16px 20px", borderBottom: `1px solid ${color.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: color.partner, letterSpacing: 2 }}>🏪 PARTNER DASHBOARD</div>
-          <div style={{ fontSize: type.xs, color: color.muted, marginTop: 2, letterSpacing: 1 }}>
-            {venueLabel}
+      {/* The venue is what a partner cares about, not the words "partner
+          dashboard". Slate, not gold: the accent tells you which surface you
+          are on. */}
+      <div style={{ background: color.bg, padding: "0 12px", height: 56, borderBottom: `1px solid ${color.border}`, display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+        <Icon.Venue size={22} color={color.partner} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: font.display, fontSize: type.lg, fontWeight: weight.displayMed, color: color.textPrimary, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {venueState === "loaded" ? venue.name || "Unnamed venue" : venueLabel}
           </div>
+          {venueState === "loaded" && (
+            <div style={{ fontSize: type.sm, color: color.textMuted }}>Partner dashboard · listing live</div>
+          )}
         </div>
         <CloseButton onClose={onClose} />
       </div>
@@ -68,9 +73,8 @@ export default function PartnerDashboard({ user, placeId, onClose }) {
       <div style={{ display: "flex", borderBottom: `1px solid ${color.line}`, background: color.bg, position: "sticky", top: 57, zIndex: 9 }}>
         {SECTIONS.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)}
-            style={{ flex: 1, padding: "12px 0", background: "none", border: "none", borderBottom: `2px solid ${section === s.id ? color.partner : "transparent"}`, color: section === s.id ? color.partner : color.faint, fontSize: type.xs, cursor: "pointer", fontFamily: SANS, letterSpacing: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <span style={{ fontSize: 16 }}>{s.icon}</span>
-            <span>{s.label.toUpperCase()}</span>
+            style={{ flex: 1, height: 44, background: "none", border: "none", boxShadow: section === s.id ? `inset 0 -2px 0 ${color.partner}` : "none", color: section === s.id ? color.textPrimary : color.textFaint, fontSize: type.md, cursor: "pointer", fontFamily: font.sans }}>
+            <span>{s.label}</span>
           </button>
         ))}
       </div>
@@ -150,7 +154,7 @@ function AnalyticsSection({ placeId, venue }) {
 
   if (!stats || stats.total === 0) return (
     <div style={{ textAlign: "center", padding: "60px 20px" }}>
-      <div style={{ fontSize: 36, marginBottom: 16 }}>📊</div>
+      <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Icon.Feed size={36} color={color.borderStrong} /></div>
       <div style={{ fontSize: 15, fontWeight: 700, color: color.text, marginBottom: 8 }}>No check-ins yet</div>
       <div style={{ fontSize: 13, color: color.faint, lineHeight: 1.6 }}>When Ashed users check in at your venue, their activity will appear here.</div>
     </div>
@@ -386,7 +390,7 @@ function AnnounceSection({ placeId, user }) {
       />
       <button onClick={handlePost} disabled={posting || !text.trim()}
         style={{ width: "100%", background: text.trim() ? color.partner : color.surfaceRaised, border: "none", borderRadius: 10, padding: 12, color: text.trim() ? color.text : color.faint, fontSize: 13, fontWeight: 700, cursor: text.trim() ? "pointer" : "default", fontFamily: SANS, marginBottom: 24 }}>
-        {posting ? "Posting..." : "📣 Post Announcement"}
+        {posting ? "Posting..." : "Post announcement"}
       </button>
 
       <div style={{ fontSize: type.xs, color: color.muted, letterSpacing: 1, marginBottom: 12 }}>POSTED ANNOUNCEMENTS</div>
