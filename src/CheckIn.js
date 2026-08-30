@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { SANS, color, font, type } from "./theme";
-import { CloseButton, Icon, Pressable, Screen, Toggle } from "./ui";
+import { SANS, color, font, radius, type, weight } from "./theme";
+import { Button, CloseButton, Icon, Notice, Pill, Pressable, Screen, SectionLabel, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -130,6 +130,38 @@ function FlameRating({ value, onChange }) {
   );
 }
 
+// Three-up choice: outline only. A filled swatch behind a label was the most
+// game-like treatment left in the app, and with the glyphs gone the border and
+// label colour carry the state without shouting. Tapping the selected option
+// clears it.
+function ChoiceRow({ options, value, onChange }) {
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      {options.map(({ label, display, tone }) => {
+        const active = value === label;
+        return (
+          <button
+            key={label}
+            type="button"
+            onClick={() => onChange(active ? null : label)}
+            style={{
+              flex: 1, height: 48, borderRadius: radius.md,
+              border: `1px solid ${active ? tone : color.borderStrong}`,
+              background: "none",
+              color: active ? tone : color.textMuted,
+              fontSize: type.md, fontWeight: active ? weight.bodyMed : weight.body,
+              fontFamily: font.sans, cursor: "pointer",
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            {display || label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function CheckIn({ cigar, user, onClose, onSaved }) {
   // Core quick check-in state
   const [flames, setFlames] = useState(null);
@@ -158,6 +190,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [aiDescription, setAiDescription] = useState("");
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionsUsed, setSuggestionsUsed] = useState(false);
+  const [suggestError, setSuggestError] = useState(null);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   // Save state
   const [saving, setSaving] = useState(false);
@@ -255,11 +289,16 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
     try {
       const result = await fetchAISuggestions(cigar, user?.id);
       setAiDescription(result.description || "");
+      setSuggestionsUsed(true);
+      setShowAllTags(true);
+      setSuggestError(null);
     } catch (e) {
       console.error("AI suggestions error:", e);
+      // Deliberately NOT marking it used: this flag hides the button, and
+      // setting it here left a failed call with no way to try again.
+      setSuggestError("Couldn't reach the suggester.");
     }
     setLoadingSuggestions(false);
-    setSuggestionsUsed(true);
   };
 
   const handleSave = async () => {
@@ -412,33 +451,15 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* Would Smoke Again */}
       <div style={s.section}>
         <div style={s.label}>Would you smoke this again?</div>
-        <div style={{ display: "flex", gap: 10 }}>
-          {[
-            { label: "Yes", activeColor: color.greenDeep, activeBg: color.positive },
-            { label: "Maybe", activeColor: color.goldMuted, activeBg: color.goldDim },
-            { label: "No", activeColor: "#7a3a2a", activeBg: color.danger },
-          ].map(({ label, activeColor, activeBg }) => {
-            const isActive = wouldSmokeAgain === label;
-            return (
-              <button
-                key={label}
-                onClick={() => setWouldSmokeAgain(wouldSmokeAgain === label ? null : label)}
-                style={{
-                  flex: 1, padding: "14px 0", borderRadius: 10,
-                  border: `1px solid ${isActive ? activeColor : color.line}`,
-                  background: isActive ? activeBg : color.surface,
-                  color: isActive ? color.heading : color.faint,
-                  fontSize: 13, fontWeight: isActive ? 700 : 400,
-                  cursor: "pointer", fontFamily: SANS,
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                }}
-              >
-                
-                <span>{label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <ChoiceRow
+          value={wouldSmokeAgain}
+          onChange={setWouldSmokeAgain}
+          options={[
+            { label: "Yes", tone: color.positive },
+            { label: "Maybe", tone: color.gold },
+            { label: "No", tone: color.danger },
+          ]}
+        />
       </div>
 
       {/* ── ADD DETAILS TOGGLE ── */}
@@ -452,77 +473,78 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       {/* ── DETAILS SECTION ── */}
       {showDetails && (
         <>
-          {/* Tasting Notes */}
+          {/* Tasting notes. Suggest is a gold text action in the section
+              label, not a green pill beside it — green is status only now. */}
           <div style={s.section}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div style={s.label}>Tasting Notes</div>
-              {!suggestionsUsed && (
-                <button
-                  onClick={handleGetSuggestions}
-                  disabled={loadingSuggestions}
-                  style={{ background: loadingSuggestions ? color.surfaceRaised : `${color.green}22`, border: `1px solid ${color.green}55`, borderRadius: 20, padding: "6px 14px", color: loadingSuggestions ? color.faint : color.green, fontSize: type.xs, fontWeight: 600, cursor: loadingSuggestions ? "default" : "pointer", fontFamily: SANS, whiteSpace: "nowrap" }}
-                >
-                  {loadingSuggestions ? "Thinking..." : "Suggest"}
-                </button>
+            <SectionLabel
+              style={{ marginBottom: 12 }}
+              action={!suggestionsUsed && (
+                <Pressable onClick={handleGetSuggestions} disabled={loadingSuggestions} minHeight={0}
+                  style={{ display: "flex", alignItems: "center", gap: 5, color: color.gold, fontSize: type.xs, whiteSpace: "nowrap" }}>
+                  <Icon.Recommend size={15} color={color.gold} />
+                  {loadingSuggestions ? "Thinking…" : "Suggest"}
+                </Pressable>
               )}
-            </div>
+            >
+              Tasting notes
+            </SectionLabel>
 
-            {/* AI description */}
+            {suggestError && (
+              <Notice isError text={suggestError} style={{ marginBottom: 12 }}>
+                <div style={{ marginTop: 8 }}>
+                  <Button variant="secondary" full={false} style={{ height: 40 }} onClick={handleGetSuggestions}>
+                    Try again
+                  </Button>
+                </div>
+              </Notice>
+            )}
+
+            {/* The AI speaks as the app, not from inside a tinted card —
+                matching the assistant turn in DRINK-PAIRING.md. */}
             {aiDescription ? (
-              <div style={{ background: color.surfaceRaised, border: `1px solid ${color.green}33`, borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
-                <div style={{ fontSize: type.xs, color: color.green, fontStyle: "italic", lineHeight: 1.6, marginBottom: 6 }}>{aiDescription}</div>
-                <div style={{ fontSize: type.xs, color: color.tan }}>If you tasted any of these — or more — select them below.</div>
+              <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                <span style={{ flexShrink: 0, display: "flex", paddingTop: 2 }}><Icon.Flame size={19} /></span>
+                <span style={{ fontSize: type.sm, color: color.textMuted, lineHeight: 1.55 }}>{aiDescription}</span>
               </div>
             ) : (
-              <div style={{ fontSize: type.xs, color: color.faint, marginBottom: 12, fontStyle: "italic" }}>
-                Tap Suggest for AI-powered tasting note ideas, then select the ones that match your experience.
+              <div style={{ fontSize: type.sm, color: color.textFaint, marginBottom: 16, lineHeight: 1.5 }}>
+                Pick what you tasted, or tap Suggest for ideas.
               </div>
             )}
 
-            {/* Flavor Tags */}
+            {/* Eight, not eighteen: eighteen chips is four wrapping rows
+                before the date row comes into view. The full vocabulary is
+                unchanged — More expands the rest in place. */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {FLAVOR_TAG_NAMES.map(tagName => (
-                <button
-                  key={tagName}
-                  style={s.tag(selectedTags.includes(tagName))}
-                  onClick={() => toggleTag(tagName)}
-                >
+              {(showAllTags ? FLAVOR_TAG_NAMES : FLAVOR_TAG_NAMES.slice(0, 8)).map(tagName => (
+                <Pill key={tagName} selected={selectedTags.includes(tagName)} onClick={() => toggleTag(tagName)}>
                   {tagName}
-                </button>
+                </Pill>
               ))}
+              {!showAllTags && (
+                <Pill onClick={() => setShowAllTags(true)}>
+                  More
+                </Pill>
+              )}
             </div>
           </div>
 
           {/* Value for Price */}
           <div style={s.section}>
             <div style={s.label}>Value for Price</div>
-            <div style={{ display: "flex", gap: 10 }}>
-              {[
-                { label: "Good value", activeColor: color.greenDeep, activeBg: color.positive },
-                { label: "OK value", activeColor: color.goldMuted, activeBg: color.goldDim },
-                { label: "Poor value", activeColor: "#7a3a2a", activeBg: color.danger },
-              ].map(({ label, activeColor, activeBg }) => {
-                const isActive = valueForPrice === label;
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setValueForPrice(valueForPrice === label ? null : label)}
-                    style={{
-                      flex: 1, padding: "12px 4px", borderRadius: 10,
-                      border: `1px solid ${isActive ? activeColor : color.line}`,
-                      background: isActive ? activeBg : color.surface,
-                      color: isActive ? color.heading : color.faint,
-                      fontSize: type.xs, fontWeight: isActive ? 700 : 400,
-                      cursor: "pointer", fontFamily: SANS,
-                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                    }}
-                  >
-                    
-                    <span>{label}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {/* Displayed as Good / OK / Poor: "Good value" three-up wraps on a
+                narrow phone and the section label already says value. The STORED
+                strings are unchanged — changing them would need a column
+                migration. */}
+            <ChoiceRow
+              value={valueForPrice}
+              onChange={setValueForPrice}
+              options={[
+                { label: "Good value", display: "Good", tone: color.positive },
+                { label: "OK value", display: "OK", tone: color.gold },
+                { label: "Poor value", display: "Poor", tone: color.danger },
+              ]}
+            />
           </div>
 
           {/* Date & Location */}
