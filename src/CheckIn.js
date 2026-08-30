@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SANS, color, font, radius, type, weight } from "./theme";
-import { Button, CloseButton, Icon, Notice, Pill, Pressable, Screen, SectionLabel, Toggle } from "./ui";
+import { Button, ClickableRow, CloseButton, Icon, Notice, Pill, Pressable, Screen, SectionLabel, Sheet, Toggle } from "./ui";
 import { authedFetch } from "./apiClient";
 import { supabase } from "./supabase";
 import { checkAndAwardBadges } from "./badgeEngine";
@@ -181,6 +181,8 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
   const [venueResults, setVenueResults] = useState([]);
   const [venueSearching, setVenueSearching] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [showNotes, setShowNotes] = useState(false);
   // The default below is loaded from the user's settings. This ref records
   // whether they have since touched the toggle, so a slow fetch can never
   // overwrite a deliberate per-check-in choice.
@@ -349,7 +351,7 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
       construction: null,
       flavor: null,
       finish: null,
-      overall_notes: null,
+      overall_notes: notes.trim() || null,
       flavor_tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
       would_smoke_again: wouldSmokeAgain || null,
       value_for_price: valueForPrice || null,
@@ -611,6 +613,44 @@ export default function CheckIn({ cigar, user, onClose, onSaved }) {
               </div>
             )}
           </div>
+
+          {/* Notes. A row and a sheet rather than an inline textarea, which
+              would push Save further down a screen that is already long.
+              ratings.overall_notes existed and was always written as null —
+              a textarea style was defined in this file and never rendered. */}
+          <div style={s.section}>
+            <ClickableRow
+              label="Notes"
+              sublabel={notes ? undefined : "Anything worth remembering"}
+              trailing={notes
+                ? <span style={{ maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: type.sm, color: color.textPrimary }}>{notes}</span>
+                : <Icon.Chevron size={15} color={color.textFaint} />}
+              onClick={() => setShowNotes(true)}
+            />
+          </div>
+
+          {showNotes && (
+            <Sheet onClose={() => setShowNotes(false)} handle panelStyle={{ minHeight: "60vh" }}>
+              <SectionLabel style={{ marginBottom: 12 }}>Notes</SectionLabel>
+              <textarea
+                autoFocus
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="How did it draw? What did it taste of? Where were you?"
+                rows={8}
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  background: color.surfaceRaised,
+                  border: `1px solid ${color.borderStrong}`,
+                  borderRadius: radius.md, padding: 14,
+                  color: color.textPrimary, fontSize: type.md,
+                  fontFamily: font.sans, lineHeight: 1.55,
+                  outline: "none", resize: "vertical",
+                }}
+              />
+              <Button style={{ marginTop: 16 }} onClick={() => setShowNotes(false)}>Done</Button>
+            </Sheet>
+          )}
 
           {/* Private Toggle */}
           <div style={s.section}>
